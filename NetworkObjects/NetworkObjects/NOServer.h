@@ -23,4 +23,6 @@
 
 @property (readonly) NSDictionary *resourceUrls;
 
+-(NSString *)pathForEntityDescription:(NSEntityDescription *)entityDescription;
+
 @end

@@ -19,7 +19,7 @@
 		6E558A8F17F8C9B500F9F729 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6E558A8D17F8C9B500F9F729 /* InfoPlist.strings */; };
 		6E558A9117F8C9B500F9F729 /* NetworkObjectsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E558A9017F8C9B500F9F729 /* NetworkObjectsTests.m */; };
 		6E558AA417F8F75400F9F729 /* NOServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E558AA317F8F75400F9F729 /* NOServer.m */; };
-		6E8DC41817FA6DEE009CDF41 /* NetworkObjectsModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 6E8DC41617FA6DEE009CDF41 /* NetworkObjectsModel.xcdatamodeld */; };
+		6E8DC41B17FA860B009CDF41 /* NOResource.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E8DC41A17FA860B009CDF41 /* NOResource.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -55,8 +55,8 @@
 		6E558A9C17F8CB6000F9F729 /* NetworkObjects.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NetworkObjects.h; sourceTree = "<group>"; };
 		6E558AA217F8F75300F9F729 /* NOServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NOServer.h; sourceTree = "<group>"; };
 		6E558AA317F8F75400F9F729 /* NOServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NOServer.m; sourceTree = "<group>"; };
-		6E558AAB17F919BA00F9F729 /* NOResourceProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NOResourceProtocol.h; sourceTree = "<group>"; };
-		6E8DC41717FA6DEE009CDF41 /* NetworkObjectsModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = NetworkObjectsModel.xcdatamodel; sourceTree = "<group>"; };
+		6E8DC41917FA860B009CDF41 /* NOResource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NOResource.h; sourceTree = "<group>"; };
+		6E8DC41A17FA860B009CDF41 /* NOResource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NOResource.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -165,11 +165,11 @@
 		6E558AA117F8F60800F9F729 /* NetworkObjects */ = {
 			isa = PBXGroup;
 			children = (
-				6E8DC41617FA6DEE009CDF41 /* NetworkObjectsModel.xcdatamodeld */,
 				6E558A9C17F8CB6000F9F729 /* NetworkObjects.h */,
 				6E558AA217F8F75300F9F729 /* NOServer.h */,
 				6E558AA317F8F75400F9F729 /* NOServer.m */,
-				6E558AAB17F919BA00F9F729 /* NOResourceProtocol.h */,
+				6E8DC41917FA860B009CDF41 /* NOResource.h */,
+				6E8DC41A17FA860B009CDF41 /* NOResource.m */,
 			);
 			name = NetworkObjects;
 			sourceTree = "<group>";
@@ -275,8 +275,8 @@
 			files = (
 				6E558AA417F8F75400F9F729 /* NOServer.m in Sources */,
 				6E558A7017F8C9B400F9F729 /* main.m in Sources */,
-				6E8DC41817FA6DEE009CDF41 /* NetworkObjectsModel.xcdatamodeld in Sources */,
 				6E558A7717F8C9B400F9F729 /* NOAppDelegate.m in Sources */,
+				6E8DC41B17FA860B009CDF41 /* NOResource.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -503,19 +503,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCVersionGroup section */
-		6E8DC41617FA6DEE009CDF41 /* NetworkObjectsModel.xcdatamodeld */ = {
-			isa = XCVersionGroup;
-			children = (
-				6E8DC41717FA6DEE009CDF41 /* NetworkObjectsModel.xcdatamodel */,
-			);
-			currentVersion = 6E8DC41717FA6DEE009CDF41 /* NetworkObjectsModel.xcdatamodel */;
-			path = NetworkObjectsModel.xcdatamodeld;
-			sourceTree = "<group>";
-			versionGroupType = wrapper.xcdatamodel;
-		};
-/* End XCVersionGroup section */
 	};
 	rootObject = 6E558A5817F8C9B400F9F729 /* Project object */;
 }

@@ -10,5 +10,6 @@
 #define NetworkObjects_NetworkObjects_h
 
 #import "NOServer.h"
+#import "NOResource.h"
 
 #endif

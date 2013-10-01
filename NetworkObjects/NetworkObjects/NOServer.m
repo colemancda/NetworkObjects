@@ -23,42 +23,61 @@
     return self;
 }
 
--(id)init
+- (id)init
 {
-    self = [super init];
-    if (self) {
-        
-        // created defualt context
-        
-        NSManagedObjectModel *model = [NSManagedObjectModel modelByMergingModels:nil];
-        
-        
-        
-    }
-    return self;
+    [NSException raise:@"Wrong initialization method"
+                format:@"You cannot use %@ with '-%@', you have to use '-%@'",
+     self,
+     NSStringFromSelector(_cmd),
+     NSStringFromSelector(@selector(initWithContext:))];
+    return nil;
 }
 
-#pragma mark 
+#pragma mark - Mapping URLs to Entities
 
 -(NSDictionary *)resourceUrls
 {
     // build a cache of NOResources and URLs
     if (!_resourceUrls) {
         
-        // scan through entity descriptions
+        // scan through entity descriptions and get urls of NOResources
         NSManagedObjectModel *model = _context.persistentStoreCoordinator.managedObjectModel;
+        
+        NSMutableDictionary *urlsDict = [[NSMutableDictionary alloc] init];
         
         for (NSEntityDescription *entityDescription in model.entities) {
             
-            // check if entity class 
+            // check if entity class is subclass of NOResource
             
-            entityDescription.name
+            BOOL isNOResourceSubclass = [NSClassFromString(entityDescription.managedObjectClassName) isSubclassOfClass:[NOResource class]];
             
+            if (isNOResourceSubclass) {
+                
+                // map enitity to url path
+                NSString *path = [self pathForEntityDescription:entityDescription];
+                
+                // add to dictionary
+                [urlsDict setValue:entityDescription
+                            forKey:path];
+            }
         }
         
+        
+        _resourceUrls = [NSDictionary dictionaryWithDictionary:urlsDict];
     }
     
     return _resourceUrls;
 }
+
+-(NSString *)pathForEntityDescription:(NSEntityDescription *)entityDescription
+{
+    // by defualt the url path is the entity's name, subclasses can override this to give have custom paths
+    
+    return entityDescription.name;
+}
+
+#pragma mark 
+
+
 
 @end
