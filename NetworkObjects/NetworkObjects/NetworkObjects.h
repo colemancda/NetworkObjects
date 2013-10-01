@@ -9,6 +9,6 @@
 #ifndef NetworkObjects_NetworkObjects_h
 #define NetworkObjects_NetworkObjects_h
 
-
+#import "NOServer.h"
 
 #endif

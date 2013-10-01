@@ -13,13 +13,13 @@
 		6E558A7417F8C9B400F9F729 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 6E558A7217F8C9B400F9F729 /* Credits.rtf */; };
 		6E558A7717F8C9B400F9F729 /* NOAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E558A7617F8C9B400F9F729 /* NOAppDelegate.m */; };
 		6E558A7A17F8C9B500F9F729 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6E558A7817F8C9B500F9F729 /* MainMenu.xib */; };
-		6E558A7D17F8C9B500F9F729 /* NetworkObjects.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 6E558A7B17F8C9B500F9F729 /* NetworkObjects.xcdatamodeld */; };
 		6E558A7F17F8C9B500F9F729 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6E558A7E17F8C9B500F9F729 /* Images.xcassets */; };
 		6E558A8617F8C9B500F9F729 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E558A8517F8C9B500F9F729 /* XCTest.framework */; };
 		6E558A8717F8C9B500F9F729 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E558A6317F8C9B400F9F729 /* Cocoa.framework */; };
 		6E558A8F17F8C9B500F9F729 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6E558A8D17F8C9B500F9F729 /* InfoPlist.strings */; };
 		6E558A9117F8C9B500F9F729 /* NetworkObjectsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E558A9017F8C9B500F9F729 /* NetworkObjectsTests.m */; };
-		6E558AA017F8CCDB00F9F729 /* NOResource.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E558A9F17F8CCDB00F9F729 /* NOResource.m */; };
+		6E558AA417F8F75400F9F729 /* NOServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E558AA317F8F75400F9F729 /* NOServer.m */; };
+		6E8DC41817FA6DEE009CDF41 /* NetworkObjectsModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 6E8DC41617FA6DEE009CDF41 /* NetworkObjectsModel.xcdatamodeld */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -46,7 +46,6 @@
 		6E558A7517F8C9B400F9F729 /* NOAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NOAppDelegate.h; sourceTree = "<group>"; };
 		6E558A7617F8C9B400F9F729 /* NOAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NOAppDelegate.m; sourceTree = "<group>"; };
 		6E558A7917F8C9B500F9F729 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
-		6E558A7C17F8C9B500F9F729 /* NetworkObjects.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = NetworkObjects.xcdatamodel; sourceTree = "<group>"; };
 		6E558A7E17F8C9B500F9F729 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		6E558A8417F8C9B500F9F729 /* NetworkObjectsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NetworkObjectsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		6E558A8517F8C9B500F9F729 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
@@ -54,8 +53,10 @@
 		6E558A8E17F8C9B500F9F729 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		6E558A9017F8C9B500F9F729 /* NetworkObjectsTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NetworkObjectsTests.m; sourceTree = "<group>"; };
 		6E558A9C17F8CB6000F9F729 /* NetworkObjects.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NetworkObjects.h; sourceTree = "<group>"; };
-		6E558A9E17F8CCDB00F9F729 /* NOResource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NOResource.h; sourceTree = "<group>"; };
-		6E558A9F17F8CCDB00F9F729 /* NOResource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NOResource.m; sourceTree = "<group>"; };
+		6E558AA217F8F75300F9F729 /* NOServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NOServer.h; sourceTree = "<group>"; };
+		6E558AA317F8F75400F9F729 /* NOServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NOServer.m; sourceTree = "<group>"; };
+		6E558AAB17F919BA00F9F729 /* NOResourceProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NOResourceProtocol.h; sourceTree = "<group>"; };
+		6E8DC41717FA6DEE009CDF41 /* NetworkObjectsModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = NetworkObjectsModel.xcdatamodel; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -125,10 +126,7 @@
 				6E558A7617F8C9B400F9F729 /* NOAppDelegate.m */,
 				6E558A7817F8C9B500F9F729 /* MainMenu.xib */,
 				6E558A7E17F8C9B500F9F729 /* Images.xcassets */,
-				6E558A7B17F8C9B500F9F729 /* NetworkObjects.xcdatamodeld */,
-				6E558A9C17F8CB6000F9F729 /* NetworkObjects.h */,
-				6E558A9E17F8CCDB00F9F729 /* NOResource.h */,
-				6E558A9F17F8CCDB00F9F729 /* NOResource.m */,
+				6E558AA117F8F60800F9F729 /* NetworkObjects */,
 				6E558A6A17F8C9B400F9F729 /* Supporting Files */,
 			);
 			path = NetworkObjects;
@@ -162,6 +160,18 @@
 				6E558A8D17F8C9B500F9F729 /* InfoPlist.strings */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		6E558AA117F8F60800F9F729 /* NetworkObjects */ = {
+			isa = PBXGroup;
+			children = (
+				6E8DC41617FA6DEE009CDF41 /* NetworkObjectsModel.xcdatamodeld */,
+				6E558A9C17F8CB6000F9F729 /* NetworkObjects.h */,
+				6E558AA217F8F75300F9F729 /* NOServer.h */,
+				6E558AA317F8F75400F9F729 /* NOServer.m */,
+				6E558AAB17F919BA00F9F729 /* NOResourceProtocol.h */,
+			);
+			name = NetworkObjects;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -263,9 +273,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6E558AA017F8CCDB00F9F729 /* NOResource.m in Sources */,
+				6E558AA417F8F75400F9F729 /* NOServer.m in Sources */,
 				6E558A7017F8C9B400F9F729 /* main.m in Sources */,
-				6E558A7D17F8C9B500F9F729 /* NetworkObjects.xcdatamodeld in Sources */,
+				6E8DC41817FA6DEE009CDF41 /* NetworkObjectsModel.xcdatamodeld in Sources */,
 				6E558A7717F8C9B400F9F729 /* NOAppDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -400,6 +410,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "NetworkObjects/NetworkObjects-Prefix.pch";
 				INFOPLIST_FILE = "NetworkObjects/NetworkObjects-Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -413,6 +424,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "NetworkObjects/NetworkObjects-Prefix.pch";
 				INFOPLIST_FILE = "NetworkObjects/NetworkObjects-Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -434,6 +446,7 @@
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = "NetworkObjectsTests/NetworkObjectsTests-Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUNDLE_LOADER)";
 				WRAPPER_EXTENSION = xctest;
@@ -452,6 +465,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "NetworkObjects/NetworkObjects-Prefix.pch";
 				INFOPLIST_FILE = "NetworkObjectsTests/NetworkObjectsTests-Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUNDLE_LOADER)";
 				WRAPPER_EXTENSION = xctest;
@@ -477,6 +491,7 @@
 				6E558A9617F8C9B500F9F729 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		6E558A9717F8C9B500F9F729 /* Build configuration list for PBXNativeTarget "NetworkObjectsTests" */ = {
 			isa = XCConfigurationList;
@@ -485,17 +500,18 @@
 				6E558A9917F8C9B500F9F729 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 
 /* Begin XCVersionGroup section */
-		6E558A7B17F8C9B500F9F729 /* NetworkObjects.xcdatamodeld */ = {
+		6E8DC41617FA6DEE009CDF41 /* NetworkObjectsModel.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
-				6E558A7C17F8C9B500F9F729 /* NetworkObjects.xcdatamodel */,
+				6E8DC41717FA6DEE009CDF41 /* NetworkObjectsModel.xcdatamodel */,
 			);
-			currentVersion = 6E558A7C17F8C9B500F9F729 /* NetworkObjects.xcdatamodel */;
-			path = NetworkObjects.xcdatamodeld;
+			currentVersion = 6E8DC41717FA6DEE009CDF41 /* NetworkObjectsModel.xcdatamodel */;
+			path = NetworkObjectsModel.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
 		};
