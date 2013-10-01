@@ -71,12 +71,13 @@
 
 -(NSString *)pathForEntityDescription:(NSEntityDescription *)entityDescription
 {
-    // by defualt the url path is the entity's name, subclasses can override this to give have custom paths
+    // by defualt the url path is the entity's name, subclasses can override this to give them custom paths
     
     return entityDescription.name;
 }
 
 #pragma mark 
+
 
 
 

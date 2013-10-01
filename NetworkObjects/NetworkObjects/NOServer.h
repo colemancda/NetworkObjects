@@ -25,4 +25,6 @@
 
 -(NSString *)pathForEntityDescription:(NSEntityDescription *)entityDescription;
 
+
+
 @end
