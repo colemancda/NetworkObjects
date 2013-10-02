@@ -8,11 +8,33 @@
 
 #import "NOServer.h"
 #import "RoutingHTTPServer.h"
-#import "NOResourceProtocol.h"
 
 @implementation NOServer
 
 @synthesize resourceUrls = _resourceUrls;
+
+- (id)initWithStore:(NOStore *)store
+{
+    self = [super init];
+    if (self) {
+        
+        _store = store;
+        
+    }
+    return self;
+}
+
+- (id)init
+{
+    [NSException raise:@"Wrong initialization method"
+                format:@"You cannot use %@ with '-%@', you have to use '-%@'",
+     self,
+     NSStringFromSelector(_cmd),
+     NSStringFromSelector(@selector(initWithStore:))];
+    return nil;
+}
+
+#pragma mark
 
 -(void)startOnPort:(NSUInteger)port
 {
@@ -33,7 +55,7 @@
     if (!_resourceUrls) {
         
         // scan through entity descriptions and get urls of NOResources
-        NSManagedObjectModel *model = _context.persistentStoreCoordinator.managedObjectModel;
+        NSManagedObjectModel *model = self.store.context.persistentStoreCoordinator.managedObjectModel;
         
         NSMutableDictionary *urlsDict = [[NSMutableDictionary alloc] init];
         
@@ -63,13 +85,6 @@
     return _resourceUrls;
 }
 
--(NSString *)pathForEntityDescription:(NSEntityDescription *)entityDescription
-{
-    // by defualt the url path is the entity's name, subclasses can override this to give them custom paths
-    
-    return entityDescription.name;
-}
-
 #pragma mark 
 
 -(void)setupServerRoutes
@@ -77,8 +92,8 @@
     // make server handle
     for (NSString *path in _resourceUrls) {
         
-        NSString *pathExpression = [NSString stringWithFormat:@"/%@/(\\d+)", path];
-        NSString *postPathExpression = [NSString stringWithFormat:@"/%@", path];
+        NSString *instancePathExpression = [NSString stringWithFormat:@"/%@/(\\d+)", path];
+        NSString *allInstancesPathExpression = [NSString stringWithFormat:@"/%@", path];
         
         void (^requestHandler) (RouteRequest *, RouteResponse *) = ^(RouteRequest *request, RouteResponse *response) {
             
@@ -87,18 +102,36 @@
             
         };
         
+        
         // GET (read resource)
-        [_httpServer get:pathExpression withBlock:requestHandler];
+        [_httpServer get:instancePathExpression
+               withBlock:requestHandler];
         
         // PUT (edit resource)
-        [_httpServer put:pathExpression withBlock:requestHandler];
+        [_httpServer put:instancePathExpression
+               withBlock:requestHandler];
         
         // DELETE (delete resource)
-        [_httpServer delete:pathExpression withBlock:requestHandler];
+        [_httpServer delete:instancePathExpression
+                  withBlock:requestHandler];
+        
         
         // POST (create new resource)
-        [_httpServer post:postPathExpression withBlock:requestHandler];
+        [_httpServer post:allInstancesPathExpression
+                withBlock:requestHandler];
+        
+        // GET (get number of instances)
+        [_httpServer get:allInstancesPathExpression
+               withBlock:requestHandler];
+        
     }
+}
+
+-(void)handleRequest:(RouteRequest *)request
+            response:(RouteResponse *)response
+{
+    
+    
 }
 
 

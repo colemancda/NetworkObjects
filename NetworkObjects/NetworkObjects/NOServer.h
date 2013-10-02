@@ -8,26 +8,22 @@
 
 #import <Foundation/Foundation.h>
 #import "RoutingHTTPServer.h"
-#import "NOServerDatasource.h"
+#import "NetworkObjects.h"
 
 @interface NOServer : NSObject
 {
     RoutingHTTPServer *_httpServer;
 }
 
-// create a nsmanagedobject context and give it to us
+-(id)initWithStore:(NOStore *)store;
+
+@property (readonly) NOStore *store;
 
 -(void)startOnPort:(NSUInteger)port;
 
 -(void)stop;
 
-@property (readonly) NSManagedObjectContext *context;
-
 @property (readonly) NSDictionary *resourceUrls;
-
-@property id<NOServerDatasource> datasource;
-
--(NSString *)pathForEntityDescription:(NSEntityDescription *)entityDescription;
 
 -(void)setupServerRoutes;
 
