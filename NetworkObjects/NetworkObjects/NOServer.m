@@ -123,13 +123,23 @@
         // GET (get number of instances)
         [_httpServer get:allInstancesPathExpression
                withBlock:requestHandler];
-        
     }
 }
 
 -(void)handleRequest:(RouteRequest *)request
             response:(RouteResponse *)response
 {
+    // determine what client and what user is making the request
+    
+    
+    
+    
+    // determine what resource is being requested and whether it is requesting a specific instance...
+    
+    NSString *instancePathExpression = [NSString stringWithFormat:@"/:resource/(\\d+)", path];
+    NSString *allInstancesPathExpression = [NSString stringWithFormat:@"/:resource", path];
+    
+    NSRegularExpression *instanceurlExpresson = [NSRegularExpression regularExpressionWithPattern:<#(NSString *)#> options:<#(NSRegularExpressionOptions)#> error:nil]
     
     
 }

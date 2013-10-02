@@ -27,9 +27,13 @@
 
 -(void)setupServerRoutes;
 
+#pragma mark - Responding to requests
+
 // code for handling incoming REST requests (authentication, returning JSON data)
 -(void)handleRequest:(RouteRequest *)request
             response:(RouteResponse *)response;
+
+-(void)getResourceWithEntityDescription:(nsmanagedObjectentitydesp *)
 
 
 @end
