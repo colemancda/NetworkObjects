@@ -12,5 +12,8 @@
 #import "NOServer.h"
 #import "NOServerDatasource.h"
 
+#import "NOResourceProtocol.h"
+#import "NOUserProtocol.h"
+#import "NOClientProtocol.h"
 
 #endif

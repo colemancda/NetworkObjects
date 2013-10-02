@@ -19,9 +19,7 @@
 		6E558A8F17F8C9B500F9F729 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6E558A8D17F8C9B500F9F729 /* InfoPlist.strings */; };
 		6E558A9117F8C9B500F9F729 /* NetworkObjectsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E558A9017F8C9B500F9F729 /* NetworkObjectsTests.m */; };
 		6E558AA417F8F75400F9F729 /* NOServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E558AA317F8F75400F9F729 /* NOServer.m */; };
-		6E8DC41B17FA860B009CDF41 /* NOResource.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E8DC41A17FA860B009CDF41 /* NOResource.m */; };
 		6E8DC41E17FA8F47009CDF41 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 6E8DC41C17FA8F47009CDF41 /* Model.xcdatamodeld */; };
-		6E8DC42117FA8FE0009CDF41 /* NOUser.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E8DC42017FA8FE0009CDF41 /* NOUser.m */; };
 		6E8DC42F17FB9B12009CDF41 /* HTTPResponseProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E8DC42417FB9B12009CDF41 /* HTTPResponseProxy.m */; };
 		6E8DC43017FB9B12009CDF41 /* Route.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E8DC42617FB9B12009CDF41 /* Route.m */; };
 		6E8DC43117FB9B12009CDF41 /* RouteRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E8DC42817FB9B12009CDF41 /* RouteRequest.m */; };
@@ -88,11 +86,7 @@
 		6E558A9C17F8CB6000F9F729 /* NetworkObjects.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NetworkObjects.h; sourceTree = "<group>"; };
 		6E558AA217F8F75300F9F729 /* NOServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NOServer.h; sourceTree = "<group>"; };
 		6E558AA317F8F75400F9F729 /* NOServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NOServer.m; sourceTree = "<group>"; };
-		6E8DC41917FA860B009CDF41 /* NOResource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NOResource.h; sourceTree = "<group>"; };
-		6E8DC41A17FA860B009CDF41 /* NOResource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NOResource.m; sourceTree = "<group>"; };
 		6E8DC41D17FA8F47009CDF41 /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
-		6E8DC41F17FA8FE0009CDF41 /* NOUser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NOUser.h; sourceTree = "<group>"; };
-		6E8DC42017FA8FE0009CDF41 /* NOUser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NOUser.m; sourceTree = "<group>"; };
 		6E8DC42317FB9B12009CDF41 /* HTTPResponseProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTTPResponseProxy.h; sourceTree = "<group>"; };
 		6E8DC42417FB9B12009CDF41 /* HTTPResponseProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HTTPResponseProxy.m; sourceTree = "<group>"; };
 		6E8DC42517FB9B12009CDF41 /* Route.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Route.h; sourceTree = "<group>"; };
@@ -158,6 +152,8 @@
 		6E8DC47F17FB9BE4009CDF41 /* README.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README.txt; sourceTree = "<group>"; };
 		6E8DC48817FBAB7B009CDF41 /* NOResourceProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NOResourceProtocol.h; sourceTree = "<group>"; };
 		6E8DC48917FBAC8E009CDF41 /* NOServerDatasource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NOServerDatasource.h; sourceTree = "<group>"; };
+		6E8DC48A17FBB570009CDF41 /* NOUserProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NOUserProtocol.h; sourceTree = "<group>"; };
+		6E8DC48B17FBB64A009CDF41 /* NOClientProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NOClientProtocol.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -272,10 +268,8 @@
 				6E558AA317F8F75400F9F729 /* NOServer.m */,
 				6E8DC48917FBAC8E009CDF41 /* NOServerDatasource.h */,
 				6E8DC48817FBAB7B009CDF41 /* NOResourceProtocol.h */,
-				6E8DC41917FA860B009CDF41 /* NOResource.h */,
-				6E8DC41A17FA860B009CDF41 /* NOResource.m */,
-				6E8DC41F17FA8FE0009CDF41 /* NOUser.h */,
-				6E8DC42017FA8FE0009CDF41 /* NOUser.m */,
+				6E8DC48A17FBB570009CDF41 /* NOUserProtocol.h */,
+				6E8DC48B17FBB64A009CDF41 /* NOClientProtocol.h */,
 				6E8DC42217FB9AD8009CDF41 /* RoutingHTTPServer */,
 			);
 			name = NetworkObjects;
@@ -533,7 +527,6 @@
 				6E8DC48417FB9BE4009CDF41 /* DDTTYLogger.m in Sources */,
 				6E8DC46917FB9B6C009CDF41 /* WebSocket.m in Sources */,
 				6E8DC46517FB9B6C009CDF41 /* HTTPDataResponse.m in Sources */,
-				6E8DC42117FA8FE0009CDF41 /* NOUser.m in Sources */,
 				6E558A7017F8C9B400F9F729 /* main.m in Sources */,
 				6E8DC41E17FA8F47009CDF41 /* Model.xcdatamodeld in Sources */,
 				6E8DC46317FB9B6C009CDF41 /* MultipartMessageHeaderField.m in Sources */,
@@ -541,7 +534,6 @@
 				6E8DC45B17FB9B6C009CDF41 /* DDNumber.m in Sources */,
 				6E558A7717F8C9B400F9F729 /* NOAppDelegate.m in Sources */,
 				6E8DC43217FB9B12009CDF41 /* RouteResponse.m in Sources */,
-				6E8DC41B17FA860B009CDF41 /* NOResource.m in Sources */,
 				6E8DC45D17FB9B6C009CDF41 /* HTTPAuthenticationRequest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "NOServer.h"
+#import "NetworkObjects.h"
 
 @protocol NOServerDatasource <NSObject>
 

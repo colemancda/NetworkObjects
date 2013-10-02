@@ -38,14 +38,17 @@
         
         for (NSEntityDescription *entityDescription in model.entities) {
             
-            // check if entity class is subclass of NOResource
+            // check if entity class conforms to NOResourceProtocol
             
-            BOOL isNOResourceSubclass = [NSClassFromString(entityDescription.managedObjectClassName) isSubclassOfClass:[NOResource class]];
+            Class entityClass = NSClassFromString(entityDescription.managedObjectClassName);
             
-            if (isNOResourceSubclass) {
+            BOOL conformsToNOResourceProtocol = [entityClass conformsToProtocol:@protocol(NOResourceProtocol)];
+            
+            if (conformsToNOResourceProtocol) {
                 
                 // map enitity to url path
-                NSString *path = [self pathForEntityDescription:entityDescription];
+                Class resourceEntityClass = <nore>entityClass;
+                NSString *path = [entityClass res];
                 
                 // add to dictionary
                 [urlsDict setValue:entityDescription

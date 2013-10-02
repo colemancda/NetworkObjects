@@ -7,13 +7,35 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "NetworkObjects.h"
+
+typedef NS_ENUM(NSInteger, NOResourcePermissions) {
+    
+    NOResourcePermissionsNoAccess,
+    NOResourcePermissionsReadOnly,
+    NOResourcePermissionsWrite,
+    
+};
 
 @protocol NOResourceProtocol <NSObject>
 
-// Core Data Attribute must be 
-+(nsstring *)resourceIDKey;
+// URL instances of this resource can be accessed from
++(NSString *)resourcePath;
 
-+(nsstring *)resourcePath;
+#pragma mark - Attributes and Relationship paths
+
+// Core Data attribute must be Integer type, is the numerical identifier of this resource
++(NSString *)resourceIDKey;
+
+// Owner (user who created resource) relationship key, must be one-to-one relationship
++(NSString *)resourceOwnerKey;
+
+#pragma mark - Instance Methods
+
+-(BOOL)attribute:(NSString *)attributeKey
+ isVisibleToUser:(id<NOUserProtocol>)user
+          client:(id<NOClientProtocol>)client;
+
 
 
 
