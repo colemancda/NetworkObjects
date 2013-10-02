@@ -21,6 +21,4 @@ typedef NS_ENUM(NSInteger, NOResourcePermissions) {
 // name of the attribute to use for resource IDs, must be a integer
 +(NSString *)resourceIDKey;
 
-+(NSString *)
-
 @end

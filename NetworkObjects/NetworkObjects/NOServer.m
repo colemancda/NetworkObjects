@@ -7,30 +7,21 @@
 //
 
 #import "NOServer.h"
+#import "RoutingHTTPServer.h"
 
 @implementation NOServer
 
 @synthesize resourceUrls = _resourceUrls;
 
--(id)initWithContext:(NSManagedObjectContext *)context
+-(void)startOnPort:(NSUInteger)port
 {
-    self = [super init];
-    if (self) {
-        
-        _context = context;
-        
-    }
-    return self;
+    
 }
 
-- (id)init
+-(void)stop
 {
-    [NSException raise:@"Wrong initialization method"
-                format:@"You cannot use %@ with '-%@', you have to use '-%@'",
-     self,
-     NSStringFromSelector(_cmd),
-     NSStringFromSelector(@selector(initWithContext:))];
-    return nil;
+    
+    
 }
 
 #pragma mark - Mapping URLs to Entities
@@ -78,7 +69,34 @@
 
 #pragma mark 
 
-
+-(void)setupServerRoutes
+{
+    // make server handle
+    for (NSString *path in _resourceUrls) {
+        
+        NSString *pathExpression = [NSString stringWithFormat:@"/%@/(\\d+)", path];
+        NSString *postPathExpression = [NSString stringWithFormat:@"/%@", path];
+        
+        void (^requestHandler) (RouteRequest *, RouteResponse *) = ^(RouteRequest *request, RouteResponse *response) {
+            
+            [self handleRequest:request
+                       response:response];
+            
+        };
+        
+        // GET (read resource)
+        [_httpServer get:pathExpression withBlock:requestHandler];
+        
+        // PUT (edit resource)
+        [_httpServer put:pathExpression withBlock:requestHandler];
+        
+        // DELETE (delete resource)
+        [_httpServer delete:pathExpression withBlock:requestHandler];
+        
+        // POST (create new resource)
+        [_httpServer post:postPathExpression withBlock:requestHandler];
+    }
+}
 
 
 @end

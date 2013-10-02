@@ -8,12 +8,14 @@
 
 #import <Foundation/Foundation.h>
 #import "NetworkObjects.h"
+#import "RoutingHTTPServer.h"
 
 @interface NOServer : NSObject
+{
+    RoutingHTTPServer *_httpServer;
+}
 
 // create a nsmanagedobject context and give it to us
-
--(id)initWithContext:(NSManagedObjectContext *)context;
 
 -(void)startOnPort:(NSUInteger)port;
 
@@ -23,8 +25,15 @@
 
 @property (readonly) NSDictionary *resourceUrls;
 
+@property id<NOServerDatasource> datasource;
+
 -(NSString *)pathForEntityDescription:(NSEntityDescription *)entityDescription;
 
+-(void)setupServerRoutes;
+
+// code for handling incoming REST requests (authentication, returning JSON data)
+-(void)handleRequest:(RouteRequest *)request
+            response:(RouteResponse *)response;
 
 
 @end
