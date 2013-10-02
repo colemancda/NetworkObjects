@@ -7,7 +7,10 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "NOResourceProtocol.h"
 
-@protocol NOSessionProtocol <NSObject>
+@protocol NOSessionProtocol <NSObject, NOResourceProtocol>
+
++(nsuinteger)tokenLength;
 
 @end

@@ -27,6 +27,8 @@
 
 -(void)setupServerRoutes;
 
+@property BOOL prettyPrintJSON;
+
 #pragma mark - Responding to requests
 
 // code for handling incoming REST requests (authentication, returning JSON data)

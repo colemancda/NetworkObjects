@@ -67,7 +67,6 @@
 		6E50393917FCC71300255DFF /* ContextFilterLogFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E8DC47C17FB9BE4009CDF41 /* ContextFilterLogFormatter.m */; };
 		6E50393A17FCC71300255DFF /* DispatchQueueLogFormatter.h in Sources */ = {isa = PBXBuildFile; fileRef = 6E8DC47D17FB9BE4009CDF41 /* DispatchQueueLogFormatter.h */; };
 		6E50393B17FCC71300255DFF /* DispatchQueueLogFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E8DC47E17FB9BE4009CDF41 /* DispatchQueueLogFormatter.m */; };
-		6E50393C17FCC71300255DFF /* README.txt in Sources */ = {isa = PBXBuildFile; fileRef = 6E8DC47F17FB9BE4009CDF41 /* README.txt */; };
 		6E50393D17FCC71300255DFF /* HTTPResponseProxy.h in Sources */ = {isa = PBXBuildFile; fileRef = 6E8DC42317FB9B12009CDF41 /* HTTPResponseProxy.h */; };
 		6E50393E17FCC71300255DFF /* HTTPResponseProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E8DC42417FB9B12009CDF41 /* HTTPResponseProxy.m */; };
 		6E50393F17FCC71300255DFF /* Route.h in Sources */ = {isa = PBXBuildFile; fileRef = 6E8DC42517FB9B12009CDF41 /* Route.h */; };
@@ -89,6 +88,7 @@
 		6E50394F17FCC72F00255DFF /* NOUserProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E8DC48A17FBB570009CDF41 /* NOUserProtocol.h */; };
 		6E50395017FCC72F00255DFF /* NOClientProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E8DC48B17FBB64A009CDF41 /* NOClientProtocol.h */; };
 		6E50395217FCCC7000255DFF /* NOSessionProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E50395117FCCC7000255DFF /* NOSessionProtocol.h */; };
+		6E50395317FCD9C900255DFF /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E5038AE17FCC5DB00255DFF /* Security.framework */; };
 		6E558A6417F8C9B400F9F729 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E558A6317F8C9B400F9F729 /* Cocoa.framework */; };
 		6E558A6E17F8C9B400F9F729 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6E558A6C17F8C9B400F9F729 /* InfoPlist.strings */; };
 		6E558A7017F8C9B400F9F729 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E558A6F17F8C9B400F9F729 /* main.m */; };
@@ -104,7 +104,7 @@
 		6E5038A917FCB6E900255DFF /* NOStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NOStore.h; sourceTree = "<group>"; };
 		6E5038AA17FCB6E900255DFF /* NOStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NOStore.m; sourceTree = "<group>"; };
 		6E5038AE17FCC5DB00255DFF /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
-		6E5038DE17FCC6CA00255DFF /* NetworkObjectsOSXFramework.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = NetworkObjectsOSXFramework.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		6E5038DE17FCC6CA00255DFF /* NetworkObjects.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = NetworkObjects.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6E50395117FCCC7000255DFF /* NOSessionProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NOSessionProtocol.h; sourceTree = "<group>"; };
 		6E558A6017F8C9B400F9F729 /* NetworkObjects.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NetworkObjects.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6E558A6317F8C9B400F9F729 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
@@ -198,6 +198,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6E50395317FCD9C900255DFF /* Security.framework in Frameworks */,
 				6E5038DF17FCC6CA00255DFF /* Cocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -257,7 +258,7 @@
 			isa = PBXGroup;
 			children = (
 				6E558A6017F8C9B400F9F729 /* NetworkObjects.app */,
-				6E5038DE17FCC6CA00255DFF /* NetworkObjectsOSXFramework.framework */,
+				6E5038DE17FCC6CA00255DFF /* NetworkObjects.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -484,7 +485,7 @@
 			);
 			name = NetworkObjectsOSXFramework;
 			productName = NetworkObjectsOSXFramework;
-			productReference = 6E5038DE17FCC6CA00255DFF /* NetworkObjectsOSXFramework.framework */;
+			productReference = 6E5038DE17FCC6CA00255DFF /* NetworkObjects.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 		6E558A5F17F8C9B400F9F729 /* NetworkObjectsOSXApp */ = {
@@ -618,7 +619,6 @@
 				6E50393917FCC71300255DFF /* ContextFilterLogFormatter.m in Sources */,
 				6E50393A17FCC71300255DFF /* DispatchQueueLogFormatter.h in Sources */,
 				6E50393B17FCC71300255DFF /* DispatchQueueLogFormatter.m in Sources */,
-				6E50393C17FCC71300255DFF /* README.txt in Sources */,
 				6E50393D17FCC71300255DFF /* HTTPResponseProxy.h in Sources */,
 				6E50393E17FCC71300255DFF /* HTTPResponseProxy.m in Sources */,
 				6E50393F17FCC71300255DFF /* Route.h in Sources */,
@@ -688,7 +688,8 @@
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = "NetworkObjectsOSXFramework/NetworkObjectsOSXFramework-Info.plist";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				PRODUCT_NAME = NetworkObjects;
 				WRAPPER_EXTENSION = framework;
 			};
 			name = Debug;
@@ -703,7 +704,8 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "NetworkObjectsOSXFramework/NetworkObjectsOSXFramework-Prefix.pch";
 				INFOPLIST_FILE = "NetworkObjectsOSXFramework/NetworkObjectsOSXFramework-Info.plist";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				PRODUCT_NAME = NetworkObjects;
 				WRAPPER_EXTENSION = framework;
 			};
 			name = Release;
