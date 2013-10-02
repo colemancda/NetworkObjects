@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "NOResourceProtocol.h"
 
 @protocol NOClientProtocol <NSObject, NOResourceProtocol>
 

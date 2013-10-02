@@ -7,8 +7,8 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "NetworkObjects.h"
 #import "RoutingHTTPServer.h"
+#import "NOServerDatasource.h"
 
 @interface NOServer : NSObject
 {

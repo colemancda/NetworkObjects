@@ -8,6 +8,7 @@
 
 #import "NOServer.h"
 #import "RoutingHTTPServer.h"
+#import "NOResourceProtocol.h"
 
 @implementation NOServer
 
@@ -47,8 +48,7 @@
             if (conformsToNOResourceProtocol) {
                 
                 // map enitity to url path
-                Class resourceEntityClass = <nore>entityClass;
-                NSString *path = [entityClass res];
+                NSString *path = [entityClass resourcePath];
                 
                 // add to dictionary
                 [urlsDict setValue:entityDescription

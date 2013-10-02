@@ -7,7 +7,8 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "NetworkObjects.h"
+#import "NOUserProtocol.h"
+#import "NOClientProtocol.h"
 
 typedef NS_ENUM(NSInteger, NOResourcePermissions) {
     
