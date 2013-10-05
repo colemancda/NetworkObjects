@@ -11,6 +11,13 @@
 
 @protocol NOSessionProtocol <NSObject, NOResourceProtocol>
 
-+(nsuinteger)tokenLength;
++(NSString *)sessionTokenKey;
+
++(NSString *)sessionUserKey;
+
++(NSString *)sessionClientKey;
+
+// generate token
+-(void)generateToken;
 
 @end

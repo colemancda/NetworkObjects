@@ -1,9 +1,9 @@
 //
 //  main.m
-//  NetworkObjects
+//  NetworkObjectsOSXApp
 //
-//  Created by Alsey Coleman Miller on 9/29/13.
-//  Copyright (c) 2013 CDA. All rights reserved.
+//  Created by Alsey Coleman Miller on 10/5/13.
+//
 //
 
 #import <Cocoa/Cocoa.h>

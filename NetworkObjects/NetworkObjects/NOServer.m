@@ -11,12 +11,14 @@
 
 @implementation NOServer
 
-@synthesize resourceUrls = _resourceUrls;
+@synthesize resourcePaths = _resourcePaths;
 
 - (id)initWithStore:(NOStore *)store
 {
     self = [super init];
     if (self) {
+        
+        NSAssert(store, @"NOStore cannot be nil");
         
         _store = store;
         
@@ -49,10 +51,10 @@
 
 #pragma mark - Mapping URLs to Entities
 
--(NSDictionary *)resourceUrls
+-(NSDictionary *)resourcePaths
 {
     // build a cache of NOResources and URLs
-    if (!_resourceUrls) {
+    if (!_resourcePaths) {
         
         // scan through entity descriptions and get urls of NOResources
         NSManagedObjectModel *model = self.store.context.persistentStoreCoordinator.managedObjectModel;
@@ -79,21 +81,23 @@
         }
         
         
-        _resourceUrls = [NSDictionary dictionaryWithDictionary:urlsDict];
+        _resourcePaths = [NSDictionary dictionaryWithDictionary:urlsDict];
     }
     
-    return _resourceUrls;
+    return _resourcePaths;
 }
 
 #pragma mark 
 
 -(void)setupServerRoutes
 {
-    // make server handle
-    for (NSString *path in _resourceUrls) {
+    // configure internal HTTP server routes
+    for (NSString *path in _resourcePaths) {
         
-        NSString *instancePathExpression = [NSString stringWithFormat:@"/%@/(\\d+)", path];
-        NSString *allInstancesPathExpression = [NSString stringWithFormat:@"/%@", path];
+        
+        
+        NSString *instancePathExpression = [NSString stringWithFormat:@"/:resource/(\\d+)/:function"];
+        NSString *allInstancesPathExpression = [NSString stringWithFormat:@"/%@"];
         
         void (^requestHandler) (RouteRequest *, RouteResponse *) = ^(RouteRequest *request, RouteResponse *response) {
             
@@ -123,6 +127,7 @@
         // GET (get number of instances)
         [_httpServer get:allInstancesPathExpression
                withBlock:requestHandler];
+        
     }
 }
 

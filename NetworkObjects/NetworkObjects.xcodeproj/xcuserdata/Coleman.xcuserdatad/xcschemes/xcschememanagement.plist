@@ -4,45 +4,30 @@
 <dict>
 	<key>SchemeUserState</key>
 	<dict>
-		<key>NetworkObjects.xcscheme</key>
+		<key>NetworkObjectsOSXApp.xcscheme</key>
 		<dict>
 			<key>orderHint</key>
 			<integer>0</integer>
 		</dict>
-		<key>NetworkObjectsOSXFramework.xcscheme</key>
-		<dict>
-			<key>orderHint</key>
-			<integer>2</integer>
-		</dict>
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
-		<key>6E5038B417FCC60F00255DFF</key>
+		<key>6EC8594118006E1A0089F123</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>6E5038C417FCC60F00255DFF</key>
+		<key>6EC8596218006E1B0089F123</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>6E5038DD17FCC6CA00255DFF</key>
+		<key>6EC8597A18006E8D0089F123</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>6E5038ED17FCC6CA00255DFF</key>
-		<dict>
-			<key>primary</key>
-			<true/>
-		</dict>
-		<key>6E558A5F17F8C9B400F9F729</key>
-		<dict>
-			<key>primary</key>
-			<true/>
-		</dict>
-		<key>6E558A8317F8C9B500F9F729</key>
+		<key>6EC8599418006E8E0089F123</key>
 		<dict>
 			<key>primary</key>
 			<true/>

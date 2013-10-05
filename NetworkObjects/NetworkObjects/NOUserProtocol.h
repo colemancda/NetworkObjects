@@ -7,10 +7,18 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "NOResourceProtocol.h"
+#import "NetworkObjects.h"
 
 @protocol NOUserProtocol <NSObject, NOResourceProtocol>
 
+// password
++(NSString *)userPasswordKey;
+
+// one to many relationship to nsmanagedobject that conforms to NOClientProtocol
++(NSString *)userAuthorizedClientsKey;
+
+// one to many relationship to nsmanagedobject that conforms to NOSessionProtocol
++(NSString *)userSessionsKey;
 
 
 @end

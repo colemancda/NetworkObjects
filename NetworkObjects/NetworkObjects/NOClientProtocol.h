@@ -7,8 +7,14 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "NOResourceProtocol.h"
+#import "NetworkObjects.h"
 
 @protocol NOClientProtocol <NSObject, NOResourceProtocol>
+
++(NSString *)clientSecretKey;
+
++(NSString *)clientSessionsKey;
+
+
 
 @end

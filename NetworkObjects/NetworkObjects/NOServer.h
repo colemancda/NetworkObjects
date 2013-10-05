@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "RoutingHTTPServer.h"
-#import "NetworkObjects.h"
+#import "NOStore.h"
 
 @interface NOServer : NSObject
 {
@@ -23,7 +23,7 @@
 
 -(void)stop;
 
-@property (readonly) NSDictionary *resourceUrls;
+@property (readonly) NSDictionary *resourcePaths;
 
 -(void)setupServerRoutes;
 
@@ -34,8 +34,5 @@
 // code for handling incoming REST requests (authentication, returning JSON data)
 -(void)handleRequest:(RouteRequest *)request
             response:(RouteResponse *)response;
-
--(void)getResourceWithEntityDescription:(nsmanagedObjectentitydesp *)
-
 
 @end

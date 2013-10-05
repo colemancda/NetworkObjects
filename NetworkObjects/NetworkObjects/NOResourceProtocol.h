@@ -7,16 +7,9 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "NOUserProtocol.h"
-#import "NOClientProtocol.h"
 
-typedef NS_ENUM(NSInteger, NOResourcePermissions) {
-    
-    NOResourcePermissionsNoAccess,
-    NOResourcePermissionsReadOnly,
-    NOResourcePermissionsWrite,
-    
-};
+@protocol NOUserProtocol;
+@protocol NOClientProtocol;
 
 @protocol NOResourceProtocol <NSObject>
 
@@ -28,27 +21,48 @@ typedef NS_ENUM(NSInteger, NOResourcePermissions) {
 // URL instances of this resource can be accessed from
 +(NSString *)resourcePath;
 
+// nsset of the name of functions
++(NSSet *)functions;
+
 // Broadcasts number of instances
-+(BOOL)countEnabled
++(BOOL)countEnabled;
 
 #pragma mark - Attributes and Relationship paths
 
 // Core Data attribute must be Integer type, is the numerical identifier of this resource
 +(NSString *)resourceIDKey;
 
-// Owner (user who created resource) relationship key, must be one-to-one relationship to a NSManagedSubclass that conforms to NOUserProtocol
-+(NSString *)resourceOwnerKey;
-
 #pragma mark - Access
+
+-(BOOL)isVisibleToUser:(id<NOUserProtocol>)user
+                client:(id<NOClientProtocol>)client;
+
+-(BOOL)isEditableByUser:(id<NOUserProtocol>)user
+                 client:(id<NOClientProtocol>)client;
 
 -(BOOL)attribute:(NSString *)attributeKey
  isVisibleToUser:(id<NOUserProtocol>)user
+          client:(id<NOClientProtocol>)client;
+
+-(BOOL)attribute:(NSString *)attributeKey
+isEditableByUser:(id<NOUserProtocol>)user
           client:(id<NOClientProtocol>)client;
 
 -(BOOL)relationship:(NSString *)relationshipKey
     isVisibleToUser:(id<NOUserProtocol>)user
              client:(id<NOClientProtocol>)client;
 
+-(BOOL)relationship:(NSString *)relationshipKey
+   isEditableByUser:(id<NOUserProtocol>)user
+             client:(id<NOClientProtocol>)client;
+
+#pragma mark - Extra Functions
+
+// if you want to add a function like liking a post or adding a friend without write access to a user's friend relationship
+
+-(NSUInteger)performFunction:(NSString *)functionName
+    recievedJsonObject:(NSDictionary *)recievedJsonObject
+              response:(NSDictionary **)jsonObjectResponse;
 
 
 @end
