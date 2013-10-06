@@ -54,7 +54,7 @@
     return nil;
 }
 
-#pragma mark
+#pragma mark - Start & Stop
 
 -(void)startOnPort:(NSUInteger)port
 {
@@ -103,8 +103,6 @@
     
     return _resourcePaths;
 }
-
-#pragma mark 
 
 -(void)setupServerRoutes
 {
@@ -194,6 +192,8 @@ forResourceWithEntityDescription:entityDescription
         }
     }
 }
+
+#pragma mark - Handlers
 
 -(void)handleRequest:(RouteRequest *)request
 forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
@@ -409,7 +409,14 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     [response respondWithData:jsonData];
 }
 
-
+-(void)handleCreateResourceWithEntityDescription:(NSEntityDescription *)entityDescription
+                              recievedJsonObject:(NSDictionary *)recievedJsonObject
+                                         session:(NSManagedObject<NOSessionProtocol> *)session
+                                        response:(RouteResponse *)response
+{
+    
+    
+}
 
 
 @end
