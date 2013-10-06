@@ -9,6 +9,10 @@
 #import "NOServer.h"
 #import "RoutingHTTPServer.h"
 #import "NOStore.h"
+#import "NOResourceProtocol.h"
+#import "NOSessionProtocol.h"
+#import "NOUserProtocol.h"
+#import "NOClientProtocol.h"
 
 @implementation NOServer
 
@@ -126,13 +130,6 @@ forResourceWithEntityDescription:entityDescription
                    withBlock:allInstancesRequestHandler];
         }
         
-        if ([entityClass searchEnabled]) {
-            
-            // SEARCH
-            
-            
-        }
-        
         // setup routes for resource instances
         
         NSString *instancePathExpression = [NSString stringWithFormat:@"/%@/(\\d+)", path];
@@ -205,8 +202,13 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     NSString *token = request.headers[@"Authorization"];
     
+    // determine the attribute name the entity uses for storing tokens
+    
+    Class sessionEntityClass = NSClassFromString(self.sessionEntityDescription.managedObjectClassName);
+    
+    NSString *tokenKey = [sessionEntityClass sessionTokenKey];
+    
     // search the store for token
-    self.store 
     
     
     // determine what resource is being requested and whether it is requesting a specific instance...

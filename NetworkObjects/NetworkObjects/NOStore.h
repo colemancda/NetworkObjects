@@ -10,30 +10,36 @@
 #import "NOResourceProtocol.h"
 
 @interface NOStore : NSObject
+{
+    NSMutableDictionary *_lastResourceIDs;
+    
+    NSDictionary *_createResourcesQueues;
+}
 
 @property (readonly) NSManagedObjectContext *context;
+
+@property (readonly) NSDictionary *lastResourceIDs;
+
+@property (readonly) NSURL *lastIDsURL;
+
+-(BOOL)save;
 
 #pragma mark - Resource Methods
 
 // GET number of instances
--(NSUInteger)numberOfInstancesOfResourceWithEntityDescription:(NSEntityDescription *)entityDescription;
-
-// Search for resource with values and keys
--(id<NOResourceProtocol>)searchForResourceWithEntityDescription:(NSEntityDescription *)entityDescription
-                                              withValuesAndKeys:(NSDictionary *)valuesAndKeys
-                                              isCaseInsensitive:(BOOL)caseInsensitive;
+-(NSNumber *)numberOfInstancesOfResourceWithEntityDescription:(NSEntityDescription *)entityDescription;
 
 #pragma mark - Manage Resource Instances
 // Cocoa methods to manage a object graph styled after REST but without the networking or authentication, useful for editing NetworkedObjects from the server app or for other internal use.
 
 // e.g. you want to create a new resource but dont wanna write the glue code for assigning it a proper resource ID
 
--(NSUInteger)newResourceWithEntityDescription:(NSEntityDescription *)entityDescription;
+-(NSNumber *)newResourceWithEntityDescription:(NSEntityDescription *)entityDescription;
 
 -(id<NOResourceProtocol>)resourceWithEntityDescription:(NSEntityDescription *)entityDescription
-                                                    id:(NSUInteger)resourceID;
+                                            resourceID:(NSUInteger)resourceID;
 
--(void)deleteResourceWithEntityDescription:(NSEntityDescription *)entityDescription
-                                        id:(NSUInteger)resourceID;
+-(BOOL)deleteResourceWithEntityDescription:(NSEntityDescription *)entityDescription
+                                resourceID:(NSUInteger)resourceID;
 
 @end

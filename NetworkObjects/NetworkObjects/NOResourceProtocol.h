@@ -60,6 +60,7 @@ isEditableByUser:(id<NOUserProtocol>)user
 
 // if you want to add a function like liking a post or adding a friend without write access to a user's friend relationship
 
+// return a HTTP status code
 -(NSUInteger)performFunction:(NSString *)functionName
     recievedJsonObject:(NSDictionary *)recievedJsonObject
               response:(NSDictionary **)jsonObjectResponse;

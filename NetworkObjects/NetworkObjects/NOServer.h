@@ -17,6 +17,12 @@
 
 @property (readonly) RoutingHTTPServer *httpServer;
 
+@property (readonly) NSEntityDescription *userEntityDescription;
+
+@property (readonly) NSEntityDescription *sessionEntityDescription;
+
+@property (readonly) NSEntityDescription *clientEntityDescription;
+
 -(void)startOnPort:(NSUInteger)port;
 
 -(void)stop;
