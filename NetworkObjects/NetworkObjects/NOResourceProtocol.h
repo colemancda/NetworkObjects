@@ -21,6 +21,8 @@
 // URL instances of this resource can be accessed from
 +(NSString *)resourcePath;
 
++(BOOL)requireSession;
+
 #pragma mark - Attributes and Relationship paths
 
 // Core Data attribute must be Integer type, is the numerical identifier of this resource

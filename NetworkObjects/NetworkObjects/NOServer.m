@@ -232,6 +232,13 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         
     }];
     
+    // check if the resource requires sessions
+    if (!session && [NSClassFromString(entityDescription.managedObjectClassName) requireSession]) {
+        
+        response.statusCode = UnauthorizedStatusCode;
+        
+        return;
+    }
     
     // determine what handler to call
     
@@ -327,7 +334,29 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         return;
     }
     
+    // build JSON object...
     
+    NSMutableDictionary *jsonObject = [[NSMutableDictionary alloc] init];
+    
+    // first the attributes
+    for (NSString *attributeName in resource.entity.attributesByName) {
+        
+        if ([resource attribute:attributeName
+                isVisibleToUser:user
+                         client:client]) {
+            
+            [jsonObject setObject:[resource valueForKey:attributeName]
+                           forKey:attributeName];
+        }
+        
+    }
+    
+    // then the relationships
+    for (NSString *relationshipName in resource.entity.relationshipsByName) {
+        
+        
+        
+    }
     
 }
 
