@@ -409,6 +409,80 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     [response respondWithData:jsonData];
 }
 
+-(void)handleEditResource:(NSManagedObject<NOResourceProtocol> *)resource
+       recievedJsonObject:(NSDictionary *)recievedJsonObject
+                  session:(NSManagedObject<NOSessionProtocol> *)session
+                 response:(RouteResponse *)response
+{
+    NSManagedObject<NOUserProtocol> *user = [session valueForKey:[session.class sessionUserKey]];
+    
+    NSManagedObject<NOClientProtocol> *client = [session valueForKey:[session.class sessionClientKey]];
+    
+    if (![resource isVisibleToUser:user
+                            client:client]) {
+        
+        response.statusCode = ForbiddenStatusCode;
+        
+        return;
+    }
+    
+    if (![resource isEditableByUser:user
+                             client:client]) {
+        
+        response.statusCode = ForbiddenStatusCode;
+        
+        return;
+    }
+    
+    // check if jsonObject has keys that dont exist in this object or lacks permission...
+    
+    NOServerStatusCode editStatusCode = [self verifyEditResource:resource
+                                              recievedJsonObject:recievedJsonObject
+                                              user:user
+                                            client:client];
+    
+    if (editStatusCode != OKStatusCode) {
+        
+        response.statusCode = editStatusCode;
+        
+        return;
+    }
+    
+    
+    // since we verified the validity and access permissions of the recievedJsonObject, then we apply the edits...
+    
+    for (NSString *key in recievedJsonObject) {
+        
+        NSObject *value = recievedJsonObject[key];
+        
+        // relationship
+        if ([value isKindOfClass:[NSArray class]]) {
+            
+            // IDs of related objects
+            NSArray *jsonRelationship = (NSArray *)value;
+            
+            // get the destination resource of the relationship
+            
+            
+            for (NSNumber *destinationResourceID in jsonRelationship) {
+                
+                
+                
+            }
+        }
+        
+        // attribute
+        else {
+            
+            [resource setValue:value
+                        forKey:key];
+        }
+    }
+    
+    // return 200
+    response.statusCode = OKStatusCode;
+}
+
 -(void)handleCreateResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                               recievedJsonObject:(NSDictionary *)recievedJsonObject
                                          session:(NSManagedObject<NOSessionProtocol> *)session

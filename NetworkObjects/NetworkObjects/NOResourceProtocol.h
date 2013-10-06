@@ -18,6 +18,7 @@
 // URL instances of this resource can be accessed from
 +(NSString *)resourcePath;
 
+// require authorization for this resource to be accessed
 +(BOOL)requireSession;
 
 #pragma mark - Attributes and Relationship paths

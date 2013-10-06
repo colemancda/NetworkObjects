@@ -8,9 +8,12 @@
 
 #import <Foundation/Foundation.h>
 #import "NOSessionProtocol.h"
+#import "NOUserProtocol.h"
+#import "NOClientProtocol.h"
+
 @class NOStore, RouteRequest, RouteResponse, RoutingHTTPServer;
 
-NS_ENUM(NSUInteger, NOServerStatusCodes) {
+typedef NS_ENUM(NSUInteger, NOServerStatusCode) {
     
     OKStatusCode = 200,
     
@@ -74,6 +77,11 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
        recievedJsonObject:(NSDictionary *)recievedJsonObject
                   session:(NSManagedObject <NOSessionProtocol> *)session
                  response:(RouteResponse *)response;
+
+-(NOServerStatusCode)verifyEditResource:(NSManagedObject <NOResourceProtocol> *)resource
+                     recievedJsonObject:(NSDictionary *)recievedJsonObject
+                                   user:(NSManagedObject<NOUserProtocol> *)user
+                                 client:(NSManagedObject<NOClientProtocol> *)client;
 
 -(void)handleGetResource:(NSManagedObject <NOResourceProtocol> *)resource
                  session:(NSManagedObject <NOSessionProtocol> *)session
