@@ -264,7 +264,6 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     if (!resourceID && [request.method isEqualToString:@"POST"]) {
         
         [self handleCreateResourceWithEntityDescription:entityDescription
-                                     recievedJsonObject:jsonObject
                                                 session:session
                                                response:response];
         return;
@@ -556,7 +555,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
             return BadRequestStatusCode;
         }
         
-        BOOL isAttribute;
+        BOOL isValidAttribute;
         BOOL isToManyRelationship;
         BOOL isToOneRelationship;
         
@@ -564,7 +563,15 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
             
             if ([key isEqualToString:attributeName]) {
                 
-                isAttribute = YES;
+                // check if this key is the resourceIDKey
+                NSString *resourceIDKey = [[resource class] resourceIDKey];
+                
+                // resourceID cannot be edited by anyone
+                if (![resourceIDKey isEqualToString:key]) {
+                    
+                    isValidAttribute = YES;
+                    
+                }
             }
         }
         
@@ -584,14 +591,14 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
             }
         }
         
-        if (!isAttribute && !isToOneRelationship && !isToManyRelationship) {
+        if (!isValidAttribute && !isToOneRelationship && !isToManyRelationship) {
             
             return BadRequestStatusCode;
         }
         
         // check for permissions
         
-        if (isAttribute) {
+        if (isValidAttribute) {
             
             if (![resource attribute:key isVisibleToUser:user client:client] ||
                 ![resource attribute:key isEditableByUser:user client:client]) {
@@ -681,18 +688,57 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     // create new instance
     NSManagedObject<NOResourceProtocol> *newResource = [_store newResourceWithEntityDescription:entityDescription];
     
+    // get the resourceIDKey
+    NSString *resourceIDKey = [[newResource class] resourceIDKey];
     
+    // get resourceID
+    NSNumber *resourceID = [newResource valueForKey:resourceIDKey];
     
+    NSDictionary *jsonObject = @{resourceIDKey: resourceID};
+    
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonObject
+                                                       options:self.jsonWritingOption
+                                                         error:nil];
+    
+    [response respondWithData:jsonData];
+    
+    response.statusCode = OKStatusCode;
 }
 
 -(void)handleFunction:(NSString *)functionName
    recievedJsonObject:(NSDictionary *)recievedJsonObject
-             resource:(id<NOResourceProtocol>)resource
-              session:(id<NOSessionProtocol>)session
+             resource:(NSManagedObject<NOResourceProtocol> *)resource
+              session:(NSManagedObject<NOSessionProtocol> *)session
              response:(RouteResponse *)response
 {
+    NSManagedObject<NOUserProtocol> *user = [session valueForKey:[session.class sessionUserKey]];
     
+    NSManagedObject<NOClientProtocol> *client = [session valueForKey:[session.class sessionClientKey]];
     
+    // check for permission
+    if (![resource canPerformFunction:functionName
+                                 user:user
+                               client:client])
+    {
+        response.statusCode = ForbiddenStatusCode;
+        
+        return;
+    }
+    
+    // perform function
+    NSDictionary *jsonResponse;
+    response.statusCode = [resource performFunction:functionName
+                                 recievedJsonObject:recievedJsonObject
+                                           response:&jsonResponse];
+    
+    if (jsonResponse) {
+        
+        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonResponse
+                                                           options:self.jsonWritingOption
+                                                             error:nil];
+        
+        [response respondWithData:jsonData];
+    }
 }
 
 

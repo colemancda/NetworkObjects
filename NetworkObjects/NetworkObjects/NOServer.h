@@ -68,8 +68,8 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
 
 -(void)handleFunction:(NSString *)functionName
    recievedJsonObject:(NSDictionary *)recievedJsonObject
-             resource:(id<NOResourceProtocol>)resource
-              session:(id<NOSessionProtocol>)session
+             resource:(NSManagedObject<NOResourceProtocol> *)resource
+              session:(NSManagedObject<NOSessionProtocol> *)session
              response:(RouteResponse *)response;
 
 -(void)handleEditResource:(NSManagedObject <NOResourceProtocol> *)resource
