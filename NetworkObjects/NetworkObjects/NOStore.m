@@ -205,7 +205,7 @@
 }
 
 -(BOOL)deleteResourceWithEntityDescription:(NSEntityDescription *)entityDescription
-                                        id:(NSUInteger)resourceID
+                                resourceID:(NSUInteger)resourceID
 {
     id<NOResourceProtocol> resource = [self resourceWithEntityDescription:entityDescription
                                                                resourceID:resourceID];

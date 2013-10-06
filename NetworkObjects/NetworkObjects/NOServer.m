@@ -76,15 +76,19 @@
             
             if (conformsToNOResourceProtocol) {
                 
-                // map enitity to url path
-                NSString *path = [entityClass resourcePath];
-                
-                // add to dictionary
-                [urlsDict setValue:entityDescription
-                            forKey:path];
+                // check if resource wants to be broadcast
+                if ([entityClass isNetworked]) {
+                    
+                    // map enitity to url path
+                    NSString *path = [entityClass resourcePath];
+                    
+                    // add to dictionary
+                    [urlsDict setValue:entityDescription
+                                forKey:path];
+                    
+                }
             }
         }
-        
         
         _resourcePaths = [NSDictionary dictionaryWithDictionary:urlsDict];
     }
@@ -121,14 +125,6 @@ forResourceWithEntityDescription:entityDescription
         // POST (create new resource)
         [_httpServer post:allInstancesPathExpression
                 withBlock:allInstancesRequestHandler];
-        
-        // if count is enabled
-        if ([entityClass countEnabled]) {
-            
-            // GET (get number of instances)
-            [_httpServer get:allInstancesPathExpression
-                   withBlock:allInstancesRequestHandler];
-        }
         
         // setup routes for resource instances
         

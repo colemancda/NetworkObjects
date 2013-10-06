@@ -21,12 +21,6 @@
 // URL instances of this resource can be accessed from
 +(NSString *)resourcePath;
 
-// nsset of the name of functions
-+(NSSet *)functions;
-
-// Broadcasts number of instances
-+(BOOL)countEnabled;
-
 #pragma mark - Attributes and Relationship paths
 
 // Core Data attribute must be Integer type, is the numerical identifier of this resource
@@ -56,14 +50,27 @@ isEditableByUser:(id<NOUserProtocol>)user
    isEditableByUser:(id<NOUserProtocol>)user
              client:(id<NOClientProtocol>)client;
 
-#pragma mark - Extra Functions
+#pragma mark - Resource Functions
 
 // if you want to add a function like liking a post or adding a friend without write access to a user's friend relationship
 
-// return a HTTP status code
++(NSSet *)resourceFunctions;
+
 -(NSUInteger)performFunction:(NSString *)functionName
-    recievedJsonObject:(NSDictionary *)recievedJsonObject
-              response:(NSDictionary **)jsonObjectResponse;
+          recievedJsonObject:(NSDictionary *)recievedJsonObject
+                    response:(NSDictionary **)jsonObjectResponse;
+
+#pragma mark - Instance Functions
+
+
+
+// nsset of the name of functions
++(NSSet *)resourceInstanceFunctions;
+
+// return a HTTP status code
+-(NSUInteger)performInstanceFunction:(NSString *)functionName
+                  recievedJsonObject:(NSDictionary *)recievedJsonObject
+                            response:(NSDictionary **)jsonObjectResponse;
 
 
 @end
