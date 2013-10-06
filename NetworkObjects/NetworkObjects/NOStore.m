@@ -208,26 +208,16 @@
     return resource;
 }
 
--(BOOL)deleteResourceWithEntityDescription:(NSEntityDescription *)entityDescription
-                                resourceID:(NSUInteger)resourceID
+-(void)deleteResource:(NSManagedObject<NOResourceProtocol> *)resource
 {
-    id<NOResourceProtocol> resource = [self resourceWithEntityDescription:entityDescription
-                                                               resourceID:resourceID];
-    
-    if (!resource) {
-        return NO;
-    }
-    
     // no need to wait for block to end since we dont return a value
     [_context performBlock:^{
         
         [_context deleteObject:resource];
     }];
-    
-    return YES;
 }
 
--(NSNumber *)newResourceWithEntityDescription:(NSEntityDescription *)entityDescription
+-(NSManagedObject<NOResourceProtocol> *)newResourceWithEntityDescription:(NSEntityDescription *)entityDescription
 {
     // use the operationQueue for this resource
     
@@ -235,7 +225,7 @@
     
     NSNumber *lastID = _lastResourceIDs[entityDescription.name];
     
-    __block NSNumber *resourceID;
+    __block NSManagedObject<NOResourceProtocol> *newResource;
     
     NSBlockOperation *blockOperation = [NSBlockOperation blockOperationWithBlock:^{
         
@@ -247,10 +237,11 @@
             NSString *resourceIDKey = [entityClass resourceIDKey];
             
             // create new resource
-            NSManagedObject<NOResourceProtocol> *newResource = [NSEntityDescription insertNewObjectForEntityForName:entityDescription.name
-                                          inManagedObjectContext:_context];
+            newResource = [NSEntityDescription insertNewObjectForEntityForName:entityDescription.name
+                                                        inManagedObjectContext:_context];
             
             // set new resourceID
+            NSNumber *resourceID;
             
             if (!lastID) {
                 resourceID = @0;
@@ -272,7 +263,7 @@
     [operationQueue addOperations:@[blockOperation]
                 waitUntilFinished:YES];
     
-    return resourceID;
+    return newResource;
 }
 
 @end

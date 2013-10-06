@@ -458,22 +458,6 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     NSManagedObject<NOClientProtocol> *client = [session valueForKey:[session.class sessionClientKey]];
     
-    if (![resource isVisibleToUser:user
-                            client:client]) {
-        
-        response.statusCode = ForbiddenStatusCode;
-        
-        return;
-    }
-    
-    if (![resource isEditableByUser:user
-                             client:client]) {
-        
-        response.statusCode = ForbiddenStatusCode;
-        
-        return;
-    }
-    
     // check if jsonObject has keys that dont exist in this resource or lacks permission to edit...
     
     NOServerStatusCode editStatusCode = [self verifyEditResource:resource
@@ -501,8 +485,8 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         // attribute
         if (attributeDescription) {
             
-            [resource setValue:value
-                        forKey:key];
+            [resource setJSONCompatibleValue:value
+                                forAttribute:key];
             
         }
         
@@ -538,6 +522,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                     [newRelationshipValues addObject:destinationResource];
                 }
                 
+                // replace collection
                 [resource setValue:newRelationshipValues
                             forKey:key];
                 
@@ -554,15 +539,157 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                                    user:(NSManagedObject<NOUserProtocol> *)user
                                  client:(NSManagedObject<NOClientProtocol> *)client
 {
+    if (![resource isVisibleToUser:user client:client] ||
+        ![resource isVisibleToUser:user client:client]) {
+        
+        return ForbiddenStatusCode;
+    }
     
+    for (NSString *key in recievedJsonObject) {
+        
+        NSObject *value = recievedJsonObject[key];
+        
+        // validate the recieved JSON object
+        
+        if (![NSJSONSerialization isValidJSONObject:recievedJsonObject]) {
+            
+            return BadRequestStatusCode;
+        }
+        
+        BOOL isAttribute;
+        BOOL isToManyRelationship;
+        BOOL isToOneRelationship;
+        
+        for (NSString *attributeName in resource.entity.attributesByName) {
+            
+            if ([key isEqualToString:attributeName]) {
+                
+                isAttribute = YES;
+            }
+        }
+        
+        for (NSString *toOneRelationshipName in resource.entity.toOneRelationshipKeys) {
+            
+            if ([key isEqualToString:toOneRelationshipName]) {
+                
+                isToOneRelationship = YES;
+            }
+        }
+        
+        for (NSString *toManyRelationshipName in resource.entity.toManyRelationshipKeys) {
+            
+            if ([key isEqualToString:toManyRelationshipName]) {
+                
+                isToManyRelationship = YES;
+            }
+        }
+        
+        if (!isAttribute && !isToOneRelationship && !isToManyRelationship) {
+            
+            return BadRequestStatusCode;
+        }
+        
+        // check for permissions
+        
+        if (isAttribute) {
+            
+            if (![resource attribute:key isVisibleToUser:user client:client] ||
+                ![resource attribute:key isEditableByUser:user client:client]) {
+                
+                return ForbiddenStatusCode;
+            }
+        }
+        
+        if (isToOneRelationship || isToManyRelationship) {
+            
+            if (![resource relationship:key isVisibleToUser:user client:client] ||
+                ![resource relationship:key isEditableByUser:user client:client]) {
+                
+                return ForbiddenStatusCode;
+            }
+            
+            if (isToOneRelationship) {
+                
+                NSManagedObject<NOResourceProtocol> *destinationResource = [resource valueForKey:key];
+                
+                if (![destinationResource isVisibleToUser:user client:client] ||
+                    ![destinationResource isEditableByUser:user client:client]) {
+                    
+                    return ForbiddenStatusCode;
+                }
+                
+            }
+            
+            if (isToManyRelationship) {
+                
+                NSSet *toManyRelationship = [resource valueForKey:key];
+                
+                for (NSManagedObject<NOResourceProtocol> *destinationResource in toManyRelationship) {
+                    
+                    if (![destinationResource isVisibleToUser:user client:client] ||
+                        ![destinationResource isEditableByUser:user client:client]) {
+                        
+                        return ForbiddenStatusCode;
+                    }
+                }
+            }
+        }
+    }
     
     return OKStatusCode;
 }
 
+-(void)handleDeleteResource:(NSManagedObject<NOResourceProtocol> *)resource
+                    session:(NSManagedObject<NOSessionProtocol> *)session
+                   response:(RouteResponse *)response
+{
+    NSManagedObject<NOUserProtocol> *user = [session valueForKey:[session.class sessionUserKey]];
+    
+    NSManagedObject<NOClientProtocol> *client = [session valueForKey:[session.class sessionClientKey]];
+    
+    // check permissions
+    if (![resource isVisibleToUser:user client:client] ||
+        ![resource isEditableByUser:user client:client]) {
+        
+        response.statusCode = ForbiddenStatusCode;
+        return;
+    }
+    
+    [_store deleteResource:resource];
+    
+    response.statusCode = OKStatusCode;
+}
+
 -(void)handleCreateResourceWithEntityDescription:(NSEntityDescription *)entityDescription
-                              recievedJsonObject:(NSDictionary *)recievedJsonObject
                                          session:(NSManagedObject<NOSessionProtocol> *)session
                                         response:(RouteResponse *)response
+{
+    NSManagedObject<NOUserProtocol> *user = [session valueForKey:[session.class sessionUserKey]];
+    
+    NSManagedObject<NOClientProtocol> *client = [session valueForKey:[session.class sessionClientKey]];
+    
+    Class<NOResourceProtocol> entityClass = NSClassFromString(entityDescription.managedObjectClassName);
+    
+    // check permissions
+    if (![entityClass userCanCreateNewInstance:user client:client]) {
+        
+        response.statusCode = ForbiddenStatusCode;
+        
+        return;
+    }
+    
+    // create new instance
+    NSManagedObject<NOResourceProtocol> *newResource = [_store newResourceWithEntityDescription:entityDescription];
+    
+    
+    
+}
+
+-(void)handleFunction:(NSString *)functionName
+   recievedJsonObject:(NSDictionary *)recievedJsonObject
+             resource:(id<NOResourceProtocol>)resource
+              session:(id<NOSessionProtocol>)session
+             response:(RouteResponse *)response
 {
     
     

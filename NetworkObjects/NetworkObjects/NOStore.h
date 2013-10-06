@@ -34,11 +34,10 @@
 
 // e.g. you want to create a new resource but dont wanna write the glue code for assigning it a proper resource ID
 
--(NSNumber *)newResourceWithEntityDescription:(NSEntityDescription *)entityDescription;
+-(NSManagedObject<NOResourceProtocol> *)newResourceWithEntityDescription:(NSEntityDescription *)entityDescription;
 
 -(NSManagedObject<NOResourceProtocol> *)resourceWithEntityDescription:(NSEntityDescription *)entityDescription resourceID:(NSUInteger)resourceID;
 
--(BOOL)deleteResourceWithEntityDescription:(NSEntityDescription *)entityDescription
-                                resourceID:(NSUInteger)resourceID;
+-(void)deleteResource:(NSManagedObject<NOResourceProtocol> *)resource;
 
 @end

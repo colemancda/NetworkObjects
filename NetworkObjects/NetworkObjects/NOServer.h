@@ -63,7 +63,6 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
             response:(RouteResponse *)response;
 
 -(void)handleCreateResourceWithEntityDescription:(NSEntityDescription *)entityDescription
-                              recievedJsonObject:(NSDictionary *)recievedJsonObject
                                          session:(NSManagedObject<NOSessionProtocol> *)session
                                         response:(RouteResponse *)response;
 

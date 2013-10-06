@@ -287,7 +287,6 @@
 		6EC8597D18006E8E0089F123 /* NetworkObjectsOSXApp */ = {
 			isa = PBXGroup;
 			children = (
-				6E580FE71801DD38004CB802 /* NetworkObjectsOSXApp.entitlements */,
 				6EC8598918006E8E0089F123 /* AppDelegate.h */,
 				6EC8598A18006E8E0089F123 /* AppDelegate.m */,
 				6EC8598C18006E8E0089F123 /* MainMenu.xib */,
@@ -301,6 +300,7 @@
 		6EC8597E18006E8E0089F123 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				6E580FE71801DD38004CB802 /* NetworkObjectsOSXApp.entitlements */,
 				6EC8597F18006E8E0089F123 /* NetworkObjectsOSXApp-Info.plist */,
 				6EC8598018006E8E0089F123 /* InfoPlist.strings */,
 				6EC8598318006E8E0089F123 /* main.m */,
@@ -715,7 +715,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = "NetworkObjectsOSXApp/NetworkObjectsOSXApp-Info.plist";
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
@@ -756,7 +756,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = "NetworkObjectsOSXApp/NetworkObjectsOSXApp-Info.plist";
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				WRAPPER_EXTENSION = app;
