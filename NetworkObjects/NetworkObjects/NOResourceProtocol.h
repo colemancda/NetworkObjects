@@ -28,30 +28,30 @@
 
 #pragma mark - Access
 
-+(BOOL)userCanCreateNewInstance:(id<NOUserProtocol>)user
-                         client:(id<NOClientProtocol>)client;
++(BOOL)userCanCreateNewInstance:(NSManagedObject<NOUserProtocol> *)user
+                         client:(NSManagedObject<NOClientProtocol> *)client;
 
--(BOOL)isVisibleToUser:(id<NOUserProtocol>)user
-                client:(id<NOClientProtocol>)client;
+-(BOOL)isVisibleToUser:(NSManagedObject<NOUserProtocol> *)user
+                client:(NSManagedObject<NOClientProtocol> *)client;
 
--(BOOL)isEditableByUser:(id<NOUserProtocol>)user
-                 client:(id<NOClientProtocol>)client;
-
--(BOOL)attribute:(NSString *)attributeKey
- isVisibleToUser:(id<NOUserProtocol>)user
-          client:(id<NOClientProtocol>)client;
+-(BOOL)isEditableByUser:(NSManagedObject<NOUserProtocol> *)user
+                 client:(NSManagedObject<NOClientProtocol> *)client;
 
 -(BOOL)attribute:(NSString *)attributeKey
-isEditableByUser:(id<NOUserProtocol>)user
-          client:(id<NOClientProtocol>)client;
+ isVisibleToUser:(NSManagedObject<NOUserProtocol> *)user
+          client:(NSManagedObject<NOClientProtocol> *)client;
+
+-(BOOL)attribute:(NSString *)attributeKey
+isEditableByUser:(NSManagedObject<NOUserProtocol> *)user
+          client:(NSManagedObject<NOClientProtocol> *)client;
 
 -(BOOL)relationship:(NSString *)relationshipKey
-    isVisibleToUser:(id<NOUserProtocol>)user
-             client:(id<NOClientProtocol>)client;
+    isVisibleToUser:(NSManagedObject<NOUserProtocol> *)user
+             client:(NSManagedObject<NOClientProtocol> *)client;
 
 -(BOOL)relationship:(NSString *)relationshipKey
-   isEditableByUser:(id<NOUserProtocol>)user
-             client:(id<NOClientProtocol>)client;
+   isEditableByUser:(NSManagedObject<NOUserProtocol> *)user
+             client:(NSManagedObject<NOClientProtocol> *)client;
 
 #pragma mark - Resource Functions
 

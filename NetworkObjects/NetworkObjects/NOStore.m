@@ -165,8 +165,7 @@
     return count;
 }
 
--(id<NOResourceProtocol>)resourceWithEntityDescription:(NSEntityDescription *)entityDescription
-                                            resourceID:(NSUInteger)resourceID
+-(NSManagedObject<NOResourceProtocol> *)resourceWithEntityDescription:(NSEntityDescription *)entityDescription resourceID:(NSUInteger)resourceID
 {
     // get the key of the resourceID attribute
     Class entityClass = NSClassFromString(entityDescription.managedObjectClassName);

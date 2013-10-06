@@ -36,8 +36,7 @@
 
 -(NSNumber *)newResourceWithEntityDescription:(NSEntityDescription *)entityDescription;
 
--(id<NOResourceProtocol>)resourceWithEntityDescription:(NSEntityDescription *)entityDescription
-                                            resourceID:(NSUInteger)resourceID;
+-(NSManagedObject<NOResourceProtocol> *)resourceWithEntityDescription:(NSEntityDescription *)entityDescription resourceID:(NSUInteger)resourceID;
 
 -(BOOL)deleteResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                                 resourceID:(NSUInteger)resourceID;

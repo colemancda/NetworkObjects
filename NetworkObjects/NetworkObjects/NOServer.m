@@ -248,6 +248,10 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         return;
     }
     
+    if (session) {
+        [session usedSession];
+    }
+    
     // determine what handler to call
     
     // get JSON body
@@ -434,7 +438,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         return;
     }
     
-    // check if jsonObject has keys that dont exist in this object or lacks permission...
+    // check if jsonObject has keys that dont exist in this resource or lacks permission to edit...
     
     NOServerStatusCode editStatusCode = [self verifyEditResource:resource
                                               recievedJsonObject:recievedJsonObject
@@ -448,39 +452,75 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         return;
     }
     
-    
-    // since we verified the validity and access permissions of the recievedJsonObject, then we apply the edits...
+    // since we verified the validity and access permissions of the recievedJsonObject, we then apply the edits...
     
     for (NSString *key in recievedJsonObject) {
         
         NSObject *value = recievedJsonObject[key];
         
-        // relationship
-        if ([value isKindOfClass:[NSArray class]]) {
-            
-            // IDs of related objects
-            NSArray *jsonRelationship = (NSArray *)value;
-            
-            // get the destination resource of the relationship
-            
-            
-            for (NSNumber *destinationResourceID in jsonRelationship) {
-                
-                
-                
-            }
-        }
+        // one of these will be nil
+        NSRelationshipDescription *relationshipDescription = resource.entity.relationshipsByName[key];
+        NSAttributeDescription *attributeDescription = resource.entity.attributesByName[key];
         
         // attribute
-        else {
+        if (attributeDescription) {
             
             [resource setValue:value
                         forKey:key];
+            
+        }
+        
+        // relationship
+        else {
+            
+            // to one relationship
+            if (!relationshipDescription.isToMany) {
+                
+                NSNumber *destinationResourceID = (NSNumber *)value;
+                
+                // get the destination resource
+                NSManagedObject<NOResourceProtocol> *destinationResource = [_store resourceWithEntityDescription:relationshipDescription.destinationEntity resourceID:destinationResourceID.integerValue];
+                
+                [resource setValue:destinationResource
+                            forKey:key];
+                
+            }
+            
+            // to many relationship
+            else {
+                
+                NSArray *resourceIDs = (NSArray *)value;
+                
+                // build array to replace old to-many relationsip
+                NSMutableArray *newRelationshipValues = [[NSMutableArray alloc] init];
+                
+                for (NSNumber *destinationResourceID in resourceIDs) {
+                    
+                    // get the destination resource
+                    NSManagedObject<NOResourceProtocol> *destinationResource = [_store resourceWithEntityDescription:relationshipDescription.destinationEntity resourceID:destinationResourceID.integerValue];
+                    
+                    [newRelationshipValues addObject:destinationResource];
+                }
+                
+                [resource setValue:newRelationshipValues
+                            forKey:key];
+                
+            }
         }
     }
     
     // return 200
     response.statusCode = OKStatusCode;
+}
+
+-(NOServerStatusCode)verifyEditResource:(NSManagedObject<NOResourceProtocol> *)resource
+                     recievedJsonObject:(NSDictionary *)recievedJsonObject
+                                   user:(NSManagedObject<NOUserProtocol> *)user
+                                 client:(NSManagedObject<NOClientProtocol> *)client
+{
+    
+    
+    return OKStatusCode;
 }
 
 -(void)handleCreateResourceWithEntityDescription:(NSEntityDescription *)entityDescription

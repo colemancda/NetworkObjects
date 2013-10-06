@@ -20,4 +20,6 @@
 // generate token
 -(void)generateToken;
 
+-(void)usedSession;
+
 @end

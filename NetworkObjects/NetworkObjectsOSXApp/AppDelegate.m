@@ -15,7 +15,8 @@
 {
     // Insert code here to initialize your application
     
-    NOServer *server = [[NOServer alloc] init];
+    
+    
 }
 
 @end
