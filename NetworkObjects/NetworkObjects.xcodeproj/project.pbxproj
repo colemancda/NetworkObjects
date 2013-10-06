@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6E2B262B18012207002B94F2 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E2B262A18012207002B94F2 /* Security.framework */; };
+		6E2B262E18012263002B94F2 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 6E2B262C18012263002B94F2 /* Model.xcdatamodeld */; };
 		6EC8597C18006E8E0089F123 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6EC8594518006E1A0089F123 /* Cocoa.framework */; };
 		6EC8598218006E8E0089F123 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6EC8598018006E8E0089F123 /* InfoPlist.strings */; };
 		6EC8598418006E8E0089F123 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EC8598318006E8E0089F123 /* main.m */; };
@@ -63,6 +65,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		6E2B262A18012207002B94F2 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		6E2B262D18012263002B94F2 /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
 		6EC8594518006E1A0089F123 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		6EC8594818006E1B0089F123 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		6EC8594918006E1B0089F123 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
@@ -160,6 +164,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6E2B262B18012207002B94F2 /* Security.framework in Frameworks */,
 				6EC8597C18006E8E0089F123 /* Cocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -229,6 +234,7 @@
 		6EC8594418006E1A0089F123 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				6E2B262A18012207002B94F2 /* Security.framework */,
 				6EC8594518006E1A0089F123 /* Cocoa.framework */,
 				6EC8596418006E1B0089F123 /* XCTest.framework */,
 				6EC8594718006E1B0089F123 /* Other Frameworks */,
@@ -252,6 +258,7 @@
 				6EC8598918006E8E0089F123 /* AppDelegate.h */,
 				6EC8598A18006E8E0089F123 /* AppDelegate.m */,
 				6EC8598C18006E8E0089F123 /* MainMenu.xib */,
+				6E2B262C18012263002B94F2 /* Model.xcdatamodeld */,
 				6EC8598F18006E8E0089F123 /* Images.xcassets */,
 				6EC8597E18006E8E0089F123 /* Supporting Files */,
 			);
@@ -538,6 +545,7 @@
 				6EC85A0B18006F9C0089F123 /* MultipartMessageHeader.m in Sources */,
 				6EC859FA18006F9C0089F123 /* NOStore.m in Sources */,
 				6EC85A0118006F9C0089F123 /* DDLog.m in Sources */,
+				6E2B262E18012263002B94F2 /* Model.xcdatamodeld in Sources */,
 				6EC85A0918006F9C0089F123 /* HTTPServer.m in Sources */,
 				6EC85A1418006F9C0089F123 /* Route.m in Sources */,
 				6EC85A0A18006F9C0089F123 /* MultipartFormDataParser.m in Sources */,
@@ -829,6 +837,19 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		6E2B262C18012263002B94F2 /* Model.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				6E2B262D18012263002B94F2 /* Model.xcdatamodel */,
+			);
+			currentVersion = 6E2B262D18012263002B94F2 /* Model.xcdatamodel */;
+			path = Model.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = 6EC858E818006D7A0089F123 /* Project object */;
 }

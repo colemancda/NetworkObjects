@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "NetworkObjects.h"
+#import "NOResourceProtocol.h"
 
 @protocol NOUserProtocol <NSObject, NOResourceProtocol>
 

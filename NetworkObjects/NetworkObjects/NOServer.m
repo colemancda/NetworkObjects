@@ -233,9 +233,69 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     }];
     
     
+    // determine what handler to call
     
-    // determine what resource is being requested and whether it is requesting a specific instance...
+    // create new instance
+    if (!resourceID && [request.method isEqualToString:@"POST"]) {
+        
+        [self handleCreateResourceWithEntityDescription:entityDescription
+                                                session:session
+                                               response:response];
+        return;
+        
+    }
     
+    if (resourceID) {
+        
+        // get the resource
+        id<NOResourceProtocol> resource = [_store resourceWithEntityDescription:entityDescription
+                                                                     resourceID:resourceID.integerValue];
+        
+        if (!resource) {
+            
+            response.statusCode = NotFoundStatusCode;
+            
+            return;
+        }
+        
+        if (functionName) {
+            
+            [self handleFunction:functionName
+                        resource:resource
+                         session:session
+                        response:response];
+        }
+        
+        if ([request.method isEqualToString:@"GET"]) {
+            
+            [self handleGetResource:resource
+                            session:session
+                           response:response];
+        }
+        
+        if ([request.method isEqualToString:@"PUT"]) {
+            
+            [self handleEditResource:resource
+                             session:session
+                            response:response];
+        }
+        
+        if ([request.method isEqualToString:@"DELETE"]) {
+            
+            [self handleDeleteResource:resource
+                               session:session
+                              response:response];
+            
+        }
+    }
+    
+    response.statusCode = MethodNotAllowedStatusCode;
+}
+
+-(void)handleGetResource:(id<NOResourceProtocol>)resource
+                 session:(id<NOSessionProtocol>)session
+                response:(RouteResponse *)response
+{
     
     
 }

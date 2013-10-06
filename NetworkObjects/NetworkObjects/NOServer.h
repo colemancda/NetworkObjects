@@ -7,7 +7,24 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "NOSessionProtocol.h"
 @class NOStore, RouteRequest, RouteResponse, RoutingHTTPServer;
+
+NS_ENUM(NSUInteger, NOServerStatusCodes) {
+    
+    OKStatusCode = 200,
+    
+    BadRequestStatusCode = 400,
+    UnauthorizedStatusCode, // not logged in
+    PaymentRequiredStatusCode,
+    ForbiddenStatusCode, // item is invisible to user or api app
+    NotFoundStatusCode, // item doesnt exist
+    MethodNotAllowedStatusCode,
+    ConflictStatusCode = 409, // user already exists
+    
+    InternalServerErrorStatusCode = 500
+    
+};
 
 @interface NOServer : NSObject
 
@@ -41,5 +58,26 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
           resourceID:(NSNumber *)resourceID
             function:(NSString *)functionName
             response:(RouteResponse *)response;
+
+-(void)handleCreateResourceWithEntityDescription:(NSEntityDescription *)entityDescription
+                                         session:(id<NOSessionProtocol>)session
+                                        response:(RouteResponse *)response;
+
+-(void)handleGetResource:(id<NOResourceProtocol>)resource
+                 session:(id<NOSessionProtocol>)session
+                response:(RouteResponse *)response;
+
+-(void)handleEditResource:(id<NOResourceProtocol>)resource
+                  session:(id<NOSessionProtocol>)session
+                 response:(RouteResponse *)response;
+
+-(void)handleDeleteResource:(id<NOResourceProtocol>)resource
+                    session:(id<NOSessionProtocol>)session
+                   response:(RouteResponse *)response;
+
+-(void)handleFunction:(NSString *)functionName
+             resource:(id<NOResourceProtocol>)resource
+              session:(id<NOSessionProtocol>)session
+             response:(RouteResponse *)response;
 
 @end
