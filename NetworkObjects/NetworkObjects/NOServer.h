@@ -60,24 +60,27 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
             response:(RouteResponse *)response;
 
 -(void)handleCreateResourceWithEntityDescription:(NSEntityDescription *)entityDescription
-                                         session:(id<NOSessionProtocol>)session
+                              recievedJsonObject:(NSDictionary *)recievedJsonObject
+                                         session:(NSManagedObject<NOSessionProtocol> *)session
                                         response:(RouteResponse *)response;
 
--(void)handleGetResource:(id<NOResourceProtocol>)resource
-                 session:(id<NOSessionProtocol>)session
-                response:(RouteResponse *)response;
-
--(void)handleEditResource:(id<NOResourceProtocol>)resource
-                  session:(id<NOSessionProtocol>)session
-                 response:(RouteResponse *)response;
-
--(void)handleDeleteResource:(id<NOResourceProtocol>)resource
-                    session:(id<NOSessionProtocol>)session
-                   response:(RouteResponse *)response;
-
 -(void)handleFunction:(NSString *)functionName
+   recievedJsonObject:(NSDictionary *)recievedJsonObject
              resource:(id<NOResourceProtocol>)resource
               session:(id<NOSessionProtocol>)session
              response:(RouteResponse *)response;
+
+-(void)handleEditResource:(NSManagedObject <NOResourceProtocol> *)resource
+       recievedJsonObject:(NSDictionary *)recievedJsonObject
+                  session:(NSManagedObject <NOSessionProtocol> *)session
+                 response:(RouteResponse *)response;
+
+-(void)handleGetResource:(NSManagedObject <NOResourceProtocol> *)resource
+                 session:(NSManagedObject <NOSessionProtocol> *)session
+                response:(RouteResponse *)response;
+
+-(void)handleDeleteResource:(NSManagedObject <NOResourceProtocol> *)resource
+                    session:(NSManagedObject <NOSessionProtocol> *)session
+                   response:(RouteResponse *)response;
 
 @end

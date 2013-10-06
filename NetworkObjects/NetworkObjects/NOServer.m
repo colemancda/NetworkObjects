@@ -235,16 +235,23 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     // determine what handler to call
     
+    // get JSON body
+    NSDictionary *jsonObject = [NSJSONSerialization JSONObjectWithData:request.body
+                                                               options:NSJSONReadingAllowFragments
+                                                                 error:nil];
+    
     // create new instance
     if (!resourceID && [request.method isEqualToString:@"POST"]) {
         
         [self handleCreateResourceWithEntityDescription:entityDescription
+                                     recievedJsonObject:jsonObject
                                                 session:session
                                                response:response];
         return;
         
     }
     
+    // methods that manipulate a instance
     if (resourceID) {
         
         // get the resource
@@ -261,9 +268,26 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         if (functionName) {
             
             [self handleFunction:functionName
+              recievedJsonObject:jsonObject
                         resource:resource
                          session:session
                         response:response];
+        }
+        
+        // requires a body
+        if ([request.method isEqualToString:@"PUT"]) {
+            
+            if (!jsonObject || ![jsonObject isKindOfClass:[NSDictionary class]]) {
+                
+                response.statusCode = BadRequestStatusCode;
+                
+                return;
+            }
+            
+            [self handleEditResource:resource
+                  recievedJsonObject:jsonObject
+                             session:session
+                            response:response];
         }
         
         if ([request.method isEqualToString:@"GET"]) {
@@ -273,12 +297,6 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                            response:response];
         }
         
-        if ([request.method isEqualToString:@"PUT"]) {
-            
-            [self handleEditResource:resource
-                             session:session
-                            response:response];
-        }
         
         if ([request.method isEqualToString:@"DELETE"]) {
             
@@ -289,13 +307,26 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         }
     }
     
+    // no recognized request was recieved
     response.statusCode = MethodNotAllowedStatusCode;
 }
 
--(void)handleGetResource:(id<NOResourceProtocol>)resource
-                 session:(id<NOSessionProtocol>)session
+-(void)handleGetResource:(NSManagedObject<NOResourceProtocol> *)resource
+                 session:(NSManagedObject<NOSessionProtocol> *)session
                 response:(RouteResponse *)response
 {
+    NSManagedObject<NOUserProtocol> *user = [session valueForKey:[session.class sessionUserKey]];
+    
+    NSManagedObject<NOClientProtocol> *client = [session valueForKey:[session.class sessionClientKey]];
+    
+    if (![resource isVisibleToUser:user
+                            client:client]) {
+        
+        response.statusCode = ForbiddenStatusCode;
+        
+        return;
+    }
+    
     
     
 }
