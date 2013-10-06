@@ -14,6 +14,19 @@
 #import "NOUserProtocol.h"
 #import "NOClientProtocol.h"
 
+@implementation NOServer (NSJSONWritingOption)
+
+-(NSJSONWritingOptions)jsonWritingOption
+{
+    if (self.prettyPrintJSON) {
+        return NSJSONWritingPrettyPrinted;
+    }
+    
+    return 0;
+}
+
+@end
+
 @implementation NOServer
 
 @synthesize resourcePaths = _resourcePaths;
@@ -76,17 +89,12 @@
             
             if (conformsToNOResourceProtocol) {
                 
-                // check if resource wants to be broadcast
-                if ([entityClass isNetworked]) {
-                    
-                    // map enitity to url path
-                    NSString *path = [entityClass resourcePath];
-                    
-                    // add to dictionary
-                    [urlsDict setValue:entityDescription
-                                forKey:path];
-                    
-                }
+                // map enitity to url path
+                NSString *path = [entityClass resourcePath];
+                
+                // add to dictionary
+                [urlsDict setValue:entityDescription
+                            forKey:path];
             }
         }
         
@@ -354,11 +362,54 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     // then the relationships
     for (NSString *relationshipName in resource.entity.relationshipsByName) {
         
+        if ([resource relationship:relationshipName
+                   isVisibleToUser:user
+                            client:client]) {
+            
+            NSArray *relationship = [resource valueForKey:relationshipName];
+            
+            NSMutableArray *visibleDestinationResources = [[NSMutableArray alloc] init];
+            
+            for (NSManagedObject<NOResourceProtocol> *destinationResource in relationship) {
+                
+                // add to JSON object if the item is visible so we dont reveal the existence of hidden resources
+                if ([destinationResource isVisibleToUser:user
+                                                  client:client]) {
+                    
+                    // get resourceID
+                    
+                    NSString *resourceIDKey = [destinationResource.class resourceIDKey];
+                    
+                    NSNumber *resourceID = [destinationResource valueForKey:resourceIDKey];
+                    
+                    [visibleDestinationResources addObject:resourceID];
+                }
+                
+            }
+            
+            [jsonObject setObject:visibleDestinationResources
+                           forKey:relationshipName];
+            
+        }
+    }
+
+    
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonObject
+                                                       options:self.jsonWritingOption
+                                                         error:nil];
+    if (!jsonData) {
         
+        NSLog(@"Error writing JSON data!");
         
+        response.statusCode = InternalServerErrorStatusCode;
+        
+        return;
     }
     
+    [response respondWithData:jsonData];
 }
+
+
 
 
 @end

@@ -15,9 +15,6 @@
 
 #pragma mark - Network Access
 
-// Whether we want this resource to be broadcasted by the server
-+(BOOL)isNetworked;
-
 // URL instances of this resource can be accessed from
 +(NSString *)resourcePath;
 
