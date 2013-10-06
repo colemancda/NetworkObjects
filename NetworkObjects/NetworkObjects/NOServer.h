@@ -43,7 +43,7 @@ typedef NS_ENUM(NSUInteger, NOServerStatusCode) {
 
 @property (readonly) NSEntityDescription *clientEntityDescription;
 
--(void)startOnPort:(NSUInteger)port;
+-(NSError *)startOnPort:(NSUInteger)port;
 
 -(void)stop;
 

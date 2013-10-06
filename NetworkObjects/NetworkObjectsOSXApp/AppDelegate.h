@@ -17,4 +17,10 @@
 
 @property (readonly) NOStore *store;
 
+#pragma mark - UI
+
+- (IBAction)startStop:(id)sender;
+
+@property (weak) IBOutlet NSTextField *portTextField;
+
 @end

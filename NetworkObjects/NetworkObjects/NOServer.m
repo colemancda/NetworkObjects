@@ -57,15 +57,26 @@
 
 #pragma mark - Start & Stop
 
--(void)startOnPort:(NSUInteger)port
+-(NSError *)startOnPort:(NSUInteger)port
 {
+    _httpServer = [[RoutingHTTPServer alloc] init];
     
+    [self setupServerRoutes];
+    
+    NSError *startServerError;
+    BOOL didStart = [_httpServer start:&startServerError];
+    
+    if (!didStart) {
+        
+        return startServerError;
+    }
+    
+    return nil;
 }
 
 -(void)stop
 {
-    
-    
+    [_httpServer stop];
 }
 
 #pragma mark - Mapping URLs to Entities
@@ -108,7 +119,7 @@
 -(void)setupServerRoutes
 {
     // configure internal HTTP server routes
-    for (NSString *path in _resourcePaths) {
+    for (NSString *path in self.resourcePaths) {
         
         // get entity description
         

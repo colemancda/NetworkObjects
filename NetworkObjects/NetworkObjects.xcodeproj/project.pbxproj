@@ -243,6 +243,13 @@
 			name = Protocols;
 			sourceTree = "<group>";
 		};
+		6E580FEE18022395004CB802 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Models;
+			sourceTree = "<group>";
+		};
 		6EC858E718006D7A0089F123 = {
 			isa = PBXGroup;
 			children = (
@@ -292,6 +299,7 @@
 				6EC8598C18006E8E0089F123 /* MainMenu.xib */,
 				6E2B262C18012263002B94F2 /* Model.xcdatamodeld */,
 				6EC8598F18006E8E0089F123 /* Images.xcassets */,
+				6E580FEE18022395004CB802 /* Models */,
 				6EC8597E18006E8E0089F123 /* Supporting Files */,
 			);
 			path = NetworkObjectsOSXApp;

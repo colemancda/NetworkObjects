@@ -16,6 +16,10 @@
     NSDictionary *_createResourcesQueues;
 }
 
+
+-(id)initWithManagedObjectModel:(NSManagedObjectModel *)model
+                     lastIDsURL:(NSURL *)lastIDsURL;
+
 @property (readonly) NSManagedObjectContext *context;
 
 @property (readonly) NSDictionary *lastResourceIDs;

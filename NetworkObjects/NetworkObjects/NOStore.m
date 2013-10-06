@@ -14,7 +14,7 @@
 @synthesize lastIDsURL = _lastIDsURL;
 
 -(id)initWithManagedObjectModel:(NSManagedObjectModel *)model
-                     lastIDsURL:(NSURL *)lastIDsURL;
+                     lastIDsURL:(NSURL *)lastIDsURL
 {
     self = [super init];
     if (self) {
