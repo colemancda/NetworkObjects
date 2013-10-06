@@ -219,7 +219,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     // determine the attribute name the entity uses for storing tokens
     
-    Class sessionEntityClass = NSClassFromString(self.sessionEntityDescription.managedObjectClassName);
+    Class sessionEntityClass = NSClassFromString(self.XsessionEntityDescription.managedObjectClassName);
     
     NSString *tokenKey = [sessionEntityClass sessionTokenKey];
     

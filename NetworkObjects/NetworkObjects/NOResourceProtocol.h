@@ -10,6 +10,7 @@
 
 @protocol NOUserProtocol;
 @protocol NOClientProtocol;
+@protocol NOSessionProtocol;
 
 @protocol NOResourceProtocol <NSObject>
 
@@ -28,18 +29,14 @@
 
 #pragma mark - Access
 
-+(BOOL)userCanCreateNewInstance:(NSManagedObject<NOUserProtocol> *)user
-                         client:(NSManagedObject<NOClientProtocol> *)client;
++(BOOL)canCreateNewInstanceWithSession:(NSManagedObject<NOSessionProtocol> *)session;
 
--(BOOL)isVisibleToUser:(NSManagedObject<NOUserProtocol> *)user
-                client:(NSManagedObject<NOClientProtocol> *)client;
+-(BOOL)isVisibleToSession:(NSManagedObject<NOSessionProtocol> *)session;
 
--(BOOL)isEditableByUser:(NSManagedObject<NOUserProtocol> *)user
-                 client:(NSManagedObject<NOClientProtocol> *)client;
+-(BOOL)isEditableBySession:(NSManagedObject<NOSessionProtocol> *)session;
 
 -(BOOL)attribute:(NSString *)attributeKey
- isVisibleToUser:(NSManagedObject<NOUserProtocol> *)user
-          client:(NSManagedObject<NOClientProtocol> *)client;
+ isVisibleToSession:(NSManagedObject<NOSessionProtocol> *)session;
 
 -(BOOL)attribute:(NSString *)attributeKey
 isEditableByUser:(NSManagedObject<NOUserProtocol> *)user
@@ -56,6 +53,16 @@ isEditableByUser:(NSManagedObject<NOUserProtocol> *)user
 -(BOOL)canPerformFunction:(NSString *)functionName
                      user:(NSManagedObject<NOUserProtocol> *)user
                    client:(NSManagedObject<NOClientProtocol> *)client;
+
+#pragma mark - Delegate
+
+-(void)wasCreatedByUser:(NSManagedObject<NOUserProtocol> *)user
+                 client:(NSManagedObject<NOClientProtocol>* )client;
+
+-(void)wasAccessedByUser:(NSManagedObject<NOUserProtocol> *)user
+                  client:(NSManagedObject<NOClientProtocol>* )client;
+
+-(void)didEditAttribute:()
 
 #pragma mark - Resource Functions
 

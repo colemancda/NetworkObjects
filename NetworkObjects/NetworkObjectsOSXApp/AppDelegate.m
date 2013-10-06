@@ -25,13 +25,17 @@
     
     NSButton *button = (NSButton *)sender;
     
-    if (button.state == NSOnState) {
+    if (button.state == NSOffState) {
+        
+        NSLog(@"Stopped NOServer");
         
         [self.server stop];
         
     }
     
     else {
+        
+        NSLog(@"Starting Server...");
         
         NSUInteger port = self.portTextField.integerValue;
         

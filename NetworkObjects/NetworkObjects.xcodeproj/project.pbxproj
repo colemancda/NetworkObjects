@@ -12,6 +12,11 @@
 		6E580FE41801D1D9004CB802 /* NSManagedObject+CoreDataJSONCompatibility.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E580FE31801D1D9004CB802 /* NSManagedObject+CoreDataJSONCompatibility.m */; };
 		6E580FEA1801E3D2004CB802 /* NSDate+ISO8601.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E580FE91801E3D2004CB802 /* NSDate+ISO8601.m */; };
 		6E580FED1801E6B7004CB802 /* Base64.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E580FEC1801E6B7004CB802 /* Base64.m */; };
+		6E580FF11802257C004CB802 /* User.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E580FF01802257C004CB802 /* User.m */; };
+		6E580FF41802257D004CB802 /* Session.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E580FF31802257D004CB802 /* Session.m */; };
+		6E580FF71802257D004CB802 /* Client.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E580FF61802257D004CB802 /* Client.m */; };
+		6E580FFA1802257D004CB802 /* Post.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E580FF91802257D004CB802 /* Post.m */; };
+		6E580FFE180225BA004CB802 /* Post+NOResourceProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E580FFD180225BA004CB802 /* Post+NOResourceProtocol.m */; };
 		6EC8597C18006E8E0089F123 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6EC8594518006E1A0089F123 /* Cocoa.framework */; };
 		6EC8598218006E8E0089F123 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6EC8598018006E8E0089F123 /* InfoPlist.strings */; };
 		6EC8598418006E8E0089F123 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EC8598318006E8E0089F123 /* main.m */; };
@@ -77,6 +82,16 @@
 		6E580FE91801E3D2004CB802 /* NSDate+ISO8601.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDate+ISO8601.m"; sourceTree = "<group>"; };
 		6E580FEB1801E6B7004CB802 /* Base64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Base64.h; sourceTree = "<group>"; };
 		6E580FEC1801E6B7004CB802 /* Base64.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Base64.m; sourceTree = "<group>"; };
+		6E580FEF1802257C004CB802 /* User.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = User.h; sourceTree = "<group>"; };
+		6E580FF01802257C004CB802 /* User.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = User.m; sourceTree = "<group>"; };
+		6E580FF21802257D004CB802 /* Session.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Session.h; sourceTree = "<group>"; };
+		6E580FF31802257D004CB802 /* Session.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Session.m; sourceTree = "<group>"; };
+		6E580FF51802257D004CB802 /* Client.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Client.h; sourceTree = "<group>"; };
+		6E580FF61802257D004CB802 /* Client.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Client.m; sourceTree = "<group>"; };
+		6E580FF81802257D004CB802 /* Post.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Post.h; sourceTree = "<group>"; };
+		6E580FF91802257D004CB802 /* Post.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Post.m; sourceTree = "<group>"; };
+		6E580FFC180225BA004CB802 /* Post+NOResourceProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Post+NOResourceProtocol.h"; sourceTree = "<group>"; };
+		6E580FFD180225BA004CB802 /* Post+NOResourceProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "Post+NOResourceProtocol.m"; sourceTree = "<group>"; };
 		6EC8594518006E1A0089F123 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		6EC8594818006E1B0089F123 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		6EC8594918006E1B0089F123 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
@@ -246,8 +261,26 @@
 		6E580FEE18022395004CB802 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				6E580FFB18022582004CB802 /* Categories */,
+				6E580FF81802257D004CB802 /* Post.h */,
+				6E580FF91802257D004CB802 /* Post.m */,
+				6E580FF51802257D004CB802 /* Client.h */,
+				6E580FF61802257D004CB802 /* Client.m */,
+				6E580FF21802257D004CB802 /* Session.h */,
+				6E580FF31802257D004CB802 /* Session.m */,
+				6E580FEF1802257C004CB802 /* User.h */,
+				6E580FF01802257C004CB802 /* User.m */,
 			);
 			name = Models;
+			sourceTree = "<group>";
+		};
+		6E580FFB18022582004CB802 /* Categories */ = {
+			isa = PBXGroup;
+			children = (
+				6E580FFC180225BA004CB802 /* Post+NOResourceProtocol.h */,
+				6E580FFD180225BA004CB802 /* Post+NOResourceProtocol.m */,
+			);
+			name = Categories;
 			sourceTree = "<group>";
 		};
 		6EC858E718006D7A0089F123 = {
@@ -591,9 +624,11 @@
 				6EC859FD18006F9C0089F123 /* DDRange.m in Sources */,
 				6EC85A1118006F9C0089F123 /* HTTPRedirectResponse.m in Sources */,
 				6EC85A1518006F9C0089F123 /* RouteRequest.m in Sources */,
+				6E580FFA1802257D004CB802 /* Post.m in Sources */,
 				6EC859FC18006F9C0089F123 /* DDNumber.m in Sources */,
 				6EC85A0B18006F9C0089F123 /* MultipartMessageHeader.m in Sources */,
 				6EC859FA18006F9C0089F123 /* NOStore.m in Sources */,
+				6E580FF41802257D004CB802 /* Session.m in Sources */,
 				6EC85A0118006F9C0089F123 /* DDLog.m in Sources */,
 				6E2B262E18012263002B94F2 /* Model.xcdatamodeld in Sources */,
 				6EC85A0918006F9C0089F123 /* HTTPServer.m in Sources */,
@@ -604,7 +639,9 @@
 				6EC85A1218006F9C0089F123 /* WebSocket.m in Sources */,
 				6EC85A0E18006F9C0089F123 /* HTTPDataResponse.m in Sources */,
 				6EC85A1718006F9C0089F123 /* RoutingConnection.m in Sources */,
+				6E580FF11802257C004CB802 /* User.m in Sources */,
 				6EC859FB18006F9C0089F123 /* DDData.m in Sources */,
+				6E580FFE180225BA004CB802 /* Post+NOResourceProtocol.m in Sources */,
 				6EC859FE18006F9C0089F123 /* DDAbstractDatabaseLogger.m in Sources */,
 				6E580FED1801E6B7004CB802 /* Base64.m in Sources */,
 				6EC85A0318006F9C0089F123 /* ContextFilterLogFormatter.m in Sources */,
@@ -615,6 +652,7 @@
 				6E580FE41801D1D9004CB802 /* NSManagedObject+CoreDataJSONCompatibility.m in Sources */,
 				6EC85A0018006F9C0089F123 /* DDFileLogger.m in Sources */,
 				6EC85A0618006F9C0089F123 /* HTTPAuthenticationRequest.m in Sources */,
+				6E580FF71802257D004CB802 /* Client.m in Sources */,
 				6E580FEA1801E3D2004CB802 /* NSDate+ISO8601.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
