@@ -209,11 +209,13 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     sessionWithTokenFetchRequest.predicate = [NSPredicate predicateWithFormat:@"%@ == %@", tokenKey, token];
     
+    __block id<NOSessionProtocol> session;
+    
     [self.store.context performBlockAndWait:^{
         
-        NSError *error;
+        NSError *fetchError;
         NSArray *result = [self.store.context executeFetchRequest:sessionWithTokenFetchRequest
-                                                             error:&error];
+                                                             error:&fetchError];
         
         if (!result) {
             
@@ -222,10 +224,15 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
             return;
         }
         
+        if (!result.count) {
+            return;
+        }
         
-        
+        session = result[0];
         
     }];
+    
+    
     
     // determine what resource is being requested and whether it is requesting a specific instance...
     

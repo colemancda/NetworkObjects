@@ -28,6 +28,9 @@
 
 #pragma mark - Access
 
++(BOOL)userCanCreateNewInstance:(id<NOUserProtocol>)user
+                         client:(id<NOClientProtocol>)client;
+
 -(BOOL)isVisibleToUser:(id<NOUserProtocol>)user
                 client:(id<NOClientProtocol>)client;
 
