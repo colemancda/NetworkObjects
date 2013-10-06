@@ -10,6 +10,8 @@
 		6E2B262B18012207002B94F2 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E2B262A18012207002B94F2 /* Security.framework */; };
 		6E2B262E18012263002B94F2 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 6E2B262C18012263002B94F2 /* Model.xcdatamodeld */; };
 		6E580FE41801D1D9004CB802 /* NSManagedObject+CoreDataJSONCompatibility.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E580FE31801D1D9004CB802 /* NSManagedObject+CoreDataJSONCompatibility.m */; };
+		6E580FEA1801E3D2004CB802 /* NSDate+ISO8601.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E580FE91801E3D2004CB802 /* NSDate+ISO8601.m */; };
+		6E580FED1801E6B7004CB802 /* Base64.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E580FEC1801E6B7004CB802 /* Base64.m */; };
 		6EC8597C18006E8E0089F123 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6EC8594518006E1A0089F123 /* Cocoa.framework */; };
 		6EC8598218006E8E0089F123 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6EC8598018006E8E0089F123 /* InfoPlist.strings */; };
 		6EC8598418006E8E0089F123 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EC8598318006E8E0089F123 /* main.m */; };
@@ -70,6 +72,11 @@
 		6E2B262D18012263002B94F2 /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
 		6E580FE21801D1D9004CB802 /* NSManagedObject+CoreDataJSONCompatibility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSManagedObject+CoreDataJSONCompatibility.h"; sourceTree = "<group>"; };
 		6E580FE31801D1D9004CB802 /* NSManagedObject+CoreDataJSONCompatibility.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSManagedObject+CoreDataJSONCompatibility.m"; sourceTree = "<group>"; };
+		6E580FE71801DD38004CB802 /* NetworkObjectsOSXApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = NetworkObjectsOSXApp.entitlements; sourceTree = "<group>"; };
+		6E580FE81801E3D2004CB802 /* NSDate+ISO8601.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDate+ISO8601.h"; sourceTree = "<group>"; };
+		6E580FE91801E3D2004CB802 /* NSDate+ISO8601.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDate+ISO8601.m"; sourceTree = "<group>"; };
+		6E580FEB1801E6B7004CB802 /* Base64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Base64.h; sourceTree = "<group>"; };
+		6E580FEC1801E6B7004CB802 /* Base64.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Base64.m; sourceTree = "<group>"; };
 		6EC8594518006E1A0089F123 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		6EC8594818006E1B0089F123 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		6EC8594918006E1B0089F123 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
@@ -217,6 +224,10 @@
 			children = (
 				6E580FE21801D1D9004CB802 /* NSManagedObject+CoreDataJSONCompatibility.h */,
 				6E580FE31801D1D9004CB802 /* NSManagedObject+CoreDataJSONCompatibility.m */,
+				6E580FEB1801E6B7004CB802 /* Base64.h */,
+				6E580FEC1801E6B7004CB802 /* Base64.m */,
+				6E580FE81801E3D2004CB802 /* NSDate+ISO8601.h */,
+				6E580FE91801E3D2004CB802 /* NSDate+ISO8601.m */,
 			);
 			name = Categories;
 			sourceTree = "<group>";
@@ -276,6 +287,7 @@
 		6EC8597D18006E8E0089F123 /* NetworkObjectsOSXApp */ = {
 			isa = PBXGroup;
 			children = (
+				6E580FE71801DD38004CB802 /* NetworkObjectsOSXApp.entitlements */,
 				6EC8598918006E8E0089F123 /* AppDelegate.h */,
 				6EC8598A18006E8E0089F123 /* AppDelegate.m */,
 				6EC8598C18006E8E0089F123 /* MainMenu.xib */,
@@ -496,8 +508,17 @@
 		6EC858E818006D7A0089F123 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				CLASSPREFIX = "";
 				LastUpgradeCheck = 0500;
+				ORGANIZATIONNAME = CDA;
 				TargetAttributes = {
+					6EC8597A18006E8D0089F123 = {
+						SystemCapabilities = {
+							com.apple.Sandbox = {
+								enabled = 1;
+							};
+						};
+					};
 					6EC8599418006E8E0089F123 = {
 						TestTargetID = 6EC8597A18006E8D0089F123;
 					};
@@ -577,6 +598,7 @@
 				6EC85A1718006F9C0089F123 /* RoutingConnection.m in Sources */,
 				6EC859FB18006F9C0089F123 /* DDData.m in Sources */,
 				6EC859FE18006F9C0089F123 /* DDAbstractDatabaseLogger.m in Sources */,
+				6E580FED1801E6B7004CB802 /* Base64.m in Sources */,
 				6EC85A0318006F9C0089F123 /* ContextFilterLogFormatter.m in Sources */,
 				6EC85A0C18006F9C0089F123 /* MultipartMessageHeaderField.m in Sources */,
 				6EC85A0218006F9C0089F123 /* DDTTYLogger.m in Sources */,
@@ -585,6 +607,7 @@
 				6E580FE41801D1D9004CB802 /* NSManagedObject+CoreDataJSONCompatibility.m in Sources */,
 				6EC85A0018006F9C0089F123 /* DDFileLogger.m in Sources */,
 				6EC85A0618006F9C0089F123 /* HTTPAuthenticationRequest.m in Sources */,
+				6E580FEA1801E3D2004CB802 /* NSDate+ISO8601.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -670,6 +693,8 @@
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_ENTITLEMENTS = NetworkObjectsOSXApp/NetworkObjectsOSXApp.entitlements;
+				CODE_SIGN_IDENTITY = "-";
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -690,7 +715,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = "NetworkObjectsOSXApp/NetworkObjectsOSXApp-Info.plist";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
@@ -714,6 +739,8 @@
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_ENTITLEMENTS = NetworkObjectsOSXApp/NetworkObjectsOSXApp.entitlements;
+				CODE_SIGN_IDENTITY = "-";
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -729,7 +756,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = "NetworkObjectsOSXApp/NetworkObjectsOSXApp-Info.plist";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				WRAPPER_EXTENSION = app;
