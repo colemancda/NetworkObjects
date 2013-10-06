@@ -8,6 +8,7 @@
 
 #import "NOServer.h"
 #import "RoutingHTTPServer.h"
+#import "NOStore.h"
 
 @implementation NOServer
 
@@ -94,57 +95,122 @@
     // configure internal HTTP server routes
     for (NSString *path in _resourcePaths) {
         
+        // get entity description
         
+        NSEntityDescription *entityDescription = _resourcePaths[path];
         
-        NSString *instancePathExpression = [NSString stringWithFormat:@"/:resource/(\\d+)/:function"];
-        NSString *allInstancesPathExpression = [NSString stringWithFormat:@"/%@"];
+        Class entityClass = NSClassFromString(entityDescription.managedObjectClassName);
         
-        void (^requestHandler) (RouteRequest *, RouteResponse *) = ^(RouteRequest *request, RouteResponse *response) {
+        // setup routes for resources
+        
+        NSString *allInstancesPathExpression = [NSString stringWithFormat:@"/%@", path];
+        
+        void (^allInstancesRequestHandler) (RouteRequest *, RouteResponse *) = ^(RouteRequest *request, RouteResponse *response) {
             
             [self handleRequest:request
+forResourceWithEntityDescription:entityDescription
+                     resourceID:nil
+                       function:nil
                        response:response];
-            
         };
-        
-        
-        // GET (read resource)
-        [_httpServer get:instancePathExpression
-               withBlock:requestHandler];
-        
-        // PUT (edit resource)
-        [_httpServer put:instancePathExpression
-               withBlock:requestHandler];
-        
-        // DELETE (delete resource)
-        [_httpServer delete:instancePathExpression
-                  withBlock:requestHandler];
-        
         
         // POST (create new resource)
         [_httpServer post:allInstancesPathExpression
-                withBlock:requestHandler];
+                withBlock:allInstancesRequestHandler];
         
-        // GET (get number of instances)
-        [_httpServer get:allInstancesPathExpression
-               withBlock:requestHandler];
+        // if count is enabled
+        if ([entityClass countEnabled]) {
+            
+            // GET (get number of instances)
+            [_httpServer get:allInstancesPathExpression
+                   withBlock:allInstancesRequestHandler];
+        }
         
+        if ([entityClass searchEnabled]) {
+            
+            // SEARCH
+            
+            
+        }
+        
+        // setup routes for resource instances
+        
+        NSString *instancePathExpression = [NSString stringWithFormat:@"/%@/(\\d+)", path];
+        
+        void (^instanceRequestHandler) (RouteRequest *, RouteResponse *) = ^(RouteRequest *request, RouteResponse *response) {
+            
+            NSArray *captures = request.params[@"captures"];
+            
+            NSString *capturedResourceID = captures[0];
+            
+            NSNumber *resourceID = [NSNumber numberWithInteger:capturedResourceID.integerValue];
+            
+            [self handleRequest:request
+forResourceWithEntityDescription:entityDescription
+                     resourceID:resourceID
+                       function:nil
+                       response:response];
+        };
+        
+        // GET (read resource)
+        [_httpServer get:instancePathExpression
+               withBlock:instanceRequestHandler];
+        
+        // PUT (edit resource)
+        [_httpServer put:instancePathExpression
+               withBlock:instanceRequestHandler];
+        
+        // DELETE (delete resource)
+        [_httpServer delete:instancePathExpression
+                  withBlock:instanceRequestHandler];
+        
+        // add function routes
+
+        
+        for (NSString *functionName in [entityClass functions]) {
+            
+            NSString *functionExpression = [NSString stringWithFormat:@"/%@/(\\d+)/%@", path, functionName];
+            
+            void (^instanceFunctionRequestHandler) (RouteRequest *, RouteResponse *) = ^(RouteRequest *request, RouteResponse *response) {
+                
+                NSArray *captures = request.params[@"captures"];
+                
+                NSString *capturedResourceID = captures[0];
+                
+                NSNumber *resourceID = [NSNumber numberWithInteger:capturedResourceID.integerValue];
+                
+                [self handleRequest:request
+   forResourceWithEntityDescription:entityDescription
+                         resourceID:resourceID
+                           function:functionName
+                           response:response];
+
+            };
+            
+            // functions use POST
+            [_httpServer post:functionExpression
+                    withBlock:instanceFunctionRequestHandler];
+            
+        }
     }
 }
 
 -(void)handleRequest:(RouteRequest *)request
+forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
+          resourceID:(NSNumber *)resourceID
+            function:(NSString *)functionName
             response:(RouteResponse *)response
 {
-    // determine what client and what user is making the request
+    // get the session info
     
+    NSString *token = request.headers[@"Authorization"];
     
+    // search the store for token
+    self.store 
     
     
     // determine what resource is being requested and whether it is requesting a specific instance...
     
-    NSString *instancePathExpression = [NSString stringWithFormat:@"/:resource/(\\d+)", path];
-    NSString *allInstancesPathExpression = [NSString stringWithFormat:@"/:resource", path];
-    
-    NSRegularExpression *instanceurlExpresson = [NSRegularExpression regularExpressionWithPattern:<#(NSString *)#> options:<#(NSRegularExpressionOptions)#> error:nil]
     
     
 }

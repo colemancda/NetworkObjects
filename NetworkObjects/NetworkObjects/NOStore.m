@@ -10,28 +10,45 @@
 
 @implementation NOStore
 
--(id)initWithContext:(NSManagedObjectContext *)context
+-(id)initWithManagedObjectModel:(NSManagedObjectModel *)model;
 {
     self = [super init];
     if (self) {
         
-        _context = context;
+        // load model
+        if (!model) {
+            model = [NSManagedObjectModel mergedModelFromBundles:nil];
+        }
+        
+        // create context
+        _context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+        _context.persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:model];
+        _context.undoManager = nil;
         
     }
     return self;
 }
 
-- (id)init
+-(id)init
 {
-    [NSException raise:@"Wrong initialization method"
-                format:@"You cannot use %@ with '-%@', you have to use '-%@'",
-     self,
-     NSStringFromSelector(_cmd),
-     NSStringFromSelector(@selector(initWithContext:))];
-    return nil;
+    self = [self initWithManagedObjectModel:nil];
+    return self;
 }
 
 #pragma mark
+
+-(NSUInteger)numberOfInstancesOfResourceWithEntityDescription:(NSEntityDescription *)entityDescription
+{
+    __block NSUInteger count = 0;
+    
+    [_context performBlockAndWait:^{
+        
+        
+        
+    }];
+    
+    return count;
+}
 
 
 

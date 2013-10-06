@@ -7,17 +7,15 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "RoutingHTTPServer.h"
-#import "NOStore.h"
+@class NOStore, RouteRequest, RouteResponse, RoutingHTTPServer;
 
 @interface NOServer : NSObject
-{
-    RoutingHTTPServer *_httpServer;
-}
 
 -(id)initWithStore:(NOStore *)store;
 
 @property (readonly) NOStore *store;
+
+@property (readonly) RoutingHTTPServer *httpServer;
 
 -(void)startOnPort:(NSUInteger)port;
 
@@ -33,6 +31,9 @@
 
 // code for handling incoming REST requests (authentication, returning JSON data)
 -(void)handleRequest:(RouteRequest *)request
+forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
+          resourceID:(NSNumber *)resourceID
+            function:(NSString *)functionName
             response:(RouteResponse *)response;
 
 @end
