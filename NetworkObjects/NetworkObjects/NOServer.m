@@ -353,9 +353,18 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     // first the attributes
     for (NSString *attributeName in resource.entity.attributesByName) {
         
+        // check access permissions
         if ([resource attribute:attributeName
                 isVisibleToUser:user
                          client:client]) {
+            
+            // format attributes that need it...
+            
+            NSObject *formattedObject
+            
+            if (<#condition#>) {
+                <#statements#>
+            }
             
             [jsonObject setObject:[resource valueForKey:attributeName]
                            forKey:attributeName];
@@ -363,7 +372,20 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         
     }
     
-    // then the relationships
+    // then the to-one relationships
+    for (NSString *toOneRelationshipName in resource.entity.toOneRelationshipKeys) {
+        
+        
+        
+    }
+    
+    // finally the to-many relationships
+    for (NSString *toManyRelationshipName in resource.entity.toManyRelationshipKeys) {
+        
+        
+        
+    }
+    
     for (NSString *relationshipName in resource.entity.relationshipsByName) {
         
         if ([resource relationship:relationshipName

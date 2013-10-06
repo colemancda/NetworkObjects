@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		6E2B262B18012207002B94F2 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E2B262A18012207002B94F2 /* Security.framework */; };
 		6E2B262E18012263002B94F2 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 6E2B262C18012263002B94F2 /* Model.xcdatamodeld */; };
+		6E580FE41801D1D9004CB802 /* NSManagedObject+CoreDataJSONCompatibility.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E580FE31801D1D9004CB802 /* NSManagedObject+CoreDataJSONCompatibility.m */; };
 		6EC8597C18006E8E0089F123 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6EC8594518006E1A0089F123 /* Cocoa.framework */; };
 		6EC8598218006E8E0089F123 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6EC8598018006E8E0089F123 /* InfoPlist.strings */; };
 		6EC8598418006E8E0089F123 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EC8598318006E8E0089F123 /* main.m */; };
@@ -67,6 +68,8 @@
 /* Begin PBXFileReference section */
 		6E2B262A18012207002B94F2 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		6E2B262D18012263002B94F2 /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
+		6E580FE21801D1D9004CB802 /* NSManagedObject+CoreDataJSONCompatibility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSManagedObject+CoreDataJSONCompatibility.h"; sourceTree = "<group>"; };
+		6E580FE31801D1D9004CB802 /* NSManagedObject+CoreDataJSONCompatibility.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSManagedObject+CoreDataJSONCompatibility.m"; sourceTree = "<group>"; };
 		6EC8594518006E1A0089F123 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		6EC8594818006E1B0089F123 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		6EC8594918006E1B0089F123 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
@@ -203,12 +206,30 @@
 		6E2B26291800943B002B94F2 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				6E580FE61801D1E8004CB802 /* Protocols */,
+				6E580FE51801D1DE004CB802 /* Categories */,
+			);
+			name = Models;
+			sourceTree = "<group>";
+		};
+		6E580FE51801D1DE004CB802 /* Categories */ = {
+			isa = PBXGroup;
+			children = (
+				6E580FE21801D1D9004CB802 /* NSManagedObject+CoreDataJSONCompatibility.h */,
+				6E580FE31801D1D9004CB802 /* NSManagedObject+CoreDataJSONCompatibility.m */,
+			);
+			name = Categories;
+			sourceTree = "<group>";
+		};
+		6E580FE61801D1E8004CB802 /* Protocols */ = {
+			isa = PBXGroup;
+			children = (
 				6EC859AC18006F9C0089F123 /* NOResourceProtocol.h */,
 				6EC859B218006F9C0089F123 /* NOUserProtocol.h */,
 				6EC859AF18006F9C0089F123 /* NOSessionProtocol.h */,
 				6EC859AB18006F9C0089F123 /* NOClientProtocol.h */,
 			);
-			name = Models;
+			name = Protocols;
 			sourceTree = "<group>";
 		};
 		6EC858E718006D7A0089F123 = {
@@ -561,6 +582,7 @@
 				6EC85A0218006F9C0089F123 /* DDTTYLogger.m in Sources */,
 				6EC85A0418006F9C0089F123 /* DispatchQueueLogFormatter.m in Sources */,
 				6EC8598418006E8E0089F123 /* main.m in Sources */,
+				6E580FE41801D1D9004CB802 /* NSManagedObject+CoreDataJSONCompatibility.m in Sources */,
 				6EC85A0018006F9C0089F123 /* DDFileLogger.m in Sources */,
 				6EC85A0618006F9C0089F123 /* HTTPAuthenticationRequest.m in Sources */,
 			);
