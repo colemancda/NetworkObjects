@@ -158,9 +158,8 @@ forResourceWithEntityDescription:entityDescription
                   withBlock:instanceRequestHandler];
         
         // add function routes
-
         
-        for (NSString *functionName in [entityClass functions]) {
+        for (NSString *functionName in [entityClass resourceFunctions]) {
             
             NSString *functionExpression = [NSString stringWithFormat:@"/%@/(\\d+)/%@", path, functionName];
             
@@ -204,8 +203,29 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     NSString *tokenKey = [sessionEntityClass sessionTokenKey];
     
-    // search the store for token
+    // search the store for session with token
     
+    NSFetchRequest *sessionWithTokenFetchRequest = [NSFetchRequest fetchRequestWithEntityName:entityDescription.name];
+    
+    sessionWithTokenFetchRequest.predicate = [NSPredicate predicateWithFormat:@"%@ == %@", tokenKey, token];
+    
+    [self.store.context performBlockAndWait:^{
+        
+        NSError *error;
+        NSArray *result = [self.store.context executeFetchRequest:sessionWithTokenFetchRequest
+                                                             error:&error];
+        
+        if (!result) {
+            
+            [NSException raise:@"Fetch Request Failed"
+                        format:@"%@", fetchError.localizedDescription];
+            return;
+        }
+        
+        
+        
+        
+    }];
     
     // determine what resource is being requested and whether it is requesting a specific instance...
     

@@ -198,6 +198,11 @@
             
         }
         
+        // nothing was found
+        if (!result.count) {
+            return;
+        }
+        
         resource = result[0];
     }];
     

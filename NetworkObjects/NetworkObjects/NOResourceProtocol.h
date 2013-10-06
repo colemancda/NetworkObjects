@@ -60,17 +60,5 @@ isEditableByUser:(id<NOUserProtocol>)user
           recievedJsonObject:(NSDictionary *)recievedJsonObject
                     response:(NSDictionary **)jsonObjectResponse;
 
-#pragma mark - Instance Functions
-
-
-
-// nsset of the name of functions
-+(NSSet *)resourceInstanceFunctions;
-
-// return a HTTP status code
--(NSUInteger)performInstanceFunction:(NSString *)functionName
-                  recievedJsonObject:(NSDictionary *)recievedJsonObject
-                            response:(NSDictionary **)jsonObjectResponse;
-
 
 @end
