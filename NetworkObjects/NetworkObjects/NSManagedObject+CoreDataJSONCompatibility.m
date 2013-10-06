@@ -10,13 +10,14 @@
 
 @implementation NSManagedObject (CoreDataJSONCompatibility)
 
--(NSObject *)jsonCompatibleValueForKey:(NSString *)key
+-(NSObject *)JSONCompatibleValueForAttribute:(NSString *)attributeName
 {
     
     
 }
 
--(void)setjsonCompatibleValue:(NSObject *)key
+-(void)setJSONCompatibleValue:(NSObject *)value
+                 forAttribute:(NSString *)attributeName
 {
     
     

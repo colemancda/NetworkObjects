@@ -10,9 +10,9 @@
 
 @interface NSManagedObject (CoreDataJSONCompatibility)
 
--(NSObject *)JSONCompatibleValueForKey:(NSString *)key;
+-(NSObject *)JSONCompatibleValueForAttribute:(NSString *)attributeName;
 
 -(void)setJSONCompatibleValue:(NSObject *)value
-                       forKey:(NSString *)key;
+                 forAttribute:(NSString *)attributeName;
 
 @end

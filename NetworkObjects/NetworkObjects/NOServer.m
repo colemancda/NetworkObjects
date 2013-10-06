@@ -13,6 +13,7 @@
 #import "NOSessionProtocol.h"
 #import "NOUserProtocol.h"
 #import "NOClientProtocol.h"
+#import "NSManagedObject+CoreDataJSONCompatibility.h"
 
 @implementation NOServer (NSJSONWritingOption)
 
@@ -358,68 +359,81 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                 isVisibleToUser:user
                          client:client]) {
             
-            // format attributes that need it...
-            
-            NSObject *formattedObject
-            
-            if (<#condition#>) {
-                <#statements#>
-            }
-            
-            [jsonObject setObject:[resource valueForKey:attributeName]
+            [jsonObject setObject:[resource JSONCompatibleValueForAttribute:attributeName]
                            forKey:attributeName];
         }
-        
     }
     
     // then the to-one relationships
     for (NSString *toOneRelationshipName in resource.entity.toOneRelationshipKeys) {
         
+        NSRelationshipDescription *toOneRelationshipDescription = resource.entity.relationshipsByName[toOneRelationshipName];
         
+        NSEntityDescription *destinationEntity = toOneRelationshipDescription.destinationEntity;
         
+        // make sure the destination entity class conforms to NOResourceProtocol
+        if ([NSClassFromString(destinationEntity.managedObjectClassName) conformsToProtocol:@protocol(NOResourceProtocol)]) {
+            
+            // get destination resource
+            NSManagedObject<NOResourceProtocol> *destinationResource = [resource valueForKey:toOneRelationshipName];
+            
+            // check access permissions (the relationship & the single distination object must be visible)
+            if ([resource relationship:toOneRelationshipName isVisibleToUser:user client:client] && [destinationResource isVisibleToUser:user client:client]) {
+                
+                // get resourceID
+                NSString *destinationResourceIDKey = [destinationResource.class resourceIDKey];
+                
+                NSNumber *destinationResourceID = [resource valueForKey:destinationResourceIDKey];
+                
+                // add to json object
+                [jsonObject setValue:destinationResourceID
+                              forKey:toOneRelationshipName];
+            }
+        }
     }
     
     // finally the to-many relationships
     for (NSString *toManyRelationshipName in resource.entity.toManyRelationshipKeys) {
         
-        
-        
-    }
-    
-    for (NSString *relationshipName in resource.entity.relationshipsByName) {
-        
-        if ([resource relationship:relationshipName
-                   isVisibleToUser:user
-                            client:client]) {
+        // make sure relationship is visible
+        if ([resource relationship:toManyRelationshipName isVisibleToUser:user client:client]) {
             
-            NSArray *relationship = [resource valueForKey:relationshipName];
+            NSRelationshipDescription *toOneRelationshipDescription = resource.entity.relationshipsByName[toManyRelationshipName];
             
-            NSMutableArray *visibleDestinationResources = [[NSMutableArray alloc] init];
+            NSEntityDescription *destinationEntity = toOneRelationshipDescription.destinationEntity;
             
-            for (NSManagedObject<NOResourceProtocol> *destinationResource in relationship) {
+            // make sure the destination entity class conforms to NOResourceProtocol
+            if ([NSClassFromString(destinationEntity.managedObjectClassName) conformsToProtocol:@protocol(NOResourceProtocol)]) {
                 
-                // add to JSON object if the item is visible so we dont reveal the existence of hidden resources
-                if ([destinationResource isVisibleToUser:user
-                                                  client:client]) {
+                NSArray *toManyRelationship = [resource valueForKey:toManyRelationshipName];
+                
+                // only add resources that are visible
+                NSMutableArray *visibleRelationship = [[NSMutableArray alloc] init];
+                
+                for (NSManagedObject<NOResourceProtocol> *destinationResource in toManyRelationship) {
                     
-                    // get resourceID
-                    
-                    NSString *resourceIDKey = [destinationResource.class resourceIDKey];
-                    
-                    NSNumber *resourceID = [destinationResource valueForKey:resourceIDKey];
-                    
-                    [visibleDestinationResources addObject:resourceID];
+                    if ([destinationResource isVisibleToUser:user
+                                                      client:client]) {
+                        
+                        // get destination resource ID
+                        
+                        NSString *destinationResourceIDKey = [destinationResource.class resourceIDKey];
+                        
+                        NSNumber *destinationResourceID = [destinationResource valueForKey:destinationResourceIDKey];
+                        
+                        [visibleRelationship addObject:destinationResourceID];
+                    }
                 }
                 
+                // add to jsonObject
+                [jsonObject setValue:visibleRelationship
+                              forKey:toManyRelationshipName];
             }
-            
-            [jsonObject setObject:visibleDestinationResources
-                           forKey:relationshipName];
             
         }
     }
-
     
+    // serialize JSON data
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonObject
                                                        options:self.jsonWritingOption
                                                          error:nil];
