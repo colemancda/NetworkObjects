@@ -39,30 +39,22 @@
  isVisibleToSession:(NSManagedObject<NOSessionProtocol> *)session;
 
 -(BOOL)attribute:(NSString *)attributeKey
-isEditableByUser:(NSManagedObject<NOUserProtocol> *)user
-          client:(NSManagedObject<NOClientProtocol> *)client;
+isEditableBySession:(NSManagedObject<NOSessionProtocol> *)session;
 
 -(BOOL)relationship:(NSString *)relationshipKey
-    isVisibleToUser:(NSManagedObject<NOUserProtocol> *)user
-             client:(NSManagedObject<NOClientProtocol> *)client;
+    isVisibleToSession:(NSManagedObject<NOSessionProtocol> *)session;
 
 -(BOOL)relationship:(NSString *)relationshipKey
-   isEditableByUser:(NSManagedObject<NOUserProtocol> *)user
-             client:(NSManagedObject<NOClientProtocol> *)client;
+   isEditableBySession:(NSManagedObject<NOSessionProtocol> *)session;
 
 -(BOOL)canPerformFunction:(NSString *)functionName
-                     user:(NSManagedObject<NOUserProtocol> *)user
-                   client:(NSManagedObject<NOClientProtocol> *)client;
+                  session:(NSManagedObject<NOSessionProtocol> *)session;
 
 #pragma mark - Delegate
 
--(void)wasCreatedByUser:(NSManagedObject<NOUserProtocol> *)user
-                 client:(NSManagedObject<NOClientProtocol>* )client;
+-(void)wasCreatedBySession:(NSManagedObject<NOSessionProtocol> *)session;
 
--(void)wasAccessedByUser:(NSManagedObject<NOUserProtocol> *)user
-                  client:(NSManagedObject<NOClientProtocol>* )client;
-
--(void)didEditAttribute:()
+-(void)wasAccessedBySession:(NSManagedObject<NOSessionProtocol> *)session;
 
 #pragma mark - Resource Functions
 

@@ -2,7 +2,7 @@
 //  Client.m
 //  NetworkObjects
 //
-//  Created by Alsey Coleman Miller on 10/6/13.
+//  Created by Alsey Coleman Miller on 10/7/13.
 //  Copyright (c) 2013 CDA. All rights reserved.
 //
 
@@ -13,10 +13,10 @@
 
 @implementation Client
 
+@dynamic created;
 @dynamic isNotThirdParty;
 @dynamic name;
 @dynamic resourceID;
-@dynamic created;
 @dynamic authorizedUsers;
 @dynamic sessions;
 

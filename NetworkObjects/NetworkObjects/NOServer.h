@@ -8,8 +8,6 @@
 
 #import <Foundation/Foundation.h>
 #import "NOSessionProtocol.h"
-#import "NOUserProtocol.h"
-#import "NOClientProtocol.h"
 
 @class NOStore, RouteRequest, RouteResponse, RoutingHTTPServer;
 
@@ -75,8 +73,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
 
 -(NOServerStatusCode)verifyEditResource:(NSManagedObject <NOResourceProtocol> *)resource
                      recievedJsonObject:(NSDictionary *)recievedJsonObject
-                                   user:(NSManagedObject<NOUserProtocol> *)user
-                                 client:(NSManagedObject<NOClientProtocol> *)client;
+                                session:(NSManagedObject<NOSessionProtocol> *)session;
 
 -(void)handleGetResource:(NSManagedObject <NOResourceProtocol> *)resource
                  session:(NSManagedObject <NOSessionProtocol> *)session

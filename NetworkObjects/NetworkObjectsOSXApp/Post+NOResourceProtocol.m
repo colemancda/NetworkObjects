@@ -8,6 +8,9 @@
 
 #import "Post+NOResourceProtocol.h"
 #import "Client.h"
+#import "Session.h"
+#import "NOSessionProtocol.h"
+#import "NOServer.h"
 
 @implementation Post (NOResourceProtocol)
 
@@ -33,12 +36,9 @@
     return [NSSet setWithArray:@[@"like"]];
 }
 
-+(BOOL)userCanCreateNewInstance:(NSManagedObject<NOUserProtocol> *)user
-                         client:(NSManagedObject<NOClientProtocol> *)client
++(BOOL)canCreateNewInstanceWithSession:(Session *)session
 {
-    Client *ourClient = (Client *)client;
-    
-    if (user && ourClient.isNotThirdParty) {
+    if (session.user && session.client.isNotThirdParty) {
         
         return YES;
     }
@@ -46,59 +46,52 @@
     return NO;
 }
 
--(BOOL)isVisibleToUser:(NSManagedObject<NOUserProtocol> *)user
-                client:(NSManagedObject<NOClientProtocol> *)client
+-(BOOL)isVisibleToSession:(NSManagedObject<NOSessionProtocol> *)session
 {
     return YES;
 }
 
--(BOOL)isEditableByUser:(NSManagedObject<NOUserProtocol> *)user
-                 client:(NSManagedObject<NOClientProtocol> *)client
+-(BOOL)isEditableBySession:(NSManagedObject<NOSessionProtocol> *)session
 {
     
     return YES;
 }
 
 -(BOOL)attribute:(NSString *)attributeKey
- isVisibleToUser:(NSManagedObject<NOUserProtocol> *)user
-          client:(NSManagedObject<NOClientProtocol> *)client
+ isVisibleToSession:(NSManagedObject<NOSessionProtocol> *)session
 {
     
     return YES;
 }
 
 -(BOOL)attribute:(NSString *)attributeKey
-isEditableByUser:(NSManagedObject<NOUserProtocol> *)user
-          client:(NSManagedObject<NOClientProtocol> *)client
+isEditableBySession:(NSManagedObject<NOSessionProtocol> *)session
 {
     return YES;
 }
 
 -(BOOL)relationship:(NSString *)relationshipKey
-    isVisibleToUser:(NSManagedObject<NOUserProtocol> *)user
-             client:(NSManagedObject<NOClientProtocol> *)client
+    isVisibleToSession:(NSManagedObject<NOSessionProtocol> *)session
 {
     
     return YES;
 }
 
 -(BOOL)relationship:(NSString *)relationshipKey
-   isEditableByUser:(NSManagedObject<NOUserProtocol> *)user
-             client:(NSManagedObject<NOClientProtocol> *)client
+isEditableBySession:(NSManagedObject<NOSessionProtocol> *)session
 {
     
     return YES;
 }
 
 -(BOOL)canPerformFunction:(NSString *)functionName
-                     user:(NSManagedObject<NOUserProtocol> *)user
-                   client:(NSManagedObject<NOClientProtocol> *)client
+                  session:(NSManagedObject<NOSessionProtocol> *)session
 {
     
     return YES;
 }
 
--(NSUInteger)performFunction:(NSString *)functionName
+-(NOServerStatusCode)performFunction:(NSString *)functionName
           recievedJsonObject:(NSDictionary *)recievedJsonObject
                     response:(NSDictionary *__autoreleasing *)jsonObjectResponse
 {
@@ -107,6 +100,8 @@ isEditableByUser:(NSManagedObject<NOUserProtocol> *)user
         
         
     }
+    
+    return OKStatusCode;
 }
 
 @end

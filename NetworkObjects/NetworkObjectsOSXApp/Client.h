@@ -2,7 +2,7 @@
 //  Client.h
 //  NetworkObjects
 //
-//  Created by Alsey Coleman Miller on 10/6/13.
+//  Created by Alsey Coleman Miller on 10/7/13.
 //  Copyright (c) 2013 CDA. All rights reserved.
 //
 
@@ -13,10 +13,10 @@
 
 @interface Client : NSManagedObject
 
+@property (nonatomic, retain) NSDate * created;
 @property (nonatomic, retain) NSNumber * isNotThirdParty;
 @property (nonatomic, retain) NSString * name;
 @property (nonatomic, retain) NSNumber * resourceID;
-@property (nonatomic, retain) NSDate * created;
 @property (nonatomic, retain) NSSet *authorizedUsers;
 @property (nonatomic, retain) NSSet *sessions;
 @end
