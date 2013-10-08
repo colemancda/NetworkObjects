@@ -104,4 +104,16 @@ isEditableBySession:(NSManagedObject<NOSessionProtocol> *)session
     return OKStatusCode;
 }
 
+-(void)wasAccessedBySession:(NSManagedObject<NOSessionProtocol> *)session
+{
+    
+    
+}
+
+-(void)wasCreatedBySession:(NSManagedObject<NOSessionProtocol> *)session
+{
+    
+    
+}
+
 @end

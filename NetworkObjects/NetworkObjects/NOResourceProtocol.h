@@ -56,6 +56,14 @@ isEditableBySession:(NSManagedObject<NOSessionProtocol> *)session;
 
 -(void)wasAccessedBySession:(NSManagedObject<NOSessionProtocol> *)session;
 
+-(void)wasEditedBySession:(NSManagedObject<NOSessionProtocol> *)session;
+
+-(void)attribute:(NSString *)attributeName
+wasAccessedBySession:(NSManagedObject<NOSessionProtocol> *)session;
+
+-(void)attribute:(NSString *)attributeName
+wasEditedBySession:(NSManagedObject<NOSessionProtocol> *)session;
+
 #pragma mark - Resource Functions
 
 // if you want to add a function like liking a post or adding a friend without write access to a user's friend relationship
