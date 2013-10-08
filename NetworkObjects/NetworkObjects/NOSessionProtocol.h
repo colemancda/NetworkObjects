@@ -20,6 +20,7 @@
 // generate token
 -(void)generateToken;
 
--(void)usedSession;
+-(void)usedSessionFromIP:(NSString *)ipAddress
+          requestHeaders:(NSDictionary *)headers;
 
 @end

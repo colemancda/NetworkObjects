@@ -116,4 +116,30 @@ isEditableBySession:(NSManagedObject<NOSessionProtocol> *)session
     
 }
 
+-(void)attribute:(NSString *)attributeName
+wasAccessedBySession:(NSManagedObject<NOSessionProtocol> *)session
+{
+    
+}
+
+-(void)attribute:(NSString *)attributeName
+wasEditedBySession:(NSManagedObject<NOSessionProtocol> *)session
+{
+    
+}
+
+-(void)relationship:(NSString *)relationshipName
+wasAccessedBySession:(NSManagedObject<NOSessionProtocol> *)session
+{
+    
+    
+}
+
+-(void)relationship:(NSString *)relationshipName
+ wasEditedBySession:(NSManagedObject<NOSessionProtocol> *)session
+{
+    
+    
+}
+
 @end

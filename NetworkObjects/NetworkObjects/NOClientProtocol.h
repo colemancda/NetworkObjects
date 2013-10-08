@@ -11,9 +11,14 @@
 
 @protocol NOClientProtocol <NSObject, NOResourceProtocol>
 
+// string attribute
 +(NSString *)clientSecretKey;
 
+// one to many
 +(NSString *)clientSessionsKey;
+
+// many to many
++(NSString *)clientAuthorizedUsersKey;
 
 
 

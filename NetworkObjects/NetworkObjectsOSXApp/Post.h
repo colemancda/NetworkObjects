@@ -2,7 +2,7 @@
 //  Post.h
 //  NetworkObjects
 //
-//  Created by Alsey Coleman Miller on 10/6/13.
+//  Created by Alsey Coleman Miller on 10/7/13.
 //  Copyright (c) 2013 CDA. All rights reserved.
 //
 
@@ -13,9 +13,9 @@
 
 @interface Post : NSManagedObject
 
+@property (nonatomic, retain) NSDate * created;
 @property (nonatomic, retain) NSNumber * resourceID;
 @property (nonatomic, retain) NSString * text;
-@property (nonatomic, retain) NSDate * created;
 @property (nonatomic, retain) User *creator;
 @property (nonatomic, retain) NSSet *likes;
 @end

@@ -14,6 +14,7 @@
 #import "NOUserProtocol.h"
 #import "NOClientProtocol.h"
 #import "NSManagedObject+CoreDataJSONCompatibility.h"
+#import "RouteResponse+IPAddress.h"
 
 @implementation NOServer (NSJSONWritingOption)
 
@@ -261,7 +262,11 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     }
     
     if (session) {
-        [session usedSession];
+        
+        // get IP Address
+        
+        [session usedSessionFromIP:response.ipAddress
+                    requestHeaders:request.headers];
     }
     
     // determine what handler to call

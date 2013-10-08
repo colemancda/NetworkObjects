@@ -10,7 +10,6 @@
 #import "Client.h"
 #import "User.h"
 
-
 @implementation Session
 
 @dynamic created;
