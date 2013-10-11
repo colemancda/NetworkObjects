@@ -357,6 +357,9 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         return;
     }
     
+    // notify object
+    [resource wasAccessedBySession:session];
+    
     // build JSON object...
     
     NSMutableDictionary *jsonObject = [[NSMutableDictionary alloc] init];
@@ -370,6 +373,10 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
             
             [jsonObject setObject:[resource JSONCompatibleValueForAttribute:attributeName]
                            forKey:attributeName];
+            
+            // notify
+            [resource attribute:attributeName
+             wasEditedBySession:session];
         }
     }
     
@@ -397,6 +404,10 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                 // add to json object
                 [jsonObject setValue:destinationResourceID
                               forKey:toOneRelationshipName];
+                
+                // notify
+                [resource relationship:toOneRelationshipName
+                  wasAccessedBySession:session];
             }
         }
     }
@@ -436,6 +447,10 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                 // add to jsonObject
                 [jsonObject setValue:visibleRelationship
                               forKey:toManyRelationshipName];
+                
+                // notify
+                [resource relationship:toManyRelationshipName
+                  wasAccessedBySession:session];
             }
             
         }
@@ -464,6 +479,9 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
 {
     // check if jsonObject has keys that dont exist in this resource or lacks permission to edit...
     
+    // notify
+    [resource wasAccessedBySession:session];
+    
     NOServerStatusCode editStatusCode = [self verifyEditResource:resource
                                               recievedJsonObject:recievedJsonObject
                                                          session:session];
@@ -476,6 +494,9 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     }
     
     // since we verified the validity and access permissions of the recievedJsonObject, we then apply the edits...
+    
+    // notify
+    [resource wasEditedBySession:session];
     
     for (NSString *key in recievedJsonObject) {
         
@@ -490,6 +511,10 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
             
             [resource setJSONCompatibleValue:value
                                 forAttribute:key];
+            
+            // notify
+            [resource attribute:key
+             wasEditedBySession:session];
             
         }
         
@@ -506,6 +531,10 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                 
                 [resource setValue:destinationResource
                             forKey:key];
+                
+                // notify
+                [resource attribute:key
+                 wasEditedBySession:session];
                 
             }
             
@@ -529,6 +558,10 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                 [resource setValue:newRelationshipValues
                             forKey:key];
                 
+                // notify
+                [resource attribute:key
+                 wasEditedBySession:session];
+                
             }
         }
     }
@@ -549,7 +582,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     for (NSString *key in recievedJsonObject) {
         
-        NSObject *value = recievedJsonObject[key];
+        // NSObject *value = recievedJsonObject[key];
         
         // validate the recieved JSON object
         
@@ -697,6 +730,9 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     [response respondWithData:jsonData];
     
+    // notify
+    [newResource wasCreatedBySession:session];
+    
     response.statusCode = OKStatusCode;
 }
 
@@ -729,6 +765,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         
         [response respondWithData:jsonData];
     }
+    
 }
 
 
