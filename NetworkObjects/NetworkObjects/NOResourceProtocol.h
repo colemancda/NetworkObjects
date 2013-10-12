@@ -14,8 +14,8 @@
 
 typedef NS_ENUM(NSUInteger, NOResourcePermission) {
     
-    NoAccessPermission,
-    ReadOnlyPermission,
+    NoAccessPermission = 0,
+    ReadOnlyPermission = 1,
     EditPermission,
     DeletePermission
     
@@ -43,21 +43,13 @@ typedef NS_ENUM(NSUInteger, NOResourcePermission) {
 
 +(BOOL)canCreateNewInstanceWithSession:(NSManagedObject<NOSessionProtocol> *)session;
 
--(BOOL)isVisibleToSession:(NSManagedObject<NOSessionProtocol> *)session;
+-(NOResourcePermission)permissionForSession:(NSManagedObject<NOSessionProtocol> *)session;
 
--(BOOL)isEditableBySession:(NSManagedObject<NOSessionProtocol> *)session;
+-(NOResourcePermission)permissionForAttribute:(NSString *)attributeName
+                                      session:(NSManagedObject<NOSessionProtocol> *)session;
 
--(BOOL)attribute:(NSString *)attributeKey
- isVisibleToSession:(NSManagedObject<NOSessionProtocol> *)session;
-
--(BOOL)attribute:(NSString *)attributeKey
-isEditableBySession:(NSManagedObject<NOSessionProtocol> *)session;
-
--(BOOL)relationship:(NSString *)relationshipKey
-    isVisibleToSession:(NSManagedObject<NOSessionProtocol> *)session;
-
--(BOOL)relationship:(NSString *)relationshipKey
-   isEditableBySession:(NSManagedObject<NOSessionProtocol> *)session;
+-(NOResourcePermission)permissionForRelationship:(NSString *)relationshipKey
+                                         session:(NSManagedObject<NOSessionProtocol> *)session;
 
 -(BOOL)canPerformFunction:(NSString *)functionName
                   session:(NSManagedObject<NOSessionProtocol> *)session;
