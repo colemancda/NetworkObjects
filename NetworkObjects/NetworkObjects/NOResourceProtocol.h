@@ -12,8 +12,16 @@
 @protocol NOClientProtocol;
 @protocol NOSessionProtocol;
 
-@protocol NOResourceProtocol <NSObject>
+typedef NS_ENUM(NSUInteger, NOResourcePermission) {
+    
+    NoAccessPermission,
+    ReadOnlyPermission,
+    EditPermission,
+    DeletePermission
+    
+};
 
+@protocol NOResourceProtocol <NSObject>
 
 #pragma mark - Network Access
 
@@ -23,6 +31,9 @@
 // require authorization for this resource to be accessed
 +(BOOL)requireSession;
 
+// requires that the object be created with provided values
++(BOOL)requireInitialValues;
+
 #pragma mark - Attributes and Relationship paths
 
 // Core Data attribute must be Integer type, is the numerical identifier of this resource
@@ -30,8 +41,7 @@
 
 #pragma mark - Access
 
-+(BOOL)canCreateNewInstanceWithSession:(NSManagedObject<NOSessionProtocol> *)session
-                        creationValues:(NSDictionary *)values;
++(BOOL)canCreateNewInstanceWithSession:(NSManagedObject<NOSessionProtocol> *)session;
 
 -(BOOL)isVisibleToSession:(NSManagedObject<NOSessionProtocol> *)session;
 

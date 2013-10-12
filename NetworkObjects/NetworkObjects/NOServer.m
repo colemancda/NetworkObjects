@@ -568,6 +568,9 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
             }
         }
     }
+    
+    // notify
+    [resource wasEditedBySession:session];
 }
 
 -(NOServerStatusCode)verifyEditResource:(NSManagedObject<NOResourceProtocol> *)resource
@@ -582,7 +585,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     for (NSString *key in recievedJsonObject) {
         
-        // NSObject *value = recievedJsonObject[key];
+        NSObject *value = recievedJsonObject[key];
         
         // validate the recieved JSON object
         
@@ -597,6 +600,9 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         
         for (NSString *attributeName in resource.entity.attributesByName) {
             
+            // NSAttributeDescription *attributeDescription = resource.entity.attributesByName[attributeName];
+            
+            // found attribute with same name
             if ([key isEqualToString:attributeName]) {
                 
                 // check if this key is the resourceIDKey
@@ -613,7 +619,8 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         
         for (NSString *toOneRelationshipName in resource.entity.toOneRelationshipKeys) {
             
-            if ([key isEqualToString:toOneRelationshipName]) {
+            if ([key isEqualToString:toOneRelationshipName] &&
+                [value isKindOfClass:[NSNumber class]]) {
                 
                 isToOneRelationship = YES;
             }
@@ -627,6 +634,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
             }
         }
         
+        // no attribute or relationship with that name found
         if (!isValidAttribute && !isToOneRelationship && !isToManyRelationship) {
             
             return BadRequestStatusCode;
@@ -689,9 +697,6 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
 {
     // check if jsonObject has keys that dont exist in this resource or lacks permission to edit...
     
-    // notify
-    [resource wasAccessedBySession:session];
-    
     NOServerStatusCode editStatusCode = [self verifyEditResource:resource
                                               recievedJsonObject:recievedJsonObject
                                                          session:session];
@@ -738,11 +743,18 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
 {
     Class<NOResourceProtocol> entityClass = NSClassFromString(entityDescription.managedObjectClassName);
     
-    // check permissions and validate initial values JSON object
-    if (![entityClass canCreateNewInstanceWithSession:session
-                                       creationValues:initialValues]) {
+    // check permissions
+    if (![entityClass canCreateNewInstanceWithSession:session]) {
         
         response.statusCode = ForbiddenStatusCode;
+        
+        return;
+    }
+    
+    // check whether inital values are required
+    if ([entityClass requireInitialValues] && !initialValues) {
+        
+        response.statusCode = BadRequestStatusCode;
         
         return;
     }
@@ -750,8 +762,25 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     // create new instance
     NSManagedObject<NOResourceProtocol> *newResource = [_store newResourceWithEntityDescription:entityDescription];
     
-    // set inital values
+    // validate inital values
+    NOServerStatusCode applyInitalValuesStatusCode = [self verifyEditResource:newResource
+                                                           recievedJsonObject:initialValues
+                                                                      session:session];
     
+    if (applyInitalValuesStatusCode != OKStatusCode) {
+        
+        response.statusCode = applyInitalValuesStatusCode;
+        
+        // delete created resource
+        [_store deleteResource:newResource];
+        
+        return;
+    }
+    
+    // set inital values
+    [self setValuesForResource:newResource
+                fromJSONObject:initialValues
+                       session:session];
     
     // get the resourceIDKey
     NSString *resourceIDKey = [[newResource class] resourceIDKey];
