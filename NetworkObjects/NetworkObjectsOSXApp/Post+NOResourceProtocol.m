@@ -31,14 +31,18 @@
     return NO;
 }
 
-+(NSSet *)resourceFunctions
++(BOOL)requireInitialValues
 {
-    return [NSSet setWithArray:@[@"like"]];
+    return YES;
 }
 
-+(BOOL)canCreateNewInstanceWithSession:(Session *)session
-                        creationValues:(NSDictionary *)values
+#pragma mark - Permissions
+
++(BOOL)canCreateNewInstanceFromSession:(NSManagedObject<NOSessionProtocol> *)sessionProtocolObject
 {
+    Session *session = (Session *)sessionProtocolObject;
+    
+    // only first party apps can create posts
     if (session.user && session.client.isNotThirdParty) {
         
         return YES;
@@ -47,78 +51,54 @@
     return NO;
 }
 
--(BOOL)isVisibleToSession:(NSManagedObject<NOSessionProtocol> *)session
+-(BOOL)canDeleteFromSession:(NSManagedObject<NOSessionProtocol> *)session
 {
-    return YES;
+    return [self.class canCreateNewInstanceFromSession:session];
 }
 
--(BOOL)isEditableBySession:(NSManagedObject<NOSessionProtocol> *)session
+-(NOResourcePermission)permissionForSession:(NSManagedObject<NOSessionProtocol> *)sessionProtocolObject
 {
+    Session *session = (Session *)sessionProtocolObject;
     
-    return YES;
-}
-
--(BOOL)attribute:(NSString *)attributeKey
- isVisibleToSession:(NSManagedObject<NOSessionProtocol> *)session
-{
-    
-    return YES;
-}
-
--(BOOL)attribute:(NSString *)attributeKey
-isEditableBySession:(NSManagedObject<NOSessionProtocol> *)session
-{
-    return YES;
-}
-
--(BOOL)relationship:(NSString *)relationshipKey
-    isVisibleToSession:(NSManagedObject<NOSessionProtocol> *)session
-{
-    
-    return YES;
-}
-
--(BOOL)relationship:(NSString *)relationshipKey
-isEditableBySession:(NSManagedObject<NOSessionProtocol> *)session
-{
-    
-    return YES;
-}
-
--(BOOL)canPerformFunction:(NSString *)functionName
-                  session:(NSManagedObject<NOSessionProtocol> *)session
-{
-    
-    return YES;
-}
-
--(NOServerStatusCode)performFunction:(NSString *)functionName
-          recievedJsonObject:(NSDictionary *)recievedJsonObject
-                    response:(NSDictionary *__autoreleasing *)jsonObjectResponse
-{
-    if ([functionName isEqualToString:@"like"]) {
+    // creator has edit permission
+    if (session.user == self.creator) {
         
-        
-        
+        return EditPermission;
     }
     
-    return NotFoundStatusCode;
+    return ReadOnlyPermission;
 }
 
--(void)wasAccessedBySession:(NSManagedObject<NOSessionProtocol> *)session
+-(NOResourcePermission)permissionForAttribute:(NSString *)attributeName
+                                      session:(NSManagedObject<NOSessionProtocol> *)sessionProtocolObject
 {
-    
+    return EditPermission;
+}
+
+-(NOResourcePermission)permissionForRelationship:(NSString *)relationshipName
+                                         session:(NSManagedObject<NOSessionProtocol> *)session
+{
+    return EditPermission;
+}
+
+#pragma mark - Notifications
+
+-(void)wasAccessedBySession:(NSManagedObject<NOSessionProtocol> *)sessionProtocolObject
+{
     
 }
 
--(void)wasEditedBySession:(NSManagedObject<NOSessionProtocol> *)session
+-(void)wasEditedBySession:(NSManagedObject<NOSessionProtocol> *)sessionProtocolObject
 {
     
 }
 
--(void)wasCreatedBySession:(NSManagedObject<NOSessionProtocol> *)session
+-(void)wasCreatedBySession:(NSManagedObject<NOSessionProtocol> *)sessionProtocolObject
 {
+    Session *session = (Session *)sessionProtocolObject;
     
+    // set the creator to the user who created the post
+    self.creator = session.user;
     
 }
 
@@ -146,6 +126,32 @@ wasAccessedBySession:(NSManagedObject<NOSessionProtocol> *)session
 {
     
     
+}
+
+#pragma mark - Functions
+
++(NSSet *)resourceFunctions
+{
+    return [NSSet setWithArray:@[@"like"]];
+}
+
+-(BOOL)canPerformFunction:(NSString *)functionName
+                  session:(NSManagedObject<NOSessionProtocol> *)session
+{
+    return YES;
+}
+
+-(NSUInteger)performFunction:(NSString *)functionName
+          recievedJsonObject:(NSDictionary *)recievedJsonObject
+                    response:(NSDictionary *__autoreleasing *)jsonObjectResponse
+{
+    if ([functionName isEqualToString:@"like"]) {
+        
+        NSLog(@"performed 'like' function on %@", self);
+        
+    }
+    
+    return OKStatusCode;
 }
 
 @end

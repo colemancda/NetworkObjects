@@ -74,6 +74,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		6E13E8951809A4F400E70A2C /* NOResourceProtocolConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NOResourceProtocolConstants.h; sourceTree = "<group>"; };
 		6E2B262A18012207002B94F2 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		6E2B262D18012263002B94F2 /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
 		6E41BC201803A97A001EE0C2 /* Client.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Client.h; sourceTree = "<group>"; };
@@ -264,6 +265,7 @@
 			isa = PBXGroup;
 			children = (
 				6EC859AC18006F9C0089F123 /* NOResourceProtocol.h */,
+				6E13E8951809A4F400E70A2C /* NOResourceProtocolConstants.h */,
 				6EC859AF18006F9C0089F123 /* NOSessionProtocol.h */,
 				6EC859B218006F9C0089F123 /* NOUserProtocol.h */,
 				6EC859AB18006F9C0089F123 /* NOClientProtocol.h */,

@@ -7,9 +7,11 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "NOSessionProtocol.h"
 
 @class NOStore, RouteRequest, RouteResponse, RoutingHTTPServer;
+
+@protocol NOResourceProtocol;
+@protocol NOSessionProtocol;
 
 typedef NS_ENUM(NSUInteger, NOServerStatusCode) {
     

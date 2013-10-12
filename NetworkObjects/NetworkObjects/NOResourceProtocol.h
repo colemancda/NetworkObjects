@@ -7,17 +7,11 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "NOResourceProtocolConstants.h"
 
 @protocol NOUserProtocol;
 @protocol NOClientProtocol;
 @protocol NOSessionProtocol;
-
-typedef NS_ENUM(NSUInteger, NOResourcePermission) {
-    
-    NoAccessPermission = 0,
-    ReadOnlyPermission = 1,
-    EditPermission    
-};
 
 @protocol NOResourceProtocol <NSObject>
 
@@ -32,6 +26,9 @@ typedef NS_ENUM(NSUInteger, NOResourcePermission) {
 // requires that the object be created with provided values
 +(BOOL)requireInitialValues;
 
+// validate the initial values
+-(BOOL)validInitialValues;
+
 #pragma mark - Attributes and Relationship paths
 
 // Core Data attribute must be Integer type, is the numerical identifier of this resource
@@ -43,21 +40,24 @@ typedef NS_ENUM(NSUInteger, NOResourcePermission) {
 
 -(BOOL)canDeleteFromSession:(NSManagedObject<NOSessionProtocol> *)session;
 
+// for access and edits it ask for the entire resource's permission per session first and then for individual relationships and attruibutes.
 -(NOResourcePermission)permissionForSession:(NSManagedObject<NOSessionProtocol> *)session;
 
+// e.g. you can use this to make a item editable or visible to a group but limit certain attributes or relationship to only be visibel or edited by one person.
 -(NOResourcePermission)permissionForAttribute:(NSString *)attributeName
                                       session:(NSManagedObject<NOSessionProtocol> *)session;
 
--(NOResourcePermission)permissionForRelationship:(NSString *)relationshipKey
+-(NOResourcePermission)permissionForRelationship:(NSString *)relationshipName
                                          session:(NSManagedObject<NOSessionProtocol> *)session;
 
 -(BOOL)canPerformFunction:(NSString *)functionName
                   session:(NSManagedObject<NOSessionProtocol> *)session;
 
-#pragma mark - Delegate
+#pragma mark - Notification
 
 -(void)wasCreatedBySession:(NSManagedObject<NOSessionProtocol> *)session;
 
+// was viewed
 -(void)wasAccessedBySession:(NSManagedObject<NOSessionProtocol> *)session;
 
 -(void)wasEditedBySession:(NSManagedObject<NOSessionProtocol> *)session;

@@ -774,10 +774,21 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         return;
     }
     
-    // set inital values
+    // set initial values
     [self setValuesForResource:newResource
                 fromJSONObject:initialValues
                        session:session];
+    
+    // validate those inital values
+    if (![newResource validInitialValues]) {
+        
+        response.statusCode = BadRequestStatusCode;
+        
+        // delete created resource
+        [_store deleteResource:newResource];
+        
+        return;
+    }
     
     // get the resourceIDKey
     NSString *resourceIDKey = [[newResource class] resourceIDKey];
