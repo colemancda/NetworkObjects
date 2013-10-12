@@ -361,7 +361,8 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                  session:(NSManagedObject<NOSessionProtocol> *)session
                 response:(RouteResponse *)response
 {
-    if (![resource isVisibleToSession:session]) {
+    // resource is invisible to session
+    if ([resource permissionForSession:session] < ReadOnlyPermission) {
         
         response.statusCode = ForbiddenStatusCode;
         
@@ -403,15 +404,15 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     for (NSString *attributeName in resource.entity.attributesByName) {
         
         // check access permissions
-        if ([resource attribute:attributeName
-             isVisibleToSession:session]) {
+        if ([resource permissionForAttribute:attributeName
+                                     session:session] >= ReadOnlyPermission) {
             
             [jsonObject setObject:[resource JSONCompatibleValueForAttribute:attributeName]
                            forKey:attributeName];
             
             // notify
             [resource attribute:attributeName
-             wasEditedBySession:session];
+             wasAccessedBySession:session];
         }
     }
     
@@ -429,7 +430,8 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
             NSManagedObject<NOResourceProtocol> *destinationResource = [resource valueForKey:toOneRelationshipName];
             
             // check access permissions (the relationship & the single distination object must be visible)
-            if ([resource relationship:toOneRelationshipName isVisibleToSession:session] && [destinationResource isEditableBySession:session]) {
+            if ([resource permissionForRelationship:toOneRelationshipName session:session] >= ReadOnlyPermission &&
+                [destinationResource permissionForSession:session ] >= ReadOnlyPermission) {
                 
                 // get resourceID
                 NSString *destinationResourceIDKey = [destinationResource.class resourceIDKey];
@@ -451,7 +453,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     for (NSString *toManyRelationshipName in resource.entity.toManyRelationshipKeys) {
         
         // make sure relationship is visible
-        if ([resource relationship:toManyRelationshipName isVisibleToSession:session]) {
+        if ([resource permissionForRelationship:toManyRelationshipName session:session] >= ReadOnlyPermission) {
             
             NSRelationshipDescription *toOneRelationshipDescription = resource.entity.relationshipsByName[toManyRelationshipName];
             
@@ -467,7 +469,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                 
                 for (NSManagedObject<NOResourceProtocol> *destinationResource in toManyRelationship) {
                     
-                    if ([destinationResource isVisibleToSession:session]) {
+                    if ([destinationResource permissionForRelationship:toManyRelationshipName session:session] >= ReadOnlyPermission) {
                         
                         // get destination resource ID
                         
@@ -577,8 +579,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                      recievedJsonObject:(NSDictionary *)recievedJsonObject
                                 session:(NSManagedObject<NOSessionProtocol> *)session
 {
-    if (![resource isVisibleToSession:session] ||
-        ![resource isEditableBySession:session]) {
+    if ([resource permissionForSession:session] < EditPermission) {
         
         return ForbiddenStatusCode;
     }
@@ -644,8 +645,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         
         if (isValidAttribute) {
             
-            if (![resource attribute:key isVisibleToSession:session] ||
-                ![resource attribute:key isEditableBySession:session]) {
+            if ([resource permissionForAttribute:key session:session] < EditPermission) {
                 
                 return ForbiddenStatusCode;
             }
@@ -653,8 +653,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         
         if (isToOneRelationship || isToManyRelationship) {
             
-            if (![resource relationship:key isVisibleToSession:session] ||
-                ![resource relationship:key isEditableBySession:session]) {
+            if ([resource permissionForRelationship:key session:session] < EditPermission) {
                 
                 return ForbiddenStatusCode;
             }
@@ -663,8 +662,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                 
                 NSManagedObject<NOResourceProtocol> *destinationResource = [resource valueForKey:key];
                 
-                if (![destinationResource isVisibleToSession:session] ||
-                    ![destinationResource isEditableBySession:session]) {
+                if ([destinationResource permissionForSession:session] < EditPermission) {
                     
                     return ForbiddenStatusCode;
                 }
@@ -677,8 +675,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                 
                 for (NSManagedObject<NOResourceProtocol> *destinationResource in toManyRelationship) {
                     
-                    if (![destinationResource isVisibleToSession:session] ||
-                        ![destinationResource isEditableBySession:session]) {
+                    if ([destinationResource permissionForSession:session] < EditPermission) {
                         
                         return ForbiddenStatusCode;
                     }
@@ -724,8 +721,8 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                    response:(RouteResponse *)response
 {
     // check permissions
-    if (![resource isVisibleToSession:session] ||
-        ![resource isEditableBySession:session]) {
+    if ([resource permissionForSession:session] < EditPermission ||
+        ![resource canDeleteFromSession:session]) {
         
         response.statusCode = ForbiddenStatusCode;
         return;
@@ -744,7 +741,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     Class<NOResourceProtocol> entityClass = NSClassFromString(entityDescription.managedObjectClassName);
     
     // check permissions
-    if (![entityClass canCreateNewInstanceWithSession:session]) {
+    if (![entityClass canCreateNewInstanceFromSession:session]) {
         
         response.statusCode = ForbiddenStatusCode;
         
@@ -762,14 +759,14 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     // create new instance
     NSManagedObject<NOResourceProtocol> *newResource = [_store newResourceWithEntityDescription:entityDescription];
     
-    // validate inital values
-    NOServerStatusCode applyInitalValuesStatusCode = [self verifyEditResource:newResource
-                                                           recievedJsonObject:initialValues
-                                                                      session:session];
+    // validate initial values
+    NOServerStatusCode applyInitialValuesStatusCode = [self verifyEditResource:newResource
+                                                            recievedJsonObject:initialValues
+                                                                       session:session];
     
-    if (applyInitalValuesStatusCode != OKStatusCode) {
+    if (applyInitialValuesStatusCode != OKStatusCode) {
         
-        response.statusCode = applyInitalValuesStatusCode;
+        response.statusCode = applyInitialValuesStatusCode;
         
         // delete created resource
         [_store deleteResource:newResource];

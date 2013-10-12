@@ -16,9 +16,7 @@ typedef NS_ENUM(NSUInteger, NOResourcePermission) {
     
     NoAccessPermission = 0,
     ReadOnlyPermission = 1,
-    EditPermission,
-    DeletePermission
-    
+    EditPermission    
 };
 
 @protocol NOResourceProtocol <NSObject>
@@ -41,7 +39,9 @@ typedef NS_ENUM(NSUInteger, NOResourcePermission) {
 
 #pragma mark - Access
 
-+(BOOL)canCreateNewInstanceWithSession:(NSManagedObject<NOSessionProtocol> *)session;
++(BOOL)canCreateNewInstanceFromSession:(NSManagedObject<NOSessionProtocol> *)session;
+
+-(BOOL)canDeleteFromSession:(NSManagedObject<NOSessionProtocol> *)session;
 
 -(NOResourcePermission)permissionForSession:(NSManagedObject<NOSessionProtocol> *)session;
 
