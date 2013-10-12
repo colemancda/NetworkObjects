@@ -37,6 +37,7 @@
 }
 
 +(BOOL)canCreateNewInstanceWithSession:(Session *)session
+                        creationValues:(NSDictionary *)values
 {
     if (session.user && session.client.isNotThirdParty) {
         
@@ -101,12 +102,17 @@ isEditableBySession:(NSManagedObject<NOSessionProtocol> *)session
         
     }
     
-    return OKStatusCode;
+    return NotFoundStatusCode;
 }
 
 -(void)wasAccessedBySession:(NSManagedObject<NOSessionProtocol> *)session
 {
     
+    
+}
+
+-(void)wasEditedBySession:(NSManagedObject<NOSessionProtocol> *)session
+{
     
 }
 

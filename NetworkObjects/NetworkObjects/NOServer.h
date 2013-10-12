@@ -58,6 +58,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
 
 -(void)handleCreateResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                                          session:(NSManagedObject<NOSessionProtocol> *)session
+                                   initialValues:(NSDictionary *)initialValues
                                         response:(RouteResponse *)response;
 
 -(void)handleFunction:(NSString *)functionName
@@ -71,10 +72,6 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                   session:(NSManagedObject <NOSessionProtocol> *)session
                  response:(RouteResponse *)response;
 
--(NOServerStatusCode)verifyEditResource:(NSManagedObject <NOResourceProtocol> *)resource
-                     recievedJsonObject:(NSDictionary *)recievedJsonObject
-                                session:(NSManagedObject<NOSessionProtocol> *)session;
-
 -(void)handleGetResource:(NSManagedObject <NOResourceProtocol> *)resource
                  session:(NSManagedObject <NOSessionProtocol> *)session
                 response:(RouteResponse *)response;
@@ -82,5 +79,18 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
 -(void)handleDeleteResource:(NSManagedObject <NOResourceProtocol> *)resource
                     session:(NSManagedObject <NOSessionProtocol> *)session
                    response:(RouteResponse *)response;
+
+#pragma mark - Common methods for handlers
+
+-(NSDictionary *)JSONRepresentationOfResource:(NSManagedObject<NOResourceProtocol> *)resource
+                                   forSession:(NSManagedObject<NOSessionProtocol> *)session;
+
+-(NOServerStatusCode)verifyEditResource:(NSManagedObject<NOResourceProtocol> *)resource
+                     recievedJsonObject:(NSDictionary *)recievedJsonObject
+                                session:(NSManagedObject<NOSessionProtocol> *)session;
+
+-(void)setValuesForResource:(NSManagedObject<NOResourceProtocol> *)resource
+             fromJSONObject:(NSDictionary *)jsonObject
+                    session:(NSManagedObject<NOSessionProtocol> *)session;
 
 @end

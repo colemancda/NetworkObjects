@@ -14,6 +14,7 @@
 
 @protocol NOResourceProtocol <NSObject>
 
+
 #pragma mark - Network Access
 
 // URL instances of this resource can be accessed from
@@ -29,7 +30,8 @@
 
 #pragma mark - Access
 
-+(BOOL)canCreateNewInstanceWithSession:(NSManagedObject<NOSessionProtocol> *)session;
++(BOOL)canCreateNewInstanceWithSession:(NSManagedObject<NOSessionProtocol> *)session
+                        creationValues:(NSDictionary *)values;
 
 -(BOOL)isVisibleToSession:(NSManagedObject<NOSessionProtocol> *)session;
 
@@ -79,6 +81,5 @@ wasAccessedBySession:(NSManagedObject<NOSessionProtocol> *)session;
 -(NSUInteger)performFunction:(NSString *)functionName
           recievedJsonObject:(NSDictionary *)recievedJsonObject
                     response:(NSDictionary **)jsonObjectResponse;
-
 
 @end

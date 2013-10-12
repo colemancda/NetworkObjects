@@ -279,8 +279,18 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     // create new instance
     if (!resourceID && [request.method isEqualToString:@"POST"]) {
         
+        // get initial values JSON object
+        NSDictionary *initialValues = [NSJSONSerialization JSONObjectWithData:request.body
+                                                                     options:NSJSONReadingAllowFragments
+                                                                       error:nil];
+        // make sure initialValues is a dictionary
+        if (![initialValues isKindOfClass:[NSDictionary class]]) {
+            initialValues = nil;
+        }
+        
         [self handleCreateResourceWithEntityDescription:entityDescription
                                                 session:session
+                                          initialValues:initialValues
                                                response:response];
         return;
         
@@ -312,6 +322,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         // requires a body
         if ([request.method isEqualToString:@"PUT"]) {
             
+            // bad request if body data is not JSON
             if (!jsonObject || ![jsonObject isKindOfClass:[NSDictionary class]]) {
                 
                 response.statusCode = BadRequestStatusCode;
@@ -357,6 +368,30 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         return;
     }
     
+    // build json object
+    NSDictionary *jsonObject = [self JSONRepresentationOfResource:resource
+                                                       forSession:session];
+    
+    // serialize JSON data
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonObject
+                                                       options:self.jsonWritingOption
+                                                         error:nil];
+    if (!jsonData) {
+        
+        NSLog(@"Error writing JSON data!");
+        
+        response.statusCode = InternalServerErrorStatusCode;
+        
+        return;
+    }
+    
+    // return JSON representation of resource
+    [response respondWithData:jsonData];
+}
+
+-(NSDictionary *)JSONRepresentationOfResource:(NSManagedObject<NOResourceProtocol> *)resource
+                                   forSession:(NSManagedObject<NOSessionProtocol> *)session
+{
     // notify object
     [resource wasAccessedBySession:session];
     
@@ -369,7 +404,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         
         // check access permissions
         if ([resource attribute:attributeName
-                isVisibleToSession:session]) {
+             isVisibleToSession:session]) {
             
             [jsonObject setObject:[resource JSONCompatibleValueForAttribute:attributeName]
                            forKey:attributeName];
@@ -456,51 +491,19 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         }
     }
     
-    // serialize JSON data
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonObject
-                                                       options:self.jsonWritingOption
-                                                         error:nil];
-    if (!jsonData) {
-        
-        NSLog(@"Error writing JSON data!");
-        
-        response.statusCode = InternalServerErrorStatusCode;
-        
-        return;
-    }
-    
-    [response respondWithData:jsonData];
+    return jsonObject;
 }
 
--(void)handleEditResource:(NSManagedObject<NOResourceProtocol> *)resource
-       recievedJsonObject:(NSDictionary *)recievedJsonObject
-                  session:(NSManagedObject<NOSessionProtocol> *)session
-                 response:(RouteResponse *)response
+-(void)setValuesForResource:(NSManagedObject<NOResourceProtocol> *)resource
+             fromJSONObject:(NSDictionary *)jsonObject
+                    session:(NSManagedObject<NOSessionProtocol> *)session
 {
-    // check if jsonObject has keys that dont exist in this resource or lacks permission to edit...
-    
-    // notify
-    [resource wasAccessedBySession:session];
-    
-    NOServerStatusCode editStatusCode = [self verifyEditResource:resource
-                                              recievedJsonObject:recievedJsonObject
-                                                         session:session];
-    
-    if (editStatusCode != OKStatusCode) {
-        
-        response.statusCode = editStatusCode;
-        
-        return;
-    }
-    
-    // since we verified the validity and access permissions of the recievedJsonObject, we then apply the edits...
-    
     // notify
     [resource wasEditedBySession:session];
     
-    for (NSString *key in recievedJsonObject) {
+    for (NSString *key in jsonObject) {
         
-        NSObject *value = recievedJsonObject[key];
+        NSObject *value = jsonObject[key];
         
         // one of these will be nil
         NSRelationshipDescription *relationshipDescription = resource.entity.relationshipsByName[key];
@@ -565,9 +568,6 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
             }
         }
     }
-    
-    // return 200
-    response.statusCode = OKStatusCode;
 }
 
 -(NOServerStatusCode)verifyEditResource:(NSManagedObject<NOResourceProtocol> *)resource
@@ -682,6 +682,38 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     return OKStatusCode;
 }
 
+-(void)handleEditResource:(NSManagedObject<NOResourceProtocol> *)resource
+       recievedJsonObject:(NSDictionary *)recievedJsonObject
+                  session:(NSManagedObject<NOSessionProtocol> *)session
+                 response:(RouteResponse *)response
+{
+    // check if jsonObject has keys that dont exist in this resource or lacks permission to edit...
+    
+    // notify
+    [resource wasAccessedBySession:session];
+    
+    NOServerStatusCode editStatusCode = [self verifyEditResource:resource
+                                              recievedJsonObject:recievedJsonObject
+                                                         session:session];
+    
+    // return HTTP error code if recieved JSON data is invalid
+    if (editStatusCode != OKStatusCode) {
+        
+        response.statusCode = editStatusCode;
+        
+        return;
+    }
+    
+    // since we verified the validity and access permissions of the recievedJsonObject, we then apply the edits...
+    [self setValuesForResource:resource
+                fromJSONObject:recievedJsonObject
+                       session:session];
+    
+    
+    // return 200
+    response.statusCode = OKStatusCode;
+}
+
 -(void)handleDeleteResource:(NSManagedObject<NOResourceProtocol> *)resource
                     session:(NSManagedObject<NOSessionProtocol> *)session
                    response:(RouteResponse *)response
@@ -701,12 +733,14 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
 
 -(void)handleCreateResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                                          session:(NSManagedObject<NOSessionProtocol> *)session
+                                   initialValues:(NSDictionary *)initialValues
                                         response:(RouteResponse *)response
 {
     Class<NOResourceProtocol> entityClass = NSClassFromString(entityDescription.managedObjectClassName);
     
-    // check permissions
-    if (![entityClass canCreateNewInstanceWithSession:session]) {
+    // check permissions and validate initial values JSON object
+    if (![entityClass canCreateNewInstanceWithSession:session
+                                       creationValues:initialValues]) {
         
         response.statusCode = ForbiddenStatusCode;
         
@@ -715,6 +749,9 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     // create new instance
     NSManagedObject<NOResourceProtocol> *newResource = [_store newResourceWithEntityDescription:entityDescription];
+    
+    // set inital values
+    
     
     // get the resourceIDKey
     NSString *resourceIDKey = [[newResource class] resourceIDKey];
