@@ -379,7 +379,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                                                          error:nil];
     if (!jsonData) {
         
-        NSLog(@"Error writing JSON data!");
+        NSLog(@"Error writing JSON representation of %@", resource);
         
         response.statusCode = InternalServerErrorStatusCode;
         
@@ -393,9 +393,6 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
 -(NSDictionary *)JSONRepresentationOfResource:(NSManagedObject<NOResourceProtocol> *)resource
                                    forSession:(NSManagedObject<NOSessionProtocol> *)session
 {
-    // notify object
-    [resource wasAccessedBySession:session];
-    
     // build JSON object...
     
     NSMutableDictionary *jsonObject = [[NSMutableDictionary alloc] init];
@@ -493,6 +490,9 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         }
     }
     
+    // notify object
+    [resource wasAccessedBySession:session];
+    
     return jsonObject;
 }
 
@@ -500,9 +500,6 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
              fromJSONObject:(NSDictionary *)jsonObject
                     session:(NSManagedObject<NOSessionProtocol> *)session
 {
-    // notify
-    [resource wasEditedBySession:session];
-    
     for (NSString *key in jsonObject) {
         
         NSObject *value = jsonObject[key];

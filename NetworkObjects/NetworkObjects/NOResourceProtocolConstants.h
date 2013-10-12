@@ -17,4 +17,12 @@ typedef NS_ENUM(NSUInteger, NOResourcePermission) {
     
 };
 
+typedef NS_ENUM(NSUInteger, NOResourceFunctionCode) {
+    
+    FunctionPerformedSuccesfully = 200,
+    FunctionRecievedInvalidJSONObject = 400,
+    CannotPerformFunction = 403,
+    InternalErrorPerformingFunction = 500
+};
+
 #endif

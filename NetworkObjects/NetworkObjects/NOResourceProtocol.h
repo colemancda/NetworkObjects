@@ -80,8 +80,8 @@ wasAccessedBySession:(NSManagedObject<NOSessionProtocol> *)session;
 
 +(NSSet *)resourceFunctions;
 
--(NSUInteger)performFunction:(NSString *)functionName
-          recievedJsonObject:(NSDictionary *)recievedJsonObject
-                    response:(NSDictionary **)jsonObjectResponse;
+-(NOResourceFunctionCode)performFunction:(NSString *)functionName
+                      recievedJsonObject:(NSDictionary *)recievedJsonObject
+                                response:(NSDictionary **)jsonObjectResponse;
 
 @end

@@ -7,12 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6E13E8981809AA4600E70A2C /* Post.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E13E8971809AA4600E70A2C /* Post.m */; };
 		6E2B262B18012207002B94F2 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E2B262A18012207002B94F2 /* Security.framework */; };
 		6E2B262E18012263002B94F2 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 6E2B262C18012263002B94F2 /* Model.xcdatamodeld */; };
 		6E41BC221803A97A001EE0C2 /* Client.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E41BC211803A97A001EE0C2 /* Client.m */; };
 		6E41BC2B1803A97B001EE0C2 /* Session.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E41BC2A1803A97B001EE0C2 /* Session.m */; };
 		6E41BC311803AA1E001EE0C2 /* User.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E41BC301803AA1E001EE0C2 /* User.m */; };
-		6E41BC341803AB29001EE0C2 /* Post.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E41BC331803AB29001EE0C2 /* Post.m */; };
 		6E41BC3A1803B010001EE0C2 /* RouteResponse+IPAddress.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E41BC391803B010001EE0C2 /* RouteResponse+IPAddress.m */; };
 		6E580FE41801D1D9004CB802 /* NSManagedObject+CoreDataJSONCompatibility.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E580FE31801D1D9004CB802 /* NSManagedObject+CoreDataJSONCompatibility.m */; };
 		6E580FEA1801E3D2004CB802 /* NSDate+ISO8601.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E580FE91801E3D2004CB802 /* NSDate+ISO8601.m */; };
@@ -75,6 +75,8 @@
 
 /* Begin PBXFileReference section */
 		6E13E8951809A4F400E70A2C /* NOResourceProtocolConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NOResourceProtocolConstants.h; sourceTree = "<group>"; };
+		6E13E8961809AA4600E70A2C /* Post.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Post.h; sourceTree = "<group>"; };
+		6E13E8971809AA4600E70A2C /* Post.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Post.m; sourceTree = "<group>"; };
 		6E2B262A18012207002B94F2 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		6E2B262D18012263002B94F2 /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
 		6E41BC201803A97A001EE0C2 /* Client.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Client.h; sourceTree = "<group>"; };
@@ -83,8 +85,6 @@
 		6E41BC2A1803A97B001EE0C2 /* Session.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Session.m; sourceTree = "<group>"; };
 		6E41BC2F1803AA1E001EE0C2 /* User.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = User.h; sourceTree = "<group>"; };
 		6E41BC301803AA1E001EE0C2 /* User.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = User.m; sourceTree = "<group>"; };
-		6E41BC321803AB29001EE0C2 /* Post.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Post.h; sourceTree = "<group>"; };
-		6E41BC331803AB29001EE0C2 /* Post.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Post.m; sourceTree = "<group>"; };
 		6E41BC381803B010001EE0C2 /* RouteResponse+IPAddress.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RouteResponse+IPAddress.h"; sourceTree = "<group>"; };
 		6E41BC391803B010001EE0C2 /* RouteResponse+IPAddress.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "RouteResponse+IPAddress.m"; sourceTree = "<group>"; };
 		6E580FE21801D1D9004CB802 /* NSManagedObject+CoreDataJSONCompatibility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSManagedObject+CoreDataJSONCompatibility.h"; sourceTree = "<group>"; };
@@ -276,8 +276,8 @@
 		6E580FEE18022395004CB802 /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				6E41BC321803AB29001EE0C2 /* Post.h */,
-				6E41BC331803AB29001EE0C2 /* Post.m */,
+				6E13E8961809AA4600E70A2C /* Post.h */,
+				6E13E8971809AA4600E70A2C /* Post.m */,
 				6E41BC2F1803AA1E001EE0C2 /* User.h */,
 				6E41BC301803AA1E001EE0C2 /* User.m */,
 				6E41BC291803A97B001EE0C2 /* Session.h */,
@@ -646,13 +646,13 @@
 				6EC85A0B18006F9C0089F123 /* MultipartMessageHeader.m in Sources */,
 				6EC859FA18006F9C0089F123 /* NOStore.m in Sources */,
 				6EC85A0118006F9C0089F123 /* DDLog.m in Sources */,
+				6E13E8981809AA4600E70A2C /* Post.m in Sources */,
 				6E2B262E18012263002B94F2 /* Model.xcdatamodeld in Sources */,
 				6E41BC3A1803B010001EE0C2 /* RouteResponse+IPAddress.m in Sources */,
 				6EC85A0918006F9C0089F123 /* HTTPServer.m in Sources */,
 				6EC85A1418006F9C0089F123 /* Route.m in Sources */,
 				6EC85A0A18006F9C0089F123 /* MultipartFormDataParser.m in Sources */,
 				6EC85A0518006F9C0089F123 /* GCDAsyncSocket.m in Sources */,
-				6E41BC341803AB29001EE0C2 /* Post.m in Sources */,
 				6EC859FF18006F9C0089F123 /* DDASLLogger.m in Sources */,
 				6EC85A1218006F9C0089F123 /* WebSocket.m in Sources */,
 				6EC85A0E18006F9C0089F123 /* HTTPDataResponse.m in Sources */,

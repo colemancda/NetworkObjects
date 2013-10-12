@@ -10,7 +10,6 @@
 #import "Client.h"
 #import "Session.h"
 #import "NOSessionProtocol.h"
-#import "NOServer.h"
 
 @implementation Post (NOResourceProtocol)
 
@@ -32,6 +31,11 @@
 }
 
 +(BOOL)requireInitialValues
+{
+    return YES;
+}
+
+-(BOOL)validInitialValues
 {
     return YES;
 }
@@ -72,26 +76,22 @@
 -(NOResourcePermission)permissionForAttribute:(NSString *)attributeName
                                       session:(NSManagedObject<NOSessionProtocol> *)sessionProtocolObject
 {
+    if ([attributeName isEqualToString:@"views"]) {
+        
+        return ReadOnlyPermission;
+    }
+    
     return EditPermission;
 }
 
 -(NOResourcePermission)permissionForRelationship:(NSString *)relationshipName
                                          session:(NSManagedObject<NOSessionProtocol> *)session
 {
-    return EditPermission;
+    // dont wanna directly replace relationship, use function instead
+    return ReadOnlyPermission;
 }
 
 #pragma mark - Notifications
-
--(void)wasAccessedBySession:(NSManagedObject<NOSessionProtocol> *)sessionProtocolObject
-{
-    
-}
-
--(void)wasEditedBySession:(NSManagedObject<NOSessionProtocol> *)sessionProtocolObject
-{
-    
-}
 
 -(void)wasCreatedBySession:(NSManagedObject<NOSessionProtocol> *)sessionProtocolObject
 {
@@ -99,6 +99,16 @@
     
     // set the creator to the user who created the post
     self.creator = session.user;
+    
+}
+
+-(void)wasAccessedBySession:(NSManagedObject<NOSessionProtocol> *)sessionProtocolObject
+{
+    self.views = [NSNumber numberWithInteger:self.views.integerValue + 1];
+}
+
+-(void)wasEditedBySession:(NSManagedObject<NOSessionProtocol> *)sessionProtocolObject
+{
     
 }
 
@@ -141,7 +151,7 @@ wasAccessedBySession:(NSManagedObject<NOSessionProtocol> *)session
     return YES;
 }
 
--(NSUInteger)performFunction:(NSString *)functionName
+-(NOResourceFunctionCode)performFunction:(NSString *)functionName
           recievedJsonObject:(NSDictionary *)recievedJsonObject
                     response:(NSDictionary *__autoreleasing *)jsonObjectResponse
 {
@@ -151,7 +161,7 @@ wasAccessedBySession:(NSManagedObject<NOSessionProtocol> *)session
         
     }
     
-    return OKStatusCode;
+    return FunctionPerformedSuccesfully;
 }
 
 @end
