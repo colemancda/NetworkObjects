@@ -32,4 +32,6 @@ extern NSString *const ServerOnOffStatePreferenceKey;
 @property (weak) IBOutlet NSButton *startStopButton;
 
 
+
+
 @end
