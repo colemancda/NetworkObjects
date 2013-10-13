@@ -2,7 +2,7 @@
 //  User.h
 //  NetworkObjects
 //
-//  Created by Alsey Coleman Miller on 10/7/13.
+//  Created by Alsey Coleman Miller on 10/13/13.
 //  Copyright (c) 2013 CDA. All rights reserved.
 //
 
@@ -21,6 +21,7 @@
 @property (nonatomic, retain) NSSet *likedPosts;
 @property (nonatomic, retain) Post *posts;
 @property (nonatomic, retain) NSSet *sessions;
+@property (nonatomic, retain) Client *createdClients;
 @end
 
 @interface User (CoreDataGeneratedAccessors)

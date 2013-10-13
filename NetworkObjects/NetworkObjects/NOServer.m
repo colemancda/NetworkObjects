@@ -8,6 +8,7 @@
 
 #import "NOServer.h"
 #import "RoutingHTTPServer.h"
+#import "RoutingConnection.h"
 #import "NOStore.h"
 #import "NOResourceProtocol.h"
 #import "NOSessionProtocol.h"
@@ -55,6 +56,12 @@
         
         _loginPath = loginPath;
         
+        _httpServer = [[RoutingHTTPServer alloc] init];
+        
+        _httpServer.connectionClass = [RoutingConnection class];
+        
+        [self setupServerRoutes];
+        
     }
     return self;
 }
@@ -73,9 +80,7 @@
 
 -(NSError *)startOnPort:(NSUInteger)port
 {
-    _httpServer = [[RoutingHTTPServer alloc] init];
-    
-    [self setupServerRoutes];
+    _httpServer.port = port;
     
     NSError *startServerError;
     BOOL didStart = [_httpServer start:&startServerError];

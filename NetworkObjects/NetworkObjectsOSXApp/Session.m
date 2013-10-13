@@ -2,7 +2,7 @@
 //  Session.m
 //  NetworkObjects
 //
-//  Created by Alsey Coleman Miller on 10/7/13.
+//  Created by Alsey Coleman Miller on 10/13/13.
 //  Copyright (c) 2013 CDA. All rights reserved.
 //
 
@@ -10,7 +10,7 @@
 #import "Client.h"
 #import "User.h"
 
-#import "Session+NOSessionProtocol.m"
+#import "Session+NOSessionProtocol.h"
 
 @implementation Session
 

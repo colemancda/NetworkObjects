@@ -2,7 +2,7 @@
 //  User.m
 //  NetworkObjects
 //
-//  Created by Alsey Coleman Miller on 10/7/13.
+//  Created by Alsey Coleman Miller on 10/13/13.
 //  Copyright (c) 2013 CDA. All rights reserved.
 //
 
@@ -23,5 +23,6 @@
 @dynamic likedPosts;
 @dynamic posts;
 @dynamic sessions;
+@dynamic createdClients;
 
 @end

@@ -9,6 +9,8 @@
 #import <Cocoa/Cocoa.h>
 #import "NetworkObjects.h"
 
+extern NSString *const ServerOnOffStatePreferenceKey;
+
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 
 @property (assign) IBOutlet NSWindow *window;
@@ -19,8 +21,15 @@
 
 #pragma mark - UI
 
-- (IBAction)startStop:(id)sender;
+-(IBAction)startStop:(id)sender;
+
+-(void)startStopServer:(BOOL)start;
 
 @property (weak) IBOutlet NSTextField *portTextField;
+
+@property (weak) IBOutlet NSMenuItem *startServerMenuItem;
+
+@property (weak) IBOutlet NSButton *startStopButton;
+
 
 @end

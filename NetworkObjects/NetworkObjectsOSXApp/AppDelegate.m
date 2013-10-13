@@ -8,6 +8,9 @@
 
 #import "AppDelegate.h"
 #import "NOServer.h"
+#import "RoutingHTTPServer.h"
+
+NSString *const ServerOnOffStatePreferenceKey = @"ServerOnOffState";
 
 @implementation AppDelegate
 
@@ -18,40 +21,114 @@
     // setup store (just a memory store for now)
     _store = [[NOStore alloc] init];
     
-    _server = [[NOServer alloc] initWithStore:_store];
+    _server = [[NOServer alloc] initWithStore:_store
+                               userEntityName:@"User"
+                            sessionEntityName:@"Session"
+                             clientEntityName:@"Client"
+                                    loginPath:@"login"];
     
-    _server.sessionEntityDescription = [NSEntityDescription entityForName:@"Session"
-                                                   inManagedObjectContext:_store.context];
+    // Set a default Server header in the form of YourApp/1.0
+	NSDictionary *bundleInfo = [[NSBundle mainBundle] infoDictionary];
+	NSString *appVersion = [bundleInfo objectForKey:@"CFBundleShortVersionString"];
+	if (!appVersion) {
+		appVersion = [bundleInfo objectForKey:@"CFBundleVersion"];
+	}
+	NSString *serverHeader = [NSString stringWithFormat:@"%@/%@",
+							  [bundleInfo objectForKey:@"CFBundleName"],
+							  appVersion];
+	[_server.httpServer setDefaultHeader:@"Server" value:serverHeader];
+    
+    
+    // start server if it was running last time
+    BOOL start = [[NSUserDefaults standardUserDefaults] boolForKey:ServerOnOffStatePreferenceKey];
+    
+    if (start) {
+        [self startStopServer:YES];
+    }
 }
+
+-(BOOL)applicationShouldHandleReopen:(NSApplication *)sender
+                   hasVisibleWindows:(BOOL)flag
+{
+    if (flag) {
+        [self.window orderFront:self];
+    }
+    else {
+        [self.window makeKeyAndOrderFront:self];
+    }
+    
+    return YES;
+}
+
+#pragma mark - Actions
 
 - (IBAction)startStop:(id)sender {
     
-    NSButton *button = (NSButton *)sender;
+    NSInteger state = [sender state];
     
-    if (button.state == NSOffState) {
+    if (state == NSOffState) {
+        
+        [self startStopServer:NO];
+    }
+    else {
+        [self startStopServer:YES];
+    }
+    
+}
+
+-(void)startStopServer:(BOOL)start
+{
+    
+    // determine button state
+    NSInteger state;
+    if (start) {
+        state = NSOnState;
+    }
+    else {
+        state = NSOffState;
+    }
+    
+    // stop server
+    if (!start) {
         
         NSLog(@"Stopped NOServer");
         
         [self.server stop];
         
+        [self.portTextField setEnabled:YES];
     }
     
+    // start server
     else {
         
-        NSLog(@"Starting Server...");
-        
         NSUInteger port = self.portTextField.integerValue;
+        
+        NSLog(@"Starting Server on port %lu...", (unsigned long)port);
         
         NSError *startError = [self.server startOnPort:port];
         
         if (startError) {
             
-            button.state = NSOffState;
+            state = NSOffState;
             
             [NSApp presentError:startError];
             
         }
+        else {
+            
+            [self.portTextField setEnabled:NO];
+            
+        }
     }
+    
+    // set the state of the GUI
+    self.startServerMenuItem.state = state;
+    self.startStopButton.state = state;
+    
+    // store in preferences
+    [[NSUserDefaults standardUserDefaults] setBool:start
+                                            forKey:ServerOnOffStatePreferenceKey];
+    
 }
 
 
