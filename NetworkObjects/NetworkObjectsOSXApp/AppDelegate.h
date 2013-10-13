@@ -9,6 +9,8 @@
 #import <Cocoa/Cocoa.h>
 #import "NetworkObjects.h"
 
+@class ClientsWindowController;
+
 extern NSString *const ServerOnOffStatePreferenceKey;
 
 @interface AppDelegate : NSObject <NSApplicationDelegate>
@@ -31,7 +33,13 @@ extern NSString *const ServerOnOffStatePreferenceKey;
 
 @property (weak) IBOutlet NSButton *startStopButton;
 
+- (IBAction)viewClients:(NSMenuItem *)sender;
 
+#pragma mark - Window Controllers
+
+-(void)initializeWindowControllers;
+
+@property (readonly) ClientsWindowController *clientsWC;
 
 
 @end

@@ -9,6 +9,7 @@
 #import "AppDelegate.h"
 #import "NOServer.h"
 #import "RoutingHTTPServer.h"
+#import "ClientsWindowController.h"
 
 NSString *const ServerOnOffStatePreferenceKey = @"ServerOnOffState";
 
@@ -38,13 +39,15 @@ NSString *const ServerOnOffStatePreferenceKey = @"ServerOnOffState";
 							  appVersion];
 	[_server.httpServer setDefaultHeader:@"Server" value:serverHeader];
     
-    
     // start server if it was running last time
     BOOL start = [[NSUserDefaults standardUserDefaults] boolForKey:ServerOnOffStatePreferenceKey];
     
     if (start) {
         [self startStopServer:YES];
     }
+    
+    // GUI
+    [self initializeWindowControllers];
 }
 
 -(BOOL)applicationShouldHandleReopen:(NSApplication *)sender
@@ -58,6 +61,11 @@ NSString *const ServerOnOffStatePreferenceKey = @"ServerOnOffState";
     }
     
     return YES;
+}
+
+-(void)initializeWindowControllers
+{
+    _clientsWC = [[ClientsWindowController alloc] init];
 }
 
 #pragma mark - Actions
@@ -91,7 +99,7 @@ NSString *const ServerOnOffStatePreferenceKey = @"ServerOnOffState";
     // stop server
     if (!start) {
         
-        NSLog(@"Stopped NOServer");
+        NSLog(@"Stopped Server");
         
         [self.server stop];
         
@@ -128,6 +136,13 @@ NSString *const ServerOnOffStatePreferenceKey = @"ServerOnOffState";
     // store in preferences
     [[NSUserDefaults standardUserDefaults] setBool:start
                                             forKey:ServerOnOffStatePreferenceKey];
+    
+}
+
+
+- (IBAction)viewClients:(NSMenuItem *)sender {
+    
+    
     
 }
 
