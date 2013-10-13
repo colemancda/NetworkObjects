@@ -33,7 +33,12 @@
 
 @synthesize resourcePaths = _resourcePaths;
 
-- (id)initWithStore:(NOStore *)store
+-(id)initWithStore:(NOStore *)store
+    userEntityName:(NSString *)userEntityName
+ sessionEntityName:(NSString *)sessionEntityName
+  clientEntityName:(NSString *)clientEntityName
+         loginPath:(NSString *)loginPath
+
 {
     self = [super init];
     if (self) {
@@ -41,6 +46,14 @@
         NSAssert(store, @"NOStore cannot be nil");
         
         _store = store;
+        
+        _userEntityName = userEntityName;
+        
+        _sessionEntityName = sessionEntityName;
+        
+        _clientEntityName = clientEntityName;
+        
+        _loginPath = loginPath;
         
     }
     return self;
@@ -52,7 +65,7 @@
                 format:@"You cannot use %@ with '-%@', you have to use '-%@'",
      self,
      NSStringFromSelector(_cmd),
-     NSStringFromSelector(@selector(initWithStore:))];
+     NSStringFromSelector(@selector(initWithStore:userEntityName:sessionEntityName:clientEntityName:loginPath:))];
     return nil;
 }
 
@@ -119,7 +132,14 @@
 
 -(void)setupServerRoutes
 {
-    // configure internal HTTP server routes
+    // add login server route
+    [_httpServer get:self.loginPath withBlock:^(RouteRequest *request, RouteResponse *response) {
+        
+        [self handleLoginWithRequest:request
+                            response:response];
+    }];
+    
+    // configure internal HTTP server routes for resources
     for (NSString *path in self.resourcePaths) {
         
         // get entity description
@@ -214,44 +234,11 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
             function:(NSString *)functionName
             response:(RouteResponse *)response
 {
-    // get the session info
+    // get session from request
     
-    NSString *token = request.headers[@"Authorization"];
+    NSString *token = request.headers[@"Authentication"];
     
-    // determine the attribute name the entity uses for storing tokens
-    
-    Class sessionEntityClass = NSClassFromString(self.sessionEntityDescription.managedObjectClassName);
-    
-    NSString *tokenKey = [sessionEntityClass sessionTokenKey];
-    
-    // search the store for session with token
-    
-    NSFetchRequest *sessionWithTokenFetchRequest = [NSFetchRequest fetchRequestWithEntityName:entityDescription.name];
-    
-    sessionWithTokenFetchRequest.predicate = [NSPredicate predicateWithFormat:@"%@ == %@", tokenKey, token];
-    
-    __block id<NOSessionProtocol> session;
-    
-    [self.store.context performBlockAndWait:^{
-        
-        NSError *fetchError;
-        NSArray *result = [self.store.context executeFetchRequest:sessionWithTokenFetchRequest
-                                                             error:&fetchError];
-        
-        if (!result) {
-            
-            [NSException raise:@"Fetch Request Failed"
-                        format:@"%@", fetchError.localizedDescription];
-            return;
-        }
-        
-        if (!result.count) {
-            return;
-        }
-        
-        session = result[0];
-        
-    }];
+    NSManagedObject<NOSessionProtocol> *session = [self sessionWithToken:token];
     
     // check if the resource requires sessions
     if (!session && [NSClassFromString(entityDescription.managedObjectClassName) requireSession]) {
@@ -276,21 +263,17 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                                                                options:NSJSONReadingAllowFragments
                                                                  error:nil];
     
+    // make sure jsonObject is a dictionary
+    if (![jsonObject isKindOfClass:[NSDictionary class]]) {
+        jsonObject = nil;
+    }
+    
     // create new instance
     if (!resourceID && [request.method isEqualToString:@"POST"]) {
         
-        // get initial values JSON object
-        NSDictionary *initialValues = [NSJSONSerialization JSONObjectWithData:request.body
-                                                                     options:NSJSONReadingAllowFragments
-                                                                       error:nil];
-        // make sure initialValues is a dictionary
-        if (![initialValues isKindOfClass:[NSDictionary class]]) {
-            initialValues = nil;
-        }
-        
         [self handleCreateResourceWithEntityDescription:entityDescription
                                                 session:session
-                                          initialValues:initialValues
+                                          initialValues:jsonObject
                                                response:response];
         return;
         
@@ -837,6 +820,212 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         [response respondWithData:jsonData];
     }
     
+}
+
+-(void)handleLoginWithRequest:(RouteRequest *)request
+                     response:(RouteResponse *)response
+{
+    // get tokens
+    NSDictionary *recievedJSONObject = [NSJSONSerialization JSONObjectWithData:request.body
+                                                                       options:NSJSONReadingAllowFragments
+                                                                         error:nil];
+    
+    // validate jsonObject
+    if (![recievedJSONObject isKindOfClass:[NSDictionary class]]) {
+        
+        response.statusCode = BadRequestStatusCode;
+        
+        return;
+    }
+    
+    NSString *clientSecret = recievedJSONObject[@"clientSecret"];
+    
+    NSString *username = recievedJSONObject[@"username"];
+    
+    NSString *userPassword = recievedJSONObject[@"password"];
+    
+    // all users must authenticate with client secret
+    if ((username || userPassword) && !clientSecret) {
+        
+        response.statusCode = BadRequestStatusCode;
+        
+        return;
+    }
+    
+    // client class
+    NSEntityDescription *clientEntityDescription = [NSEntityDescription entityForName:self.clientEntityName
+                                                               inManagedObjectContext:_store.context];
+    
+    Class clientEntityClass = NSClassFromString(clientEntityDescription.managedObjectClassName);
+    
+    NSString *clientSecretKey = [clientEntityClass clientSecretKey];
+    
+    NSFetchRequest *clientWithSecretFetchRequest = [NSFetchRequest fetchRequestWithEntityName:self.clientEntityName];
+    
+    clientWithSecretFetchRequest.predicate = [NSPredicate predicateWithFormat:@"%@ == %@", clientSecretKey, clientSecret];
+    
+    // find client with secret
+    
+    __block NSManagedObject<NOClientProtocol> *client;
+    
+    [_store.context performBlockAndWait:^{
+        
+        NSError *fetchError;
+        NSArray *result = [_store.context executeFetchRequest:clientWithSecretFetchRequest
+                                                         error:&fetchError];
+        
+        if (!result) {
+            
+            [NSException raise:@"Fetch Request Failed"
+                        format:@"%@", fetchError.localizedDescription];
+            return;
+        }
+        
+        if (!result.count) {
+            return;
+        }
+        
+        client = result[0];
+        
+    }];
+    
+    // if no client was found
+    if (!client) {
+        
+        response.statusCode = BadRequestStatusCode;
+        
+        return;
+    }
+    
+    // session class
+    NSEntityDescription *sessionEntityDescription = [NSEntityDescription entityForName:self.sessionEntityName inManagedObjectContext:_store.context];
+    
+    Class sessionEntityClass = NSClassFromString(sessionEntityDescription.managedObjectClassName);
+    
+    // create new session with client
+    NSManagedObject<NOSessionProtocol> *session = (NSManagedObject<NOSessionProtocol> *)[_store newResourceWithEntityDescription:sessionEntityDescription];
+    
+    // generate token
+    [session generateToken];
+    
+    // set session client
+    NSString *sessionClientKey = [sessionEntityClass sessionClientKey];
+    
+    [session setValue:client
+               forKey:sessionClientKey];
+    
+    // add user to session if the authentication data is availible
+    
+    if (userPassword && username) {
+        
+        // user entity class
+        NSEntityDescription *userEntityDescription = [NSEntityDescription entityForName:self.userEntityName
+                                                                 inManagedObjectContext:_store.context];
+        
+        Class userEntityClass = NSClassFromString(userEntityDescription.managedObjectClassName);
+        
+        NSString *usernameKey = [userEntityClass usernameKey];
+        
+        NSString *passwordKey = [userEntityClass userPasswordKey];
+        
+        // search for user with username and password
+        NSFetchRequest *userFetchRequest = [NSFetchRequest fetchRequestWithEntityName:self.userEntityName];
+        
+        userFetchRequest.predicate = [NSPredicate predicateWithFormat:@"%@ ==[c] %@ AND %@ == %@", usernameKey, username, passwordKey, userPassword];
+        
+        __block NSManagedObject<NOUserProtocol> *user;
+        
+        [_store.context performBlockAndWait:^{
+           
+            NSError *fetchError;
+            NSArray *result = [_store.context executeFetchRequest:userFetchRequest
+                                                            error:&fetchError];
+            
+            if (!result) {
+                
+                [NSException raise:@"Fetch Request Failed"
+                            format:@"%@", fetchError.localizedDescription];
+                return;
+            }
+            
+            if (!result.count) {
+                return;
+            }
+            
+            user = result[0];
+            
+        }];
+        
+        // username and password were provided in the request, but did not match anything in store
+        if (!user) {
+            
+            response.statusCode = ForbiddenStatusCode;
+            
+            return;
+        }
+        
+        // set session user
+        NSString *sessionUserKey = [sessionEntityClass sessionUserKey];
+        
+        [session setValue:user
+                   forKey:sessionUserKey];
+    }
+    
+    // get session token
+    NSString *sessionTokenKey = [sessionEntityClass sessionTokenKey];
+    
+    // respond with token
+    NSDictionary *jsonObject = @{@"token": [session valueForKey:sessionTokenKey]};
+    
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonObject
+                                                       options:self.prettyPrintJSON
+                                                         error:nil];
+    
+    [response respondWithData:jsonData];
+}
+
+#pragma mark
+
+-(NSManagedObject<NOSessionProtocol> *)sessionWithToken:(NSString *)token
+{
+    // determine the attribute name the entity uses for storing tokens
+    
+    NSEntityDescription *sessionEntityDescription = [NSEntityDescription entityForName:self.sessionEntityName inManagedObjectContext:_store.context];
+    
+    Class sessionEntityClass = NSClassFromString(sessionEntityDescription.managedObjectClassName);
+    
+    NSString *tokenKey = [sessionEntityClass sessionTokenKey];
+    
+    // search the store for session with token
+    
+    NSFetchRequest *sessionWithTokenFetchRequest = [NSFetchRequest fetchRequestWithEntityName:self.sessionEntityName];
+    
+    sessionWithTokenFetchRequest.predicate = [NSPredicate predicateWithFormat:@"%@ == %@", tokenKey, token];
+    
+    __block id<NOSessionProtocol> session;
+    
+    [self.store.context performBlockAndWait:^{
+        
+        NSError *fetchError;
+        NSArray *result = [self.store.context executeFetchRequest:sessionWithTokenFetchRequest
+                                                            error:&fetchError];
+        
+        if (!result) {
+            
+            [NSException raise:@"Fetch Request Failed"
+                        format:@"%@", fetchError.localizedDescription];
+            return;
+        }
+        
+        if (!result.count) {
+            return;
+        }
+        
+        session = result[0];
+        
+    }];
+    
+    return session;
 }
 
 

@@ -43,7 +43,7 @@
 // for access and edits it ask for the entire resource's permission per session first and then for individual relationships and attruibutes.
 -(NOResourcePermission)permissionForSession:(NSManagedObject<NOSessionProtocol> *)session;
 
-// e.g. you can use this to make a item editable or visible to a group but limit certain attributes or relationship to only be visibel or edited by one person.
+// e.g. you can use this to make a item editable or visible to a group but limit certain attributes or relationship to only be visible or edited by one person.
 -(NOResourcePermission)permissionForAttribute:(NSString *)attributeName
                                       session:(NSManagedObject<NOSessionProtocol> *)session;
 

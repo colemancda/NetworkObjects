@@ -11,6 +11,7 @@
 #import "Post.h"
 #import "Session.h"
 
+#import "User+NOResourceProtocol.h"
 
 @implementation User
 

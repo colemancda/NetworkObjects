@@ -10,6 +10,8 @@
 #import "Client.h"
 #import "User.h"
 
+#import "Session+NOSessionProtocol.m"
+
 @implementation Session
 
 @dynamic created;

@@ -31,13 +31,23 @@ typedef NS_ENUM(NSUInteger, NOServerStatusCode) {
 
 @interface NOServer : NSObject
 
--(id)initWithStore:(NOStore *)store;
+-(id)initWithStore:(NOStore *)store
+    userEntityName:(NSString *)userEntityName
+ sessionEntityName:(NSString *)sessionEntityName
+  clientEntityName:(NSString *)clientEntityName
+         loginPath:(NSString *)loginPath;;
 
 @property (readonly) NOStore *store;
 
 @property (readonly) RoutingHTTPServer *httpServer;
 
-@property (readonly) NSEntityDescription *sessionEntityDescription;
+@property (readonly) NSString *sessionEntityName;
+
+@property (readonly) NSString *userEntityName;
+
+@property (readonly) NSString *clientEntityName;
+
+@property (readonly) NSString *loginPath;
 
 -(NSError *)startOnPort:(NSUInteger)port;
 
@@ -48,6 +58,10 @@ typedef NS_ENUM(NSUInteger, NOServerStatusCode) {
 -(void)setupServerRoutes;
 
 @property BOOL prettyPrintJSON;
+
+#pragma mark
+
+-(NSManagedObject<NOSessionProtocol> *)sessionWithToken:(NSString *)token;
 
 #pragma mark - Responding to requests
 
@@ -81,6 +95,9 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
 -(void)handleDeleteResource:(NSManagedObject <NOResourceProtocol> *)resource
                     session:(NSManagedObject <NOSessionProtocol> *)session
                    response:(RouteResponse *)response;
+
+-(void)handleLoginWithRequest:(RouteRequest *)request
+                     response:(RouteResponse *)response;
 
 #pragma mark - Common methods for handlers
 

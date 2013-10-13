@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		6E13E8981809AA4600E70A2C /* Post.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E13E8971809AA4600E70A2C /* Post.m */; };
+		6E13E89B1809BCCE00E70A2C /* User+NOResourceProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E13E89A1809BCCE00E70A2C /* User+NOResourceProtocol.m */; };
+		6E13E89E1809D0B200E70A2C /* Session+NOSessionProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E13E89D1809D0B200E70A2C /* Session+NOSessionProtocol.m */; };
 		6E2B262B18012207002B94F2 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E2B262A18012207002B94F2 /* Security.framework */; };
 		6E2B262E18012263002B94F2 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 6E2B262C18012263002B94F2 /* Model.xcdatamodeld */; };
 		6E41BC221803A97A001EE0C2 /* Client.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E41BC211803A97A001EE0C2 /* Client.m */; };
@@ -77,6 +79,10 @@
 		6E13E8951809A4F400E70A2C /* NOResourceProtocolConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NOResourceProtocolConstants.h; sourceTree = "<group>"; };
 		6E13E8961809AA4600E70A2C /* Post.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Post.h; sourceTree = "<group>"; };
 		6E13E8971809AA4600E70A2C /* Post.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Post.m; sourceTree = "<group>"; };
+		6E13E8991809BCCE00E70A2C /* User+NOResourceProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "User+NOResourceProtocol.h"; sourceTree = "<group>"; };
+		6E13E89A1809BCCE00E70A2C /* User+NOResourceProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "User+NOResourceProtocol.m"; sourceTree = "<group>"; };
+		6E13E89C1809D0B200E70A2C /* Session+NOSessionProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Session+NOSessionProtocol.h"; sourceTree = "<group>"; };
+		6E13E89D1809D0B200E70A2C /* Session+NOSessionProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "Session+NOSessionProtocol.m"; sourceTree = "<group>"; };
 		6E2B262A18012207002B94F2 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		6E2B262D18012263002B94F2 /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
 		6E41BC201803A97A001EE0C2 /* Client.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Client.h; sourceTree = "<group>"; };
@@ -294,6 +300,10 @@
 			children = (
 				6E580FFC180225BA004CB802 /* Post+NOResourceProtocol.h */,
 				6E580FFD180225BA004CB802 /* Post+NOResourceProtocol.m */,
+				6E13E8991809BCCE00E70A2C /* User+NOResourceProtocol.h */,
+				6E13E89A1809BCCE00E70A2C /* User+NOResourceProtocol.m */,
+				6E13E89C1809D0B200E70A2C /* Session+NOSessionProtocol.h */,
+				6E13E89D1809D0B200E70A2C /* Session+NOSessionProtocol.m */,
 			);
 			name = Categories;
 			sourceTree = "<group>";
@@ -388,8 +398,8 @@
 			isa = PBXGroup;
 			children = (
 				6EC85A1918006FE50089F123 /* NetworkObjects.h */,
-				6E2B262718009429002B94F2 /* Controllers */,
 				6E2B262818009430002B94F2 /* Stores */,
+				6E2B262718009429002B94F2 /* Controllers */,
 				6E2B26291800943B002B94F2 /* Models */,
 			);
 			path = NetworkObjects;
@@ -630,6 +640,7 @@
 				6EC85A1318006F9C0089F123 /* HTTPResponseProxy.m in Sources */,
 				6EC859F918006F9C0089F123 /* NOServer.m in Sources */,
 				6EC85A0D18006F9C0089F123 /* HTTPAsyncFileResponse.m in Sources */,
+				6E13E89B1809BCCE00E70A2C /* User+NOResourceProtocol.m in Sources */,
 				6EC85A0F18006F9C0089F123 /* HTTPDynamicFileResponse.m in Sources */,
 				6EC85A0818006F9C0089F123 /* HTTPMessage.m in Sources */,
 				6EC85A1818006F9C0089F123 /* RoutingHTTPServer.m in Sources */,
@@ -662,6 +673,7 @@
 				6EC859FE18006F9C0089F123 /* DDAbstractDatabaseLogger.m in Sources */,
 				6E580FED1801E6B7004CB802 /* Base64.m in Sources */,
 				6EC85A0318006F9C0089F123 /* ContextFilterLogFormatter.m in Sources */,
+				6E13E89E1809D0B200E70A2C /* Session+NOSessionProtocol.m in Sources */,
 				6EC85A0C18006F9C0089F123 /* MultipartMessageHeaderField.m in Sources */,
 				6EC85A0218006F9C0089F123 /* DDTTYLogger.m in Sources */,
 				6EC85A0418006F9C0089F123 /* DispatchQueueLogFormatter.m in Sources */,

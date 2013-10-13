@@ -11,6 +11,9 @@
 
 @protocol NOUserProtocol <NSObject, NOResourceProtocol>
 
+// username
++(NSString *)usernameKey;
+
 // password
 +(NSString *)userPasswordKey;
 

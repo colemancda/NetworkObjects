@@ -19,6 +19,9 @@
     _store = [[NOStore alloc] init];
     
     _server = [[NOServer alloc] initWithStore:_store];
+    
+    _server.sessionEntityDescription = [NSEntityDescription entityForName:@"Session"
+                                                   inManagedObjectContext:_store.context];
 }
 
 - (IBAction)startStop:(id)sender {
