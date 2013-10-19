@@ -603,6 +603,19 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
             }
         }
         
+        for (NSString *relationshipName in resource.entity.relationshipsByName) {
+            
+            // found relationship with that name...
+            if ([key isEqualToString:relationshipName] ) {
+                
+                // to-one relationship
+                
+                
+                // to-many relationship
+                NSRelationshipDescription
+            }
+        }
+        
         for (NSString *toOneRelationshipName in resource.entity.toOneRelationshipKeys) {
             
             if ([key isEqualToString:toOneRelationshipName] &&
