@@ -26,9 +26,6 @@
 // requires that the object be created with provided values
 +(BOOL)requireInitialValues;
 
-// validate the initial values
--(BOOL)validInitialValues;
-
 #pragma mark - Attributes and Relationship paths
 
 // Core Data attribute must be Integer type, is the numerical identifier of this resource
@@ -52,6 +49,14 @@
 
 -(BOOL)canPerformFunction:(NSString *)functionName
                   session:(NSManagedObject<NOSessionProtocol> *)session;
+
+#pragma mark - Validate
+
+-(BOOL)isValidValue:(NSObject *)newValue
+       forAttribute:(NSString *)attributeName;
+
+-(BOOL)isValidValue:(NSObject *)newValue
+    forRelationship:(NSString *)attributeName;
 
 #pragma mark - Notification
 
