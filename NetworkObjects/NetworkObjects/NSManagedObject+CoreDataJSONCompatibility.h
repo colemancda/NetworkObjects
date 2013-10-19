@@ -10,9 +10,20 @@
 
 @interface NSManagedObject (CoreDataJSONCompatibility)
 
+#pragma mark - Convenience methods
+
 -(NSObject *)JSONCompatibleValueForAttribute:(NSString *)attributeName;
 
 -(void)setJSONCompatibleValue:(NSObject *)value
                  forAttribute:(NSString *)attributeName;
+
+#pragma mark - Conversion methods
+
+-(NSObject *)attributeValueForJSONCompatibleValue:(NSObject *)jsonValue
+                             forAttribute:(NSString *)attributeName;
+
+-(NSObject *)JSONCompatibleValueForAttributeValue:(NSObject *)attributeValue
+                             forAttribute:(NSString *)attributeName;
+
 
 @end

@@ -114,6 +114,6 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
 
 #pragma mark - Methods for resources
 
-
+-(NSObject *)
 
 @end

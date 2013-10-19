@@ -12,7 +12,33 @@
 
 @implementation NSManagedObject (CoreDataJSONCompatibility)
 
+#pragma mark - Convenience methods
+
 -(NSObject *)JSONCompatibleValueForAttribute:(NSString *)attributeName
+{
+    NSObject *attributeValue = [self valueForKey:attributeName];
+    
+    NSObject *jsonValue = [self JSONCompatibleValueForAttributeValue:attributeValue
+                                                        forAttribute:attributeName];
+    
+    return jsonValue;
+}
+
+-(void)setJSONCompatibleValue:(NSObject *)value
+                 forAttribute:(NSString *)attributeName
+{
+    NSObject *attributeValue = [self attributeValueForJSONCompatibleValue:value
+                                                             forAttribute:attributeName];
+    
+    [self setValue:attributeValue
+            forKey:attributeName];
+}
+
+
+#pragma mark - Conversion Methods
+
+-(NSObject *)JSONCompatibleValueForAttributeValue:(NSObject *)attributeValue
+                                     forAttribute:(NSString *)attributeName
 {
     NSAttributeDescription *attributeDescription = self.entity.attributesByName[attributeName];
     
@@ -58,34 +84,29 @@
     return nil;
 }
 
--(void)setJSONCompatibleValue:(NSObject *)value
-                 forAttribute:(NSString *)attributeName
+-(NSObject *)attributeValueForJSONCompatibleValue:(NSObject *)jsonValue
+                                     forAttribute:(NSString *)attributeName
 {
+    
     NSAttributeDescription *attributeDescription = self.entity.attributesByName[attributeName];
     
     if (!attributeDescription) {
-        return;
+        return nil;
     }
     
     Class attributeClass = NSClassFromString(attributeDescription.attributeValueClassName);
     
     // if value is NSNull
-    if (value == [NSNull null]) {
+    if (jsonValue == [NSNull null]) {
         
-        [self setValue:nil
-                forKey:attributeName];
-        
-        return;
+        return nil;
     }
     
     // no need to change values
     if (attributeClass == [NSString class] ||
         attributeClass == [NSNumber class]) {
         
-        [self setValue:value
-                forKey:attributeName];
-        
-        return;
+        return jsonValue;
     }
     
     // set value based on attribute class...
@@ -94,33 +115,29 @@
     if (attributeClass == [NSDate class]) {
         
         // value will be nsstring
-        NSString *jsonCompatibleValue = (NSString *)value;
+        NSString *jsonCompatibleValue = (NSString *)jsonValue;
         
         NSDate *date = [NSDate dateWithISO8601String:jsonCompatibleValue];
         
-        [self setValue:date
-                forKey:attributeName];
-        
-        return;
+        return date;
     }
     
     // data
     if (attributeClass == [NSData class]) {
         
         // value will be nsstring
-        NSString *jsonCompatibleValue = (NSString *)value;
+        NSString *jsonCompatibleValue = (NSString *)jsonValue;
         
         NSData *data = [NSData dataWithBase64EncodedString:jsonCompatibleValue];
         
-        [self setValue:data
-                forKey:attributeName];
-        
-        return;
+        return data;
     }
     
     // unknown value
     
-    NSLog(@"Unknown JSON compatible class %@", NSStringFromClass([value class]));
+    NSLog(@"Unknown JSON compatible class %@", NSStringFromClass([jsonValue class]));
+    
+    return nil;
 }
 
 @end

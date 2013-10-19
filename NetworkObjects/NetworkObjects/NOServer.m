@@ -593,8 +593,9 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                 NSString *resourceIDKey = [[resource class] resourceIDKey];
                 
                 // resourceID cannot be edited by anyone
-                if (![resourceIDKey isEqualToString:key] &&
-                    [resource isValidValue:value forAttribute:attributeName]) {
+                if (![resourceIDKey isEqualToString:key]) {
+                    
+                    // get real value
                     
                     isValidAttribute = YES;
                     
