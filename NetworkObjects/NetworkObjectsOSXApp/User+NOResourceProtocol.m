@@ -29,14 +29,9 @@
     return YES;
 }
 
-+(BOOL)requireInitialValues
++(NSSet *)requiredInitialProperties
 {
-    return YES;
-}
-
--(BOOL)validInitialValues
-{
-    return YES;
+    return nil;
 }
 
 #pragma mark - NOUserProtocol
@@ -63,6 +58,22 @@
 {
     static NSString *usernameKey = @"username";
     return usernameKey;
+}
+
+#pragma mark - Validate New Values
+
+-(BOOL)isValidValue:(NSObject *)newValue
+       forAttribute:(NSString *)attributeName
+{
+    
+    return YES;
+}
+
+-(BOOL)isValidValue:(NSObject *)newValue
+    forRelationship:(NSString *)relationshipName
+{
+    
+    return YES;
 }
 
 #pragma mark - Permissions

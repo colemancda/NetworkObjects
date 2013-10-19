@@ -32,8 +32,16 @@
 
 -(void)generateToken
 {
+    // generate token
     
+    self.token = @"random shit";
+}
+
+-(BOOL)canUseSessionFromIP:(NSString *)ipAddress
+            requestHeaders:(NSDictionary *)headers
+{
     
+    return YES;
 }
 
 -(void)usedSessionFromIP:(NSString *)ipAddress
@@ -62,14 +70,26 @@
     return YES;
 }
 
-+(BOOL)requireInitialValues
+
++(NSSet *)requiredInitialProperties
 {
-    return NO;
+    return nil;
 }
 
--(BOOL)validInitialValues
+#pragma mark - Validate New Values
+
+-(BOOL)isValidValue:(NSObject *)newValue
+       forAttribute:(NSString *)attributeName
 {
-    return NO;
+    
+    return YES;
+}
+
+-(BOOL)isValidValue:(NSObject *)newValue
+    forRelationship:(NSString *)relationshipName
+{
+    
+    return YES;
 }
 
 #pragma mark - Permissions

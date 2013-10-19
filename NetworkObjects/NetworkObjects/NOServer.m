@@ -255,10 +255,16 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     if (session) {
         
-        // get IP Address
-        
-        [session usedSessionFromIP:response.ipAddress
-                    requestHeaders:request.headers];
+        if ([session canUseSessionFromIP:response.ipAddress
+                          requestHeaders:request.headers]) {
+            
+            [session usedSessionFromIP:response.ipAddress
+                        requestHeaders:request.headers];
+        }
+        else {
+            
+            session = nil;
+        }
     }
     
     // determine what handler to call

@@ -51,14 +51,25 @@
     return YES;
 }
 
-+(BOOL)requireInitialValues
++(NSSet *)requiredInitialProperties
 {
-    return NO;
+    return nil;
 }
 
--(BOOL)validInitialValues
+#pragma mark - Validate New Values
+
+-(BOOL)isValidValue:(NSObject *)newValue
+       forAttribute:(NSString *)attributeName
 {
-    return NO;
+    
+    return YES;
+}
+
+-(BOOL)isValidValue:(NSObject *)newValue
+    forRelationship:(NSString *)relationshipName
+{
+    
+    return YES;
 }
 
 #pragma mark - Permissions

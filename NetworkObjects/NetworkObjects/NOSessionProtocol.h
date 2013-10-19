@@ -20,6 +20,9 @@
 // generate token
 -(void)generateToken;
 
+-(BOOL)canUseSessionFromIP:(NSString *)ipAddress
+            requestHeaders:(NSDictionary *)headers;
+
 -(void)usedSessionFromIP:(NSString *)ipAddress
           requestHeaders:(NSDictionary *)headers;
 
