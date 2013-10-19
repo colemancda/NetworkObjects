@@ -25,11 +25,15 @@
 
 #pragma mark - Conversion Methods
 
-
 -(NSObject *)JSONCompatibleValueForToOneRelationshipValue:(NSManagedObject<NOResourceProtocol> *)relationshipvalue
                                           forRelationship:(NSString *)relationshipName;
 
 -(NSManagedObject<NOResourceProtocol> *)toOneRelationshipValueForJSONCompatibleValue:(NSNumber *)jsonValue forRelationship:(NSString *)relationshipName;
 
+-(NSArray *)JSONCompatibleValueForToManyRelationshipValue:(NSArray *)relationshipvalue
+                                          forRelationship:(NSString *)relationshipName;
+
+-(NSArray *)toManyRelationshipValueForJSONCompatibleValue:(NSArray *)jsonValue
+                                          forRelationship:(NSString *)relationshipName;
 
 @end
