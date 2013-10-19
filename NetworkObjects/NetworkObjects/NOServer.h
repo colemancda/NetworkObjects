@@ -59,10 +59,6 @@ typedef NS_ENUM(NSUInteger, NOServerStatusCode) {
 
 @property BOOL prettyPrintJSON;
 
-#pragma mark
-
--(NSManagedObject<NOSessionProtocol> *)sessionWithToken:(NSString *)token;
-
 #pragma mark - Responding to requests
 
 // code for handling incoming REST requests (authentication, returning JSON data)
@@ -100,6 +96,8 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                      response:(RouteResponse *)response;
 
 #pragma mark - Common methods for handlers
+
+-(NSManagedObject<NOSessionProtocol> *)sessionWithToken:(NSString *)token;
 
 -(NSDictionary *)JSONRepresentationOfResource:(NSManagedObject<NOResourceProtocol> *)resource
                                    forSession:(NSManagedObject<NOSessionProtocol> *)session;
