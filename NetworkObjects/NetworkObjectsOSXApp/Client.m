@@ -23,4 +23,13 @@
 @dynamic sessions;
 @dynamic creator;
 
+-(void)awakeFromInsert
+{
+    [super awakeFromInsert];
+    
+    self.created = [NSDate date];
+    
+    self.isNotThirdParty = @NO;
+}
+
 @end

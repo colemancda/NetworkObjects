@@ -8,6 +8,22 @@
 
 #import <Cocoa/Cocoa.h>
 
-@interface ClientsWindowController : NSWindowController
+@interface ClientsWindowController : NSWindowController <NSTableViewDataSource, NSTableViewDelegate>
+{
+    NSMutableArray *_clients;
+    
+    NSDateFormatter *_dateFormatter;
+}
+
+@property (weak) IBOutlet NSTableView *tableView;
+
+#pragma mark - Actions
+
+-(IBAction)newDocument:(id)sender;
+
+-(IBAction)delete:(id)sender;
+
+-(NSError *)populateClientsArrayWithSortDescriptor:(NSArray *)sortDescriptors;
+
 
 @end

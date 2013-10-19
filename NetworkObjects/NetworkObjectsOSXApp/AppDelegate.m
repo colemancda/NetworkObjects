@@ -142,7 +142,7 @@ NSString *const ServerOnOffStatePreferenceKey = @"ServerOnOffState";
 
 - (IBAction)viewClients:(NSMenuItem *)sender {
     
-    
+    [_clientsWC.window makeKeyAndOrderFront:sender];
     
 }
 

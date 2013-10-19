@@ -69,6 +69,11 @@
                             <menuItem title="Start Server" id="plB-kg-Ncn">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                             </menuItem>
+                            <menuItem title="New" keyEquivalent="n" id="Jqb-Ab-mt9">
+                                <connections>
+                                    <action selector="newDocument:" target="-1" id="hMH-c4-c6c"/>
+                                </connections>
+                            </menuItem>
                             <menuItem isSeparatorItem="YES" id="79">
                                 <modifierMask key="keyEquivalentModifierMask" command="YES"/>
                             </menuItem>

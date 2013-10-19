@@ -23,6 +23,7 @@
 		6E580FEA1801E3D2004CB802 /* NSDate+ISO8601.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E580FE91801E3D2004CB802 /* NSDate+ISO8601.m */; };
 		6E580FED1801E6B7004CB802 /* Base64.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E580FEC1801E6B7004CB802 /* Base64.m */; };
 		6E580FFE180225BA004CB802 /* Post+NOResourceProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E580FFD180225BA004CB802 /* Post+NOResourceProtocol.m */; };
+		6E9FA35B18134B6E00785A09 /* CheckBoxCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9FA35A18134B6E00785A09 /* CheckBoxCellView.m */; };
 		6EC8597C18006E8E0089F123 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6EC8594518006E1A0089F123 /* Cocoa.framework */; };
 		6EC8598218006E8E0089F123 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6EC8598018006E8E0089F123 /* InfoPlist.strings */; };
 		6EC8598418006E8E0089F123 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EC8598318006E8E0089F123 /* main.m */; };
@@ -110,6 +111,8 @@
 		6E580FEC1801E6B7004CB802 /* Base64.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Base64.m; sourceTree = "<group>"; };
 		6E580FFC180225BA004CB802 /* Post+NOResourceProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Post+NOResourceProtocol.h"; sourceTree = "<group>"; };
 		6E580FFD180225BA004CB802 /* Post+NOResourceProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "Post+NOResourceProtocol.m"; sourceTree = "<group>"; };
+		6E9FA35918134B6E00785A09 /* CheckBoxCellView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CheckBoxCellView.h; sourceTree = "<group>"; };
+		6E9FA35A18134B6E00785A09 /* CheckBoxCellView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CheckBoxCellView.m; sourceTree = "<group>"; };
 		6EC8594518006E1A0089F123 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		6EC8594818006E1B0089F123 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		6EC8594918006E1B0089F123 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
@@ -328,6 +331,31 @@
 			name = Categories;
 			sourceTree = "<group>";
 		};
+		6E9FA35618134B2400785A09 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				6E9FA35718134B2E00785A09 /* TableView */,
+			);
+			name = Views;
+			sourceTree = "<group>";
+		};
+		6E9FA35718134B2E00785A09 /* TableView */ = {
+			isa = PBXGroup;
+			children = (
+				6E9FA35818134B3A00785A09 /* Cells */,
+			);
+			name = TableView;
+			sourceTree = "<group>";
+		};
+		6E9FA35818134B3A00785A09 /* Cells */ = {
+			isa = PBXGroup;
+			children = (
+				6E9FA35918134B6E00785A09 /* CheckBoxCellView.h */,
+				6E9FA35A18134B6E00785A09 /* CheckBoxCellView.m */,
+			);
+			name = Cells;
+			sourceTree = "<group>";
+		};
 		6EC858E718006D7A0089F123 = {
 			isa = PBXGroup;
 			children = (
@@ -377,6 +405,7 @@
 				6EC8598C18006E8E0089F123 /* MainMenu.xib */,
 				6E2B262C18012263002B94F2 /* Model.xcdatamodeld */,
 				6EC8598F18006E8E0089F123 /* Images.xcassets */,
+				6E9FA35618134B2400785A09 /* Views */,
 				6E332D4D180AF87D009FDAB9 /* Controllers */,
 				6E580FEE18022395004CB802 /* Models */,
 				6EC8597E18006E8E0089F123 /* Supporting Files */,
@@ -679,6 +708,7 @@
 				6EC859FC18006F9C0089F123 /* DDNumber.m in Sources */,
 				6E332D49180AF139009FDAB9 /* Client.m in Sources */,
 				6EC85A0B18006F9C0089F123 /* MultipartMessageHeader.m in Sources */,
+				6E9FA35B18134B6E00785A09 /* CheckBoxCellView.m in Sources */,
 				6EC859FA18006F9C0089F123 /* NOStore.m in Sources */,
 				6EC85A0118006F9C0089F123 /* DDLog.m in Sources */,
 				6E2B262E18012263002B94F2 /* Model.xcdatamodeld in Sources */,
