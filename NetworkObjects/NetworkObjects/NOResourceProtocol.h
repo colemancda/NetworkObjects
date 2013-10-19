@@ -56,7 +56,10 @@
        forAttribute:(NSString *)attributeName;
 
 -(BOOL)isValidValue:(NSObject *)newValue
-    forRelationship:(NSString *)relationshipName;
+forToOneRelationship:(NSString *)relationshipName;
+
+-(BOOL)isValidValue:(NSObject *)newValue
+forToManyRelationship:(NSString *)relationshipName;
 
 #pragma mark - Notification
 

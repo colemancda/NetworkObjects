@@ -23,7 +23,6 @@
 		6E580FEA1801E3D2004CB802 /* NSDate+ISO8601.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E580FE91801E3D2004CB802 /* NSDate+ISO8601.m */; };
 		6E580FED1801E6B7004CB802 /* Base64.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E580FEC1801E6B7004CB802 /* Base64.m */; };
 		6E580FFE180225BA004CB802 /* Post+NOResourceProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E580FFD180225BA004CB802 /* Post+NOResourceProtocol.m */; };
-		6E9FA3161812EB5000785A09 /* NSManagedObject+NOResourceProtocolCoreDataJSONCompatibility.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9FA3151812EB5000785A09 /* NSManagedObject+NOResourceProtocolCoreDataJSONCompatibility.m */; };
 		6EC8597C18006E8E0089F123 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6EC8594518006E1A0089F123 /* Cocoa.framework */; };
 		6EC8598218006E8E0089F123 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6EC8598018006E8E0089F123 /* InfoPlist.strings */; };
 		6EC8598418006E8E0089F123 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EC8598318006E8E0089F123 /* main.m */; };
@@ -111,8 +110,6 @@
 		6E580FEC1801E6B7004CB802 /* Base64.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Base64.m; sourceTree = "<group>"; };
 		6E580FFC180225BA004CB802 /* Post+NOResourceProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Post+NOResourceProtocol.h"; sourceTree = "<group>"; };
 		6E580FFD180225BA004CB802 /* Post+NOResourceProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "Post+NOResourceProtocol.m"; sourceTree = "<group>"; };
-		6E9FA3141812EB5000785A09 /* NSManagedObject+NOResourceProtocolCoreDataJSONCompatibility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSManagedObject+NOResourceProtocolCoreDataJSONCompatibility.h"; sourceTree = "<group>"; };
-		6E9FA3151812EB5000785A09 /* NSManagedObject+NOResourceProtocolCoreDataJSONCompatibility.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSManagedObject+NOResourceProtocolCoreDataJSONCompatibility.m"; sourceTree = "<group>"; };
 		6EC8594518006E1A0089F123 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		6EC8594818006E1B0089F123 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		6EC8594918006E1B0089F123 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
@@ -280,8 +277,6 @@
 			children = (
 				6E580FE21801D1D9004CB802 /* NSManagedObject+CoreDataJSONCompatibility.h */,
 				6E580FE31801D1D9004CB802 /* NSManagedObject+CoreDataJSONCompatibility.m */,
-				6E9FA3141812EB5000785A09 /* NSManagedObject+NOResourceProtocolCoreDataJSONCompatibility.h */,
-				6E9FA3151812EB5000785A09 /* NSManagedObject+NOResourceProtocolCoreDataJSONCompatibility.m */,
 				6E580FEB1801E6B7004CB802 /* Base64.h */,
 				6E580FEC1801E6B7004CB802 /* Base64.m */,
 				6E580FE81801E3D2004CB802 /* NSDate+ISO8601.h */,
@@ -693,7 +688,6 @@
 				6EC85A1418006F9C0089F123 /* Route.m in Sources */,
 				6EC85A0A18006F9C0089F123 /* MultipartFormDataParser.m in Sources */,
 				6EC85A0518006F9C0089F123 /* GCDAsyncSocket.m in Sources */,
-				6E9FA3161812EB5000785A09 /* NSManagedObject+NOResourceProtocolCoreDataJSONCompatibility.m in Sources */,
 				6EC859FF18006F9C0089F123 /* DDASLLogger.m in Sources */,
 				6EC85A1218006F9C0089F123 /* WebSocket.m in Sources */,
 				6EC85A0E18006F9C0089F123 /* HTTPDataResponse.m in Sources */,

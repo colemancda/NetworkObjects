@@ -595,10 +595,16 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                 // resourceID cannot be edited by anyone
                 if (![resourceIDKey isEqualToString:key]) {
                     
-                    // get real value
+                    // get pre-edit value
+                    NSObject *newValue = [resource attributeValueForJSONCompatibleValue:value
+                                                                           forAttribute:key];
                     
-                    isValidAttribute = YES;
-                    
+                    // let NOResource verify that the new attribute value is a valid new value
+                    if ([resource isValidValue:newValue
+                                  forAttribute:key]) {
+                        
+                        isValidAttribute = YES;
+                    }
                 }
             }
         }
