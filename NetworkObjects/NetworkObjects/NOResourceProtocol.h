@@ -24,7 +24,7 @@
 +(BOOL)requireSession;
 
 // requires that the object be created with provided values
-+(BOOL)requireInitialValues;
++(NSSet *)requireInitialValues;
 
 #pragma mark - Attributes and Relationship paths
 

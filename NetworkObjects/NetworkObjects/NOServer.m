@@ -392,6 +392,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         if ([resource permissionForAttribute:attributeName
                                      session:session] >= ReadOnlyPermission) {
             
+            // add to JSON representation
             [jsonObject setObject:[resource JSONCompatibleValueForAttribute:attributeName]
                            forKey:attributeName];
             
@@ -408,55 +409,45 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         
         NSEntityDescription *destinationEntity = relationshipDescription.destinationEntity;
         
-        // to-one relationship
-        if (!relationshipDescription.isToMany) {
+        // make sure relationship is visible
+        if ([resource permissionForRelationship:relationshipName session:session] >= ReadOnlyPermission) {
+            
             // make sure the destination entity class conforms to NOResourceProtocol
             if ([NSClassFromString(destinationEntity.managedObjectClassName) conformsToProtocol:@protocol(NOResourceProtocol)]) {
                 
-                // get destination resource
-                NSManagedObject<NOResourceProtocol> *destinationResource = [resource valueForKey:relationshipName];
-                
-                // check access permissions (the relationship & the single distination object must be visible)
-                if ([resource permissionForRelationship:relationshipName session:session] >= ReadOnlyPermission &&
-                    [destinationResource permissionForSession:session ] >= ReadOnlyPermission) {
+                // to-one relationship
+                if (!relationshipDescription.isToMany) {
                     
-                    // get resourceID
-                    NSString *destinationResourceIDKey = [destinationResource.class resourceIDKey];
+                    // get destination resource
+                    NSManagedObject<NOResourceProtocol> *destinationResource = [resource valueForKey:relationshipName];
                     
-                    NSNumber *destinationResourceID = [resource valueForKey:destinationResourceIDKey];
-                    
-                    // add to json object
-                    [jsonObject setValue:destinationResourceID
-                                  forKey:relationshipName];
-                    
-                    // notify
-                    [resource relationship:relationshipName
-                      wasAccessedBySession:session];
+                    // check access permissions (the relationship & the single distination object must be visible)
+                    if ([resource permissionForRelationship:relationshipName session:session] >= ReadOnlyPermission &&
+                        [destinationResource permissionForSession:session ] >= ReadOnlyPermission) {
+                        
+                        // get resourceID
+                        NSString *destinationResourceIDKey = [destinationResource.class resourceIDKey];
+                        
+                        NSNumber *destinationResourceID = [resource valueForKey:destinationResourceIDKey];
+                        
+                        // add to json object
+                        [jsonObject setValue:destinationResourceID
+                                      forKey:relationshipName];
+                    }
                 }
-            }
-        }
-        
-        // to-many relationship
-        else {
-            
-            // make sure relationship is visible
-            if ([resource permissionForRelationship:toManyRelationshipName session:session] >= ReadOnlyPermission) {
                 
-                NSRelationshipDescription *toOneRelationshipDescription = resource.entity.relationshipsByName[toManyRelationshipName];
-                
-                NSEntityDescription *destinationEntity = toOneRelationshipDescription.destinationEntity;
-                
-                // make sure the destination entity class conforms to NOResourceProtocol
-                if ([NSClassFromString(destinationEntity.managedObjectClassName) conformsToProtocol:@protocol(NOResourceProtocol)]) {
+                // to-many relationship
+                else {
                     
-                    NSArray *toManyRelationship = [resource valueForKey:toManyRelationshipName];
+                    // get destination collection
+                    NSArray *toManyRelationship = [resource valueForKey:relationshipName];
                     
                     // only add resources that are visible
                     NSMutableArray *visibleRelationship = [[NSMutableArray alloc] init];
                     
                     for (NSManagedObject<NOResourceProtocol> *destinationResource in toManyRelationship) {
                         
-                        if ([destinationResource permissionForRelationship:toManyRelationshipName session:session] >= ReadOnlyPermission) {
+                        if ([destinationResource permissionForRelationship:relationshipName session:session] >= ReadOnlyPermission) {
                             
                             // get destination resource ID
                             
@@ -470,12 +461,13 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                     
                     // add to jsonObject
                     [jsonObject setValue:visibleRelationship
-                                  forKey:toManyRelationshipName];
-                    
-                    // notify
-                    [resource relationship:toManyRelationshipName
-                      wasAccessedBySession:session];
+                                  forKey:relationshipName];
                 }
+                
+                // notify
+                [resource relationship:relationshipName
+                  wasAccessedBySession:session];
+                
             }
         }
     }
