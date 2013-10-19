@@ -112,4 +112,8 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
              fromJSONObject:(NSDictionary *)jsonObject
                     session:(NSManagedObject<NOSessionProtocol> *)session;
 
+#pragma mark - Methods for resources
+
+
+
 @end

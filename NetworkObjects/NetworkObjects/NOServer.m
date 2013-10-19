@@ -586,8 +586,6 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         
         for (NSString *attributeName in resource.entity.attributesByName) {
             
-            // NSAttributeDescription *attributeDescription = resource.entity.attributesByName[attributeName];
-            
             // found attribute with same name
             if ([key isEqualToString:attributeName]) {
                 
@@ -595,7 +593,8 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                 NSString *resourceIDKey = [[resource class] resourceIDKey];
                 
                 // resourceID cannot be edited by anyone
-                if (![resourceIDKey isEqualToString:key]) {
+                if (![resourceIDKey isEqualToString:key] &&
+                    [resource isValidValue:value forAttribute:attributeName]) {
                     
                     isValidAttribute = YES;
                     
@@ -606,7 +605,8 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         for (NSString *toOneRelationshipName in resource.entity.toOneRelationshipKeys) {
             
             if ([key isEqualToString:toOneRelationshipName] &&
-                [value isKindOfClass:[NSNumber class]]) {
+                [value isKindOfClass:[NSNumber class]] &&
+                [resource isValidValue:value forRelationship:toOneRelationshipName]) {
                 
                 isToOneRelationship = YES;
             }
@@ -614,7 +614,10 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         
         for (NSString *toManyRelationshipName in resource.entity.toManyRelationshipKeys) {
             
-            if ([key isEqualToString:toManyRelationshipName]) {
+            if ([key isEqualToString:toManyRelationshipName] &&
+                [value isKindOfClass:[NSArray class]] &&
+                [resource isValidValue:value
+                       forRelationship:toManyRelationshipName]) {
                 
                 isToManyRelationship = YES;
             }
@@ -763,17 +766,6 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     [self setValuesForResource:newResource
                 fromJSONObject:initialValues
                        session:session];
-    
-    // validate those inital values
-    if (![newResource validInitialValues]) {
-        
-        response.statusCode = BadRequestStatusCode;
-        
-        // delete created resource
-        [_store deleteResource:newResource];
-        
-        return;
-    }
     
     // get the resourceIDKey
     NSString *resourceIDKey = [[newResource class] resourceIDKey];
