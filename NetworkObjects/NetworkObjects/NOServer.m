@@ -142,7 +142,7 @@
     // add login server route
     NSString *loginPath = [NSString stringWithFormat:@"/%@", self.loginPath];
     
-    [_httpServer get:loginPath withBlock:^(RouteRequest *request, RouteResponse *response) {
+    [_httpServer post:loginPath withBlock:^(RouteRequest *request, RouteResponse *response) {
         
         [self handleLoginWithRequest:request
                             response:response];
@@ -590,6 +590,12 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     clientWithSecretFetchRequest.predicate = [NSPredicate predicateWithFormat:@"%@ == %@", clientSecretKey, clientSecret];
     
+    // TEMP
+    
+    NSManagedObject<NOClientProtocol> *firstClient = (NSManagedObject<NOClientProtocol> *)[_store resourceWithEntityDescription:clientEntityDescription resourceID:0];
+    
+    NSLog(@"%@", firstClient);
+    
     // find client with secret
     
     __block NSManagedObject<NOClientProtocol> *client;
@@ -618,7 +624,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     // if no client was found
     if (!client) {
         
-        response.statusCode = BadRequestStatusCode;
+        response.statusCode = ForbiddenStatusCode;
         
         return;
     }
@@ -658,6 +664,11 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         NSFetchRequest *userFetchRequest = [NSFetchRequest fetchRequestWithEntityName:self.userEntityName];
         
         userFetchRequest.predicate = [NSPredicate predicateWithFormat:@"%@ ==[c] %@ AND %@ == %@", usernameKey, username, passwordKey, userPassword];
+        
+        NSSortDescriptor *userSort = [NSSortDescriptor sortDescriptorWithKey:usernameKey
+                                                                   ascending:YES];
+        
+        userFetchRequest.sortDescriptors = @[userSort];
         
         __block NSManagedObject<NOUserProtocol> *user;
         

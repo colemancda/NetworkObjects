@@ -96,6 +96,9 @@
     
     newClient.secret = [NSString randomStringWithLength:tokenLength];
     
+    // TEMP
+    NSLog(@"Created new client %@", newClient);
+    
     [_clients addObject:newClient];
     
     [self.tableView reloadData];

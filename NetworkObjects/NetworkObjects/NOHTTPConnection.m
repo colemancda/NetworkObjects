@@ -12,30 +12,24 @@
 
 @implementation NOHTTPConnection
 
--(BOOL)expectsRequestBodyFromMethod:(NSString *)method
-                             atPath:(NSString *)path
+-(BOOL)isSecureServer
+{
+    return (BOOL)self.sslIdentityAndCertificates;
+}
+
+-(NSArray *)sslIdentityAndCertificates
 {
     NOHTTPServer *httpServer = (NOHTTPServer *)config.server;
     
     NOServer *server = httpServer.server;
     
-    // if its the login path
-    
-    NSString *loginPath = [NSString stringWithFormat:@"/%@", server.loginPath];
-    
-    if ([path isEqualToString:loginPath] &&
-        [method isEqualToString:@"GET"]) {
+    if (server) {
         
-        return YES;
+        
+        
     }
     
-    if ([method isEqualToString:@"PUT"] ||
-        [method isEqualToString:@"POST"]) {
-        
-        return YES;
-    }
-    
-    return NO;
+    return nil;
 }
 
 @end
