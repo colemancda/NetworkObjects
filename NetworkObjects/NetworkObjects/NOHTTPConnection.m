@@ -20,28 +20,22 @@
     NOServer *server = httpServer.server;
     
     // if its the login path
-    if ([path isEqualToString:server.loginPath] &&
+    
+    NSString *loginPath = [NSString stringWithFormat:@"/%@", server.loginPath];
+    
+    if ([path isEqualToString:loginPath] &&
         [method isEqualToString:@"GET"]) {
         
         return YES;
     }
     
     if ([method isEqualToString:@"PUT"] ||
-        [method isEqualToString:@"GET"]) {
+        [method isEqualToString:@"POST"]) {
         
         return YES;
     }
     
     return NO;
-}
-
--(NSArray *)sslIdentityAndCertificates
-{
-    NOHTTPServer *httpServer = (NOHTTPServer *)config.server;
-    
-    NOServer *server = httpServer.server;
-    
-    return nil;
 }
 
 @end
