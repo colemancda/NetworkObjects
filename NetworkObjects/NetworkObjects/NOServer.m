@@ -7,7 +7,6 @@
 //
 
 #import "NOServer.h"
-#import "RoutingHTTPServer.h"
 #import "NOStore.h"
 #import "NOResourceProtocol.h"
 #import "NOSessionProtocol.h"
@@ -16,6 +15,7 @@
 #import "NSManagedObject+CoreDataJSONCompatibility.h"
 #import "RouteResponse+IPAddress.h"
 #import "NOHTTPConnection.h"
+#import "NOHTTPServer.h"
 
 @implementation NOServer (NSJSONWritingOption)
 
@@ -56,7 +56,9 @@
         
         _loginPath = loginPath;
         
-        _httpServer = [[RoutingHTTPServer alloc] init];
+        _httpServer = [[NOHTTPServer alloc] init];
+        
+        _httpServer.server = self;
         
         _httpServer.connectionClass = [NOHTTPConnection class];
         

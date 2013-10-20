@@ -8,14 +8,19 @@
 
 #import "NOHTTPConnection.h"
 #import "NOServer.h"
+#import "NOHTTPServer.h"
 
 @implementation NOHTTPConnection
 
 -(BOOL)expectsRequestBodyFromMethod:(NSString *)method
                              atPath:(NSString *)path
 {
+    NOHTTPServer *httpServer = (NOHTTPServer *)config.server;
+    
+    NOServer *server = httpServer.server;
+    
     // if its the login path
-    if ([path isEqualToString:self.server.loginPath] &&
+    if ([path isEqualToString:server.loginPath] &&
         [method isEqualToString:@"GET"]) {
         
         return YES;
@@ -28,6 +33,15 @@
     }
     
     return NO;
+}
+
+-(NSArray *)sslIdentityAndCertificates
+{
+    NOHTTPServer *httpServer = (NOHTTPServer *)config.server;
+    
+    NOServer *server = httpServer.server;
+    
+    return nil;
 }
 
 @end

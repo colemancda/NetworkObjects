@@ -8,7 +8,7 @@
 
 #import "AppDelegate.h"
 #import "NOServer.h"
-#import "RoutingHTTPServer.h"
+#import "NOHTTPServer.h"
 #import "ClientsWindowController.h"
 
 NSString *const ServerOnOffStatePreferenceKey = @"ServerOnOffState";

@@ -26,6 +26,7 @@
 		6E9FA35B18134B6E00785A09 /* CheckBoxCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9FA35A18134B6E00785A09 /* CheckBoxCellView.m */; };
 		6E9FA35E1813546200785A09 /* NSString+RandomString.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9FA35D1813546200785A09 /* NSString+RandomString.m */; };
 		6E9FA36218135DD200785A09 /* NOHTTPConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9FA36118135DD200785A09 /* NOHTTPConnection.m */; };
+		6E9FA36618135F6B00785A09 /* NOHTTPServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9FA36518135F6B00785A09 /* NOHTTPServer.m */; };
 		6EC8597C18006E8E0089F123 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6EC8594518006E1A0089F123 /* Cocoa.framework */; };
 		6EC8598218006E8E0089F123 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6EC8598018006E8E0089F123 /* InfoPlist.strings */; };
 		6EC8598418006E8E0089F123 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EC8598318006E8E0089F123 /* main.m */; };
@@ -119,6 +120,8 @@
 		6E9FA35D1813546200785A09 /* NSString+RandomString.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+RandomString.m"; sourceTree = "<group>"; };
 		6E9FA36018135DD200785A09 /* NOHTTPConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NOHTTPConnection.h; sourceTree = "<group>"; };
 		6E9FA36118135DD200785A09 /* NOHTTPConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NOHTTPConnection.m; sourceTree = "<group>"; };
+		6E9FA36418135F6B00785A09 /* NOHTTPServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NOHTTPServer.h; sourceTree = "<group>"; };
+		6E9FA36518135F6B00785A09 /* NOHTTPServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NOHTTPServer.m; sourceTree = "<group>"; };
 		6EC8594518006E1A0089F123 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		6EC8594818006E1B0089F123 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		6EC8594918006E1B0089F123 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
@@ -378,6 +381,8 @@
 				6EC859B318006F9C0089F123 /* RoutingHTTPServer */,
 				6E9FA36018135DD200785A09 /* NOHTTPConnection.h */,
 				6E9FA36118135DD200785A09 /* NOHTTPConnection.m */,
+				6E9FA36418135F6B00785A09 /* NOHTTPServer.h */,
+				6E9FA36518135F6B00785A09 /* NOHTTPServer.m */,
 			);
 			name = "HTTP Server";
 			sourceTree = "<group>";
@@ -744,6 +749,7 @@
 				6EC85A0918006F9C0089F123 /* HTTPServer.m in Sources */,
 				6EC85A1418006F9C0089F123 /* Route.m in Sources */,
 				6EC85A0A18006F9C0089F123 /* MultipartFormDataParser.m in Sources */,
+				6E9FA36618135F6B00785A09 /* NOHTTPServer.m in Sources */,
 				6EC85A0518006F9C0089F123 /* GCDAsyncSocket.m in Sources */,
 				6EC859FF18006F9C0089F123 /* DDASLLogger.m in Sources */,
 				6EC85A1218006F9C0089F123 /* WebSocket.m in Sources */,

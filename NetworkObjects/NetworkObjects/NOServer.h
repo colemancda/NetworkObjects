@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-@class NOStore, RouteRequest, RouteResponse, RoutingHTTPServer;
+@class NOStore, RouteRequest, RouteResponse, NOHTTPServer;
 
 @protocol NOResourceProtocol;
 @protocol NOSessionProtocol;
@@ -39,7 +39,7 @@ typedef NS_ENUM(NSUInteger, NOServerStatusCode) {
 
 @property (readonly) NOStore *store;
 
-@property (readonly) RoutingHTTPServer *httpServer;
+@property (readonly) NOHTTPServer *httpServer;
 
 @property (readonly) NSString *sessionEntityName;
 
