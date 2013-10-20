@@ -31,8 +31,23 @@ NSString *const TokenLengthPreferenceKey = @"tokenLength";
 {
     // Insert code here to initialize your application
     
-    // setup store (just a memory store for now)
+    // setup store
     _store = [[NOStore alloc] init];
+    
+    // add persistance
+    NSError *addPersistentStoreError;
+    [_store.context.persistentStoreCoordinator addPersistentStoreWithType:NSInMemoryStoreType
+                                                            configuration:nil
+                                                                      URL:nil
+                                                                  options:nil
+                                                                    error:&addPersistentStoreError];
+    
+    if (addPersistentStoreError) {
+        
+        [NSApp presentError:addPersistentStoreError];
+        
+        [NSApp terminate:nil];
+    }
     
     _server = [[NOServer alloc] initWithStore:_store
                                userEntityName:@"User"

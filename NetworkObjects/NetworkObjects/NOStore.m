@@ -174,7 +174,9 @@
     
     NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:entityDescription.name];
     
-    fetchRequest.predicate = [NSPredicate predicateWithFormat:@"%@ == %lu", resourceIDKey, (unsigned long)resourceID];
+    NSString *predicateFormat = [NSString stringWithFormat:@"%@ == %lu", resourceIDKey, (unsigned long)resourceID];
+    
+    fetchRequest.predicate = [NSPredicate predicateWithFormat:predicateFormat];
     
     __block id<NOResourceProtocol> resource;
     

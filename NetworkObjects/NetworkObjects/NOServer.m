@@ -594,7 +594,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     NSManagedObject<NOClientProtocol> *firstClient = (NSManagedObject<NOClientProtocol> *)[_store resourceWithEntityDescription:clientEntityDescription resourceID:0];
     
-    NSLog(@"%@", firstClient);
+    NSLog(@"fisrt client %@", firstClient);
     
     // find client with secret
     
