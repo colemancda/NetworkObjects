@@ -13,7 +13,19 @@
 
 NSString *const ServerOnOffStatePreferenceKey = @"ServerOnOffState";
 
+NSString *const TokenLengthPreferenceKey = @"tokenLength";
+
 @implementation AppDelegate
+
++(void)initialize
+{
+    // register defaults
+    
+    NSDictionary *defaults = @{ServerOnOffStatePreferenceKey: @NO,
+                               TokenLengthPreferenceKey : @10};
+    
+    [[NSUserDefaults standardUserDefaults] registerDefaults:defaults];
+}
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {

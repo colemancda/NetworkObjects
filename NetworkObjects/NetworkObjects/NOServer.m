@@ -8,7 +8,6 @@
 
 #import "NOServer.h"
 #import "RoutingHTTPServer.h"
-#import "RoutingConnection.h"
 #import "NOStore.h"
 #import "NOResourceProtocol.h"
 #import "NOSessionProtocol.h"
@@ -16,6 +15,7 @@
 #import "NOClientProtocol.h"
 #import "NSManagedObject+CoreDataJSONCompatibility.h"
 #import "RouteResponse+IPAddress.h"
+#import "NOHTTPConnection.h"
 
 @implementation NOServer (NSJSONWritingOption)
 
@@ -58,7 +58,7 @@
         
         _httpServer = [[RoutingHTTPServer alloc] init];
         
-        _httpServer.connectionClass = [RoutingConnection class];
+        _httpServer.connectionClass = [NOHTTPConnection class];
         
         [self setupServerRoutes];
         
@@ -138,7 +138,9 @@
 -(void)setupServerRoutes
 {
     // add login server route
-    [_httpServer get:self.loginPath withBlock:^(RouteRequest *request, RouteResponse *response) {
+    NSString *loginPath = [NSString stringWithFormat:@"/%@", self.loginPath];
+    
+    [_httpServer get:loginPath withBlock:^(RouteRequest *request, RouteResponse *response) {
         
         [self handleLoginWithRequest:request
                             response:response];

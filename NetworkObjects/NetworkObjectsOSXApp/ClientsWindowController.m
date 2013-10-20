@@ -10,6 +10,7 @@
 #import "AppDelegate.h"
 #import "Client.h"
 #import "CheckBoxCellView.h"
+#import "NSString+RandomString.h"
 
 @interface ClientsWindowController ()
 
@@ -52,6 +53,27 @@
          didPresentSelector:nil
                 contextInfo:nil];
     }
+    
+    // KVC
+    
+}
+
+-(void)dealloc
+{
+    
+    
+}
+
+#pragma mark - KVC
+
+-(void)observeValueForKeyPath:(NSString *)keyPath
+                     ofObject:(id)object
+                       change:(NSDictionary *)change
+                      context:(void *)context
+{
+    
+    
+    
 }
 
 #pragma mark - Actions
@@ -70,7 +92,9 @@
     // set new values
     newClient.name = @"New Client";
     
-    newClient.secret = @"somesecret";
+    NSInteger tokenLength = [[NSUserDefaults standardUserDefaults] integerForKey:TokenLengthPreferenceKey];
+    
+    newClient.secret = [NSString randomStringWithLength:tokenLength];
     
     [_clients addObject:newClient];
     
@@ -79,8 +103,17 @@
 
 -(void)delete:(id)sender
 {
+    // get model obeject
     
+    Client *client = _clients[self.tableView.selectedRow];
     
+    AppDelegate *appDelegate = [NSApp delegate];
+    
+    [appDelegate.store deleteResource:(NSManagedObject<NOResourceProtocol > *)client];
+    
+    [_clients removeObject:client];
+    
+    [self.tableView reloadData];
 }
 
 #pragma mark

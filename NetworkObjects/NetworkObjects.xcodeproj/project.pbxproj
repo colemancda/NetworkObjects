@@ -24,6 +24,8 @@
 		6E580FED1801E6B7004CB802 /* Base64.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E580FEC1801E6B7004CB802 /* Base64.m */; };
 		6E580FFE180225BA004CB802 /* Post+NOResourceProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E580FFD180225BA004CB802 /* Post+NOResourceProtocol.m */; };
 		6E9FA35B18134B6E00785A09 /* CheckBoxCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9FA35A18134B6E00785A09 /* CheckBoxCellView.m */; };
+		6E9FA35E1813546200785A09 /* NSString+RandomString.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9FA35D1813546200785A09 /* NSString+RandomString.m */; };
+		6E9FA36218135DD200785A09 /* NOHTTPConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9FA36118135DD200785A09 /* NOHTTPConnection.m */; };
 		6EC8597C18006E8E0089F123 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6EC8594518006E1A0089F123 /* Cocoa.framework */; };
 		6EC8598218006E8E0089F123 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6EC8598018006E8E0089F123 /* InfoPlist.strings */; };
 		6EC8598418006E8E0089F123 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EC8598318006E8E0089F123 /* main.m */; };
@@ -113,6 +115,10 @@
 		6E580FFD180225BA004CB802 /* Post+NOResourceProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "Post+NOResourceProtocol.m"; sourceTree = "<group>"; };
 		6E9FA35918134B6E00785A09 /* CheckBoxCellView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CheckBoxCellView.h; sourceTree = "<group>"; };
 		6E9FA35A18134B6E00785A09 /* CheckBoxCellView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CheckBoxCellView.m; sourceTree = "<group>"; };
+		6E9FA35C1813546200785A09 /* NSString+RandomString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+RandomString.h"; sourceTree = "<group>"; };
+		6E9FA35D1813546200785A09 /* NSString+RandomString.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+RandomString.m"; sourceTree = "<group>"; };
+		6E9FA36018135DD200785A09 /* NOHTTPConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NOHTTPConnection.h; sourceTree = "<group>"; };
+		6E9FA36118135DD200785A09 /* NOHTTPConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NOHTTPConnection.m; sourceTree = "<group>"; };
 		6EC8594518006E1A0089F123 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		6EC8594818006E1B0089F123 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		6EC8594918006E1B0089F123 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
@@ -230,7 +236,7 @@
 		6E2B262718009429002B94F2 /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
-				6EC859B318006F9C0089F123 /* RoutingHTTPServer */,
+				6E9FA36318135EE700785A09 /* HTTP Server */,
 				6EC859AD18006F9C0089F123 /* NOServer.h */,
 				6EC859AE18006F9C0089F123 /* NOServer.m */,
 			);
@@ -303,6 +309,7 @@
 		6E580FEE18022395004CB802 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				6E9FA35F1813546600785A09 /* Categories */,
 				6E332D4A180AF139009FDAB9 /* Post.h */,
 				6E332D4B180AF139009FDAB9 /* Post.m */,
 				6E332D47180AF139009FDAB9 /* Client.h */,
@@ -354,6 +361,25 @@
 				6E9FA35A18134B6E00785A09 /* CheckBoxCellView.m */,
 			);
 			name = Cells;
+			sourceTree = "<group>";
+		};
+		6E9FA35F1813546600785A09 /* Categories */ = {
+			isa = PBXGroup;
+			children = (
+				6E9FA35C1813546200785A09 /* NSString+RandomString.h */,
+				6E9FA35D1813546200785A09 /* NSString+RandomString.m */,
+			);
+			name = Categories;
+			sourceTree = "<group>";
+		};
+		6E9FA36318135EE700785A09 /* HTTP Server */ = {
+			isa = PBXGroup;
+			children = (
+				6EC859B318006F9C0089F123 /* RoutingHTTPServer */,
+				6E9FA36018135DD200785A09 /* NOHTTPConnection.h */,
+				6E9FA36118135DD200785A09 /* NOHTTPConnection.m */,
+			);
+			name = "HTTP Server";
 			sourceTree = "<group>";
 		};
 		6EC858E718006D7A0089F123 = {
@@ -714,6 +740,7 @@
 				6E2B262E18012263002B94F2 /* Model.xcdatamodeld in Sources */,
 				6E332D46180AF139009FDAB9 /* User.m in Sources */,
 				6E41BC3A1803B010001EE0C2 /* RouteResponse+IPAddress.m in Sources */,
+				6E9FA35E1813546200785A09 /* NSString+RandomString.m in Sources */,
 				6EC85A0918006F9C0089F123 /* HTTPServer.m in Sources */,
 				6EC85A1418006F9C0089F123 /* Route.m in Sources */,
 				6EC85A0A18006F9C0089F123 /* MultipartFormDataParser.m in Sources */,
@@ -733,6 +760,7 @@
 				6EC85A0C18006F9C0089F123 /* MultipartMessageHeaderField.m in Sources */,
 				6EC85A0218006F9C0089F123 /* DDTTYLogger.m in Sources */,
 				6EC85A0418006F9C0089F123 /* DispatchQueueLogFormatter.m in Sources */,
+				6E9FA36218135DD200785A09 /* NOHTTPConnection.m in Sources */,
 				6EC8598418006E8E0089F123 /* main.m in Sources */,
 				6E580FE41801D1D9004CB802 /* NSManagedObject+CoreDataJSONCompatibility.m in Sources */,
 				6EC85A0018006F9C0089F123 /* DDFileLogger.m in Sources */,

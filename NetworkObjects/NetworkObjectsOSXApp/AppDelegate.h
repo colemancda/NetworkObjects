@@ -13,6 +13,8 @@
 
 extern NSString *const ServerOnOffStatePreferenceKey;
 
+extern NSString *const TokenLengthPreferenceKey;
+
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 
 @property (assign) IBOutlet NSWindow *window;
