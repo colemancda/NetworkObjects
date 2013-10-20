@@ -34,6 +34,45 @@ NSString *const TokenLengthPreferenceKey = @"tokenLength";
     // setup store
     _store = [[NOStore alloc] init];
     
+    // get URL for store persistance...
+    
+    // App Support Directory
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory,
+                                                         NSUserDomainMask,
+                                                         YES);
+    
+    // Application Support directory
+    NSString *appSupportPath = paths[0];
+    
+    // get the app bundle identifier
+    NSString *folderName = [[NSBundle mainBundle].infoDictionary objectForKey:@"CFBundleIdentifier"];
+    
+    // use that as app support folder and create it if it doesnt exist
+    NSString *appSupportFolder = [appSupportPath stringByAppendingPathComponent:folderName];
+    
+    BOOL isDirectory;
+    BOOL fileExists = [[NSFileManager defaultManager] fileExistsAtPath:appSupportFolder
+                                                           isDirectory:&isDirectory];
+    
+    // create folder if it doesnt exist
+    if (!isDirectory || !fileExists) {
+        
+        NSError *error;
+        BOOL createdFolder = [[NSFileManager defaultManager] createDirectoryAtPath:appSupportFolder
+                                                       withIntermediateDirectories:YES
+                                                                        attributes:nil
+                                                                             error:&error];
+        if (!createdFolder) {
+            
+            [NSException raise:@"Could not create Application Support folder"
+                        format:@"%@", error.localizedDescription];
+        }
+    }
+    
+    NSString *sqliteFilePath = [appSupportFolder stringByAppendingPathComponent:@"NOExample.sqlite"];
+    
+    NSURL *sqlURL = [NSURL fileURLWithPath:sqliteFilePath];
+    
     // add persistance
     NSError *addPersistentStoreError;
     [_store.context.persistentStoreCoordinator addPersistentStoreWithType:NSInMemoryStoreType

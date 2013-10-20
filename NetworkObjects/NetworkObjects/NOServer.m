@@ -588,13 +588,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     NSFetchRequest *clientWithSecretFetchRequest = [NSFetchRequest fetchRequestWithEntityName:self.clientEntityName];
     
-    clientWithSecretFetchRequest.predicate = [NSPredicate predicateWithFormat:@"%@ == %@", clientSecretKey, clientSecret];
-    
-    // TEMP
-    
-    NSManagedObject<NOClientProtocol> *firstClient = (NSManagedObject<NOClientProtocol> *)[_store resourceWithEntityDescription:clientEntityDescription resourceID:0];
-    
-    NSLog(@"fisrt client %@", firstClient);
+    clientWithSecretFetchRequest.predicate = [NSPredicate predicateWithFormat:@"%K == %@", clientSecretKey, clientSecret];
     
     // find client with secret
     
@@ -663,12 +657,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         // search for user with username and password
         NSFetchRequest *userFetchRequest = [NSFetchRequest fetchRequestWithEntityName:self.userEntityName];
         
-        userFetchRequest.predicate = [NSPredicate predicateWithFormat:@"%@ ==[c] %@ AND %@ == %@", usernameKey, username, passwordKey, userPassword];
-        
-        NSSortDescriptor *userSort = [NSSortDescriptor sortDescriptorWithKey:usernameKey
-                                                                   ascending:YES];
-        
-        userFetchRequest.sortDescriptors = @[userSort];
+        userFetchRequest.predicate = [NSPredicate predicateWithFormat:@"%K ==[c] %@ AND %K == %@", usernameKey, username, passwordKey, userPassword];
         
         __block NSManagedObject<NOUserProtocol> *user;
         
@@ -737,7 +726,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     NSFetchRequest *sessionWithTokenFetchRequest = [NSFetchRequest fetchRequestWithEntityName:self.sessionEntityName];
     
-    sessionWithTokenFetchRequest.predicate = [NSPredicate predicateWithFormat:@"%@ == %@", tokenKey, token];
+    sessionWithTokenFetchRequest.predicate = [NSPredicate predicateWithFormat:@"%K == %@", tokenKey, token];
     
     __block id<NOSessionProtocol> session;
     
