@@ -296,6 +296,9 @@
 		6E2B262718009429002B94F2 /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				6E9FA36318135EE700785A09 /* HTTP Server */,
+				6EC859AD18006F9C0089F123 /* NOServer.h */,
+				6EC859AE18006F9C0089F123 /* NOServer.m */,
 			);
 			name = Controllers;
 			sourceTree = "<group>";
@@ -303,6 +306,8 @@
 		6E2B262818009430002B94F2 /* Stores */ = {
 			isa = PBXGroup;
 			children = (
+				6EC859B018006F9C0089F123 /* NOStore.h */,
+				6EC859B118006F9C0089F123 /* NOStore.m */,
 			);
 			name = Stores;
 			sourceTree = "<group>";
@@ -360,12 +365,7 @@
 			isa = PBXGroup;
 			children = (
 				6E2B262818009430002B94F2 /* Stores */,
-				6EC859B018006F9C0089F123 /* NOStore.h */,
-				6EC859B118006F9C0089F123 /* NOStore.m */,
 				6E2B262718009429002B94F2 /* Controllers */,
-				6E9FA36318135EE700785A09 /* HTTP Server */,
-				6EC859AD18006F9C0089F123 /* NOServer.h */,
-				6EC859AE18006F9C0089F123 /* NOServer.m */,
 				6E2B26291800943B002B94F2 /* Models */,
 			);
 			name = Server;
@@ -817,6 +817,9 @@
 				LastUpgradeCheck = 0500;
 				ORGANIZATIONNAME = CDA;
 				TargetAttributes = {
+					6E2FB29E1815A2340098DA69 = {
+						DevelopmentTeam = 4W79SG34MW;
+					};
 					6E2FB2B71815A2350098DA69 = {
 						TestTargetID = 6EC8597A18006E8D0089F123;
 					};
@@ -1066,6 +1069,7 @@
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -1092,6 +1096,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;
@@ -1117,6 +1122,7 @@
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
 				ENABLE_NS_ASSERTIONS = NO;
@@ -1136,6 +1142,7 @@
 				INFOPLIST_FILE = "NOClientExample/NOClientExample-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
@@ -1435,6 +1442,7 @@
 				6E2FB2C71815A2360098DA69 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		6E2FB2CB1815A2360098DA69 /* Build configuration list for PBXNativeTarget "NOClientExampleTests" */ = {
 			isa = XCConfigurationList;
@@ -1443,6 +1451,7 @@
 				6E2FB2C91815A2360098DA69 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		6EC858EB18006D7A0089F123 /* Build configuration list for PBXProject "NetworkObjects" */ = {
 			isa = XCConfigurationList;

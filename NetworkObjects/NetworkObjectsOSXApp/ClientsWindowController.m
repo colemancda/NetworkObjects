@@ -40,43 +40,31 @@
     
     // Implement this method to handle any initialization after your window controller's window has been loaded from its nib file.
     
-    _dateFormatter = [[NSDateFormatter alloc] init];
-    _dateFormatter.dateStyle = NSDateFormatterShortStyle;
+    NSSortDescriptor *sort = [NSSortDescriptor sortDescriptorWithKey:@"isNotThirdParty"
+                                                           ascending:YES];
     
-    NSError *populateError = [self populateClientsArrayWithSortDescriptor:@[@"isNotThirdParty"]];
+    [self populateClientsArrayWithSortDescriptor:@[sort]];
     
-    if (populateError) {
+    [self.tableView reloadData];
+    
+}
+
+#pragma mark - First Responder
+
+-(BOOL)validateMenuItem:(NSMenuItem *)menuItem
+{
+    if (menuItem.action == @selector(delete:)) {
         
-        [NSApp presentError:populateError
-             modalForWindow:self.window
-                   delegate:nil
-         didPresentSelector:nil
-                contextInfo:nil];
+        if (self.tableView.selectedRow == -1) {
+            return NO;
+        }
+        
+        return YES;
     }
     
-    // KVC
-    
+    // return super implementation
+    return YES;
 }
-
--(void)dealloc
-{
-    
-    
-}
-
-#pragma mark - KVC
-
--(void)observeValueForKeyPath:(NSString *)keyPath
-                     ofObject:(id)object
-                       change:(NSDictionary *)change
-                      context:(void *)context
-{
-    
-    
-    
-}
-
-#pragma mark - Actions
 
 -(void)newDocument:(id)sender
 {
@@ -116,32 +104,34 @@
     [self.tableView reloadData];
 }
 
-#pragma mark
+#pragma mark - Populate Array
 
--(NSError *)populateClientsArrayWithSortDescriptor:(NSArray *)sortDescriptors
+-(void)populateClientsArrayWithSortDescriptor:(NSArray *)sortDescriptors
 {
     NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"Client"];
+    
     fetchRequest.sortDescriptors = sortDescriptors;
     
     AppDelegate *appDelegate = [NSApp delegate];
     
     NSManagedObjectContext *context = appDelegate.store.context;
     
-    __block NSError *fetchError;
-    
     [context performBlockAndWait:^{
         
+        NSError *fetchError;
         NSArray *result = [context executeFetchRequest:fetchRequest
                                                  error:&fetchError];
         
-        if (result) {
+        if (!result) {
             
-            _clients = [NSMutableArray arrayWithArray:result];
+            [NSException raise:@"Fetch Request Failed"
+                        format:@"%@", fetchError.localizedDescription];
+            return;
         }
         
+        _clients = [NSMutableArray arrayWithArray:result];
+        
     }];
-    
-    return fetchError;
 }
 
 #pragma mark - NSTableView DataSource
@@ -153,16 +143,9 @@
 
 -(void)tableView:(NSTableView *)tableView sortDescriptorsDidChange:(NSArray *)oldDescriptors
 {
-    NSError *error = [self populateClientsArrayWithSortDescriptor:self.tableView.sortDescriptors];
+    [self populateClientsArrayWithSortDescriptor:self.tableView.sortDescriptors];
     
-    if (error) {
-        
-        [NSApp presentError:error
-             modalForWindow:self.window
-                   delegate:nil
-         didPresentSelector:nil
-                contextInfo:nil];
-    }
+    [self.tableView reloadData];
 }
 
 #pragma mark - NSTableView Delegate
@@ -192,6 +175,11 @@
         
         NSDate *date = client.created;
         
+        if (!_dateFormatter) {
+            _dateFormatter = [[NSDateFormatter alloc] init];
+            _dateFormatter.dateStyle = NSDateFormatterShortStyle;
+        }
+        
         cellView.textField.stringValue = [_dateFormatter stringFromDate:date];
         
         return cellView;
@@ -202,6 +190,12 @@
     cellView.textField.stringValue = [client valueForKey:identifier];
     
     return cellView;
+}
+
+-(void)tableViewSelectionDidChange:(NSNotification *)notification
+{
+    
+    
 }
 
 

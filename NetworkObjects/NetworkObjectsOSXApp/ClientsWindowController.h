@@ -23,7 +23,7 @@
 
 -(IBAction)delete:(id)sender;
 
--(NSError *)populateClientsArrayWithSortDescriptor:(NSArray *)sortDescriptors;
+-(void)populateClientsArrayWithSortDescriptor:(NSArray *)sortDescriptors;
 
 
 @end
