@@ -380,12 +380,20 @@
 			name = Client;
 			sourceTree = "<group>";
 		};
-		6E332D4D180AF87D009FDAB9 /* Controllers */ = {
+		6E2FB2D11815EA1E0098DA69 /* Clients */ = {
 			isa = PBXGroup;
 			children = (
 				6E332D4E180AF8BA009FDAB9 /* ClientsWindowController.h */,
 				6E332D4F180AF8BA009FDAB9 /* ClientsWindowController.m */,
 				6E332D50180AF8BA009FDAB9 /* ClientsWindowController.xib */,
+			);
+			name = Clients;
+			sourceTree = "<group>";
+		};
+		6E332D4D180AF87D009FDAB9 /* Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				6E2FB2D11815EA1E0098DA69 /* Clients */,
 			);
 			name = Controllers;
 			sourceTree = "<group>";

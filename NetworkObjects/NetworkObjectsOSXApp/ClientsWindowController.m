@@ -40,7 +40,7 @@
     
     // Implement this method to handle any initialization after your window controller's window has been loaded from its nib file.
     
-    NSSortDescriptor *sort = [NSSortDescriptor sortDescriptorWithKey:@"isNotThirdParty"
+    NSSortDescriptor *sort = [NSSortDescriptor sortDescriptorWithKey:@"resourceID"
                                                            ascending:YES];
     
     [self populateClientsArrayWithSortDescriptor:@[sort]];
@@ -141,13 +141,6 @@
     return _clients.count;
 }
 
--(void)tableView:(NSTableView *)tableView sortDescriptorsDidChange:(NSArray *)oldDescriptors
-{
-    [self populateClientsArrayWithSortDescriptor:self.tableView.sortDescriptors];
-    
-    [self.tableView reloadData];
-}
-
 #pragma mark - NSTableView Delegate
 
 -(NSView *)tableView:(NSTableView *)tableView
@@ -185,18 +178,18 @@
         return cellView;
     }
     
+    if ([identifier isEqualToString:@"id"]) {
+        
+        cellView.textField.integerValue = client.resourceID.integerValue;
+        
+        return cellView;
+    }
+    
     // for all other use KVC to get property value
     
     cellView.textField.stringValue = [client valueForKey:identifier];
     
     return cellView;
 }
-
--(void)tableViewSelectionDidChange:(NSNotification *)notification
-{
-    
-    
-}
-
 
 @end
