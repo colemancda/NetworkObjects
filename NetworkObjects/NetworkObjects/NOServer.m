@@ -564,19 +564,6 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         return;
     }
     
-    NSString *clientSecret = recievedJSONObject[@"clientSecret"];
-    
-    NSString *username = recievedJSONObject[@"username"];
-    
-    NSString *userPassword = recievedJSONObject[@"password"];
-    
-    // all users must authenticate with client secret
-    if ((username || userPassword) && !clientSecret) {
-        
-        response.statusCode = BadRequestStatusCode;
-        
-        return;
-    }
     
     // client class
     NSEntityDescription *clientEntityDescription = [NSEntityDescription entityForName:self.clientEntityName
@@ -584,7 +571,48 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     Class clientEntityClass = NSClassFromString(clientEntityDescription.managedObjectClassName);
     
+    // get client keys
+    
     NSString *clientSecretKey = [clientEntityClass clientSecretKey];
+    
+    NSString *clientResourceIDKey = [clientEntityClass resourceIDKey];
+    
+    NSString *clientSecret = recievedJSONObject[clientSecretKey];
+    
+    NSString *clientResourceID = recievedJSONObject[clientResourceIDKey];
+    
+    // validate recieved JSON object
+    
+    if (!clientSecret ||
+        !clientResourceID) {
+        
+        response.statusCode = BadRequestStatusCode;
+        
+        return;
+    }
+    
+    
+    // user entity class
+    NSEntityDescription *userEntityDescription = [NSEntityDescription entityForName:self.userEntityName
+                                                             inManagedObjectContext:_store.context];
+    
+    Class userEntityClass = NSClassFromString(userEntityDescription.managedObjectClassName);
+    
+    NSString *usernameKey = [userEntityClass usernameKey];
+    
+    NSString *passwordKey = [userEntityClass userPasswordKey];
+    
+    NSString *username = recievedJSONObject[usernameKey];
+    
+    NSString *userPassword = recievedJSONObject[passwordKey];
+    
+    // all users must authenticate with client secret
+    if (!username || !userPassword) {
+        
+        response.statusCode = BadRequestStatusCode;
+        
+        return;
+    }
     
     NSFetchRequest *clientWithSecretFetchRequest = [NSFetchRequest fetchRequestWithEntityName:self.clientEntityName];
     
@@ -643,16 +671,6 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     // add user to session if the authentication data is availible
     
     if (userPassword && username) {
-        
-        // user entity class
-        NSEntityDescription *userEntityDescription = [NSEntityDescription entityForName:self.userEntityName
-                                                                 inManagedObjectContext:_store.context];
-        
-        Class userEntityClass = NSClassFromString(userEntityDescription.managedObjectClassName);
-        
-        NSString *usernameKey = [userEntityClass usernameKey];
-        
-        NSString *passwordKey = [userEntityClass userPasswordKey];
         
         // search for user with username and password
         NSFetchRequest *userFetchRequest = [NSFetchRequest fetchRequestWithEntityName:self.userEntityName];

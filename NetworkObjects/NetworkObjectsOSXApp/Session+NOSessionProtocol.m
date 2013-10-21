@@ -7,6 +7,8 @@
 //
 
 #import "Session+NOSessionProtocol.h"
+#import "NSString+RandomString.h"
+#import "AppDelegate.h"
 
 @implementation Session (NOSessionProtocol)
 
@@ -34,7 +36,9 @@
 {
     // generate token
     
-    self.token = @"random_t0ken";
+    NSUInteger tokenLength = [[NSUserDefaults standardUserDefaults] integerForKey:TokenLengthPreferenceKey];
+    
+    self.token = [NSString randomStringWithLength:tokenLength];
 }
 
 -(BOOL)canUseSessionFromIP:(NSString *)ipAddress
