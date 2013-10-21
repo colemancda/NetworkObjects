@@ -11,9 +11,11 @@
 #import "NOHTTPServer.h"
 #import "ClientsWindowController.h"
 
-NSString *const ServerOnOffStatePreferenceKey = @"ServerOnOffState";
+NSString *const ServerOnOffStatePreferenceKey = @"serverOnOffState";
 
 NSString *const TokenLengthPreferenceKey = @"tokenLength";
+
+NSString *const PrettyPrintJSONPreferenceKey = @"prettyPrintJSON";
 
 @implementation AppDelegate
 
@@ -22,7 +24,8 @@ NSString *const TokenLengthPreferenceKey = @"tokenLength";
     // register defaults
     
     NSDictionary *defaults = @{ServerOnOffStatePreferenceKey: @NO,
-                               TokenLengthPreferenceKey : @10};
+                               TokenLengthPreferenceKey : @10,
+                               PrettyPrintJSONPreferenceKey : @YES};
     
     [[NSUserDefaults standardUserDefaults] registerDefaults:defaults];
 }
@@ -75,9 +78,9 @@ NSString *const TokenLengthPreferenceKey = @"tokenLength";
     
     // add persistance
     NSError *addPersistentStoreError;
-    [_store.context.persistentStoreCoordinator addPersistentStoreWithType:NSInMemoryStoreType
+    [_store.context.persistentStoreCoordinator addPersistentStoreWithType:NSSQLiteStoreType
                                                             configuration:nil
-                                                                      URL:nil
+                                                                      URL:sqlURL
                                                                   options:nil
                                                                     error:&addPersistentStoreError];
     

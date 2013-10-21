@@ -15,6 +15,8 @@ extern NSString *const ServerOnOffStatePreferenceKey;
 
 extern NSString *const TokenLengthPreferenceKey;
 
+extern NSString *const PrettyPrintJSONPreferenceKey;
+
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 
 @property (assign) IBOutlet NSWindow *window;

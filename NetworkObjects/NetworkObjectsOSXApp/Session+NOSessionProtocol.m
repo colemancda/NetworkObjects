@@ -34,7 +34,7 @@
 {
     // generate token
     
-    self.token = @"random shit";
+    self.token = @"random_t0ken";
 }
 
 -(BOOL)canUseSessionFromIP:(NSString *)ipAddress

@@ -14,10 +14,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "6E9FA31F18132BAD00785A09"
+               BlueprintIdentifier = "6E2FB29E1815A2340098DA69"
                BuildableName = "NOClientExample.app"
                BlueprintName = "NOClientExample"
-               ReferencedContainer = "container:NOClientExample.xcodeproj">
+               ReferencedContainer = "container:NetworkObjects.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -28,24 +28,14 @@
       shouldUseLaunchSchemeArgsEnv = "YES"
       buildConfiguration = "Debug">
       <Testables>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "6E9FA33A18132BAE00785A09"
-               BuildableName = "NOClientExampleTests.xctest"
-               BlueprintName = "NOClientExampleTests"
-               ReferencedContainer = "container:NOClientExample.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
       </Testables>
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "6E9FA31F18132BAD00785A09"
+            BlueprintIdentifier = "6E2FB29E1815A2340098DA69"
             BuildableName = "NOClientExample.app"
             BlueprintName = "NOClientExample"
-            ReferencedContainer = "container:NOClientExample.xcodeproj">
+            ReferencedContainer = "container:NetworkObjects.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </TestAction>
@@ -61,10 +51,10 @@
       <BuildableProductRunnable>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "6E9FA31F18132BAD00785A09"
+            BlueprintIdentifier = "6E2FB29E1815A2340098DA69"
             BuildableName = "NOClientExample.app"
             BlueprintName = "NOClientExample"
-            ReferencedContainer = "container:NOClientExample.xcodeproj">
+            ReferencedContainer = "container:NetworkObjects.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <AdditionalOptions>
@@ -79,10 +69,10 @@
       <BuildableProductRunnable>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "6E9FA31F18132BAD00785A09"
+            BlueprintIdentifier = "6E2FB29E1815A2340098DA69"
             BuildableName = "NOClientExample.app"
             BlueprintName = "NOClientExample"
-            ReferencedContainer = "container:NOClientExample.xcodeproj">
+            ReferencedContainer = "container:NetworkObjects.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
