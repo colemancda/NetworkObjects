@@ -9,7 +9,12 @@
 #import "User+NOResourceProtocol.h"
 #import "Session.h"
 #import "Client.h"
+
+#if TARGET_OS_MAC
+
 #import "AppDelegate.h"
+
+#endif
 
 @implementation User (NOResourceProtocol)
 
@@ -66,6 +71,8 @@
 -(BOOL)isValidValue:(NSObject *)newValue
        forAttribute:(NSString *)attributeName
 {
+#if TARGET_OS_MAC
+    
     if ([attributeName isEqualToString:@"username"]) {
         
         // if there is no username set then these must be the initial values edit request
@@ -111,6 +118,7 @@
         return NO;
     }
     
+#endif
     
     return YES;
 }

@@ -7,15 +7,33 @@
 //
 
 #import "AppDelegate.h"
+#import "NOAPI.h"
+#import <CoreData/CoreData.h>
 
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-    // Override point for customization after application launch.
-    self.window.backgroundColor = [UIColor whiteColor];
-    [self.window makeKeyAndVisible];
+    // initialize API
+    
+    _api = [[NOAPI alloc] init];
+    
+    self.api.model = [NSManagedObjectModel mergedModelFromBundles:nil];
+    
+    self.api.urlSession = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
+    
+    self.api.sessionEntityName = @"Session";
+    
+    self.api.userEntityName = @"User";
+    
+    self.api.clientEntityName = @"Client";
+    
+    self.api.prettyPrintJSON = YES;
+    
+    self.api.loginPath = @"login";
+    
+    
+    
     return YES;
 }
 

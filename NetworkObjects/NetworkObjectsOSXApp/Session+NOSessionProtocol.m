@@ -8,7 +8,12 @@
 
 #import "Session+NOSessionProtocol.h"
 #import "NSString+RandomString.h"
+
+#if TARGET_OS_MAC
+
 #import "AppDelegate.h"
+
+#endif
 
 @implementation Session (NOSessionProtocol)
 
@@ -34,11 +39,14 @@
 
 -(void)generateToken
 {
+#if TARGET_OS_MAC
+    
     // generate token
     
     NSUInteger tokenLength = [[NSUserDefaults standardUserDefaults] integerForKey:TokenLengthPreferenceKey];
     
     self.token = [NSString randomStringWithLength:tokenLength];
+#endif
 }
 
 -(BOOL)canUseSessionFromIP:(NSString *)ipAddress

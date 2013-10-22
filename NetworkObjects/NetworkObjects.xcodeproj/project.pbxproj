@@ -27,6 +27,19 @@
 		6E2FB2DD1816106F0098DA69 /* NOAPIStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E2FB2DC1816106F0098DA69 /* NOAPIStore.m */; };
 		6E2FB2E418161F420098DA69 /* NOAPI.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E2FB2E318161F420098DA69 /* NOAPI.m */; };
 		6E2FB2E61816214D0098DA69 /* Storyboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6E2FB2E51816214D0098DA69 /* Storyboard.storyboard */; };
+		6E2FB304181639F10098DA69 /* ConnectViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E2FB303181639F10098DA69 /* ConnectViewController.m */; };
+		6E2FB305181641100098DA69 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 6E2B262C18012263002B94F2 /* Model.xcdatamodeld */; };
+		6E2FB30E181643890098DA69 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EC8598A18006E8E0089F123 /* AppDelegate.m */; };
+		6E2FB3241816442A0098DA69 /* Client.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E2FB3111816442A0098DA69 /* Client.m */; };
+		6E2FB3251816442A0098DA69 /* Client+NOClientProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E2FB3131816442A0098DA69 /* Client+NOClientProtocol.m */; };
+		6E2FB3261816442A0098DA69 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 6E2FB3141816442A0098DA69 /* Model.xcdatamodeld */; };
+		6E2FB3271816442A0098DA69 /* NSString+RandomString.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E2FB3171816442A0098DA69 /* NSString+RandomString.m */; };
+		6E2FB3281816442A0098DA69 /* Post.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E2FB3191816442A0098DA69 /* Post.m */; };
+		6E2FB3291816442A0098DA69 /* Post+NOResourceProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E2FB31B1816442A0098DA69 /* Post+NOResourceProtocol.m */; };
+		6E2FB32A1816442A0098DA69 /* Session.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E2FB31D1816442A0098DA69 /* Session.m */; };
+		6E2FB32B1816442A0098DA69 /* Session+NOSessionProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E2FB31F1816442A0098DA69 /* Session+NOSessionProtocol.m */; };
+		6E2FB32C1816442A0098DA69 /* User.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E2FB3211816442A0098DA69 /* User.m */; };
+		6E2FB32D1816442A0098DA69 /* User+NOResourceProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E2FB3231816442A0098DA69 /* User+NOResourceProtocol.m */; };
 		6E332D40180AEEF4009FDAB9 /* Client+NOClientProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E332D3F180AEEF4009FDAB9 /* Client+NOClientProtocol.m */; };
 		6E332D43180AF138009FDAB9 /* Session.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E332D42180AF138009FDAB9 /* Session.m */; };
 		6E332D46180AF139009FDAB9 /* User.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E332D45180AF139009FDAB9 /* User.m */; };
@@ -47,7 +60,6 @@
 		6EC8598218006E8E0089F123 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6EC8598018006E8E0089F123 /* InfoPlist.strings */; };
 		6EC8598418006E8E0089F123 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EC8598318006E8E0089F123 /* main.m */; };
 		6EC8598818006E8E0089F123 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 6EC8598618006E8E0089F123 /* Credits.rtf */; };
-		6EC8598B18006E8E0089F123 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EC8598A18006E8E0089F123 /* AppDelegate.m */; };
 		6EC8598E18006E8E0089F123 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6EC8598C18006E8E0089F123 /* MainMenu.xib */; };
 		6EC8599018006E8E0089F123 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6EC8598F18006E8E0089F123 /* Images.xcassets */; };
 		6EC8599618006E8E0089F123 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6EC8596418006E1B0089F123 /* XCTest.framework */; };
@@ -134,6 +146,27 @@
 		6E2FB2E218161F420098DA69 /* NOAPI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NOAPI.h; sourceTree = "<group>"; };
 		6E2FB2E318161F420098DA69 /* NOAPI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NOAPI.m; sourceTree = "<group>"; };
 		6E2FB2E51816214D0098DA69 /* Storyboard.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Storyboard.storyboard; sourceTree = "<group>"; };
+		6E2FB302181639F10098DA69 /* ConnectViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConnectViewController.h; sourceTree = "<group>"; };
+		6E2FB303181639F10098DA69 /* ConnectViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ConnectViewController.m; sourceTree = "<group>"; };
+		6E2FB3101816442A0098DA69 /* Client.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Client.h; path = NetworkObjectsOSXApp/Client.h; sourceTree = SOURCE_ROOT; };
+		6E2FB3111816442A0098DA69 /* Client.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Client.m; path = NetworkObjectsOSXApp/Client.m; sourceTree = SOURCE_ROOT; };
+		6E2FB3121816442A0098DA69 /* Client+NOClientProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "Client+NOClientProtocol.h"; path = "NetworkObjectsOSXApp/Client+NOClientProtocol.h"; sourceTree = SOURCE_ROOT; };
+		6E2FB3131816442A0098DA69 /* Client+NOClientProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "Client+NOClientProtocol.m"; path = "NetworkObjectsOSXApp/Client+NOClientProtocol.m"; sourceTree = SOURCE_ROOT; };
+		6E2FB3151816442A0098DA69 /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
+		6E2FB3161816442A0098DA69 /* NSString+RandomString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSString+RandomString.h"; path = "NetworkObjectsOSXApp/NSString+RandomString.h"; sourceTree = SOURCE_ROOT; };
+		6E2FB3171816442A0098DA69 /* NSString+RandomString.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSString+RandomString.m"; path = "NetworkObjectsOSXApp/NSString+RandomString.m"; sourceTree = SOURCE_ROOT; };
+		6E2FB3181816442A0098DA69 /* Post.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Post.h; path = NetworkObjectsOSXApp/Post.h; sourceTree = SOURCE_ROOT; };
+		6E2FB3191816442A0098DA69 /* Post.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Post.m; path = NetworkObjectsOSXApp/Post.m; sourceTree = SOURCE_ROOT; };
+		6E2FB31A1816442A0098DA69 /* Post+NOResourceProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "Post+NOResourceProtocol.h"; path = "NetworkObjectsOSXApp/Post+NOResourceProtocol.h"; sourceTree = SOURCE_ROOT; };
+		6E2FB31B1816442A0098DA69 /* Post+NOResourceProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "Post+NOResourceProtocol.m"; path = "NetworkObjectsOSXApp/Post+NOResourceProtocol.m"; sourceTree = SOURCE_ROOT; };
+		6E2FB31C1816442A0098DA69 /* Session.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Session.h; path = NetworkObjectsOSXApp/Session.h; sourceTree = SOURCE_ROOT; };
+		6E2FB31D1816442A0098DA69 /* Session.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Session.m; path = NetworkObjectsOSXApp/Session.m; sourceTree = SOURCE_ROOT; };
+		6E2FB31E1816442A0098DA69 /* Session+NOSessionProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "Session+NOSessionProtocol.h"; path = "NetworkObjectsOSXApp/Session+NOSessionProtocol.h"; sourceTree = SOURCE_ROOT; };
+		6E2FB31F1816442A0098DA69 /* Session+NOSessionProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "Session+NOSessionProtocol.m"; path = "NetworkObjectsOSXApp/Session+NOSessionProtocol.m"; sourceTree = SOURCE_ROOT; };
+		6E2FB3201816442A0098DA69 /* User.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = User.h; path = NetworkObjectsOSXApp/User.h; sourceTree = SOURCE_ROOT; };
+		6E2FB3211816442A0098DA69 /* User.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = User.m; path = NetworkObjectsOSXApp/User.m; sourceTree = SOURCE_ROOT; };
+		6E2FB3221816442A0098DA69 /* User+NOResourceProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "User+NOResourceProtocol.h"; path = "NetworkObjectsOSXApp/User+NOResourceProtocol.h"; sourceTree = SOURCE_ROOT; };
+		6E2FB3231816442A0098DA69 /* User+NOResourceProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "User+NOResourceProtocol.m"; path = "NetworkObjectsOSXApp/User+NOResourceProtocol.m"; sourceTree = SOURCE_ROOT; };
 		6E332D3E180AEEF4009FDAB9 /* Client+NOClientProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Client+NOClientProtocol.h"; sourceTree = "<group>"; };
 		6E332D3F180AEEF4009FDAB9 /* Client+NOClientProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "Client+NOClientProtocol.m"; sourceTree = "<group>"; };
 		6E332D41180AF138009FDAB9 /* Session.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Session.h; sourceTree = "<group>"; };
@@ -335,10 +368,13 @@
 				6E2FB2AF1815A2350098DA69 /* AppDelegate.h */,
 				6E2FB2B01815A2350098DA69 /* AppDelegate.m */,
 				6E2FB2E51816214D0098DA69 /* Storyboard.storyboard */,
+				6E2FB30F181643FE0098DA69 /* Models */,
+				6E2FB301181639AD0098DA69 /* Controllers */,
 				6E2FB2B21815A2350098DA69 /* Images.xcassets */,
 				6E2FB2A71815A2350098DA69 /* Supporting Files */,
 			);
-			path = NOClientExample;
+			name = NOClientExample;
+			path = ../NOClientExample;
 			sourceTree = "<group>";
 		};
 		6E2FB2A71815A2350098DA69 /* Supporting Files */ = {
@@ -358,7 +394,8 @@
 				6E2FB2C41815A2350098DA69 /* NOClientExampleTests.m */,
 				6E2FB2BF1815A2350098DA69 /* Supporting Files */,
 			);
-			path = NOClientExampleTests;
+			name = NOClientExampleTests;
+			path = ../NOClientExampleTests;
 			sourceTree = "<group>";
 		};
 		6E2FB2BF1815A2350098DA69 /* Supporting Files */ = {
@@ -409,6 +446,72 @@
 			name = Stores;
 			sourceTree = "<group>";
 		};
+		6E2FB2FD181635270098DA69 /* Example */ = {
+			isa = PBXGroup;
+			children = (
+				6EC8597D18006E8E0089F123 /* NetworkObjectsOSXApp */,
+				6EC8599A18006E8E0089F123 /* NetworkObjectsOSXAppTests */,
+				6E2FB2A61815A2350098DA69 /* NOClientExample */,
+				6E2FB2BE1815A2350098DA69 /* NOClientExampleTests */,
+				6EC8594418006E1A0089F123 /* Frameworks */,
+				6EC8594318006E1A0089F123 /* Products */,
+			);
+			name = Example;
+			path = NetworkObjectsOSXApp;
+			sourceTree = SOURCE_ROOT;
+		};
+		6E2FB300181637EE0098DA69 /* NSManagedObject */ = {
+			isa = PBXGroup;
+			children = (
+				6E2B262C18012263002B94F2 /* Model.xcdatamodeld */,
+				6E332D4A180AF139009FDAB9 /* Post.h */,
+				6E332D4B180AF139009FDAB9 /* Post.m */,
+				6E332D47180AF139009FDAB9 /* Client.h */,
+				6E332D48180AF139009FDAB9 /* Client.m */,
+				6E332D44180AF139009FDAB9 /* User.h */,
+				6E332D45180AF139009FDAB9 /* User.m */,
+				6E332D41180AF138009FDAB9 /* Session.h */,
+				6E332D42180AF138009FDAB9 /* Session.m */,
+				6E580FFB18022582004CB802 /* Categories */,
+			);
+			name = NSManagedObject;
+			sourceTree = "<group>";
+		};
+		6E2FB301181639AD0098DA69 /* Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				6E2FB302181639F10098DA69 /* ConnectViewController.h */,
+				6E2FB303181639F10098DA69 /* ConnectViewController.m */,
+			);
+			name = Controllers;
+			sourceTree = "<group>";
+		};
+		6E2FB30F181643FE0098DA69 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				6E2FB3141816442A0098DA69 /* Model.xcdatamodeld */,
+				6E2FB3101816442A0098DA69 /* Client.h */,
+				6E2FB3111816442A0098DA69 /* Client.m */,
+				6E2FB3121816442A0098DA69 /* Client+NOClientProtocol.h */,
+				6E2FB3131816442A0098DA69 /* Client+NOClientProtocol.m */,
+				6E2FB3161816442A0098DA69 /* NSString+RandomString.h */,
+				6E2FB3171816442A0098DA69 /* NSString+RandomString.m */,
+				6E2FB3181816442A0098DA69 /* Post.h */,
+				6E2FB3191816442A0098DA69 /* Post.m */,
+				6E2FB31A1816442A0098DA69 /* Post+NOResourceProtocol.h */,
+				6E2FB31B1816442A0098DA69 /* Post+NOResourceProtocol.m */,
+				6E2FB31C1816442A0098DA69 /* Session.h */,
+				6E2FB31D1816442A0098DA69 /* Session.m */,
+				6E2FB31E1816442A0098DA69 /* Session+NOSessionProtocol.h */,
+				6E2FB31F1816442A0098DA69 /* Session+NOSessionProtocol.m */,
+				6E2FB3201816442A0098DA69 /* User.h */,
+				6E2FB3211816442A0098DA69 /* User.m */,
+				6E2FB3221816442A0098DA69 /* User+NOResourceProtocol.h */,
+				6E2FB3231816442A0098DA69 /* User+NOResourceProtocol.m */,
+			);
+			name = Models;
+			sourceTree = "<group>";
+		};
 		6E332D4D180AF87D009FDAB9 /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
@@ -456,15 +559,7 @@
 			isa = PBXGroup;
 			children = (
 				6E9FA35F1813546600785A09 /* Categories */,
-				6E332D4A180AF139009FDAB9 /* Post.h */,
-				6E332D4B180AF139009FDAB9 /* Post.m */,
-				6E332D47180AF139009FDAB9 /* Client.h */,
-				6E332D48180AF139009FDAB9 /* Client.m */,
-				6E332D44180AF139009FDAB9 /* User.h */,
-				6E332D45180AF139009FDAB9 /* User.m */,
-				6E332D41180AF138009FDAB9 /* Session.h */,
-				6E332D42180AF138009FDAB9 /* Session.m */,
-				6E580FFB18022582004CB802 /* Categories */,
+				6E2FB300181637EE0098DA69 /* NSManagedObject */,
 			);
 			name = Models;
 			sourceTree = "<group>";
@@ -534,12 +629,7 @@
 			isa = PBXGroup;
 			children = (
 				6EC859AA18006F9C0089F123 /* NetworkObjects */,
-				6EC8597D18006E8E0089F123 /* NetworkObjectsOSXApp */,
-				6EC8599A18006E8E0089F123 /* NetworkObjectsOSXAppTests */,
-				6E2FB2A61815A2350098DA69 /* NOClientExample */,
-				6E2FB2BE1815A2350098DA69 /* NOClientExampleTests */,
-				6EC8594418006E1A0089F123 /* Frameworks */,
-				6EC8594318006E1A0089F123 /* Products */,
+				6E2FB2FD181635270098DA69 /* Example */,
 			);
 			sourceTree = "<group>";
 		};
@@ -552,6 +642,7 @@
 				6E2FB2B81815A2350098DA69 /* NOClientExampleTests.xctest */,
 			);
 			name = Products;
+			path = ..;
 			sourceTree = "<group>";
 		};
 		6EC8594418006E1A0089F123 /* Frameworks */ = {
@@ -567,6 +658,7 @@
 				6EC8594718006E1B0089F123 /* Other Frameworks */,
 			);
 			name = Frameworks;
+			path = ..;
 			sourceTree = "<group>";
 		};
 		6EC8594718006E1B0089F123 /* Other Frameworks */ = {
@@ -585,14 +677,13 @@
 				6EC8598918006E8E0089F123 /* AppDelegate.h */,
 				6EC8598A18006E8E0089F123 /* AppDelegate.m */,
 				6EC8598C18006E8E0089F123 /* MainMenu.xib */,
-				6E2B262C18012263002B94F2 /* Model.xcdatamodeld */,
 				6EC8598F18006E8E0089F123 /* Images.xcassets */,
+				6E580FEE18022395004CB802 /* Models */,
 				6E9FA35618134B2400785A09 /* Views */,
 				6E332D4D180AF87D009FDAB9 /* Controllers */,
-				6E580FEE18022395004CB802 /* Models */,
 				6EC8597E18006E8E0089F123 /* Supporting Files */,
 			);
-			path = NetworkObjectsOSXApp;
+			name = NetworkObjectsOSXApp;
 			sourceTree = "<group>";
 		};
 		6EC8597E18006E8E0089F123 /* Supporting Files */ = {
@@ -615,7 +706,7 @@
 				6EC8599B18006E8E0089F123 /* Supporting Files */,
 			);
 			path = NetworkObjectsOSXAppTests;
-			sourceTree = "<group>";
+			sourceTree = SOURCE_ROOT;
 		};
 		6EC8599B18006E8E0089F123 /* Supporting Files */ = {
 			isa = PBXGroup;
@@ -931,10 +1022,22 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6E2FB304181639F10098DA69 /* ConnectViewController.m in Sources */,
 				6E2FB2B11815A2350098DA69 /* AppDelegate.m in Sources */,
+				6E2FB305181641100098DA69 /* Model.xcdatamodeld in Sources */,
+				6E2FB32A1816442A0098DA69 /* Session.m in Sources */,
 				6E2FB2E418161F420098DA69 /* NOAPI.m in Sources */,
+				6E2FB32D1816442A0098DA69 /* User+NOResourceProtocol.m in Sources */,
+				6E2FB32C1816442A0098DA69 /* User.m in Sources */,
+				6E2FB3251816442A0098DA69 /* Client+NOClientProtocol.m in Sources */,
+				6E2FB3271816442A0098DA69 /* NSString+RandomString.m in Sources */,
+				6E2FB3261816442A0098DA69 /* Model.xcdatamodeld in Sources */,
 				6E2FB2DD1816106F0098DA69 /* NOAPIStore.m in Sources */,
+				6E2FB3291816442A0098DA69 /* Post+NOResourceProtocol.m in Sources */,
+				6E2FB32B1816442A0098DA69 /* Session+NOSessionProtocol.m in Sources */,
+				6E2FB3281816442A0098DA69 /* Post.m in Sources */,
 				6E2FB2AD1815A2350098DA69 /* main.m in Sources */,
+				6E2FB3241816442A0098DA69 /* Client.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -960,7 +1063,6 @@
 				6EC85A0818006F9C0089F123 /* HTTPMessage.m in Sources */,
 				6EC85A1818006F9C0089F123 /* RoutingHTTPServer.m in Sources */,
 				6EC85A0718006F9C0089F123 /* HTTPConnection.m in Sources */,
-				6EC8598B18006E8E0089F123 /* AppDelegate.m in Sources */,
 				6EC85A1018006F9C0089F123 /* HTTPFileResponse.m in Sources */,
 				6EC85A1618006F9C0089F123 /* RouteResponse.m in Sources */,
 				6EC859FD18006F9C0089F123 /* DDRange.m in Sources */,
@@ -971,6 +1073,7 @@
 				6EC85A0B18006F9C0089F123 /* MultipartMessageHeader.m in Sources */,
 				6E9FA35B18134B6E00785A09 /* CheckBoxCellView.m in Sources */,
 				6EC859FA18006F9C0089F123 /* NOStore.m in Sources */,
+				6E2FB30E181643890098DA69 /* AppDelegate.m in Sources */,
 				6EC85A0118006F9C0089F123 /* DDLog.m in Sources */,
 				6E2B262E18012263002B94F2 /* Model.xcdatamodeld in Sources */,
 				6E332D46180AF139009FDAB9 /* User.m in Sources */,
@@ -1520,6 +1623,17 @@
 			);
 			currentVersion = 6E2B262D18012263002B94F2 /* Model.xcdatamodel */;
 			path = Model.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+		6E2FB3141816442A0098DA69 /* Model.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				6E2FB3151816442A0098DA69 /* Model.xcdatamodel */,
+			);
+			currentVersion = 6E2FB3151816442A0098DA69 /* Model.xcdatamodel */;
+			name = Model.xcdatamodeld;
+			path = ../NetworkObjectsOSXApp/Model.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
 		};

@@ -42,8 +42,6 @@
 
 -(void)loginWithCompletion:(void (^)(NSError *error))completionBlock;
 
-// dont use these directly
-
 -(void)getResource:(NSString *)resourceName
             withID:(NSUInteger)resourceID;
 
