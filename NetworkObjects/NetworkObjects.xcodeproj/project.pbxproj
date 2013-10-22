@@ -26,6 +26,7 @@
 		6E2FB2D718160CE70098DA69 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E2FB2D618160CE70098DA69 /* CoreData.framework */; };
 		6E2FB2DD1816106F0098DA69 /* NOAPIStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E2FB2DC1816106F0098DA69 /* NOAPIStore.m */; };
 		6E2FB2E418161F420098DA69 /* NOAPI.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E2FB2E318161F420098DA69 /* NOAPI.m */; };
+		6E2FB2E61816214D0098DA69 /* Storyboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6E2FB2E51816214D0098DA69 /* Storyboard.storyboard */; };
 		6E332D40180AEEF4009FDAB9 /* Client+NOClientProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E332D3F180AEEF4009FDAB9 /* Client+NOClientProtocol.m */; };
 		6E332D43180AF138009FDAB9 /* Session.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E332D42180AF138009FDAB9 /* Session.m */; };
 		6E332D46180AF139009FDAB9 /* User.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E332D45180AF139009FDAB9 /* User.m */; };
@@ -132,6 +133,7 @@
 		6E2FB2DC1816106F0098DA69 /* NOAPIStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NOAPIStore.m; sourceTree = "<group>"; };
 		6E2FB2E218161F420098DA69 /* NOAPI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NOAPI.h; sourceTree = "<group>"; };
 		6E2FB2E318161F420098DA69 /* NOAPI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NOAPI.m; sourceTree = "<group>"; };
+		6E2FB2E51816214D0098DA69 /* Storyboard.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Storyboard.storyboard; sourceTree = "<group>"; };
 		6E332D3E180AEEF4009FDAB9 /* Client+NOClientProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Client+NOClientProtocol.h"; sourceTree = "<group>"; };
 		6E332D3F180AEEF4009FDAB9 /* Client+NOClientProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "Client+NOClientProtocol.m"; sourceTree = "<group>"; };
 		6E332D41180AF138009FDAB9 /* Session.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Session.h; sourceTree = "<group>"; };
@@ -332,6 +334,7 @@
 			children = (
 				6E2FB2AF1815A2350098DA69 /* AppDelegate.h */,
 				6E2FB2B01815A2350098DA69 /* AppDelegate.m */,
+				6E2FB2E51816214D0098DA69 /* Storyboard.storyboard */,
 				6E2FB2B21815A2350098DA69 /* Images.xcassets */,
 				6E2FB2A71815A2350098DA69 /* Supporting Files */,
 			);
@@ -889,6 +892,7 @@
 			files = (
 				6E2FB2AB1815A2350098DA69 /* InfoPlist.strings in Resources */,
 				6E2FB2B31815A2350098DA69 /* Images.xcassets in Resources */,
+				6E2FB2E61816214D0098DA69 /* Storyboard.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
