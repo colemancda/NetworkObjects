@@ -7,47 +7,10 @@
 //
 
 #import <CoreData/CoreData.h>
+@class NOAPI;
 
-@interface NOAPIStore : NSIncrementalStore <NSURLSessionDelegate>
+@interface NOAPIStore : NSIncrementalStore 
 
-@property (readonly) NSURLSession *urlSession;
-
-@property NSString *sessionEntityName;
-
-@property NSString *userEntityName;
-
-@property NSString *clientEntityName;
-
-#pragma mark - Connection Info
-
-@property NSString *loginPath;
-
-@property NSNumber *clientResourceID;
-
-@property NSString *clientSecret;
-
-@property NSString *username;
-
-@property NSString *userPassword;
-
-@property NSString *sessionToken;
-
-#pragma mark - Requests
-
--(void)loginWithCompletion:(void (^)(NSError *error))completionBlock;
-
-// dont use these directly
-
--(void)getResource:(NSString *)resourceName
-            withID:(NSUInteger)resourceID;
-
--(void)editResource:(NSString *)resourceName
-             withID:(NSUInteger)resourceID
-            changes:(NSDictionary *)changes;
-
--(void)deleteResource:(NSString *)resourceName
-               withID:(NSUInteger)resourceID;
-
--(void)createResource:(NSString *)resourceName;
+@property NOAPI *api;
 
 @end

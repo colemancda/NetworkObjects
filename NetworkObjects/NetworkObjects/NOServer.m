@@ -691,7 +691,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     NSString *sessionTokenKey = [sessionEntityClass sessionTokenKey];
     
     // respond with token
-    NSDictionary *jsonObject = @{@"token": [session valueForKey:sessionTokenKey]};
+    NSDictionary *jsonObject = @{sessionTokenKey : [session valueForKey:sessionTokenKey]};
     
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonObject
                                                        options:self.prettyPrintJSON
