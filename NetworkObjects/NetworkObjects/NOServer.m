@@ -579,7 +579,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     NSString *clientSecret = recievedJSONObject[clientSecretKey];
     
-    NSString *clientResourceID = recievedJSONObject[clientResourceIDKey];
+    NSNumber *clientResourceID = recievedJSONObject[clientResourceIDKey];
     
     // validate recieved JSON object
     
@@ -591,60 +591,18 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         return;
     }
     
+    // get client with resource ID
+    NSManagedObject<NOClientProtocol> *client = (NSManagedObject<NOClientProtocol> *)[_store resourceWithEntityDescription:clientEntityDescription resourceID:clientResourceID.integerValue];
     
-    // user entity class
-    NSEntityDescription *userEntityDescription = [NSEntityDescription entityForName:self.userEntityName
-                                                             inManagedObjectContext:_store.context];
-    
-    Class userEntityClass = NSClassFromString(userEntityDescription.managedObjectClassName);
-    
-    NSString *usernameKey = [userEntityClass usernameKey];
-    
-    NSString *passwordKey = [userEntityClass userPasswordKey];
-    
-    NSString *username = recievedJSONObject[usernameKey];
-    
-    NSString *userPassword = recievedJSONObject[passwordKey];
-    
-    // all users must authenticate with client secret
-    if (!username || !userPassword) {
+    if (!client) {
         
-        response.statusCode = BadRequestStatusCode;
+        response.statusCode = ForbiddenStatusCode;
         
         return;
     }
     
-    NSFetchRequest *clientWithSecretFetchRequest = [NSFetchRequest fetchRequestWithEntityName:self.clientEntityName];
-    
-    clientWithSecretFetchRequest.predicate = [NSPredicate predicateWithFormat:@"%K == %@", clientSecretKey, clientSecret];
-    
-    // find client with secret
-    
-    __block NSManagedObject<NOClientProtocol> *client;
-    
-    [_store.context performBlockAndWait:^{
-        
-        NSError *fetchError;
-        NSArray *result = [_store.context executeFetchRequest:clientWithSecretFetchRequest
-                                                         error:&fetchError];
-        
-        if (!result) {
-            
-            [NSException raise:@"Fetch Request Failed"
-                        format:@"%@", fetchError.localizedDescription];
-            return;
-        }
-        
-        if (!result.count) {
-            return;
-        }
-        
-        client = result[0];
-        
-    }];
-    
-    // if no client was found
-    if (!client) {
+    // validate secret
+    if (![[client valueForKey:clientSecretKey] isEqualToString:clientSecret]) {
         
         response.statusCode = ForbiddenStatusCode;
         
@@ -667,6 +625,20 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     [session setValue:client
                forKey:sessionClientKey];
+    
+    // user entity class
+    NSEntityDescription *userEntityDescription = [NSEntityDescription entityForName:self.userEntityName
+                                                             inManagedObjectContext:_store.context];
+    
+    Class userEntityClass = NSClassFromString(userEntityDescription.managedObjectClassName);
+    
+    NSString *usernameKey = [userEntityClass usernameKey];
+    
+    NSString *passwordKey = [userEntityClass userPasswordKey];
+    
+    NSString *username = recievedJSONObject[usernameKey];
+    
+    NSString *userPassword = recievedJSONObject[passwordKey];
     
     // add user to session if the authentication data is availible
     
@@ -918,7 +890,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                 NSArray *resourceIDs = (NSArray *)value;
                 
                 // build array to replace old to-many relationsip
-                NSMutableArray *newRelationshipValues = [[NSMutableArray alloc] init];
+                NSMutableSet *newRelationshipValues = [[NSMutableSet alloc] init];
                 
                 for (NSNumber *destinationResourceID in resourceIDs) {
                     
@@ -985,6 +957,15 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                 // get pre-edit value
                 NSObject *newValue = [resource attributeValueForJSONCompatibleValue:jsonValue
                                                                        forAttribute:key];
+                
+                // validate that the pre-edit value is of the same class as the attribute it will be given
+                
+                NSAttributeDescription *attributeDescription = resource.entity.attributesByName[attributeName];
+                
+                if ([newValue class] != NSClassFromString(attributeDescription.attributeValueClassName)) {
+                    
+                    return BadRequestStatusCode;
+                }
                 
                 // let NOResource verify that the new attribute value is a valid new value
                 if (![resource isValidValue:newValue forAttribute:key]) {

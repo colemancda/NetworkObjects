@@ -25,5 +25,4 @@
 -(NSObject *)JSONCompatibleValueForAttributeValue:(NSObject *)attributeValue
                              forAttribute:(NSString *)attributeName;
 
-
 @end

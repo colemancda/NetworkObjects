@@ -9,6 +9,7 @@
 #import "User+NOResourceProtocol.h"
 #import "Session.h"
 #import "Client.h"
+#import "AppDelegate.h"
 
 @implementation User (NOResourceProtocol)
 
@@ -31,7 +32,7 @@
 
 +(NSSet *)requiredInitialProperties
 {
-    return nil;
+    return [NSSet setWithArray:@[@"username"]];
 }
 
 #pragma mark - NOUserProtocol
@@ -65,6 +66,51 @@
 -(BOOL)isValidValue:(NSObject *)newValue
        forAttribute:(NSString *)attributeName
 {
+    if ([attributeName isEqualToString:@"username"]) {
+        
+        // if there is no username set then these must be the initial values edit request
+        if (!self.username) {
+            
+            // new value will be string
+            NSString *newUsername = (NSString *)newValue;
+            
+            // validate that another user doesnt have the same username
+            AppDelegate *appDelegate = [NSApp delegate];
+            
+            __block NSArray *result;
+            
+            [appDelegate.store.context performBlockAndWait:^{
+               
+                NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"User"];
+                
+                fetch.predicate = [NSPredicate predicateWithFormat:@"%K ==[c] %@", @"password", newUsername];
+                
+                NSError *fetchError;
+                result = [appDelegate.store.context executeFetchRequest:fetch
+                                                                  error:&fetchError];
+                
+                if (!result) {
+                    
+                    [NSException raise:@"Fetch Request Failed"
+                                format:@"%@", fetchError.localizedDescription];
+                    return;
+                }
+                
+            }];
+            
+            // no user with that username exists
+            if (!result.count) {
+                
+                return YES;
+            }
+            
+            return NO;
+        }
+        
+        // username is already set, cannot change
+        return NO;
+    }
+    
     
     return YES;
 }

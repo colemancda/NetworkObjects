@@ -110,4 +110,5 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
              fromJSONObject:(NSDictionary *)jsonObject
                     session:(NSManagedObject<NOSessionProtocol> *)session;
 
+
 @end

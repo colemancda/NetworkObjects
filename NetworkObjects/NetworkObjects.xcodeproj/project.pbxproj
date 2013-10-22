@@ -24,6 +24,7 @@
 		6E2FB2C31815A2350098DA69 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6E2FB2C11815A2350098DA69 /* InfoPlist.strings */; };
 		6E2FB2C51815A2350098DA69 /* NOClientExampleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E2FB2C41815A2350098DA69 /* NOClientExampleTests.m */; };
 		6E2FB2D01815A27E0098DA69 /* NOClientIncrementalStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E2FB2CF1815A27E0098DA69 /* NOClientIncrementalStore.m */; };
+		6E2FB2D4181608A00098DA69 /* NOClientStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E2FB2D3181608A00098DA69 /* NOClientStore.m */; };
 		6E332D40180AEEF4009FDAB9 /* Client+NOClientProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E332D3F180AEEF4009FDAB9 /* Client+NOClientProtocol.m */; };
 		6E332D43180AF138009FDAB9 /* Session.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E332D42180AF138009FDAB9 /* Session.m */; };
 		6E332D46180AF139009FDAB9 /* User.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E332D45180AF139009FDAB9 /* User.m */; };
@@ -127,6 +128,8 @@
 		6E2FB2C41815A2350098DA69 /* NOClientExampleTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NOClientExampleTests.m; sourceTree = "<group>"; };
 		6E2FB2CE1815A27E0098DA69 /* NOClientIncrementalStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NOClientIncrementalStore.h; sourceTree = "<group>"; };
 		6E2FB2CF1815A27E0098DA69 /* NOClientIncrementalStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NOClientIncrementalStore.m; sourceTree = "<group>"; };
+		6E2FB2D2181608A00098DA69 /* NOClientStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NOClientStore.h; sourceTree = "<group>"; };
+		6E2FB2D3181608A00098DA69 /* NOClientStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NOClientStore.m; sourceTree = "<group>"; };
 		6E332D3E180AEEF4009FDAB9 /* Client+NOClientProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Client+NOClientProtocol.h"; sourceTree = "<group>"; };
 		6E332D3F180AEEF4009FDAB9 /* Client+NOClientProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "Client+NOClientProtocol.m"; sourceTree = "<group>"; };
 		6E332D41180AF138009FDAB9 /* Session.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Session.h; sourceTree = "<group>"; };
@@ -374,8 +377,7 @@
 		6E2FB2CD1815A2690098DA69 /* Client */ = {
 			isa = PBXGroup;
 			children = (
-				6E2FB2CE1815A27E0098DA69 /* NOClientIncrementalStore.h */,
-				6E2FB2CF1815A27E0098DA69 /* NOClientIncrementalStore.m */,
+				6E2FB2D5181608A60098DA69 /* Stores */,
 			);
 			name = Client;
 			sourceTree = "<group>";
@@ -388,6 +390,17 @@
 				6E332D50180AF8BA009FDAB9 /* ClientsWindowController.xib */,
 			);
 			name = Clients;
+			sourceTree = "<group>";
+		};
+		6E2FB2D5181608A60098DA69 /* Stores */ = {
+			isa = PBXGroup;
+			children = (
+				6E2FB2D2181608A00098DA69 /* NOClientStore.h */,
+				6E2FB2D3181608A00098DA69 /* NOClientStore.m */,
+				6E2FB2CE1815A27E0098DA69 /* NOClientIncrementalStore.h */,
+				6E2FB2CF1815A27E0098DA69 /* NOClientIncrementalStore.m */,
+			);
+			name = Stores;
 			sourceTree = "<group>";
 		};
 		6E332D4D180AF87D009FDAB9 /* Controllers */ = {
@@ -913,6 +926,7 @@
 				6E2FB2B11815A2350098DA69 /* AppDelegate.m in Sources */,
 				6E2FB2D01815A27E0098DA69 /* NOClientIncrementalStore.m in Sources */,
 				6E2FB2AD1815A2350098DA69 /* main.m in Sources */,
+				6E2FB2D4181608A00098DA69 /* NOClientStore.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
