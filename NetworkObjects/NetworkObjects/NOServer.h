@@ -35,7 +35,7 @@ typedef NS_ENUM(NSUInteger, NOServerStatusCode) {
     userEntityName:(NSString *)userEntityName
  sessionEntityName:(NSString *)sessionEntityName
   clientEntityName:(NSString *)clientEntityName
-         loginPath:(NSString *)loginPath;;
+         loginPath:(NSString *)loginPath;
 
 @property (readonly) NOStore *store;
 
