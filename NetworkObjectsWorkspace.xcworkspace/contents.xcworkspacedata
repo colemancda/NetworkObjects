@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workspace
+   version = "1.0">
+   <FileRef
+      location = "group:OS X Framework/NetworkObjects/NetworkObjects.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:Example/NetworkObjectsServer/NetworkObjectsServer.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:Example/NetworkObjectsClient/NetworkObjectsClient.xcodeproj">
+   </FileRef>
+</Workspace>
