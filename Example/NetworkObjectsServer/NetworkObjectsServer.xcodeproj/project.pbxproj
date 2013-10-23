@@ -35,8 +35,8 @@
 		6E4CA04418177ABB00433D43 /* CheckBoxCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E4CA04018177ABB00433D43 /* CheckBoxCellView.m */; };
 		6E4CA04518177ABB00433D43 /* ClientsWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E4CA04218177ABB00433D43 /* ClientsWindowController.m */; };
 		6E4CA04618177ABB00433D43 /* ClientsWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6E4CA04318177ABB00433D43 /* ClientsWindowController.xib */; };
-		6E4CA04718177AFD00433D43 /* NetworkObjects.framework in Resources */ = {isa = PBXBuildFile; fileRef = 6E4C9FF31817711800433D43 /* NetworkObjects.framework */; };
 		6E4CA04A18177C5300433D43 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 6E4CA04818177C5300433D43 /* Model.xcdatamodeld */; };
+		6E4CA04C18177D9600433D43 /* NetworkObjects.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 6E4C9FF31817711800433D43 /* NetworkObjects.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -48,6 +48,19 @@
 			remoteInfo = NetworkObjectsServer;
 		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		6E4CA04B18177D8100433D43 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				6E4CA04C18177D9600433D43 /* NetworkObjects.framework in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		6E2BD830181731FF00E9D04C /* NetworkObjectsServer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NetworkObjectsServer.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -306,6 +319,7 @@
 				6E2BD82C181731FF00E9D04C /* Sources */,
 				6E2BD82D181731FF00E9D04C /* Frameworks */,
 				6E2BD82E181731FF00E9D04C /* Resources */,
+				6E4CA04B18177D8100433D43 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -372,7 +386,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6E4CA04718177AFD00433D43 /* NetworkObjects.framework in Resources */,
 				6E2BD83E181731FF00E9D04C /* InfoPlist.strings in Resources */,
 				6E2BD84C181731FF00E9D04C /* Images.xcassets in Resources */,
 				6E2BD844181731FF00E9D04C /* Credits.rtf in Resources */,
