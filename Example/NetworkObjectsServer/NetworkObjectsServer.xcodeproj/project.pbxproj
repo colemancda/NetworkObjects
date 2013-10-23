@@ -36,6 +36,7 @@
 		6E4CA04518177ABB00433D43 /* ClientsWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E4CA04218177ABB00433D43 /* ClientsWindowController.m */; };
 		6E4CA04618177ABB00433D43 /* ClientsWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6E4CA04318177ABB00433D43 /* ClientsWindowController.xib */; };
 		6E4CA04718177AFD00433D43 /* NetworkObjects.framework in Resources */ = {isa = PBXBuildFile; fileRef = 6E4C9FF31817711800433D43 /* NetworkObjects.framework */; };
+		6E4CA04A18177C5300433D43 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 6E4CA04818177C5300433D43 /* Model.xcdatamodeld */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -100,6 +101,7 @@
 		6E4CA04118177ABB00433D43 /* ClientsWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClientsWindowController.h; sourceTree = "<group>"; };
 		6E4CA04218177ABB00433D43 /* ClientsWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ClientsWindowController.m; sourceTree = "<group>"; };
 		6E4CA04318177ABB00433D43 /* ClientsWindowController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ClientsWindowController.xib; sourceTree = "<group>"; };
+		6E4CA04918177C5300433D43 /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -170,6 +172,7 @@
 				6E4C9FF51817721400433D43 /* AppDelegate.h */,
 				6E4C9FF61817721400433D43 /* AppDelegate.m */,
 				6E4C9FF71817721400433D43 /* MainMenu.xib */,
+				6E4CA04818177C5300433D43 /* Model.xcdatamodeld */,
 				6E2BD84B181731FF00E9D04C /* Images.xcassets */,
 				6E4CA0051817734500433D43 /* Models */,
 				6E4CA0031817733200433D43 /* Views */,
@@ -398,6 +401,7 @@
 				6E4CA01D1817738500433D43 /* Post+NOResourceProtocol.m in Sources */,
 				6E4CA01B1817738500433D43 /* Session.m in Sources */,
 				6E4CA0181817738500433D43 /* Post.m in Sources */,
+				6E4CA04A18177C5300433D43 /* Model.xcdatamodeld in Sources */,
 				6E4CA04518177ABB00433D43 /* ClientsWindowController.m in Sources */,
 				6E4CA01A1817738500433D43 /* User.m in Sources */,
 				6E4CA01E1817738500433D43 /* User+NOResourceProtocol.m in Sources */,
@@ -632,6 +636,20 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		6E4CA04818177C5300433D43 /* Model.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				6E4CA04918177C5300433D43 /* Model.xcdatamodel */,
+			);
+			currentVersion = 6E4CA04918177C5300433D43 /* Model.xcdatamodel */;
+			name = Model.xcdatamodeld;
+			path = "../../Shared Model/Model.xcdatamodeld";
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = 6E2BD828181731FF00E9D04C /* Project object */;
 }
