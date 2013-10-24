@@ -20,7 +20,7 @@
     
     self.api.model = [NSManagedObjectModel mergedModelFromBundles:nil];
     
-    self.api.urlSession = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
+    self.api.urlSession = [NSURLSession sharedSession];
     
     self.api.sessionEntityName = @"Session";
     

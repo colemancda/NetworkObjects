@@ -78,7 +78,7 @@
     
     // execute request
     
-    [[_urlSession dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+    NSURLSessionDataTask *task = [_urlSession dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         
         if (error) {
             
@@ -117,7 +117,13 @@
         
         completionBlock(nil);
         
-    }] resume];
+    }];
+    
+    
+    
+    [task resume];
+    
+    
 }
 
 @end
