@@ -9,13 +9,13 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "NetworkObjects/NOAPI.m"
-            timestampString = "404272116.344223"
+            filePath = "Example/NetworkObjectsClient/NetworkObjectsClient/ConnectViewController.m"
+            timestampString = "404273381.431682"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "38"
-            endingLineNumber = "38"
-            landmarkName = "-loginWithCompletion:"
+            startingLineNumber = "64"
+            endingLineNumber = "64"
+            landmarkName = "-login:"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -25,13 +25,13 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "Example/NetworkObjectsClient/NetworkObjectsClient/ConnectViewController.m"
-            timestampString = "404272705.89149"
+            filePath = "NetworkObjects/NOAPI.m"
+            timestampString = "404273430.910091"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "67"
-            endingLineNumber = "67"
-            landmarkName = "-login:"
+            startingLineNumber = "83"
+            endingLineNumber = "83"
+            landmarkName = "-loginWithCompletion:"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
