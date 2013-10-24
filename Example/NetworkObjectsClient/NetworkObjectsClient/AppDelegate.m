@@ -7,8 +7,6 @@
 //
 
 #import "AppDelegate.h"
-#import <CoreData/CoreData.h>
-#import <NetworkObjects/NetworkObjects.h>
 
 @implementation AppDelegate
 

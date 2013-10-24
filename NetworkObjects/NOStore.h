@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
-#import "NOResourceProtocol.h"
+#import <NetworkObjects/NOResourceProtocol.h>
 
 @interface NOStore : NSObject
 {

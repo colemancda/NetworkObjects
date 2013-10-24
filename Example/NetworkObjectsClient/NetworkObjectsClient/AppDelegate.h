@@ -7,7 +7,8 @@
 //
 
 #import <UIKit/UIKit.h>
-@class NOAPI;
+#import <CoreData/CoreData.h>
+#import <NetworkObjects/NetworkObjects.h>
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 

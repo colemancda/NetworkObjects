@@ -7,7 +7,6 @@
 //
 
 #import "AppDelegate.h"
-#import <NetworkObjects/NetworkObjects.h>
 #import "ClientsWindowController.h"
 
 NSString *const ServerOnOffStatePreferenceKey = @"serverOnOffState";

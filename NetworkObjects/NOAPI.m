@@ -7,7 +7,6 @@
 //
 
 #import "NOAPI.h"
-#import <CoreData/CoreData.h>
 #import "NOResourceProtocol.h"
 #import "NOUserProtocol.h"
 #import "NOSessionProtocol.h"

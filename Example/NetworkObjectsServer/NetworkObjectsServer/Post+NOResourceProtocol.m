@@ -7,10 +7,9 @@
 //
 
 #import "Post+NOResourceProtocol.h"
+#import "Post+NOResourceKeysProtocol.h"
 #import "Client.h"
 #import "Session.h"
-#import <NetworkObjects/NOResourceProtocol.h>
-#import "Post+NOResourceKeysProtocol.h"
 
 @implementation Post (NOResourceProtocol)
 

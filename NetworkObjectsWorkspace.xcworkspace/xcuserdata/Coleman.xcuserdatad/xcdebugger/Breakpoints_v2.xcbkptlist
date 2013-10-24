@@ -26,11 +26,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NetworkObjects/NOAPI.m"
-            timestampString = "404273679.88258"
+            timestampString = "404275344.420782"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "82"
-            endingLineNumber = "82"
+            startingLineNumber = "81"
+            endingLineNumber = "81"
             landmarkName = "-loginWithCompletion:"
             landmarkType = "5">
          </BreakpointContent>
@@ -42,11 +42,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NetworkObjects/NOAPI.m"
-            timestampString = "404273671.323371"
+            timestampString = "404275344.420782"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "114"
-            endingLineNumber = "114"
+            startingLineNumber = "113"
+            endingLineNumber = "113"
             landmarkName = "-loginWithCompletion:"
             landmarkType = "5">
          </BreakpointContent>
@@ -58,11 +58,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NetworkObjects/NOAPI.m"
-            timestampString = "404273674.132075"
+            timestampString = "404275344.420782"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "117"
-            endingLineNumber = "117"
+            startingLineNumber = "116"
+            endingLineNumber = "116"
             landmarkName = "-loginWithCompletion:"
             landmarkType = "5">
             <Locations>
@@ -71,28 +71,28 @@
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
                   symbolName = "__29-[NOAPI loginWithCompletion:]_block_invoke"
-                  moduleName = "NetworkObjectsClient"
+                  moduleName = "NetworkObjects"
                   urlString = "file:///Users/Coleman/Programming/My%20Apps/NetworkObjects/NetworkObjects/NOAPI.m"
-                  timestampString = "404273986.794108"
+                  timestampString = "404275345.136095"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "118"
-                  endingLineNumber = "118"
-                  offsetFromSymbolStart = "644">
+                  startingLineNumber = "117"
+                  endingLineNumber = "117"
+                  offsetFromSymbolStart = "633">
                </Location>
                <Location
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
                   symbolName = "__29-[NOAPI loginWithCompletion:]_block_invoke"
-                  moduleName = "NetworkObjectsClient"
+                  moduleName = "NetworkObjects"
                   urlString = "file:///Users/Coleman/Programming/My%20Apps/NetworkObjects/NetworkObjects/NOAPI.m"
-                  timestampString = "404273986.794344"
+                  timestampString = "404275345.136344"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "118"
-                  endingLineNumber = "118"
-                  offsetFromSymbolStart = "716">
+                  startingLineNumber = "117"
+                  endingLineNumber = "117"
+                  offsetFromSymbolStart = "767">
                </Location>
             </Locations>
          </BreakpointContent>
@@ -104,11 +104,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NetworkObjects/NOAPI.m"
-            timestampString = "404274040.440767"
+            timestampString = "404275344.420782"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "122"
-            endingLineNumber = "122"
+            startingLineNumber = "121"
+            endingLineNumber = "121"
             landmarkName = "-loginWithCompletion:"
             landmarkType = "5">
          </BreakpointContent>
@@ -120,11 +120,27 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NetworkObjects/NOAPI.m"
-            timestampString = "404274007.402335"
+            timestampString = "404275344.420782"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "90"
-            endingLineNumber = "90"
+            startingLineNumber = "89"
+            endingLineNumber = "89"
+            landmarkName = "-loginWithCompletion:"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "NetworkObjects/NOAPI.m"
+            timestampString = "404275344.420782"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "79"
+            endingLineNumber = "79"
             landmarkName = "-loginWithCompletion:"
             landmarkType = "5">
          </BreakpointContent>
