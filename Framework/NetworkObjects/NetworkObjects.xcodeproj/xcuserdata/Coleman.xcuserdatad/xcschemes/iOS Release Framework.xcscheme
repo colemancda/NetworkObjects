@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "6EED733718185FAE00F911BC"
-               BuildableName = "libNetworkObjects.a"
-               BlueprintName = "NetworkObjects"
+               BlueprintIdentifier = "6EA79BB41818A1E9005F0866"
+               BuildableName = "iOS Release Framework"
+               BlueprintName = "iOS Release Framework"
                ReferencedContainer = "container:NetworkObjects.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -28,16 +28,6 @@
       shouldUseLaunchSchemeArgsEnv = "YES"
       buildConfiguration = "Debug">
       <Testables>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "6EED734718185FAE00F911BC"
-               BuildableName = "NetworkObjectsTests.xctest"
-               BlueprintName = "NetworkObjectsTests"
-               ReferencedContainer = "container:NetworkObjects.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction

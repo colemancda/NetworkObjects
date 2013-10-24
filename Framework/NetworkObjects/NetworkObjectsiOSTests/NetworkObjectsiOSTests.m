@@ -1,6 +1,6 @@
 //
-//  NetworkObjectsTests.m
-//  NetworkObjectsTests
+//  NetworkObjectsiOSTests.m
+//  NetworkObjectsiOSTests
 //
 //  Created by Alsey Coleman Miller on 10/23/13.
 //  Copyright (c) 2013 CDA. All rights reserved.
@@ -8,11 +8,11 @@
 
 #import <XCTest/XCTest.h>
 
-@interface NetworkObjectsTests : XCTestCase
+@interface NetworkObjectsiOSTests : XCTestCase
 
 @end
 
-@implementation NetworkObjectsTests
+@implementation NetworkObjectsiOSTests
 
 - (void)setUp
 {

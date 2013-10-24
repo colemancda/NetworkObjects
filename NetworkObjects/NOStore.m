@@ -7,6 +7,7 @@
 //
 
 #import "NOStore.h"
+#import <CoreData/CoreData.h>
 #import "NOResourceProtocol.h"
 
 @implementation NOStore

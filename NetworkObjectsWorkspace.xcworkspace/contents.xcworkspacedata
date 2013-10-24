@@ -2,12 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:iOS Framework/NetworkObjects/NetworkObjects.xcodeproj">
-   </FileRef>
-   <FileRef
-      location = "group:OS X Framework/NetworkObjects/NetworkObjects.xcodeproj">
-   </FileRef>
-   <FileRef
       location = "group:Example/NetworkObjectsServer/NetworkObjectsServer.xcodeproj">
    </FileRef>
    <FileRef

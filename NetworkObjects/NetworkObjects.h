@@ -9,12 +9,17 @@
 #ifndef NetworkObjects_NetworkObjects_h
 #define NetworkObjects_NetworkObjects_h
 
-#import "NOServer.h"
-#import "NOStore.h"
+#import <NetworkObjects/NOServer.h>
+#import <NetworkObjects/NOStore.h>
 
-#import "NOResourceProtocol.h"
-#import "NOUserProtocol.h"
-#import "NOSessionProtocol.h"
-#import "NOClientProtocol.h"
+#import <NetworkObjects/NOHTTPServer.h>
+#import <NetworkObjects/NOHTTPConnection.h>
+
+#import <NetworkObjects/NOResourceProtocol.h>
+#import <NetworkObjects/NOUserProtocol.h>
+#import <NetworkObjects/NOSessionProtocol.h>
+#import <NetworkObjects/NOClientProtocol.h>
+
+#import <NetworkObjects/NOAPI.h>
 
 #endif

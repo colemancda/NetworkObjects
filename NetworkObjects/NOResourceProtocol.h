@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "NOResourceProtocolConstants.h"
+@class NSManagedObject;
 
 @protocol NOUserProtocol;
 @protocol NOClientProtocol;

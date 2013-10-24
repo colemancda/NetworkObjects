@@ -7,9 +7,9 @@
 //
 
 #import "Session+NOSessionProtocol.h"
-#import "Session+NOSessionKeysProtocol.h"
 #import "NSString+RandomString.h"
 #import "AppDelegate.h"
+#import "Session+NOSessionKeysProtocol.h"
 
 @implementation Session (NOSessionProtocol)
 
