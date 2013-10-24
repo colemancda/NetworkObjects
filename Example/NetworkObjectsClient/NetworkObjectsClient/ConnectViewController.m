@@ -37,6 +37,9 @@
     // Dispose of any resources that can be recreated.
 }
 
+
+#pragma mark - Actions
+
 - (IBAction)login:(UIButton *)sender {
     
     AppDelegate *appDelegate = [UIApplication sharedApplication].delegate;

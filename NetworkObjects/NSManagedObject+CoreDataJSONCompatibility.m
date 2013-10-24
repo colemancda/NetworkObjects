@@ -8,7 +8,6 @@
 
 #import "NSManagedObject+CoreDataJSONCompatibility.h"
 #import "NSDate+ISO8601.h"
-#import "Base64.h"
 
 @implementation NSManagedObject (CoreDataJSONCompatibility)
 
@@ -77,7 +76,8 @@
     if (attributeClass == [NSData class]) {
         
         NSData *data = (NSData *)originalCoreDataValue;
-        return data.base64EncodedString;
+        NSString *stringValue = [data base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
+        return stringValue;
     }
     
     // error
@@ -128,7 +128,8 @@
         // value will be nsstring
         NSString *jsonCompatibleValue = (NSString *)jsonValue;
         
-        NSData *data = [NSData dataWithBase64EncodedString:jsonCompatibleValue];
+        NSData *data = [[NSData alloc]initWithBase64EncodedString:jsonCompatibleValue
+                                                          options:NSDataBase64DecodingIgnoreUnknownCharacters];
         
         return data;
     }

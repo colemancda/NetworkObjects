@@ -56,10 +56,6 @@
 		6EED74D11818852200F911BC /* NOHTTPServer.h in Headers */ = {isa = PBXBuildFile; fileRef = 6EED746A1818852200F911BC /* NOHTTPServer.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6EED74D21818852200F911BC /* NOHTTPServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EED746B1818852200F911BC /* NOHTTPServer.m */; };
 		6EED74D31818852200F911BC /* NOHTTPServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EED746B1818852200F911BC /* NOHTTPServer.m */; };
-		6EED74D41818852200F911BC /* Base64.h in Headers */ = {isa = PBXBuildFile; fileRef = 6EED746C1818852200F911BC /* Base64.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		6EED74D51818852200F911BC /* Base64.h in Headers */ = {isa = PBXBuildFile; fileRef = 6EED746C1818852200F911BC /* Base64.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		6EED74D61818852200F911BC /* Base64.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EED746D1818852200F911BC /* Base64.m */; };
-		6EED74D71818852200F911BC /* Base64.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EED746D1818852200F911BC /* Base64.m */; };
 		6EED74D81818852200F911BC /* NetworkObjects.h in Headers */ = {isa = PBXBuildFile; fileRef = 6EED746E1818852200F911BC /* NetworkObjects.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6EED74D91818852200F911BC /* NetworkObjects.h in Headers */ = {isa = PBXBuildFile; fileRef = 6EED746E1818852200F911BC /* NetworkObjects.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6EED74DA1818852200F911BC /* NOClientProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 6EED746F1818852200F911BC /* NOClientProtocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -287,8 +283,6 @@
 		6EED74691818852200F911BC /* NOHTTPConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NOHTTPConnection.m; path = ../../../NetworkObjects/NOHTTPConnection.m; sourceTree = "<group>"; };
 		6EED746A1818852200F911BC /* NOHTTPServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NOHTTPServer.h; path = ../../../NetworkObjects/NOHTTPServer.h; sourceTree = "<group>"; };
 		6EED746B1818852200F911BC /* NOHTTPServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NOHTTPServer.m; path = ../../../NetworkObjects/NOHTTPServer.m; sourceTree = "<group>"; };
-		6EED746C1818852200F911BC /* Base64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Base64.h; path = ../../../NetworkObjects/Base64.h; sourceTree = "<group>"; };
-		6EED746D1818852200F911BC /* Base64.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Base64.m; path = ../../../NetworkObjects/Base64.m; sourceTree = "<group>"; };
 		6EED746E1818852200F911BC /* NetworkObjects.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NetworkObjects.h; path = ../../../NetworkObjects/NetworkObjects.h; sourceTree = "<group>"; };
 		6EED746F1818852200F911BC /* NOClientProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NOClientProtocol.h; path = ../../../NetworkObjects/NOClientProtocol.h; sourceTree = "<group>"; };
 		6EED74701818852200F911BC /* NOResourceProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NOResourceProtocol.h; path = ../../../NetworkObjects/NOResourceProtocol.h; sourceTree = "<group>"; };
@@ -451,6 +445,7 @@
 			isa = PBXGroup;
 			children = (
 				6EED746E1818852200F911BC /* NetworkObjects.h */,
+				6ECD2B6F1818B1CB00244E05 /* Model */,
 				6EED75751818854200F911BC /* Client */,
 				6EED75741818853B00F911BC /* Server */,
 				6E2BD7C81817309E00E9D04C /* Supporting Files */,
@@ -484,6 +479,89 @@
 				6E2BD7DF1817309E00E9D04C /* InfoPlist.strings */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		6ECD2B6C1818B18400244E05 /* Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				6EED74641818852200F911BC /* NOAPI.h */,
+				6EED74651818852200F911BC /* NOAPI.m */,
+			);
+			name = Controllers;
+			sourceTree = "<group>";
+		};
+		6ECD2B6D1818B18C00244E05 /* Stores */ = {
+			isa = PBXGroup;
+			children = (
+				6EED74661818852200F911BC /* NOAPIStore.h */,
+				6EED74671818852200F911BC /* NOAPIStore.m */,
+			);
+			name = Stores;
+			sourceTree = "<group>";
+		};
+		6ECD2B6E1818B19700244E05 /* HTTP */ = {
+			isa = PBXGroup;
+			children = (
+				6EED747E1818852200F911BC /* RoutingHTTPServer */,
+				6ECD2B721818B1FD00244E05 /* Categories */,
+				6EED74681818852200F911BC /* NOHTTPConnection.h */,
+				6EED74691818852200F911BC /* NOHTTPConnection.m */,
+				6EED746A1818852200F911BC /* NOHTTPServer.h */,
+				6EED746B1818852200F911BC /* NOHTTPServer.m */,
+			);
+			name = HTTP;
+			sourceTree = "<group>";
+		};
+		6ECD2B6F1818B1CB00244E05 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				6ECD2B731818B20D00244E05 /* Categories */,
+				6EED746F1818852200F911BC /* NOClientProtocol.h */,
+				6EED74701818852200F911BC /* NOResourceProtocol.h */,
+				6EED74711818852200F911BC /* NOResourceProtocolConstants.h */,
+				6EED74741818852200F911BC /* NOSessionProtocol.h */,
+				6EED74771818852200F911BC /* NOUserProtocol.h */,
+			);
+			name = Model;
+			sourceTree = "<group>";
+		};
+		6ECD2B701818B1D300244E05 /* Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				6ECD2B6E1818B19700244E05 /* HTTP */,
+				6EED74721818852200F911BC /* NOServer.h */,
+				6EED74731818852200F911BC /* NOServer.m */,
+			);
+			name = Controllers;
+			sourceTree = "<group>";
+		};
+		6ECD2B711818B1E800244E05 /* Stores */ = {
+			isa = PBXGroup;
+			children = (
+				6EED74751818852200F911BC /* NOStore.h */,
+				6EED74761818852200F911BC /* NOStore.m */,
+			);
+			name = Stores;
+			sourceTree = "<group>";
+		};
+		6ECD2B721818B1FD00244E05 /* Categories */ = {
+			isa = PBXGroup;
+			children = (
+				6EED747C1818852200F911BC /* RouteResponse+IPAddress.h */,
+				6EED747D1818852200F911BC /* RouteResponse+IPAddress.m */,
+			);
+			name = Categories;
+			sourceTree = "<group>";
+		};
+		6ECD2B731818B20D00244E05 /* Categories */ = {
+			isa = PBXGroup;
+			children = (
+				6EED74781818852200F911BC /* NSDate+ISO8601.h */,
+				6EED74791818852200F911BC /* NSDate+ISO8601.m */,
+				6EED747A1818852200F911BC /* NSManagedObject+CoreDataJSONCompatibility.h */,
+				6EED747B1818852200F911BC /* NSManagedObject+CoreDataJSONCompatibility.m */,
+			);
+			name = Categories;
 			sourceTree = "<group>";
 		};
 		6EED73E51818648F00F911BC /* NetworkObjectsiOS */ = {
@@ -649,28 +727,8 @@
 		6EED75741818853B00F911BC /* Server */ = {
 			isa = PBXGroup;
 			children = (
-				6EED74681818852200F911BC /* NOHTTPConnection.h */,
-				6EED74691818852200F911BC /* NOHTTPConnection.m */,
-				6EED746A1818852200F911BC /* NOHTTPServer.h */,
-				6EED746B1818852200F911BC /* NOHTTPServer.m */,
-				6EED746C1818852200F911BC /* Base64.h */,
-				6EED746D1818852200F911BC /* Base64.m */,
-				6EED746F1818852200F911BC /* NOClientProtocol.h */,
-				6EED74701818852200F911BC /* NOResourceProtocol.h */,
-				6EED74711818852200F911BC /* NOResourceProtocolConstants.h */,
-				6EED74721818852200F911BC /* NOServer.h */,
-				6EED74731818852200F911BC /* NOServer.m */,
-				6EED74741818852200F911BC /* NOSessionProtocol.h */,
-				6EED74751818852200F911BC /* NOStore.h */,
-				6EED74761818852200F911BC /* NOStore.m */,
-				6EED74771818852200F911BC /* NOUserProtocol.h */,
-				6EED74781818852200F911BC /* NSDate+ISO8601.h */,
-				6EED74791818852200F911BC /* NSDate+ISO8601.m */,
-				6EED747A1818852200F911BC /* NSManagedObject+CoreDataJSONCompatibility.h */,
-				6EED747B1818852200F911BC /* NSManagedObject+CoreDataJSONCompatibility.m */,
-				6EED747C1818852200F911BC /* RouteResponse+IPAddress.h */,
-				6EED747D1818852200F911BC /* RouteResponse+IPAddress.m */,
-				6EED747E1818852200F911BC /* RoutingHTTPServer */,
+				6ECD2B701818B1D300244E05 /* Controllers */,
+				6ECD2B711818B1E800244E05 /* Stores */,
 			);
 			name = Server;
 			sourceTree = "<group>";
@@ -678,10 +736,8 @@
 		6EED75751818854200F911BC /* Client */ = {
 			isa = PBXGroup;
 			children = (
-				6EED74641818852200F911BC /* NOAPI.h */,
-				6EED74651818852200F911BC /* NOAPI.m */,
-				6EED74661818852200F911BC /* NOAPIStore.h */,
-				6EED74671818852200F911BC /* NOAPIStore.m */,
+				6ECD2B6C1818B18400244E05 /* Controllers */,
+				6ECD2B6D1818B18C00244E05 /* Stores */,
 			);
 			name = Client;
 			path = ..;
@@ -741,7 +797,6 @@
 				6EED75381818852200F911BC /* MultipartFormDataParser.h in Headers */,
 				6EED75601818852200F911BC /* Route.h in Headers */,
 				6EED74DA1818852200F911BC /* NOClientProtocol.h in Headers */,
-				6EED74D41818852200F911BC /* Base64.h in Headers */,
 				6EED75041818852200F911BC /* DDAbstractDatabaseLogger.h in Headers */,
 				6EED74DE1818852200F911BC /* NOResourceProtocolConstants.h in Headers */,
 				6EED75481818852200F911BC /* HTTPDataResponse.h in Headers */,
@@ -796,7 +851,6 @@
 				6EED75391818852200F911BC /* MultipartFormDataParser.h in Headers */,
 				6EED75611818852200F911BC /* Route.h in Headers */,
 				6EED74DB1818852200F911BC /* NOClientProtocol.h in Headers */,
-				6EED74D51818852200F911BC /* Base64.h in Headers */,
 				6EED75051818852200F911BC /* DDAbstractDatabaseLogger.h in Headers */,
 				6EED74DF1818852200F911BC /* NOResourceProtocolConstants.h in Headers */,
 				6EED75491818852200F911BC /* HTTPDataResponse.h in Headers */,
@@ -1014,7 +1068,6 @@
 				6EED750E1818852200F911BC /* DDFileLogger.m in Sources */,
 				6EED75121818852200F911BC /* DDLog.m in Sources */,
 				6EED756E1818852200F911BC /* RoutingConnection.m in Sources */,
-				6EED74D61818852200F911BC /* Base64.m in Sources */,
 				6EED74CA1818852200F911BC /* NOAPIStore.m in Sources */,
 				6EED751E1818852200F911BC /* DispatchQueueLogFormatter.m in Sources */,
 				6EED752A1818852200F911BC /* HTTPConnection.m in Sources */,
@@ -1059,7 +1112,6 @@
 				6EED752B1818852200F911BC /* HTTPConnection.m in Sources */,
 				6EED751B1818852200F911BC /* ContextFilterLogFormatter.m in Sources */,
 				6EED75271818852200F911BC /* HTTPAuthenticationRequest.m in Sources */,
-				6EED74D71818852200F911BC /* Base64.m in Sources */,
 				6EED753F1818852200F911BC /* MultipartMessageHeader.m in Sources */,
 				6EED75171818852200F911BC /* DDTTYLogger.m in Sources */,
 				6EED756B1818852200F911BC /* RouteResponse.m in Sources */,

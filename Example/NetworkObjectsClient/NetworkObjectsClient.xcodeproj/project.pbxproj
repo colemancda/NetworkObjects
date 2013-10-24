@@ -27,6 +27,7 @@
 		6EA79BAF181895BA005F0866 /* ConnectViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EA79BA8181895BA005F0866 /* ConnectViewController.m */; };
 		6EA79BB31818A185005F0866 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6EA79BB21818A185005F0866 /* CoreData.framework */; };
 		6ECD2B671818AFAA00244E05 /* NetworkObjects.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6EEBC0451818AC1100DC0A92 /* NetworkObjects.framework */; };
+		6ECD2B761818B49800244E05 /* Model.xcdatamodeld in Resources */ = {isa = PBXBuildFile; fileRef = 6ECD2B751818B49800244E05 /* Model.xcdatamodeld */; };
 		6EEBC0571818AF4000DC0A92 /* Client+NOClientKeysProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EEBC0501818AF4000DC0A92 /* Client+NOClientKeysProtocol.m */; };
 		6EEBC0581818AF4000DC0A92 /* Post+NOResourceKeysProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EEBC0521818AF4000DC0A92 /* Post+NOResourceKeysProtocol.m */; };
 		6EEBC0591818AF4000DC0A92 /* Session+NOSessionKeysProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EEBC0541818AF4000DC0A92 /* Session+NOSessionKeysProtocol.m */; };
@@ -107,6 +108,7 @@
 		6EA79BA7181895BA005F0866 /* ConnectViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConnectViewController.h; sourceTree = "<group>"; };
 		6EA79BA8181895BA005F0866 /* ConnectViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ConnectViewController.m; sourceTree = "<group>"; };
 		6EA79BB21818A185005F0866 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		6ECD2B741818B49800244E05 /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = file; path = Model.xcdatamodel; sourceTree = "<group>"; };
 		6EEBC0321818AACE00DC0A92 /* NetworkObjects.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = NetworkObjects.xcodeproj; path = ../../Framework/NetworkObjects/NetworkObjects.xcodeproj; sourceTree = "<group>"; };
 		6EEBC0451818AC1100DC0A92 /* NetworkObjects.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NetworkObjects.framework; path = "../../../../../Library/Developer/Xcode/DerivedData/NetworkObjectsWorkspace-ctwfpjnfkvopblgmeiavixuhlmrw/Build/Products/Debug-iphoneos/NetworkObjects.framework"; sourceTree = "<group>"; };
 		6EEBC04F1818AF4000DC0A92 /* Client+NOClientKeysProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "Client+NOClientKeysProtocol.h"; path = "../../Shared Model/Client+NOClientKeysProtocol.h"; sourceTree = "<group>"; };
@@ -184,6 +186,7 @@
 				6EA79B9C181895BA005F0866 /* AppDelegate.h */,
 				6EA79B9D181895BA005F0866 /* AppDelegate.m */,
 				6EA79B9E181895BA005F0866 /* Storyboard.storyboard */,
+				6ECD2B751818B49800244E05 /* Model.xcdatamodeld */,
 				6EA79BB0181895EB005F0866 /* Models */,
 				6EA79BB1181895F5005F0866 /* Controllers */,
 				6E2BD80A1817316F00E9D04C /* Images.xcassets */,
@@ -388,6 +391,7 @@
 				6E2BD8031817316F00E9D04C /* InfoPlist.strings in Resources */,
 				6E2BD80B1817316F00E9D04C /* Images.xcassets in Resources */,
 				6EA79BAA181895BA005F0866 /* Storyboard.storyboard in Resources */,
+				6ECD2B761818B49800244E05 /* Model.xcdatamodeld in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -644,6 +648,19 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		6ECD2B751818B49800244E05 /* Model.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				6ECD2B741818B49800244E05 /* Model.xcdatamodel */,
+			);
+			currentVersion = 6ECD2B741818B49800244E05 /* Model.xcdatamodel */;
+			name = Model.xcdatamodeld;
+			path = "/Users/Coleman/Programming/My Apps/NetworkObjects/Example/NetworkObjectsServer/NetworkObjectsServer/../../Shared Model/Model.xcdatamodeld";
+			sourceTree = "<absolute>";
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = 6E2BD7ED1817316F00E9D04C /* Project object */;
 }
