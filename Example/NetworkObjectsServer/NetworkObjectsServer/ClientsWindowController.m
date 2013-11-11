@@ -104,6 +104,23 @@
     [self.tableView reloadData];
 }
 
+-(void)checkBoxSelected:(NSButton *)sender
+{
+    // get model object
+    
+    Client *client = _clients[sender.tag];
+    
+    if (sender.state == NSOnState) {
+        
+        client.isNotThirdParty = @YES;
+    }
+    else {
+        client.isNotThirdParty = @NO;
+    }
+    
+    NSLog(@"Set Client %@ isNotThirdPary property to %@", client.resourceID, client.isNotThirdParty);
+}
+
 #pragma mark - Populate Array
 
 -(void)populateClientsArrayWithSortDescriptor:(NSArray *)sortDescriptors
@@ -160,6 +177,10 @@
         CheckBoxCellView *checkBoxCellView = (CheckBoxCellView *)cellView;
         
         checkBoxCellView.checkBox.integerValue = client.isNotThirdParty.boolValue;
+        
+        // set tag
+        
+        checkBoxCellView.checkBox.tag = row;
         
         return checkBoxCellView;
     }

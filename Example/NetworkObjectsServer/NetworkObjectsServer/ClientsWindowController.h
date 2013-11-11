@@ -25,5 +25,8 @@
 
 -(void)populateClientsArrayWithSortDescriptor:(NSArray *)sortDescriptors;
 
+-(IBAction)checkBoxSelected:(NSButton *)sender;
+
+
 
 @end

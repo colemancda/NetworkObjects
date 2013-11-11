@@ -21,7 +21,7 @@
 
 +(NSSet *)requiredInitialProperties
 {
-    return [NSSet setWithArray:@[@"username"]];
+    return [NSSet setWithArray:@[@"username", @"password"]];
 }
 
 #pragma mark - Validate New Values
@@ -91,7 +91,7 @@
     Session *session = (Session *)sessionProtocolObject;
     
     // only first party apps can create posts
-    if (session.user && session.client.isNotThirdParty) {
+    if (session.client.isNotThirdParty) {
         
         return YES;
     }
@@ -106,6 +106,14 @@
 
 -(NOResourcePermission)permissionForSession:(NSManagedObject<NOSessionProtocol> *)sessionProtocolObject
 {
+    Session *session = (Session *)sessionProtocolObject;
+    
+    // first party app
+    if (session.client.isNotThirdParty) {
+        
+        return EditPermission;
+    }
+    
     return ReadOnlyPermission;
 }
 

@@ -31,7 +31,7 @@
 		6E2BDA901817341300E9D04C /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E2BD7C51817309E00E9D04C /* CoreData.framework */; };
 		6E2BDA921817341900E9D04C /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E2BDA911817341900E9D04C /* Security.framework */; };
 		6E4CA0311817786A00433D43 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E2BD7C11817309E00E9D04C /* Cocoa.framework */; };
-		6E838378183083B0003AE302 /* NOServerConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E838377183083B0003AE302 /* NOServerConstants.h */; };
+		6E838378183083B0003AE302 /* NOServerConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E838377183083B0003AE302 /* NOServerConstants.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6E838379183083B0003AE302 /* NOServerConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E838377183083B0003AE302 /* NOServerConstants.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6E83838118308E73003AE302 /* NetworkObjectsConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E83838018308E73003AE302 /* NetworkObjectsConstants.h */; };
 		6E83838218308E73003AE302 /* NetworkObjectsConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E83838018308E73003AE302 /* NetworkObjectsConstants.h */; settings = {ATTRIBUTES = (Public, ); }; };

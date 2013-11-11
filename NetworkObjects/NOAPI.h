@@ -12,10 +12,12 @@
 typedef NS_ENUM(NSUInteger, NOAPIErrorCodes) {
     
     NOAPIInvalidServerResponseErrorCode = 1000,
-    NOAPIBadRequestErrorCode,
     NOAPILoginFailedErrorCode,
-    NOAPIUnAuthorizedErrorCode
-    
+    NOAPIBadRequestErrorCode,
+    NOAPIUnauthorizedErrorCode,
+    NOAPIForbiddenErrorCode,
+    NOAPIServerInternalErrorCode
+        
 };
 
 @interface NOAPI : NSObject
@@ -67,6 +69,6 @@ typedef NS_ENUM(NSUInteger, NOAPIErrorCodes) {
 
 -(void)createResource:(NSString *)resourceName
     withInitialValues:(NSDictionary *)initialValues
-           completion:(void (^)(NSError *error, NSUInteger resourceID))completionBlock;
+           completion:(void (^)(NSError *error, NSNumber *resourceID))completionBlock;
 
 @end

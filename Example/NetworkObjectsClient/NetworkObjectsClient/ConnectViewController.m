@@ -78,19 +78,75 @@
             
             return;
         }
-       
+        
         NSLog(@"Got '%@' token", appDelegate.api.sessionToken);
         
+        
+        
     }];
+    
 }
 
 -(void)registerNewUser:(id)sender
 {
     AppDelegate *appDelegate = [UIApplication sharedApplication].delegate;
     
-    // set values for connection
+    // set values for connection (login only as app and not as user & app)
     
+    appDelegate.api.serverURL = [NSURL URLWithString:self.urlTextField.text];
     
+    NSNumber *clientResourceID = [NSNumber numberWithInteger:self.clientIDTextField.text.integerValue];
+    
+    appDelegate.api.clientResourceID = clientResourceID;
+    
+    appDelegate.api.clientSecret = self.clientSecretTextField.text;
+    
+    appDelegate.api.username = nil;
+    
+    appDelegate.api.userPassword = nil;
+    
+    // login
+    
+    [appDelegate.api loginWithCompletion:^(NSError *error) {
+        
+        if (error) {
+            
+            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                
+                UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Error", @"Error") message:error.localizedDescription delegate:nil cancelButtonTitle:NSLocalizedString(@"OK", @"OK") otherButtonTitles:nil];
+                
+                [alertView show];
+                
+            }];
+            
+            return;
+        }
+        
+        NSLog(@"Got '%@' token", appDelegate.api.sessionToken);
+        
+        NSDictionary *initialValues = @{@"username": self.usernameTextField.text,
+                                        @"password": self.passwordTextField.text};
+        
+        [appDelegate.api createResource:@"User" withInitialValues:initialValues completion:^(NSError *error, NSNumber *resourceID) {
+            
+            if (error) {
+                
+                [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                    
+                    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Error", @"Error") message:error.localizedDescription delegate:nil cancelButtonTitle:NSLocalizedString(@"OK", @"OK") otherButtonTitles:nil];
+                    
+                    [alertView show];
+                    
+                }];
+                
+                return;
+            }
+            
+            NSLog(@"Created new user with resource ID %@", resourceID);
+            
+        }];
+        
+    }];
 }
 
 #pragma mark - UITextField Delegate

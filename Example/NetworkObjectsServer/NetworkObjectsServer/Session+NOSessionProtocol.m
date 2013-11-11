@@ -32,8 +32,7 @@
 -(void)usedSessionFromIP:(NSString *)ipAddress
           requestHeaders:(NSDictionary *)headers
 {
-    
-    
+    self.lastUse = [NSDate date];
 }
 
 #pragma mark - NOResourceProtocol
@@ -48,6 +47,7 @@
 {
     return nil;
 }
+
 
 #pragma mark - Validate New Values
 
@@ -108,7 +108,7 @@
 
 -(void)wasCreatedBySession:(NSManagedObject<NOSessionProtocol> *)sessionProtocolObject
 {
-    //
+    // doesnt get called
 }
 
 -(void)wasAccessedBySession:(NSManagedObject<NOSessionProtocol> *)sessionProtocolObject

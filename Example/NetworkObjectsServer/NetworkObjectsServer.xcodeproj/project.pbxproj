@@ -266,8 +266,7 @@
 		6E4CA0031817733200433D43 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				6E4CA03F18177ABB00433D43 /* CheckBoxCellView.h */,
-				6E4CA04018177ABB00433D43 /* CheckBoxCellView.m */,
+				6E83838A1831485B003AE302 /* CheckBoxCellView */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -345,6 +344,15 @@
 				6E4CA02C1817740C00433D43 /* User+NOUserKeysProtocol.m */,
 			);
 			name = "Keys Protocols";
+			sourceTree = "<group>";
+		};
+		6E83838A1831485B003AE302 /* CheckBoxCellView */ = {
+			isa = PBXGroup;
+			children = (
+				6E4CA03F18177ABB00433D43 /* CheckBoxCellView.h */,
+				6E4CA04018177ABB00433D43 /* CheckBoxCellView.m */,
+			);
+			name = CheckBoxCellView;
 			sourceTree = "<group>";
 		};
 		6EEBC0201818A68400DC0A92 /* Products */ = {

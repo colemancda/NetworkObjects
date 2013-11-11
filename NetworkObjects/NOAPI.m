@@ -41,7 +41,6 @@
         error = [NSError errorWithDomain:NetworkObjectsErrorDomain
                                     code:NOAPIInvalidServerResponseErrorCode
                                 userInfo:@{NSLocalizedDescriptionKey: description}];
-        
     }
     
     return error;
@@ -60,6 +59,41 @@
                                     code:NOAPIBadRequestErrorCode
                                 userInfo:@{NSLocalizedDescriptionKey: description}];
         
+    }
+    
+    return error;
+}
+
+-(NSError *)serverError
+{
+    static NSError *error;
+    
+    if (!error) {
+        
+        NSString *description = NSLocalizedString(@"The server suffered an internal error",
+                                                  @"The server suffered an internal error");
+        
+        error = [NSError errorWithDomain:NetworkObjectsErrorDomain
+                                    code:NOAPIServerInternalErrorCode
+                                userInfo:@{NSLocalizedDescriptionKey: description}];
+        
+    }
+    
+    return error;
+}
+
+-(NSError *)unauthorizedError
+{
+    static NSError *error;
+    
+    if (!error) {
+        
+        NSString *description = NSLocalizedString(@"Authentication is required",
+                                                  @"Authentication is required");
+        
+        error = [NSError errorWithDomain:NetworkObjectsErrorDomain
+                                    code:NOAPIUnauthorizedErrorCode
+                                userInfo:@{NSLocalizedDescriptionKey: description}];
     }
     
     return error;
@@ -134,7 +168,7 @@
             
             if (httpResponse.statusCode == BadRequestStatusCode) {
                 
-                completionBlock([self badRequestError]);
+                completionBlock(self.badRequestError);
                 
                 return;
             }
@@ -199,6 +233,231 @@
     [task resume];
 }
 
+-(void)getResource:(NSString *)resourceName
+            withID:(NSUInteger)resourceID
+        completion:(void (^)(NSError *, NSDictionary *))completionBlock
+{
+    // build URL
+    
+    NSURL *getResourceURL = [self.serverURL URLByAppendingPathComponent:resourceName];
+    
+    NSString *resourceIDString = [NSString stringWithFormat:@"%d", resourceID];
+    
+    getResourceURL = [getResourceURL URLByAppendingPathComponent:resourceIDString];
+    
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:getResourceURL];
+    
+    // add authentication header if availible
+    
+    if (self.sessionToken) {
+        
+        [request addValue:self.sessionToken forHTTPHeaderField:@"Authorization"];
+    }
+    
+    NSURLSessionDataTask *dataTask = [_urlSession dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+        
+        if (error) {
+            
+            completionBlock(error, nil);
+            
+            return;
+        }
+        
+        // error status codes
+        
+        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+        
+        if (httpResponse.statusCode != 200) {
+            
+            if (httpResponse.statusCode == UnauthorizedStatusCode) {
+                
+                completionBlock(self.unauthorizedError, nil);
+                return;
+            }
+            
+            if (httpResponse.statusCode == ForbiddenStatusCode) {
+                
+                NSString *errorDescription = NSLocalizedString(@"Access to resource is denied",
+                                                               @"Access to resource is denied");
+                
+                NSError *forbiddenError = [NSError errorWithDomain:NetworkObjectsErrorDomain
+                                                              code:NOAPIForbiddenErrorCode
+                                                          userInfo:@{NSLocalizedDescriptionKey: errorDescription}];
+                
+                completionBlock(forbiddenError, nil);
+                
+                return;
+            }
+            
+            if (httpResponse.statusCode == InternalServerErrorStatusCode) {
+                
+                completionBlock(self.serverError, nil);
+                
+                return;
+            }
+            
+            if (httpResponse.statusCode == BadRequestStatusCode) {
+                
+                completionBlock(self.badRequestError, nil);
+                
+                return;
+            }
+            
+            // else
+            
+            completionBlock(self.invalidServerResponse, nil);
+            
+            return;
+        }
+        
+        // parse response
+        
+        NSDictionary *jsonResponse = [NSJSONSerialization JSONObjectWithData:data
+                                                                     options:NSJSONReadingAllowFragments
+                                                                       error:nil];
+        
+        if (!jsonResponse ||
+            ![jsonResponse isKindOfClass:[NSDictionary class]]) {
+            
+            completionBlock(self.invalidServerResponse, nil);
+            
+            return;
+        }
+        
+        completionBlock(nil, jsonResponse);
+        
+    }];
+    
+    [dataTask resume];
+}
 
+-(void)createResource:(NSString *)resourceName
+    withInitialValues:(NSDictionary *)initialValues
+           completion:(void (^)(NSError *, NSNumber *))completionBlock
+{
+    // build URL
+    
+    NSURL *createResourceURL = [self.serverURL URLByAppendingPathComponent:resourceName];
+    
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:createResourceURL];
+    
+    // add the initial values to request
+    if (initialValues) {
+        
+        NSData *postData = [NSJSONSerialization dataWithJSONObject:initialValues
+                                                           options:self.jsonWritingOption
+                                                             error:nil];
+        
+        if (!postData) {
+            
+            completionBlock(self.badRequestError, nil);
+            
+            return;
+        }
+        
+        request.HTTPBody = postData;
+    }
+    
+    // add authentication header if availible
+    
+    if (self.sessionToken) {
+        
+        [request addValue:self.sessionToken forHTTPHeaderField:@"Authentication"];
+    }
+    
+    request.HTTPMethod = @"POST";
+    
+    NSURLSessionDataTask *dataTask = [_urlSession dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+        
+        if (error) {
+            
+            completionBlock(error, nil);
+            
+            return;
+        }
+        
+        // error status codes
+        
+        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+        
+        if (httpResponse.statusCode != 200) {
+            
+            if (httpResponse.statusCode == UnauthorizedStatusCode) {
+                
+                completionBlock(self.unauthorizedError, nil);
+                return;
+            }
+            
+            if (httpResponse.statusCode == ForbiddenStatusCode) {
+                
+                NSString *errorDescription = NSLocalizedString(@"Permission to create new resource is denied",
+                                                               @"Permission to create new resource is denied");
+                
+                NSError *forbiddenError = [NSError errorWithDomain:NetworkObjectsErrorDomain
+                                                              code:NOAPIForbiddenErrorCode
+                                                          userInfo:@{NSLocalizedDescriptionKey: errorDescription}];
+                
+                completionBlock(forbiddenError, nil);
+                
+                return;
+            }
+            
+            if (httpResponse.statusCode == InternalServerErrorStatusCode) {
+                
+                completionBlock(self.serverError, nil);
+                
+                return;
+            }
+            
+            if (httpResponse.statusCode == BadRequestStatusCode) {
+                
+                completionBlock(self.badRequestError, nil);
+                
+                return;
+            }
+            
+            // else
+            
+            completionBlock(self.invalidServerResponse, nil);
+            
+            return;
+        }
+        
+        // parse response
+        
+        NSDictionary *jsonResponse = [NSJSONSerialization JSONObjectWithData:data
+                                                                     options:NSJSONReadingAllowFragments
+                                                                       error:nil];
+        
+        if (!jsonResponse ||
+            ![jsonResponse isKindOfClass:[NSDictionary class]]) {
+            
+            completionBlock(self.invalidServerResponse, nil);
+            
+            return;
+        }
+        
+        // get new resource id
+        
+        NSEntityDescription *entity = _model.entitiesByName[resourceName];
+        
+        Class entityClass = NSClassFromString(entity.managedObjectClassName);
+        
+        NSString *resourceIDKey = [entityClass resourceIDKey];
+        
+        NSNumber *resourceID = jsonResponse[resourceIDKey];
+        
+        if (!resourceID) {
+            
+            completionBlock(self.invalidServerResponse, nil);
+        }
+        
+        // got it!
+        completionBlock(nil, resourceID);
+        
+    }];
+    
+    [dataTask resume];
+}
 
 @end
