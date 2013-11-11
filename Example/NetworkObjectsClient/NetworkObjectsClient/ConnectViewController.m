@@ -81,8 +81,14 @@
         
         NSLog(@"Got '%@' token", appDelegate.api.sessionToken);
         
-        
-        
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            
+            // push VC
+            
+            [self performSegueWithIdentifier:@"pushPostsVC"
+                                      sender:self];
+            
+        }];
     }];
     
 }
@@ -143,6 +149,15 @@
             }
             
             NSLog(@"Created new user with resource ID %@", resourceID);
+            
+            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                
+                // push VC
+                
+                [self performSegueWithIdentifier:@"pushPostsVC"
+                                          sender:self];
+                
+            }];
             
         }];
         

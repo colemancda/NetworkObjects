@@ -20,6 +20,8 @@
 		6E2BD81E1817316F00E9D04C /* NetworkObjectsClientTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E2BD81D1817316F00E9D04C /* NetworkObjectsClientTests.m */; };
 		6E83837218305A36003AE302 /* NSObject+NSDictionaryRepresentation.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E83837118305A36003AE302 /* NSObject+NSDictionaryRepresentation.m */; };
 		6E838373183074F4003AE302 /* libNetworkObjects.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6EEBC03F1818AACE00DC0A92 /* libNetworkObjects.a */; };
+		6E838399183164D4003AE302 /* PostsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E838398183164D4003AE302 /* PostsViewController.m */; };
+		6E83839C1831657E003AE302 /* PostCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E83839B1831657E003AE302 /* PostCell.m */; };
 		6EA79BA9181895BA005F0866 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EA79B9D181895BA005F0866 /* AppDelegate.m */; };
 		6EA79BAA181895BA005F0866 /* Storyboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6EA79B9E181895BA005F0866 /* Storyboard.storyboard */; };
 		6EA79BAB181895BA005F0866 /* Client.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EA79BA0181895BA005F0866 /* Client.m */; };
@@ -97,6 +99,10 @@
 		6E2BD81D1817316F00E9D04C /* NetworkObjectsClientTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NetworkObjectsClientTests.m; sourceTree = "<group>"; };
 		6E83837018305A36003AE302 /* NSObject+NSDictionaryRepresentation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+NSDictionaryRepresentation.h"; sourceTree = "<group>"; };
 		6E83837118305A36003AE302 /* NSObject+NSDictionaryRepresentation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+NSDictionaryRepresentation.m"; sourceTree = "<group>"; };
+		6E838397183164D4003AE302 /* PostsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PostsViewController.h; sourceTree = "<group>"; };
+		6E838398183164D4003AE302 /* PostsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PostsViewController.m; sourceTree = "<group>"; };
+		6E83839A1831657E003AE302 /* PostCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PostCell.h; sourceTree = "<group>"; };
+		6E83839B1831657E003AE302 /* PostCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PostCell.m; sourceTree = "<group>"; };
 		6EA79B9C181895BA005F0866 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		6EA79B9D181895BA005F0866 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		6EA79B9E181895BA005F0866 /* Storyboard.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Storyboard.storyboard; sourceTree = "<group>"; };
@@ -254,6 +260,8 @@
 		6E83839318315FA5003AE302 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				6E83839A1831657E003AE302 /* PostCell.h */,
+				6E83839B1831657E003AE302 /* PostCell.m */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -272,6 +280,8 @@
 			children = (
 				6EA79BA7181895BA005F0866 /* ConnectViewController.h */,
 				6EA79BA8181895BA005F0866 /* ConnectViewController.m */,
+				6E838397183164D4003AE302 /* PostsViewController.h */,
+				6E838398183164D4003AE302 /* PostsViewController.m */,
 			);
 			name = Controllers;
 			sourceTree = "<group>";
@@ -447,11 +457,13 @@
 				6EEBC0571818AF4000DC0A92 /* Client+NOClientKeysProtocol.m in Sources */,
 				6EA79BA9181895BA005F0866 /* AppDelegate.m in Sources */,
 				6EEBC0581818AF4000DC0A92 /* Post+NOResourceKeysProtocol.m in Sources */,
+				6E838399183164D4003AE302 /* PostsViewController.m in Sources */,
 				6E2BD8051817316F00E9D04C /* main.m in Sources */,
 				6EEBC0591818AF4000DC0A92 /* Session+NOSessionKeysProtocol.m in Sources */,
 				6EA79BAB181895BA005F0866 /* Client.m in Sources */,
 				6EEBC05A1818AF4000DC0A92 /* User+NOUserKeysProtocol.m in Sources */,
 				6ECD2B7E1818B81100244E05 /* Model.xcdatamodeld in Sources */,
+				6E83839C1831657E003AE302 /* PostCell.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
