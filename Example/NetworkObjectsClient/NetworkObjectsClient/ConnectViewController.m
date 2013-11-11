@@ -9,6 +9,19 @@
 #import "ConnectViewController.h"
 #import "AppDelegate.h"
 #import <NetworkObjects/NetworkObjects.h>
+#import "NSObject+NSDictionaryRepresentation.h"
+
+static NSString *kUrlPreferenceKey = @"url";
+
+static NSString *kClientIDPreferenceKey = @"clientID";
+
+static NSString *kClientSecretPreferenceKey = @"clientSecret";
+
+static NSString *kUsernamePreferenceKey = @"username";
+
+static NSString *kPasswordPreferenceKey = @"password";
+
+static void *kContext = nil;
 
 @interface ConnectViewController ()
 
@@ -29,6 +42,9 @@
 {
     [super viewDidLoad];
 	// Do any additional setup after loading the view.
+    
+    [self loadTextFromPreferences];
+    
 }
 
 - (void)didReceiveMemoryWarning
@@ -36,7 +52,6 @@
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
-
 
 #pragma mark - Actions
 
@@ -72,6 +87,56 @@
         NSLog(@"Got '%@' token", appDelegate.api.sessionToken);
         
     }];
+}
+
+#pragma mark - UITextField Delegate
+
+-(void)textFieldDidEndEditing:(UITextField *)textField
+{
+    // save the text of all textFields that are declared properties
+    
+    NSDictionary *dictRepresentation = self.dictionaryRepresentation;
+    
+    for (NSString *key in dictRepresentation) {
+        
+        id value = [dictRepresentation valueForKey:key];
+        
+        if (textField == value) {
+            
+            [[NSUserDefaults standardUserDefaults] setObject:textField.text
+                                                      forKey:key];
+            
+            [[NSUserDefaults standardUserDefaults] synchronize];
+        }
+    };
+}
+
+#pragma mark
+
+-(void)loadTextFromPreferences
+{
+    NSDictionary *dictRepresentation = self.dictionaryRepresentation;
+    
+    for (NSString *key in dictRepresentation) {
+        
+        id value = [dictRepresentation valueForKey:key];
+        
+        if ([value isKindOfClass:[UITextField class]]) {
+            
+            UITextField *textField = (UITextField *)value;
+            
+            if (textField.delegate == self) {
+                
+                // restore text if it was saved
+                NSString *text = [[NSUserDefaults standardUserDefaults] stringForKey:key];
+                
+                if (text) {
+                    
+                    textField.text = text;
+                }
+            }
+        }
+    }
 }
 
 

@@ -77,6 +77,8 @@
     
     // execute request
     
+    
+    
     NSURLSessionDataTask *task = [_urlSession dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         
         if (error) {
@@ -94,6 +96,7 @@
         
         if (!response ||
             ![response isKindOfClass:[NSDictionary class]]) {
+            
             
             
         }

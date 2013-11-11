@@ -18,6 +18,7 @@
 		6E2BD8141817316F00E9D04C /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E2BD7FC1817316F00E9D04C /* UIKit.framework */; };
 		6E2BD81C1817316F00E9D04C /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6E2BD81A1817316F00E9D04C /* InfoPlist.strings */; };
 		6E2BD81E1817316F00E9D04C /* NetworkObjectsClientTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E2BD81D1817316F00E9D04C /* NetworkObjectsClientTests.m */; };
+		6E83837218305A36003AE302 /* NSObject+NSDictionaryRepresentation.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E83837118305A36003AE302 /* NSObject+NSDictionaryRepresentation.m */; };
 		6EA79BA9181895BA005F0866 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EA79B9D181895BA005F0866 /* AppDelegate.m */; };
 		6EA79BAA181895BA005F0866 /* Storyboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6EA79B9E181895BA005F0866 /* Storyboard.storyboard */; };
 		6EA79BAB181895BA005F0866 /* Client.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EA79BA0181895BA005F0866 /* Client.m */; };
@@ -94,6 +95,8 @@
 		6E2BD8191817316F00E9D04C /* NetworkObjectsClientTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "NetworkObjectsClientTests-Info.plist"; sourceTree = "<group>"; };
 		6E2BD81B1817316F00E9D04C /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		6E2BD81D1817316F00E9D04C /* NetworkObjectsClientTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NetworkObjectsClientTests.m; sourceTree = "<group>"; };
+		6E83837018305A36003AE302 /* NSObject+NSDictionaryRepresentation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+NSDictionaryRepresentation.h"; sourceTree = "<group>"; };
+		6E83837118305A36003AE302 /* NSObject+NSDictionaryRepresentation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+NSDictionaryRepresentation.m"; sourceTree = "<group>"; };
 		6EA79B9C181895BA005F0866 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		6EA79B9D181895BA005F0866 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		6EA79B9E181895BA005F0866 /* Storyboard.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Storyboard.storyboard; sourceTree = "<group>"; };
@@ -224,7 +227,7 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		6EA79BB0181895EB005F0866 /* Models */ = {
+		6E83836A18305A09003AE302 /* NSManagedObject */ = {
 			isa = PBXGroup;
 			children = (
 				6EEBC05B1818AF4700DC0A92 /* Categories */,
@@ -236,6 +239,24 @@
 				6EA79BA4181895BA005F0866 /* Post.m */,
 				6EA79BA5181895BA005F0866 /* User.h */,
 				6EA79BA6181895BA005F0866 /* User.m */,
+			);
+			name = NSManagedObject;
+			sourceTree = "<group>";
+		};
+		6E83836F18305A1A003AE302 /* Categories */ = {
+			isa = PBXGroup;
+			children = (
+				6E83837018305A36003AE302 /* NSObject+NSDictionaryRepresentation.h */,
+				6E83837118305A36003AE302 /* NSObject+NSDictionaryRepresentation.m */,
+			);
+			name = Categories;
+			sourceTree = "<group>";
+		};
+		6EA79BB0181895EB005F0866 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				6E83836F18305A1A003AE302 /* Categories */,
+				6E83836A18305A09003AE302 /* NSManagedObject */,
 			);
 			name = Models;
 			sourceTree = "<group>";
@@ -410,6 +431,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				6EA79BAD181895BA005F0866 /* Post.m in Sources */,
+				6E83837218305A36003AE302 /* NSObject+NSDictionaryRepresentation.m in Sources */,
 				6EA79BAF181895BA005F0866 /* ConnectViewController.m in Sources */,
 				6EA79BAC181895BA005F0866 /* Session.m in Sources */,
 				6EA79BAE181895BA005F0866 /* User.m in Sources */,

@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-@interface ConnectViewController : UITableViewController
+@interface ConnectViewController : UITableViewController <UITextFieldDelegate>
 
 @property (weak, nonatomic) IBOutlet UITextField *urlTextField;
 
@@ -21,5 +21,7 @@
 @property (weak, nonatomic) IBOutlet UITextField *passwordTextField;
 
 - (IBAction)login:(UIButton *)sender;
+
+-(void)loadTextFromPreferences;
 
 @end
