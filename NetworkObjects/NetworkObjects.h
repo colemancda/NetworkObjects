@@ -9,6 +9,8 @@
 #ifndef NetworkObjects_NetworkObjects_h
 #define NetworkObjects_NetworkObjects_h
 
+#import <NetworkObjects/NetworkObjectsConstants.h>
+
 #import <NetworkObjects/NOServer.h>
 #import <NetworkObjects/NOStore.h>
 

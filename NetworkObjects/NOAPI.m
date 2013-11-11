@@ -11,6 +11,8 @@
 #import "NOUserProtocol.h"
 #import "NOSessionProtocol.h"
 #import "NOClientProtocol.h"
+#import "NetworkObjectsConstants.h"
+#import <NetworkObjects/NOServerConstants.h>
 
 @implementation NOAPI (NSJSONWritingOption)
 
@@ -21,6 +23,28 @@
     }
     
     return 0;
+}
+
+@end
+
+@implementation NOAPI (Errors)
+
+-(NSError *)invalidServerResponse
+{
+    static NSError *error;
+    
+    if (!error) {
+        
+        NSString *description = NSLocalizedString(@"The server returned a invalid response",
+                                                  @"The server returned a invalid response");
+        
+        error = [NSError errorWithDomain:NetworkObjectsErrorDomain
+                                    code:NOAPIInvalidServerResponseErrorCode
+                                userInfo:@{NSLocalizedDescriptionKey: description}];
+        
+    }
+    
+    return error;
 }
 
 @end
@@ -84,6 +108,39 @@
             return;
         }
         
+        // error status codes
+        
+        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+        
+        if (httpResponse.statusCode != 200) {
+            
+            if (httpResponse.statusCode == BadRequestStatusCode) {
+                
+                completionBlock([self invalidServerResponse]);
+                
+                return;
+            }
+            
+            if (httpResponse.statusCode == ForbiddenStatusCode) {
+                
+                NSString *errorDescription = NSLocalizedString(@"The login failed",
+                                                               @"The login failed");
+                
+                NSError *loginFailedError = [NSError errorWithDomain:NetworkObjectsErrorDomain
+                                                                code:NOAPILoginFailedErrorCode
+                                                            userInfo:@{NSLocalizedDescriptionKey: errorDescription}];
+                completionBlock(loginFailedError);
+                
+                return;
+            }
+            
+            // else
+            
+            completionBlock(self.invalidServerResponse);
+            
+            return;
+        }
+        
         // parse response
         
         NSDictionary *jsonResponse = [NSJSONSerialization JSONObjectWithData:data
@@ -93,8 +150,9 @@
         if (!jsonResponse ||
             ![jsonResponse isKindOfClass:[NSDictionary class]]) {
             
+            completionBlock(self.invalidServerResponse);
             
-            
+            return;
         }
         
         // get session token key
@@ -109,9 +167,12 @@
         
         if (!token) {
             
+            completionBlock(self.invalidServerResponse);
             
-            
+            return;
         }
+        
+        self.sessionToken = token;
         
         completionBlock(nil);
         

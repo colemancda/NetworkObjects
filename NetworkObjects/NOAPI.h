@@ -9,6 +9,14 @@
 #import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
 
+typedef NS_ENUM(NSUInteger, NOAPIErrorCodes) {
+    
+    NOAPIInvalidServerResponseErrorCode = 1000,
+    NOAPILoginFailedErrorCode,
+    NOAPIUnAuthorizedErrorCode
+    
+};
+
 @interface NOAPI : NSObject
 
 @property NSManagedObjectModel *model;

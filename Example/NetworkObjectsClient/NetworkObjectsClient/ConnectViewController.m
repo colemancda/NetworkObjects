@@ -21,8 +21,6 @@ static NSString *kUsernamePreferenceKey = @"username";
 
 static NSString *kPasswordPreferenceKey = @"password";
 
-static void *kContext = nil;
-
 @interface ConnectViewController ()
 
 @end

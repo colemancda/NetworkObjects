@@ -8,27 +8,12 @@
 
 #import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
+#import <NetworkObjects/NOServerConstants.h>
 
 @class NOStore, RouteRequest, RouteResponse, NOHTTPServer;
 
 @protocol NOResourceProtocol;
 @protocol NOSessionProtocol;
-
-typedef NS_ENUM(NSUInteger, NOServerStatusCode) {
-    
-    OKStatusCode = 200,
-    
-    BadRequestStatusCode = 400,
-    UnauthorizedStatusCode, // not logged in
-    PaymentRequiredStatusCode,
-    ForbiddenStatusCode, // item is invisible to user or api app
-    NotFoundStatusCode, // item doesnt exist
-    MethodNotAllowedStatusCode,
-    ConflictStatusCode = 409, // user already exists
-    
-    InternalServerErrorStatusCode = 500
-    
-};
 
 @interface NOServer : NSObject
 
