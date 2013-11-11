@@ -35,4 +35,13 @@
     // Dispose of any resources that can be recreated.
 }
 
+#pragma mark - Actions
+
+-(void)done:(id)sender
+{
+    [self performSegueWithIdentifier:@"unwindToPostsVCFromPostsComposer"
+                              sender:self];
+    
+}
+
 @end

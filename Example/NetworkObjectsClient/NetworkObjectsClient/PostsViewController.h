@@ -10,4 +10,6 @@
 
 @interface PostsViewController : UITableViewController
 
+-(IBAction)unwindToPostsVC:(UIStoryboardSegue *)segue;
+
 @end

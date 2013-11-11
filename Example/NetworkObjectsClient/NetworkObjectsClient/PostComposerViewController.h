@@ -10,4 +10,7 @@
 
 @interface PostComposerViewController : UIViewController
 
+-(IBAction)done:(id)sender;
+
+
 @end

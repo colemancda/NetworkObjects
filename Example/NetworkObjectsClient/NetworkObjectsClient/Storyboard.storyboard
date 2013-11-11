@@ -215,7 +215,7 @@
                     <navigationItem key="navigationItem" title="Posts" id="hoZ-kZ-rzt">
                         <barButtonItem key="rightBarButtonItem" systemItem="compose" id="Y1N-6J-zOj">
                             <connections>
-                                <segue destination="651-gv-BLs" kind="push" id="78R-Q1-kJc"/>
+                                <segue destination="651-gv-BLs" kind="push" identifier="pushPostComposer" id="78R-Q1-kJc"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
@@ -228,10 +228,10 @@
             </objects>
             <point key="canvasLocation" x="1095" y="-487"/>
         </scene>
-        <!--View Controller - Post Composer-->
+        <!--Post Composer View Controller - Post Composer-->
         <scene sceneID="SDp-YO-6c5">
             <objects>
-                <viewController id="651-gv-BLs" sceneMemberID="viewController">
+                <viewController id="651-gv-BLs" customClass="PostComposerViewController" sceneMemberID="viewController">
                     <textView key="view" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" text="Type Post" id="ATO-0c-Nja">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -239,9 +239,20 @@
                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                         <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                     </textView>
-                    <navigationItem key="navigationItem" title="Post Composer" id="7HK-OH-sSf"/>
+                    <navigationItem key="navigationItem" title="Post Composer" id="7HK-OH-sSf">
+                        <barButtonItem key="rightBarButtonItem" systemItem="done" id="WPb-Cn-mRY">
+                            <connections>
+                                <action selector="done:" destination="651-gv-BLs" id="ylo-hd-9Qb"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
+                    <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" prompted="NO"/>
+                    <connections>
+                        <segue destination="2aa-Cz-UJQ" kind="unwind" identifier="unwindToPostsVCFromPostsComposer" unwindAction="unwindToPostsVC:" id="1NL-we-kgo"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="DpT-8Q-IxT" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <exit id="2aa-Cz-UJQ" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
             <point key="canvasLocation" x="1728" y="-523"/>
         </scene>
