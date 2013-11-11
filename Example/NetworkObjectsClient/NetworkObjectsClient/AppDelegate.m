@@ -12,23 +12,7 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    // initialize API
     
-    _api = [[NOAPI alloc] init];
-    
-    self.api.model = [NSManagedObjectModel mergedModelFromBundles:nil];
-    
-    self.api.urlSession = [NSURLSession sharedSession];
-    
-    self.api.sessionEntityName = @"Session";
-    
-    self.api.userEntityName = @"User";
-    
-    self.api.clientEntityName = @"Client";
-    
-    self.api.prettyPrintJSON = YES;
-    
-    self.api.loginPath = @"login";
     
     
     

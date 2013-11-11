@@ -9,6 +9,8 @@
 #import <CoreData/CoreData.h>
 @class NOAPI;
 
+FOUNDATION_EXPORT NSString *const NOAPIStoreType;
+
 @interface NOAPIStore : NSIncrementalStore 
 
 @property NOAPI *api;

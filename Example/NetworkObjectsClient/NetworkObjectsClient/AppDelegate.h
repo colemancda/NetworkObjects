@@ -14,6 +14,4 @@
 
 @property (strong, nonatomic) UIWindow *window;
 
-@property (readonly) NOAPI *api;
-
 @end
