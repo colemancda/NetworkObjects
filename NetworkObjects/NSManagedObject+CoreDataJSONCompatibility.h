@@ -25,4 +25,9 @@
 -(NSObject *)JSONCompatibleValueForAttributeValue:(NSObject *)attributeValue
                              forAttribute:(NSString *)attributeName;
 
+#pragma mark - Validate
+
+-(BOOL)isValidConvertedValue:(id)value
+                forAttribute:(NSString *)attributeName;
+
 @end

@@ -960,9 +960,8 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                 
                 // validate that the pre-edit value is of the same class as the attribute it will be given
                 
-                NSAttributeDescription *attributeDescription = resource.entity.attributesByName[attributeName];
-                
-                if ([newValue class] != NSClassFromString(attributeDescription.attributeValueClassName)) {
+                if (![resource isValidConvertedValue:newValue
+                                        forAttribute:attributeName]) {
                     
                     return BadRequestStatusCode;
                 }

@@ -141,5 +141,76 @@
     return nil;
 }
 
+#pragma mark - Validation
+
+-(BOOL)isValidConvertedValue:(id)convertedValue
+                forAttribute:(NSString *)attributeName
+{
+    NSAttributeDescription *attributeDescription = self.entity.attributesByName[attributeName];
+    
+    if (!attributeDescription) {
+        return NO;
+    }
+    
+    // no JSON conversion for these values, no dont put them in NOResources
+    if (attributeDescription.attributeType == NSUndefinedAttributeType ||
+        attributeDescription.attributeType == NSTransformableAttributeType ||
+        attributeDescription.attributeType == NSObjectIDAttributeType) {
+        
+        return NO;
+    }
+    
+    // number types
+    if (attributeDescription.attributeType == (NSInteger16AttributeType
+                                               | NSInteger32AttributeType
+                                               | NSInteger64AttributeType
+                                               | NSDecimalAttributeType
+                                               | NSDoubleAttributeType
+                                               | NSFloatAttributeType
+                                               | NSBooleanAttributeType)) {
+        
+        if ([convertedValue isKindOfClass:[NSNumber class]]) {
+            
+            return YES;
+        }
+        
+        return NO;
+    }
+    
+    // string type
+    if (attributeDescription.attributeType == NSStringAttributeType) {
+        
+        if ([convertedValue isKindOfClass:[NSString class]]) {
+            
+            return YES;
+        }
+        
+        return NO;
+    }
+    
+    // date type
+    if (attributeDescription.attributeType == NSDateAttributeType) {
+        
+        if ([convertedValue isKindOfClass:[NSDate class]]) {
+            
+            return YES;
+        }
+        
+        return NO;
+    }
+    
+    // data type
+    if (attributeDescription.attributeType == NSBinaryDataAttributeType) {
+        
+        if ([convertedValue isKindOfClass:[NSData class]]) {
+            
+            return YES;
+        }
+        
+        return NO;
+    }
+    
+    return NO;
+}
 
 @end
