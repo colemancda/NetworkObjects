@@ -11,5 +11,4 @@
 
 #define NetworkObjectsErrorDomain @"com.ColemanCDA.NetworkObjects.ErrorDomain"
 
-
 #endif

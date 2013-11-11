@@ -10,16 +10,7 @@
 #import "AppDelegate.h"
 #import <NetworkObjects/NetworkObjects.h>
 #import "NSObject+NSDictionaryRepresentation.h"
-
-static NSString *kUrlPreferenceKey = @"url";
-
-static NSString *kClientIDPreferenceKey = @"clientID";
-
-static NSString *kClientSecretPreferenceKey = @"clientSecret";
-
-static NSString *kUsernamePreferenceKey = @"username";
-
-static NSString *kPasswordPreferenceKey = @"password";
+#import <NetworkObjects/NOAPI.h>
 
 @interface ConnectViewController ()
 
@@ -91,6 +82,15 @@ static NSString *kPasswordPreferenceKey = @"password";
         NSLog(@"Got '%@' token", appDelegate.api.sessionToken);
         
     }];
+}
+
+-(void)registerNewUser:(id)sender
+{
+    AppDelegate *appDelegate = [UIApplication sharedApplication].delegate;
+    
+    // set values for connection
+    
+    
 }
 
 #pragma mark - UITextField Delegate

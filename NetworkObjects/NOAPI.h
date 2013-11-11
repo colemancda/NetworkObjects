@@ -12,6 +12,7 @@
 typedef NS_ENUM(NSUInteger, NOAPIErrorCodes) {
     
     NOAPIInvalidServerResponseErrorCode = 1000,
+    NOAPIBadRequestErrorCode,
     NOAPILoginFailedErrorCode,
     NOAPIUnAuthorizedErrorCode
     
@@ -52,15 +53,20 @@ typedef NS_ENUM(NSUInteger, NOAPIErrorCodes) {
 -(void)loginWithCompletion:(void (^)(NSError *error))completionBlock;
 
 -(void)getResource:(NSString *)resourceName
-            withID:(NSUInteger)resourceID;
+            withID:(NSUInteger)resourceID
+        completion:(void (^)(NSError *error, NSDictionary *resource))completionBlock;
 
 -(void)editResource:(NSString *)resourceName
              withID:(NSUInteger)resourceID
-            changes:(NSDictionary *)changes;
+            changes:(NSDictionary *)changes
+         completion:(void (^)(NSError *error))completionBlock;
 
 -(void)deleteResource:(NSString *)resourceName
-               withID:(NSUInteger)resourceID;
+               withID:(NSUInteger)resourceID
+           completion:(void (^)(NSError *error))completionBlock;
 
--(void)createResource:(NSString *)resourceName;
+-(void)createResource:(NSString *)resourceName
+    withInitialValues:(NSDictionary *)initialValues
+           completion:(void (^)(NSError *error, NSUInteger resourceID))completionBlock;
 
 @end

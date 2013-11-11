@@ -47,6 +47,24 @@
     return error;
 }
 
+-(NSError *)badRequestError
+{
+    static NSError *error;
+    
+    if (!error) {
+        
+        NSString *description = NSLocalizedString(@"Invalid request",
+                                                  @"Invalid request");
+        
+        error = [NSError errorWithDomain:NetworkObjectsErrorDomain
+                                    code:NOAPIBadRequestErrorCode
+                                userInfo:@{NSLocalizedDescriptionKey: description}];
+        
+    }
+    
+    return error;
+}
+
 @end
 
 @implementation NOAPI
@@ -54,7 +72,7 @@
 #pragma mark - Requests
 
 -(void)loginWithCompletion:(void (^)(NSError *))completionBlock
-{    
+{
     // build login URL
     
     NSURL *loginUrl = [self.serverURL URLByAppendingPathComponent:self.loginPath];
@@ -116,7 +134,7 @@
             
             if (httpResponse.statusCode == BadRequestStatusCode) {
                 
-                completionBlock([self invalidServerResponse]);
+                completionBlock([self badRequestError]);
                 
                 return;
             }
@@ -179,7 +197,8 @@
     }];
     
     [task resume];
-    
 }
+
+
 
 @end
