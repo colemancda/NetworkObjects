@@ -13,10 +13,15 @@
 
 @interface ClientStore : NSObject
 
++ (ClientStore *)sharedStore;
+
+#pragma mark
+
 @property (readonly) NOAPI *api;
 
 @property (readonly) NOAPIStore *apiStore;
 
 @property (readonly) NSManagedObjectContext *context;
+
 
 @end

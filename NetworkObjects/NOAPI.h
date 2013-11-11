@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
 
-typedef NS_ENUM(NSUInteger, NOAPIErrorCodes) {
+typedef NS_ENUM(NSUInteger, NOAPIErrorCode) {
     
     NOAPIInvalidServerResponseErrorCode = 1000,
     NOAPILoginFailedErrorCode,

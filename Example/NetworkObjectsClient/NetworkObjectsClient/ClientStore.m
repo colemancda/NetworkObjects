@@ -57,9 +57,25 @@
         
         // add incremental store
         
+        NSPersistentStore *store = [_context.persistentStoreCoordinator addPersistentStoreWithType:NOAPIStoreType
+                                                                                     configuration:nil
+                                                                                               URL:nil
+                                                                                           options:nil
+                                                                                             error:nil];
+        
+        _apiStore = (NOAPIStore *)store;
+        
+        _apiStore.api = _api;
         
     }
     return self;
 }
+
+#pragma mark
+
+
+
+
+
 
 @end

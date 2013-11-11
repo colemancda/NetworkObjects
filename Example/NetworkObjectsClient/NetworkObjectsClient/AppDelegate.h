@@ -7,8 +7,6 @@
 //
 
 #import <UIKit/UIKit.h>
-#import <CoreData/CoreData.h>
-#import <NetworkObjects/NetworkObjects.h>
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 
