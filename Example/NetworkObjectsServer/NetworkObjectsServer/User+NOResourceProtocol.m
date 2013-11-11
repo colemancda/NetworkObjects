@@ -46,7 +46,7 @@
                
                 NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"User"];
                 
-                fetch.predicate = [NSPredicate predicateWithFormat:@"%K ==[c] %@", @"password", newUsername];
+                fetch.predicate = [NSPredicate predicateWithFormat:@"%K ==[c] %@", @"username", newUsername];
                 
                 NSError *fetchError;
                 result = [appDelegate.store.context executeFetchRequest:fetch
