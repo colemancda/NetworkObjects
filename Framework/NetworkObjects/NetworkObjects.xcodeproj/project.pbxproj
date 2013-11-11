@@ -1282,6 +1282,10 @@
 				FRAMEWORK_VERSION = A;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "NetworkObjects/NetworkObjects-Prefix.pch";
+				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
 				INFOPLIST_FILE = "NetworkObjects/NetworkObjects-Info.plist";
 				INSTALL_PATH = "@loader_path/../Frameworks/";
 				MACOSX_DEPLOYMENT_TARGET = "";

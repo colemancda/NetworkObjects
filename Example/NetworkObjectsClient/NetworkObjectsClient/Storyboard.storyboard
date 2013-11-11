@@ -118,11 +118,10 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="AVk-Pp-krm">
-                                                    <rect key="frame" x="137" y="21" width="46" height="30"/>
+                                                    <rect key="frame" x="114" y="15" width="93" height="42"/>
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                                    <state key="normal" title="Login">
-                                                        <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                                                    </state>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="24"/>
+                                                    <state key="normal" title="Login"/>
                                                     <connections>
                                                         <action selector="login:" destination="2fR-gY-iax" eventType="touchUpInside" id="vVa-hf-kh5"/>
                                                     </connections>

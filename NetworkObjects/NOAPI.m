@@ -30,7 +30,7 @@
 #pragma mark - Requests
 
 -(void)loginWithCompletion:(void (^)(NSError *))completionBlock
-{
+{    
     // build login URL
     
     NSURL *loginUrl = [self.serverURL URLByAppendingPathComponent:self.loginPath];
@@ -75,10 +75,6 @@
     
     request.HTTPMethod = @"POST";
     
-    // execute request
-    
-    
-    
     NSURLSessionDataTask *task = [_urlSession dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         
         if (error) {
@@ -94,8 +90,8 @@
                                                                      options:NSJSONReadingAllowFragments
                                                                        error:nil];
         
-        if (!response ||
-            ![response isKindOfClass:[NSDictionary class]]) {
+        if (!jsonResponse ||
+            ![jsonResponse isKindOfClass:[NSDictionary class]]) {
             
             
             
@@ -121,10 +117,7 @@
         
     }];
     
-    
-    
     [task resume];
-    
     
 }
 

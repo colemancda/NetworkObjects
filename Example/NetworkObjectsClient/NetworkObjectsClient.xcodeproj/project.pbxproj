@@ -19,6 +19,7 @@
 		6E2BD81C1817316F00E9D04C /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6E2BD81A1817316F00E9D04C /* InfoPlist.strings */; };
 		6E2BD81E1817316F00E9D04C /* NetworkObjectsClientTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E2BD81D1817316F00E9D04C /* NetworkObjectsClientTests.m */; };
 		6E83837218305A36003AE302 /* NSObject+NSDictionaryRepresentation.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E83837118305A36003AE302 /* NSObject+NSDictionaryRepresentation.m */; };
+		6E838373183074F4003AE302 /* libNetworkObjects.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6EEBC03F1818AACE00DC0A92 /* libNetworkObjects.a */; };
 		6EA79BA9181895BA005F0866 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EA79B9D181895BA005F0866 /* AppDelegate.m */; };
 		6EA79BAA181895BA005F0866 /* Storyboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6EA79B9E181895BA005F0866 /* Storyboard.storyboard */; };
 		6EA79BAB181895BA005F0866 /* Client.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EA79BA0181895BA005F0866 /* Client.m */; };
@@ -27,7 +28,6 @@
 		6EA79BAE181895BA005F0866 /* User.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EA79BA6181895BA005F0866 /* User.m */; };
 		6EA79BAF181895BA005F0866 /* ConnectViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EA79BA8181895BA005F0866 /* ConnectViewController.m */; };
 		6EA79BB31818A185005F0866 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6EA79BB21818A185005F0866 /* CoreData.framework */; };
-		6ECD2B671818AFAA00244E05 /* NetworkObjects.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6EEBC0451818AC1100DC0A92 /* NetworkObjects.framework */; };
 		6ECD2B7E1818B81100244E05 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 6ECD2B7C1818B81100244E05 /* Model.xcdatamodeld */; };
 		6EEBC0571818AF4000DC0A92 /* Client+NOClientKeysProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EEBC0501818AF4000DC0A92 /* Client+NOClientKeysProtocol.m */; };
 		6EEBC0581818AF4000DC0A92 /* Post+NOResourceKeysProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EEBC0521818AF4000DC0A92 /* Post+NOResourceKeysProtocol.m */; };
@@ -113,7 +113,6 @@
 		6EA79BB21818A185005F0866 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		6ECD2B7D1818B81100244E05 /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
 		6EEBC0321818AACE00DC0A92 /* NetworkObjects.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = NetworkObjects.xcodeproj; path = ../../Framework/NetworkObjects/NetworkObjects.xcodeproj; sourceTree = "<group>"; };
-		6EEBC0451818AC1100DC0A92 /* NetworkObjects.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NetworkObjects.framework; path = "../../../../../Library/Developer/Xcode/DerivedData/NetworkObjectsWorkspace-ctwfpjnfkvopblgmeiavixuhlmrw/Build/Products/Debug-iphoneos/NetworkObjects.framework"; sourceTree = "<group>"; };
 		6EEBC04F1818AF4000DC0A92 /* Client+NOClientKeysProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "Client+NOClientKeysProtocol.h"; path = "../../Shared Model/Client+NOClientKeysProtocol.h"; sourceTree = "<group>"; };
 		6EEBC0501818AF4000DC0A92 /* Client+NOClientKeysProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "Client+NOClientKeysProtocol.m"; path = "../../Shared Model/Client+NOClientKeysProtocol.m"; sourceTree = "<group>"; };
 		6EEBC0511818AF4000DC0A92 /* Post+NOResourceKeysProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "Post+NOResourceKeysProtocol.h"; path = "../../Shared Model/Post+NOResourceKeysProtocol.h"; sourceTree = "<group>"; };
@@ -129,7 +128,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6ECD2B671818AFAA00244E05 /* NetworkObjects.framework in Frameworks */,
+				6E838373183074F4003AE302 /* libNetworkObjects.a in Frameworks */,
 				6EA79BB31818A185005F0866 /* CoreData.framework in Frameworks */,
 				6E2BD7FB1817316F00E9D04C /* CoreGraphics.framework in Frameworks */,
 				6E2BD7FD1817316F00E9D04C /* UIKit.framework in Frameworks */,
@@ -173,7 +172,6 @@
 		6E2BD7F71817316F00E9D04C /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				6EEBC0451818AC1100DC0A92 /* NetworkObjects.framework */,
 				6EA79BB21818A185005F0866 /* CoreData.framework */,
 				6E2BD7F81817316F00E9D04C /* Foundation.framework */,
 				6E2BD7FA1817316F00E9D04C /* CoreGraphics.framework */,

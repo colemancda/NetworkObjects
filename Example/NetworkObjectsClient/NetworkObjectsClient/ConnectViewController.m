@@ -79,7 +79,13 @@ static void *kContext = nil;
         
         if (error) {
             
-            
+            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                
+                UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Error", @"Error") message:error.localizedDescription delegate:nil cancelButtonTitle:NSLocalizedString(@"OK", @"OK") otherButtonTitles:nil];
+                
+                [alertView show];
+                
+            }];
             
             return;
         }
