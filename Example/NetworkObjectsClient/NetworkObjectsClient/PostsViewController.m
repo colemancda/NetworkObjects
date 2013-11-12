@@ -7,6 +7,10 @@
 //
 
 #import "PostsViewController.h"
+#import "ClientStore.h"
+#import "Post.h"
+
+static NSString *CellIdentifier = @"PostCell";
 
 @interface PostsViewController ()
 
@@ -32,6 +36,14 @@
  
     // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
+    
+    _posts = [[NSMutableArray alloc] init];
+    
+    [self.refreshControl addTarget:self.tableView
+                            action:@selector(downloadData)
+                  forControlEvents:UIControlEventValueChanged];
+    
+    [self downloadData];
 }
 
 - (void)didReceiveMemoryWarning
@@ -40,28 +52,72 @@
     // Dispose of any resources that can be recreated.
 }
 
+#pragma mark
+
+-(void)downloadData
+{
+    // download all the posts specified
+    
+    [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
+    
+    NSMutableArray *posts = [[NSMutableArray alloc] init];
+    
+    for (NSNumber *postID in self.postIDs) {
+        
+        NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Post"];
+        
+        __block NSError *error;
+        
+        __block NSArray *result;
+        
+        [[ClientStore sharedStore].context performBlockAndWait:^{
+            
+            result = [[ClientStore sharedStore].context executeFetchRequest:request
+                                                                      error:&error];
+        }];
+        
+        if (error) {
+            
+            NSLog(@"Error loading post %@ (%@)", postID, error.localizedDescription);
+        }
+        else {
+            
+            Post *post = result.firstObject;
+            
+            // add to array
+            if (post) {
+                
+                [posts addObject:post];
+            }
+        }
+    }
+    
+    [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+    
+    [self.tableView reloadData];
+}
+
 #pragma mark - Table view data source
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-#warning Potentially incomplete method implementation.
     // Return the number of sections.
     return 0;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-#warning Incomplete method implementation.
     // Return the number of rows in the section.
-    return 0;
+    return _posts.count;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    static NSString *CellIdentifier = @"Cell";
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
     
     // Configure the cell...
+    
+    
     
     return cell;
 }

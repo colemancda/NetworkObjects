@@ -12,7 +12,10 @@
 
 FOUNDATION_EXPORT NSString *const NOAPIStoreType;
 
-@interface NOAPIStore : NSIncrementalStore 
+@interface NOAPIStore : NSIncrementalStore
+{
+    NSMutableDictionary *_cache;
+}
 
 @property NOAPI *api;
 
@@ -26,8 +29,7 @@ FOUNDATION_EXPORT NSString *const NOAPIStoreType;
              withContext:(NSManagedObjectContext *)context
                    error:(NSError *__autoreleasing *)error;
 
-#pragma mark
 
--(BOOL)fetchRequestEntityIsResource:(NSFetchRequest *)request;
+
 
 @end

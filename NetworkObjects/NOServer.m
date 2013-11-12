@@ -564,7 +564,6 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         return;
     }
     
-    
     // client class
     NSEntityDescription *clientEntityDescription = [NSEntityDescription entityForName:self.clientEntityName
                                                                inManagedObjectContext:_store.context];
@@ -613,6 +612,8 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     NSEntityDescription *sessionEntityDescription = [NSEntityDescription entityForName:self.sessionEntityName inManagedObjectContext:_store.context];
     
     Class sessionEntityClass = NSClassFromString(sessionEntityDescription.managedObjectClassName);
+    
+    NSString *sessionUserKey = [sessionEntityClass sessionUserKey];
     
     // create new session with client
     NSManagedObject<NOSessionProtocol> *session = (NSManagedObject<NOSessionProtocol> *)[_store newResourceWithEntityDescription:sessionEntityDescription];
@@ -681,7 +682,6 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         }
         
         // set session user
-        NSString *sessionUserKey = [sessionEntityClass sessionUserKey];
         
         [session setValue:user
                    forKey:sessionUserKey];
@@ -691,9 +691,19 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     NSString *sessionTokenKey = [sessionEntityClass sessionTokenKey];
     
     // respond with token
-    NSDictionary *jsonObject = @{sessionTokenKey : [session valueForKey:sessionTokenKey]};
+    NSMutableDictionary *jsonObject = [NSMutableDictionary dictionaryWithDictionary:@{sessionTokenKey : [session valueForKey:sessionTokenKey]}];
     
-    // add user resource id if
+    // add user resourceID if the session has a user
+    NSManagedObject *user = [session valueForKey:sessionUserKey];
+    
+    if (user) {
+        
+        NSString *userResourceIDKey = [[user class] resourceIDKey];
+        
+        NSString *userResourceID = [user valueForKey:userResourceIDKey];
+        
+        [jsonObject addEntriesFromDictionary:@{sessionUserKey: userResourceID}];
+    }
     
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonObject
                                                        options:self.prettyPrintJSON

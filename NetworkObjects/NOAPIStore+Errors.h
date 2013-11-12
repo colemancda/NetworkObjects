@@ -11,6 +11,8 @@
 
 @interface NOAPIStore (Errors)
 
--(NSError *)vaidateFetchRequest:(NSFetchRequest *)fetchRequest;
+-(NSError *)entityNotFoundError;
+
+-(NSError *)entityNotResourceError;
 
 @end

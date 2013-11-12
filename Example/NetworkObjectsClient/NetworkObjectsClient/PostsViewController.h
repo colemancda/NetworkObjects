@@ -9,7 +9,14 @@
 #import <UIKit/UIKit.h>
 
 @interface PostsViewController : UITableViewController
+{
+    NSMutableArray *_posts;
+}
+
+@property NSArray *postIDs;
 
 -(IBAction)unwindToPostsVC:(UIStoryboardSegue *)segue;
+
+-(void)downloadData;
 
 @end

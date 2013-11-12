@@ -10,13 +10,25 @@
 
 @implementation NOAPIStore (Errors)
 
--vali
+-(NSError *)entityNotFoundError
 {
-    NSString *description = NSLocalizedString(@"The fetched entity is not a ", );
+    NSString *description = NSLocalizedString(@"Requested entity was not found in model",
+                                              @"Requested entity was not found in model");
     
     return [NSError errorWithDomain:NetworkObjectsErrorDomain
-                               code:NOAPIStoreFetchedEntityIsNotResourceErrorCode
-                           userInfo:<#(NSDictionary *)#>];
+                               code:NOAPIStoreFetchRequestEntityNotFoundErrorCode
+                           userInfo:@{NSLocalizedDescriptionKey: description}];
+}
+
+-(NSError *)entityNotResourceError
+{
+    NSString *description = NSLocalizedString(@"The fetched entity is not a NOResource",
+                                              @"The fetched entity is not a NOResource");
+    
+    return [NSError errorWithDomain:NetworkObjectsErrorDomain
+                               code:NOAPIStoreFetchRequestEntityIsNotResourceErrorCode
+                           userInfo:@{NSLocalizedDescriptionKey: description}];
+    
 }
 
 @end

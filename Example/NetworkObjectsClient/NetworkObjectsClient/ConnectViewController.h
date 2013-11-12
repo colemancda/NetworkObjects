@@ -26,4 +26,6 @@
 
 -(void)loadTextFromPreferences;
 
+-(void)pushPostsVCWithUserPosts;
+
 @end

@@ -11,6 +11,10 @@
 #import <NetworkObjects/NetworkObjects.h>
 #import "NSObject+NSDictionaryRepresentation.h"
 #import <NetworkObjects/NOAPI.h>
+#import "ClientStore.h"
+#import "Post.h"
+#import "User.h"
+#import "NSError+presentError.h"
 
 @interface ConnectViewController ()
 
@@ -46,25 +50,23 @@
 
 - (IBAction)login:(UIButton *)sender {
     
-    AppDelegate *appDelegate = [UIApplication sharedApplication].delegate;
-    
     // set values for connection
     
-    appDelegate.api.serverURL = [NSURL URLWithString:self.urlTextField.text];
+    [ClientStore sharedStore].api.serverURL = [NSURL URLWithString:self.urlTextField.text];
     
     NSNumber *clientResourceID = [NSNumber numberWithInteger:self.clientIDTextField.text.integerValue];
     
-    appDelegate.api.clientResourceID = clientResourceID;
+    [ClientStore sharedStore].api.clientResourceID = clientResourceID;
     
-    appDelegate.api.clientSecret = self.clientSecretTextField.text;
+    [ClientStore sharedStore].api.clientSecret = self.clientSecretTextField.text;
     
-    appDelegate.api.username = self.usernameTextField.text;
+    [ClientStore sharedStore].api.username = self.usernameTextField.text;
     
-    appDelegate.api.userPassword = self.passwordTextField.text;
+    [ClientStore sharedStore].api.userPassword = self.passwordTextField.text;
     
     // login
     
-    [appDelegate.api loginWithCompletion:^(NSError *error) {
+    [[ClientStore sharedStore].api loginWithCompletion:^(NSError *error) {
         
         if (error) {
             
@@ -79,14 +81,13 @@
             return;
         }
         
-        NSLog(@"Got '%@' token", appDelegate.api.sessionToken);
+        NSLog(@"Got '%@' token", [ClientStore sharedStore].api.sessionToken);
         
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             
             // push VC
             
-            [self performSegueWithIdentifier:@"pushPostsVC"
-                                      sender:self];
+            [self pushPostsVCWithUserPosts];
             
         }];
     }];
@@ -95,25 +96,23 @@
 
 -(void)registerNewUser:(id)sender
 {
-    AppDelegate *appDelegate = [UIApplication sharedApplication].delegate;
-    
     // set values for connection (login only as app and not as user & app)
     
-    appDelegate.api.serverURL = [NSURL URLWithString:self.urlTextField.text];
+    [ClientStore sharedStore].api.serverURL = [NSURL URLWithString:self.urlTextField.text];
     
     NSNumber *clientResourceID = [NSNumber numberWithInteger:self.clientIDTextField.text.integerValue];
     
-    appDelegate.api.clientResourceID = clientResourceID;
+    [ClientStore sharedStore].api.clientResourceID = clientResourceID;
     
-    appDelegate.api.clientSecret = self.clientSecretTextField.text;
+    [ClientStore sharedStore].api.clientSecret = self.clientSecretTextField.text;
     
-    appDelegate.api.username = nil;
+    [ClientStore sharedStore].api.username = nil;
     
-    appDelegate.api.userPassword = nil;
+    [ClientStore sharedStore].api.userPassword = nil;
     
     // login
     
-    [appDelegate.api loginWithCompletion:^(NSError *error) {
+    [[ClientStore sharedStore].api loginWithCompletion:^(NSError *error) {
         
         if (error) {
             
@@ -128,12 +127,12 @@
             return;
         }
         
-        NSLog(@"Got '%@' token", appDelegate.api.sessionToken);
+        NSLog(@"Got '%@' token", [ClientStore sharedStore].api.sessionToken);
         
         NSDictionary *initialValues = @{@"username": self.usernameTextField.text,
                                         @"password": self.passwordTextField.text};
         
-        [appDelegate.api createResource:@"User" withInitialValues:initialValues completion:^(NSError *error, NSNumber *resourceID) {
+        [[ClientStore sharedStore].api createResource:@"User" withInitialValues:initialValues completion:^(NSError *error, NSNumber *resourceID) {
             
             if (error) {
                 
@@ -152,11 +151,7 @@
             
             [[NSOperationQueue mainQueue] addOperationWithBlock:^{
                 
-                // push VC
-                
-                [self performSegueWithIdentifier:@"pushPostsVC"
-                                          sender:self];
-                
+                [self pushPostsVCWithUserPosts];
             }];
             
         }];
@@ -214,5 +209,55 @@
     }
 }
 
+#pragma mark
+
+-(void)pushPostsVCWithUserPosts
+{
+    // push VC
+    
+    // get user's post IDs...
+    
+    NSLog(@"Downloading user profile...");
+    
+    NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"User"];
+    request.resultType = NSDictionaryResultType;
+    
+    request.predicate = [NSPredicate predicateWithFormat:@"%K == %@", @"resourceID", [ClientStore sharedStore].api.username];
+    
+     [[ClientStore sharedStore].context performBlock:^{
+         
+         NSError *error;
+         
+         NSArray *results = [[ClientStore sharedStore].context executeFetchRequest:request
+                                                                             error:&error];
+         
+         if (error) {
+             
+             [error presentError];
+             
+             return;
+         }
+         
+         
+         
+         
+         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            
+             [self performSegueWithIdentifier:@"pushPostsVC"
+                                       sender:self];
+             
+         }];
+     }];
+}
+
+-(void)prepareForSegue:(UIStoryboardSegue *)segue
+                sender:(id)sender
+{
+    if ([segue.identifier isEqualToString:@"pushPostsVC"]) {
+        
+        
+        
+    }
+}
 
 @end

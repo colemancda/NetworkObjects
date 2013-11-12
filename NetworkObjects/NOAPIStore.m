@@ -45,7 +45,7 @@ NSString *const NOAPIStoreType = @"NOAPIStore";
 {
     // check that API is not null
     
-    assert(self.api);
+    NSAssert(self.api, @"NOAPI property must not be nil");
     
     if (request.requestType == NSSaveRequestType) {
         
@@ -88,15 +88,16 @@ NSString *const NOAPIStoreType = @"NOAPIStore";
                                               error:(NSError *__autoreleasing *)error
 {
     
-    
+    return nil;
 }
 
 -(id)newValueForRelationship:(NSRelationshipDescription *)relationship
              forObjectWithID:(NSManagedObjectID *)objectID
-                 withContext:(NSManagedObjectContext *)context error:(NSError *__autoreleasing *)error
+                 withContext:(NSManagedObjectContext *)context
+                       error:(NSError *__autoreleasing *)error
 {
     
-    
+    return nil;
 }
 
 #pragma mark
@@ -105,15 +106,52 @@ NSString *const NOAPIStoreType = @"NOAPIStore";
              withContext:(NSManagedObjectContext *)context
                    error:(NSError *__autoreleasing *)error
 {
+    NSAssert(request, @"NSFetchRequest must not be nil");
+    
     // validate that the entity conforms to NOResourceKeysProtocol
     
-    if (![self fetchRequestEntityIsResource:request]) {
+    NSManagedObjectModel *model = self.persistentStoreCoordinator.managedObjectModel;
+    
+    // get entity
+    NSEntityDescription *entity = model.entitiesByName[request.entityName];
+    
+    if (!entity) {
         
-        
-        
-        NSError *error = [NSError errorWithDomain:<#(NSString *)#> code:<#(NSInteger)#> userInfo:<#(NSDictionary *)#>]
+        if ([model.entities containsObject:request.entity]) {
+            
+            entity = request.entity;
+        }
     }
     
+    // entity is nil
+    
+    if (!entity) {
+        
+        *error = self.entityNotFoundError;
+        
+        return nil;
+    }
+    
+    // verify that it conforms to protocol
+    
+    Class entityClass = NSClassFromString(entity.managedObjectClassName);
+    
+    if (![entityClass conformsToProtocol:@protocol(NOResourceKeysProtocol)]) {
+        
+        *error = self.entityNotResourceError;
+        
+        return nil;
+    }
+    
+    // incremental store is only capable of fetching single results...
+    
+    // must specify resourceID...
+    
+    NSString *resourceIDKey = [entityClass resourceIDKey];
+    
+    
+    
+    return nil;
 }
 
 -(id)executeSaveRequest:(NSSaveChangesRequest *)request
@@ -121,16 +159,9 @@ NSString *const NOAPIStoreType = @"NOAPIStore";
                   error:(NSError *__autoreleasing *)error
 {
     
-    
+    return nil;
 }
 
-#pragma mark
 
--(BOOL)fetchRequestEntityIsResource:(NSFetchRequest *)request
-{
-    Class entityClass = NSClassFromString(request.en.managedObjectClassName);
-    
-    return [entityClass conformsToProtocol:@protocol(NOResourceKeysProtocol)];
-}
 
 @end

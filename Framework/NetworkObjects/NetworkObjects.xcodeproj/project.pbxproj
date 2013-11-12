@@ -497,6 +497,15 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		6E8383AD183191E1003AE302 /* Categories */ = {
+			isa = PBXGroup;
+			children = (
+				6E8383A4183189A0003AE302 /* NOAPIStore+Errors.h */,
+				6E8383A5183189A0003AE302 /* NOAPIStore+Errors.m */,
+			);
+			name = Categories;
+			sourceTree = "<group>";
+		};
 		6ECD2B6C1818B18400244E05 /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
@@ -512,8 +521,7 @@
 				6EED74661818852200F911BC /* NOAPIStore.h */,
 				6EED74671818852200F911BC /* NOAPIStore.m */,
 				6E8383AA183189CA003AE302 /* NOAPIStoreConstants.h */,
-				6E8383A4183189A0003AE302 /* NOAPIStore+Errors.h */,
-				6E8383A5183189A0003AE302 /* NOAPIStore+Errors.m */,
+				6E8383AD183191E1003AE302 /* Categories */,
 			);
 			name = Stores;
 			sourceTree = "<group>";
