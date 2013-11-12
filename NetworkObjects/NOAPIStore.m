@@ -11,22 +11,6 @@
 #import "NetworkObjectsConstants.h"
 #import "NOAPI.h"
 
-@implementation NOAPIStore (Errors)
-
--(NSError *)invalidPredicate
-{
-    NSString *description = NSLocalizedString(@"Invalid predicate",
-                                              @"Invalid predicate");
-    
-    NSError *error = [NSError errorWithDomain:NetworkObjectsErrorDomain
-                                         code:NOAPIStoreInvalidPredicateErrorCode
-                                     userInfo:@{NSLocalizedDescriptionKey: description}];
-    
-    return error;
-}
-
-@end
-
 @implementation NOAPIStore
 
 +(void)initialize
@@ -38,6 +22,20 @@
 +(NSString *)type
 {
     return NSStringFromClass([self class]);
+}
+
+-(id)initWithPersistentStoreCoordinator:(NSPersistentStoreCoordinator *)root
+                      configurationName:(NSString *)name
+                                    URL:(NSURL *)url
+                                options:(NSDictionary *)options
+{
+    self = [super initWithPersistentStoreCoordinator:root configurationName:name URL:url options:options];
+    if (self) {
+        
+        _cache = [[NSMutableDictionary alloc] init];
+        
+    }
+    return self;
 }
 
 -(BOOL)loadMetadata:(NSError *__autoreleasing *)error
@@ -142,7 +140,7 @@
     
     if (!entity) {
         
-        [NSException raise:NSInternalInconsistencyException
+        [NSException raise:NSInvalidArgumentException
                     format:@"NSFetchRequest doesn't specify a entity"];
     }
     
@@ -152,7 +150,7 @@
     
     if (![entityClass conformsToProtocol:@protocol(NOResourceKeysProtocol)]) {
         
-        [NSException raise:NSInvalidArgumentException
+        [NSException raise:NSInternalInconsistencyException
                     format:@"%@ does not conform to NOResourceProtocol", entity.name];
     }
     
@@ -162,26 +160,93 @@
     
     NSString *resourceIDKey = [entityClass resourceIDKey];
     
-    // parse predicate (only 'resourceID == x' is valid)
+    // parse predicate (must include 'resourceID == x')
     
-    NSString *desiredPredicatePrefix = [NSString stringWithFormat:@"%@ == ", resourceIDKey];
+    NSString *predicate = request.predicate.predicateFormat;
     
-    NSString *predicate = request.predicate.description;
+    NSRegularExpression *exp = [NSRegularExpression regularExpressionWithPattern:@"(\S+) == (\S+)" options:NSRegularExpressionAllowCommentsAndWhitespace error:nil];
     
-    NSRange range = [predicate rangeOfString:desiredPredicatePrefix];
+    NSArray *matches = [exp matchesInString:predicate
+                                    options:NSMatchingAnchored
+                                      range:NSRangeFromString(predicate)];
     
-    if (range.location == NSNotFound) {
+    NSString *resourceIDString;
+    
+    for (NSTextCheckingResult *result in matches) {
         
-        *error = [self invalidPredicate];
+        // make sure one of the captured groups is the resource ID key
         
-        return nil;
+        NSString *capture1 = [predicate substringWithRange:[result rangeAtIndex:1]];
+        
+        NSString *capture2 = [predicate substringWithRange:[result rangeAtIndex:2]];
+        
+        NSString *resourceIDString;
+        
+        if ([capture1 isEqualToString:resourceIDKey]) {
+            
+            resourceIDString = capture2;
+        }
+        else {
+            
+            if ([capture2 isEqualToString:resourceIDKey]) {
+                
+                resourceIDString = capture1;
+            }
+        }
+        
+        // one of the captures is the resource ID key
+        if (resourceIDString) {
+            
+            // verify it is a number
+            
+            NSRegularExpression *numberCheck = [NSRegularExpression regularExpressionWithPattern:@"\d+" options:NSRegularExpressionAllowCommentsAndWhitespace error:nil];
+            
+            NSArray *numberMatches = [numberCheck matchesInString:resourceIDString
+                                                          options:NSMatchingAnchored
+                                                            range:NSRangeFromString(resourceIDString)];
+            
+            if (numberMatches.count == 1) {
+                
+                // seem to have found the resourceID value
+                
+                NSTextCheckingResult *numberResult = numberMatches.firstObject;
+                
+                NSString *foundResourceID = [resourceIDString substringWithRange:numberResult.range];
+                
+                // conflicting resource IDs
+                if (resourceIDString &&
+                    resourceIDString.integerValue != foundResourceID.integerValue) {
+                    
+                    NSString *description = NSLocalizedString(@"Invalid predicate",
+                                                              @"Invalid predicate");
+                    
+                    NSString *reason = NSLocalizedString(@"Conflicting resource IDs specified in predicate",
+                                                         @"Conflicting resource IDs specified in predicate");
+                    
+                    *error = [NSError errorWithDomain:NetworkObjectsErrorDomain
+                                                 code:NSPersistentStoreUnsupportedRequestTypeError
+                                             userInfo:@{NSLocalizedDescriptionKey: description,
+                                                        NSLocalizedFailureReasonErrorKey: reason}];
+                    
+                    return nil;
+                }
+            }
+        }
     }
     
-    NSString *resourceIDString = [predicate substringFromIndex:desiredPredicatePrefix.length];
-    
+    // resource ID not specified in predicate
     if (!resourceIDString) {
         
-        *error = [self invalidPredicate];
+        NSString *description = NSLocalizedString(@"Invalid predicate",
+                                                  @"Invalid predicate");
+        
+        NSString *reason = NSLocalizedString(@"Predicate must always specify what resource ID to fetch",
+                                             @"Predicate must always specify what resource ID to fetch");
+        
+        *error = [NSError errorWithDomain:NetworkObjectsErrorDomain
+                                     code:NSPersistentStoreUnsupportedRequestTypeError
+                                 userInfo:@{NSLocalizedDescriptionKey: description,
+                                            NSLocalizedFailureReasonErrorKey: reason}];
         
         return nil;
     }
@@ -192,25 +257,92 @@
     
     // GCD
     dispatch_group_t group = dispatch_group_create();
-    
     dispatch_group_enter(group);
     
     [self.api getResource:entity.name withID:resourceID completion:^(NSError *getError, NSDictionary *resource)
     {
         if (getError) {
             
+            // dont forward error if resource was not found
+            if (getError.code == NOAPINotFoundErrorCode) {
+                
+                resourceDict = nil;
+                
+                return;
+            }
+            
+            // forward error
             *error = getError;
             return;
         }
         
-        
+        resourceDict = resource;
         
         dispatch_group_leave(group);
     }];
     
     dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
     
-    return nil;
+    NSArray *dictionaryResults;
+    
+    // resource found
+    if (resourceDict) {
+        
+        // add to cache
+        [_cache setObject:resourceDict
+                   forKey:[NSNumber numberWithInteger:resourceID]];
+        
+        // further filter object
+        dictionaryResults = [@[resourceDict] filteredArrayUsingPredicate:request.predicate];
+        
+        // apply sort descriptors
+        dictionaryResults = [dictionaryResults sortedArrayUsingDescriptors:request.sortDescriptors];
+    }
+    
+    // return result as requested in resultType...
+    
+    if (request.resultType == NSCountResultType) {
+        
+        return @[[NSNumber numberWithInteger:dictionaryResults.count]];;
+    }
+    
+    if (request.resultType == NSDictionaryResultType) {
+        
+        return results;
+    }
+    
+    // get object IDs
+    
+    NSMutableArray *objectIDs = [[NSMutableArray alloc] init];
+    
+    for (NSDictionary *resourceDictionary in dictionaryResults) {
+        
+        NSNumber *resourceIDReference = resourceDict[resourceIDKey];
+        
+        NSManagedObjectID *objectID = [self newObjectIDForEntity:entity
+                                                 referenceObject:resourceIDReference];
+        
+        [objectIDs addObject:objectID];
+    }
+    
+    if (request.resultType == NSManagedObjectIDResultType) {
+        
+        return objectIDs;
+    }
+    
+    // return faults (resultType == NSManagedObjectIDResultType)
+    
+    NSMutableArray *faults = [[NSMutableArray alloc] init];
+    
+    for (NSManagedObjectID *objectID in objectIDs) {
+        
+        // get fault
+        NSManagedObject *fault = [context objectWithID:objectID];
+        
+        [faults addObject:fault];
+    }
+    
+    return faults;
 }
 
 -(id)executeSaveRequest:(NSSaveChangesRequest *)request

@@ -35,8 +35,6 @@
 		6E838379183083B0003AE302 /* NOServerConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E838377183083B0003AE302 /* NOServerConstants.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6E83838118308E73003AE302 /* NetworkObjectsConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E83838018308E73003AE302 /* NetworkObjectsConstants.h */; };
 		6E83838218308E73003AE302 /* NetworkObjectsConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E83838018308E73003AE302 /* NetworkObjectsConstants.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		6E8383AB183189CA003AE302 /* NOAPIStoreConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E8383AA183189CA003AE302 /* NOAPIStoreConstants.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		6E8383AC183189CA003AE302 /* NOAPIStoreConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E8383AA183189CA003AE302 /* NOAPIStoreConstants.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6EA79B9918189324005F0866 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E2BD7C41817309E00E9D04C /* Foundation.framework */; };
 		6EA79B9B18189339005F0866 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6EA79B9A18189339005F0866 /* Foundation.framework */; };
 		6EED73F11818648F00F911BC /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E2BD7D61817309E00E9D04C /* XCTest.framework */; };
@@ -273,7 +271,6 @@
 		6E2BDA911817341900E9D04C /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		6E838377183083B0003AE302 /* NOServerConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NOServerConstants.h; path = ../../../NetworkObjects/NOServerConstants.h; sourceTree = "<group>"; };
 		6E83838018308E73003AE302 /* NetworkObjectsConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NetworkObjectsConstants.h; path = ../../../NetworkObjects/NetworkObjectsConstants.h; sourceTree = "<group>"; };
-		6E8383AA183189CA003AE302 /* NOAPIStoreConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NOAPIStoreConstants.h; path = ../../NetworkObjects/NOAPIStoreConstants.h; sourceTree = "<group>"; };
 		6EA79B9A18189339005F0866 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS7.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		6EED73E21818648F00F911BC /* libNetworkObjects.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libNetworkObjects.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		6EED73E71818648F00F911BC /* NetworkObjectsiOS-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NetworkObjectsiOS-Prefix.pch"; sourceTree = "<group>"; };
@@ -505,7 +502,6 @@
 			children = (
 				6EED74661818852200F911BC /* NOAPIStore.h */,
 				6EED74671818852200F911BC /* NOAPIStore.m */,
-				6E8383AA183189CA003AE302 /* NOAPIStoreConstants.h */,
 			);
 			name = Stores;
 			sourceTree = "<group>";
@@ -788,7 +784,6 @@
 				6EED74D81818852200F911BC /* NetworkObjects.h in Headers */,
 				6EED753C1818852200F911BC /* MultipartMessageHeader.h in Headers */,
 				6EED74DC1818852200F911BC /* NOResourceProtocol.h in Headers */,
-				6E8383AB183189CA003AE302 /* NOAPIStoreConstants.h in Headers */,
 				6E838378183083B0003AE302 /* NOServerConstants.h in Headers */,
 				6EED75441818852200F911BC /* HTTPAsyncFileResponse.h in Headers */,
 				6EED74E61818852200F911BC /* NOStore.h in Headers */,
@@ -845,7 +840,6 @@
 				6EED753D1818852200F911BC /* MultipartMessageHeader.h in Headers */,
 				6EED74DD1818852200F911BC /* NOResourceProtocol.h in Headers */,
 				6EED74D91818852200F911BC /* NetworkObjects.h in Headers */,
-				6E8383AC183189CA003AE302 /* NOAPIStoreConstants.h in Headers */,
 				6EED75451818852200F911BC /* HTTPAsyncFileResponse.h in Headers */,
 				6EED74E71818852200F911BC /* NOStore.h in Headers */,
 				6EED75711818852200F911BC /* RoutingHTTPServer.h in Headers */,

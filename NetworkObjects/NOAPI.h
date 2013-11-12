@@ -16,8 +16,9 @@ typedef NS_ENUM(NSUInteger, NOAPIErrorCode) {
     NOAPIBadRequestErrorCode,
     NOAPIUnauthorizedErrorCode,
     NOAPIForbiddenErrorCode,
+    NOAPINotFoundErrorCode,
     NOAPIServerInternalErrorCode
-        
+    
 };
 
 @interface NOAPI : NSObject

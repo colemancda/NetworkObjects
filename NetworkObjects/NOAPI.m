@@ -99,6 +99,23 @@
     return error;
 }
 
+-(NSError *)notFoundError
+{
+    static NSError *error;
+    
+    if (!error) {
+        
+        NSString *description = NSLocalizedString(@"Resource was not found",
+                                                  @"Resource was not found");
+        
+        error = [NSError errorWithDomain:NetworkObjectsErrorDomain
+                                    code:NOAPINotFoundErrorCode
+                                userInfo:@{NSLocalizedDescriptionKey: description}];
+    }
+    
+    return error;
+}
+
 @end
 
 @implementation NOAPI
@@ -314,6 +331,11 @@
                 completionBlock(self.badRequestError, nil);
                 
                 return;
+            }
+            
+            if (httpResponse.statusCode == NotFoundStatusCode) {
+                
+                completionBlock([self notFoundError], nil);
             }
             
             // else
