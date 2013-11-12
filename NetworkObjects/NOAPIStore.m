@@ -177,7 +177,7 @@
         return nil;
     }
     
-    NSString *resourceIDString = [predicate substringFromIndex:range.location];
+    NSString *resourceIDString = [predicate substringFromIndex:desiredPredicatePrefix.length];
     
     if (!resourceIDString) {
         
@@ -191,20 +191,23 @@
     __block NSDictionary *resourceDict;
     
     // GCD
-    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_group_t group = dispatch_group_create();
     
-    [self.api getResource:entity.name withID:resourceID completion:^(NSError *error, NSDictionary *resource)
+    dispatch_group_enter(group);
+    
+    [self.api getResource:entity.name withID:resourceID completion:^(NSError *getError, NSDictionary *resource)
     {
-        // Add a task to the group
-        dispatch_group_async(group, queue, ^{
-            // Some asynchronous work
+        if (getError) {
             
-            
-        });
+            *error = getError;
+            return;
+        }
+        
+        
+        
+        dispatch_group_leave(group);
     }];
     
-    // wait on the group to block the current thread.
     dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
     
     return nil;

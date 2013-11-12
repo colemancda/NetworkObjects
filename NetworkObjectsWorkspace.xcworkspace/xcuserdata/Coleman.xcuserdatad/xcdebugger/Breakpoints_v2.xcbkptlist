@@ -10,75 +10,13 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NetworkObjects/NOAPIStore.m"
-            timestampString = "405925228.937324"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "206"
-            endingLineNumber = "206"
-            landmarkName = "-executeFetchRequest:withContext:error:"
-            landmarkType = "5">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "NetworkObjects/NOAPIStore.m"
-            timestampString = "405925353.724085"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "202"
-            endingLineNumber = "202"
-            landmarkName = "-executeFetchRequest:withContext:error:"
-            landmarkType = "5">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "NetworkObjects/NOAPIStore.m"
-            timestampString = "405925353.724085"
+            timestampString = "405928670.02047"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "199"
             endingLineNumber = "199"
             landmarkName = "-executeFetchRequest:withContext:error:"
             landmarkType = "5">
-            <Locations>
-               <Location
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "__52-[NOAPIStore executeFetchRequest:withContext:error:]_block_invoke"
-                  moduleName = "NetworkObjectsClient"
-                  urlString = "file:///Users/Coleman/Programming/My%20Apps/NetworkObjects/NetworkObjects/NOAPIStore.m"
-                  timestampString = "405925758.056608"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "200"
-                  endingLineNumber = "200"
-                  offsetFromSymbolStart = "62">
-               </Location>
-               <Location
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "__52-[NOAPIStore executeFetchRequest:withContext:error:]_block_invoke_2"
-                  moduleName = "NetworkObjectsClient"
-                  urlString = "file:///Users/Coleman/Programming/My%20Apps/NetworkObjects/NetworkObjects/NOAPIStore.m"
-                  timestampString = "405925758.057037"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "204"
-                  endingLineNumber = "204"
-                  offsetFromSymbolStart = "6">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -88,11 +26,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NetworkObjects/NOAPIStore.m"
-            timestampString = "405925421.784263"
+            timestampString = "405928672.039111"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "152"
-            endingLineNumber = "152"
+            startingLineNumber = "206"
+            endingLineNumber = "206"
             landmarkName = "-executeFetchRequest:withContext:error:"
             landmarkType = "5">
          </BreakpointContent>
