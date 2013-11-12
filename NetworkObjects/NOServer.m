@@ -693,6 +693,8 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     // respond with token
     NSDictionary *jsonObject = @{sessionTokenKey : [session valueForKey:sessionTokenKey]};
     
+    // add user resource id if
+    
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonObject
                                                        options:self.prettyPrintJSON
                                                          error:nil];
@@ -752,11 +754,13 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     NSMutableDictionary *jsonObject = [[NSMutableDictionary alloc] init];
     
     // first the attributes
+    
     for (NSString *attributeName in resource.entity.attributesByName) {
         
-        // check access permissions
-        if ([resource permissionForAttribute:attributeName
-                                     session:session] >= ReadOnlyPermission) {
+        // check access permissions (unless its the resourceID, thats always visible)
+        if ([resource permissionForAttribute:attributeName session:session] >= ReadOnlyPermission ||
+            [attributeName isEqualToString:[[resource class] resourceIDKey]]) {
+            
             
             // add to JSON representation
             [jsonObject setObject:[resource JSONCompatibleValueForAttribute:attributeName]
