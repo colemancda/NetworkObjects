@@ -13,7 +13,7 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    
+    [ClientStore sharedStore];
     
     return YES;
 }

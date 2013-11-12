@@ -57,7 +57,9 @@
         
         // add incremental store
         
-        NSPersistentStore *store = [_context.persistentStoreCoordinator addPersistentStoreWithType:NOAPIStoreType
+        NSString *storeType = [NOAPIStore type];
+        
+        NSPersistentStore *store = [_context.persistentStoreCoordinator addPersistentStoreWithType:storeType
                                                                                      configuration:nil
                                                                                                URL:nil
                                                                                            options:nil

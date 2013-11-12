@@ -10,14 +10,14 @@
 #import <NetworkObjects/NOAPIStoreConstants.h>
 @class NOAPI;
 
-FOUNDATION_EXPORT NSString *const NOAPIStoreType;
-
 @interface NOAPIStore : NSIncrementalStore
 {
     NSMutableDictionary *_cache;
 }
 
 @property NOAPI *api;
+
++(NSString *)type;
 
 #pragma mark
 

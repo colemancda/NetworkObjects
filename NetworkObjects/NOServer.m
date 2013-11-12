@@ -564,6 +564,15 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         return;
     }
     
+    // session class
+    NSEntityDescription *sessionEntityDescription = [NSEntityDescription entityForName:self.sessionEntityName inManagedObjectContext:_store.context];
+    
+    Class sessionEntityClass = NSClassFromString(sessionEntityDescription.managedObjectClassName);
+    
+    NSString *sessionUserKey = [sessionEntityClass sessionUserKey];
+    
+    NSString *sessionClientKey = [sessionEntityClass sessionClientKey];
+    
     // client class
     NSEntityDescription *clientEntityDescription = [NSEntityDescription entityForName:self.clientEntityName
                                                                inManagedObjectContext:_store.context];
@@ -576,9 +585,19 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     NSString *clientResourceIDKey = [clientEntityClass resourceIDKey];
     
-    NSString *clientSecret = recievedJSONObject[clientSecretKey];
+    NSDictionary *clientJSONObject = recievedJSONObject[sessionClientKey];
     
-    NSNumber *clientResourceID = recievedJSONObject[clientResourceIDKey];
+    // validate jsonObject
+    if (![clientJSONObject isKindOfClass:[NSDictionary class]]) {
+        
+        response.statusCode = BadRequestStatusCode;
+        
+        return;
+    }
+    
+    NSString *clientSecret = clientJSONObject[clientSecretKey];
+    
+    NSNumber *clientResourceID = clientJSONObject[clientResourceIDKey];
     
     // validate recieved JSON object
     
@@ -608,22 +627,13 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         return;
     }
     
-    // session class
-    NSEntityDescription *sessionEntityDescription = [NSEntityDescription entityForName:self.sessionEntityName inManagedObjectContext:_store.context];
-    
-    Class sessionEntityClass = NSClassFromString(sessionEntityDescription.managedObjectClassName);
-    
-    NSString *sessionUserKey = [sessionEntityClass sessionUserKey];
-    
     // create new session with client
     NSManagedObject<NOSessionProtocol> *session = (NSManagedObject<NOSessionProtocol> *)[_store newResourceWithEntityDescription:sessionEntityDescription];
     
     // generate token
     [session generateToken];
     
-    // set session client
-    NSString *sessionClientKey = [sessionEntityClass sessionClientKey];
-    
+    // set client
     [session setValue:client
                forKey:sessionClientKey];
     
@@ -637,13 +647,16 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     NSString *passwordKey = [userEntityClass userPasswordKey];
     
-    NSString *username = recievedJSONObject[usernameKey];
-    
-    NSString *userPassword = recievedJSONObject[passwordKey];
+    NSDictionary *userJSONObject = recievedJSONObject[sessionUserKey];
     
     // add user to session if the authentication data is availible
     
-    if (userPassword && username) {
+    if ([userJSONObject isKindOfClass:[NSDictionary class]]) {
+        
+        NSString *username = userJSONObject[usernameKey];
+        
+        NSString *userPassword = userJSONObject[passwordKey];
+        
         
         // search for user with username and password
         NSFetchRequest *userFetchRequest = [NSFetchRequest fetchRequestWithEntityName:self.userEntityName];
@@ -653,7 +666,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         __block NSManagedObject<NOUserProtocol> *user;
         
         [_store.context performBlockAndWait:^{
-           
+            
             NSError *fetchError;
             NSArray *result = [_store.context executeFetchRequest:userFetchRequest
                                                             error:&fetchError];

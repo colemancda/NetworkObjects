@@ -132,15 +132,15 @@
     NSMutableDictionary *loginJSONObject = [[NSMutableDictionary alloc] init];
     
     // need at least client info to login
-    [loginJSONObject addEntriesFromDictionary:@{clientResourceIDKey: self.clientResourceID,
-                                                clientSecretKey : self.clientSecret}];
+    [loginJSONObject addEntriesFromDictionary:@{self.clientEntityName:
+                                                    @{clientResourceIDKey: self.clientResourceID,
+                                                           clientSecretKey : self.clientSecret}}];
     
     // add user to authentication if available
     
     if (self.username && self.userPassword) {
         
-        [loginJSONObject addEntriesFromDictionary:@{usernameKey: self.username,
-                                                    userPasswordKey : self.userPassword}];
+        [loginJSONObject addEntriesFromDictionary:@{self.userEntityName: @{usernameKey: self.username, userPasswordKey : self.userPassword}}];
     }
     
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:loginUrl];
@@ -226,9 +226,9 @@
         
         // get user ID if availible
         
-        NSString *userResourceIDKey = [userEntityClass resourceIDKey];
+        NSString *sessionUserKey = [sessionEntityClass sessionUserKey];
         
-        NSNumber *userResourceID = jsonResponse[userResourceIDKey];
+        NSNumber *userResourceID = jsonResponse[sessionUserKey];
         
         if (userResourceID) {
             

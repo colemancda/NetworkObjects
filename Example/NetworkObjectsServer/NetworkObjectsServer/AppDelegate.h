@@ -46,4 +46,6 @@ extern NSString *const PrettyPrintJSONPreferenceKey;
 @property (readonly) ClientsWindowController *clientsWC;
 
 
+
+
 @end

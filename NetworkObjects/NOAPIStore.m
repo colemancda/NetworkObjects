@@ -12,8 +12,6 @@
 
 @implementation NOAPIStore
 
-NSString *const NOAPIStoreType = @"NOAPIStore";
-
 +(void)initialize
 {
     [NSPersistentStoreCoordinator registerStoreClass:[self class]
@@ -22,7 +20,7 @@ NSString *const NOAPIStoreType = @"NOAPIStore";
 
 +(NSString *)type
 {
-    return NOAPIStoreType;
+    return NSStringFromClass([self class]);
 }
 
 -(BOOL)loadMetadata:(NSError *__autoreleasing *)error
