@@ -50,6 +50,8 @@ typedef NS_ENUM(NSUInteger, NOAPIErrorCode) {
 
 @property NSString *sessionToken;
 
+@property NSNumber *userResourceID;
+
 #pragma mark - Requests
 
 -(void)loginWithCompletion:(void (^)(NSError *error))completionBlock;

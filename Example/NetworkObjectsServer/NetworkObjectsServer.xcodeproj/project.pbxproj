@@ -20,7 +20,6 @@
 		6E4C9FF91817721400433D43 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6E4C9FF71817721400433D43 /* MainMenu.xib */; };
 		6E4CA0181817738500433D43 /* Post.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E4CA0071817738500433D43 /* Post.m */; };
 		6E4CA0191817738500433D43 /* Client.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E4CA0091817738500433D43 /* Client.m */; };
-		6E4CA01A1817738500433D43 /* User.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E4CA00B1817738500433D43 /* User.m */; };
 		6E4CA01B1817738500433D43 /* Session.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E4CA00D1817738500433D43 /* Session.m */; };
 		6E4CA01C1817738500433D43 /* NSString+RandomString.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E4CA00F1817738500433D43 /* NSString+RandomString.m */; };
 		6E4CA01D1817738500433D43 /* Post+NOResourceProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E4CA0111817738500433D43 /* Post+NOResourceProtocol.m */; };
@@ -36,6 +35,7 @@
 		6E4CA04618177ABB00433D43 /* ClientsWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6E4CA04318177ABB00433D43 /* ClientsWindowController.xib */; };
 		6E4CA04A18177C5300433D43 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 6E4CA04818177C5300433D43 /* Model.xcdatamodeld */; };
 		6E4CA04C18177D9600433D43 /* NetworkObjects.framework in Copy Files */ = {isa = PBXBuildFile; fileRef = 6E4C9FF31817711800433D43 /* NetworkObjects.framework */; };
+		6E8383B31831D154003AE302 /* User.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E8383B21831D154003AE302 /* User.m */; };
 		6EEBC0311818A6D400DC0A92 /* NetworkObjects.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E4C9FF31817711800433D43 /* NetworkObjects.framework */; };
 /* End PBXBuildFile section */
 
@@ -123,8 +123,6 @@
 		6E4CA0071817738500433D43 /* Post.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Post.m; sourceTree = "<group>"; };
 		6E4CA0081817738500433D43 /* Client.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Client.h; sourceTree = "<group>"; };
 		6E4CA0091817738500433D43 /* Client.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Client.m; sourceTree = "<group>"; };
-		6E4CA00A1817738500433D43 /* User.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = User.h; sourceTree = "<group>"; };
-		6E4CA00B1817738500433D43 /* User.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = User.m; sourceTree = "<group>"; };
 		6E4CA00C1817738500433D43 /* Session.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Session.h; sourceTree = "<group>"; };
 		6E4CA00D1817738500433D43 /* Session.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Session.m; sourceTree = "<group>"; };
 		6E4CA00E1817738500433D43 /* NSString+RandomString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+RandomString.h"; sourceTree = "<group>"; };
@@ -151,6 +149,8 @@
 		6E4CA04218177ABB00433D43 /* ClientsWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ClientsWindowController.m; sourceTree = "<group>"; };
 		6E4CA04318177ABB00433D43 /* ClientsWindowController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ClientsWindowController.xib; sourceTree = "<group>"; };
 		6E4CA04918177C5300433D43 /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
+		6E8383B11831D154003AE302 /* User.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = User.h; sourceTree = "<group>"; };
+		6E8383B21831D154003AE302 /* User.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = User.m; sourceTree = "<group>"; };
 		6EEBC01F1818A68400DC0A92 /* NetworkObjects.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = NetworkObjects.xcodeproj; path = ../../Framework/NetworkObjects/NetworkObjects.xcodeproj; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -298,8 +298,8 @@
 				6E4CA0071817738500433D43 /* Post.m */,
 				6E4CA0081817738500433D43 /* Client.h */,
 				6E4CA0091817738500433D43 /* Client.m */,
-				6E4CA00A1817738500433D43 /* User.h */,
-				6E4CA00B1817738500433D43 /* User.m */,
+				6E8383B11831D154003AE302 /* User.h */,
+				6E8383B21831D154003AE302 /* User.m */,
 				6E4CA00C1817738500433D43 /* Session.h */,
 				6E4CA00D1817738500433D43 /* Session.m */,
 			);
@@ -506,12 +506,12 @@
 			files = (
 				6E4CA01F1817738500433D43 /* Session+NOSessionProtocol.m in Sources */,
 				6E4CA0301817740C00433D43 /* User+NOUserKeysProtocol.m in Sources */,
+				6E8383B31831D154003AE302 /* User.m in Sources */,
 				6E4CA01D1817738500433D43 /* Post+NOResourceProtocol.m in Sources */,
 				6E4CA01B1817738500433D43 /* Session.m in Sources */,
 				6E4CA0181817738500433D43 /* Post.m in Sources */,
 				6E4CA04A18177C5300433D43 /* Model.xcdatamodeld in Sources */,
 				6E4CA04518177ABB00433D43 /* ClientsWindowController.m in Sources */,
-				6E4CA01A1817738500433D43 /* User.m in Sources */,
 				6E4CA01E1817738500433D43 /* User+NOResourceProtocol.m in Sources */,
 				6E4CA02D1817740C00433D43 /* Client+NOClientKeysProtocol.m in Sources */,
 				6E4C9FF81817721400433D43 /* AppDelegate.m in Sources */,

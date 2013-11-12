@@ -25,12 +25,12 @@
 		6E83839F18316CB7003AE302 /* PostComposerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E83839E18316CB7003AE302 /* PostComposerViewController.m */; };
 		6E8383A3183177B8003AE302 /* ClientStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E8383A2183177B8003AE302 /* ClientStore.m */; };
 		6E8383B01831C603003AE302 /* NSError+presentError.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E8383AF1831C602003AE302 /* NSError+presentError.m */; };
+		6E8383B61831D1CC003AE302 /* User.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E8383B51831D1CC003AE302 /* User.m */; };
 		6EA79BA9181895BA005F0866 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EA79B9D181895BA005F0866 /* AppDelegate.m */; };
 		6EA79BAA181895BA005F0866 /* Storyboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6EA79B9E181895BA005F0866 /* Storyboard.storyboard */; };
 		6EA79BAB181895BA005F0866 /* Client.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EA79BA0181895BA005F0866 /* Client.m */; };
 		6EA79BAC181895BA005F0866 /* Session.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EA79BA2181895BA005F0866 /* Session.m */; };
 		6EA79BAD181895BA005F0866 /* Post.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EA79BA4181895BA005F0866 /* Post.m */; };
-		6EA79BAE181895BA005F0866 /* User.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EA79BA6181895BA005F0866 /* User.m */; };
 		6EA79BAF181895BA005F0866 /* ConnectViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EA79BA8181895BA005F0866 /* ConnectViewController.m */; };
 		6EA79BB31818A185005F0866 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6EA79BB21818A185005F0866 /* CoreData.framework */; };
 		6ECD2B7E1818B81100244E05 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 6ECD2B7C1818B81100244E05 /* Model.xcdatamodeld */; };
@@ -112,6 +112,8 @@
 		6E8383A2183177B8003AE302 /* ClientStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ClientStore.m; sourceTree = "<group>"; };
 		6E8383AE1831C602003AE302 /* NSError+presentError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSError+presentError.h"; sourceTree = "<group>"; };
 		6E8383AF1831C602003AE302 /* NSError+presentError.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSError+presentError.m"; sourceTree = "<group>"; };
+		6E8383B41831D1CC003AE302 /* User.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = User.h; sourceTree = "<group>"; };
+		6E8383B51831D1CC003AE302 /* User.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = User.m; sourceTree = "<group>"; };
 		6EA79B9C181895BA005F0866 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		6EA79B9D181895BA005F0866 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		6EA79B9E181895BA005F0866 /* Storyboard.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Storyboard.storyboard; sourceTree = "<group>"; };
@@ -121,8 +123,6 @@
 		6EA79BA2181895BA005F0866 /* Session.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Session.m; sourceTree = "<group>"; };
 		6EA79BA3181895BA005F0866 /* Post.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Post.h; sourceTree = "<group>"; };
 		6EA79BA4181895BA005F0866 /* Post.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Post.m; sourceTree = "<group>"; };
-		6EA79BA5181895BA005F0866 /* User.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = User.h; sourceTree = "<group>"; };
-		6EA79BA6181895BA005F0866 /* User.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = User.m; sourceTree = "<group>"; };
 		6EA79BA7181895BA005F0866 /* ConnectViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConnectViewController.h; sourceTree = "<group>"; };
 		6EA79BA8181895BA005F0866 /* ConnectViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ConnectViewController.m; sourceTree = "<group>"; };
 		6EA79BB21818A185005F0866 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
@@ -252,8 +252,8 @@
 				6EA79BA2181895BA005F0866 /* Session.m */,
 				6EA79BA3181895BA005F0866 /* Post.h */,
 				6EA79BA4181895BA005F0866 /* Post.m */,
-				6EA79BA5181895BA005F0866 /* User.h */,
-				6EA79BA6181895BA005F0866 /* User.m */,
+				6E8383B41831D1CC003AE302 /* User.h */,
+				6E8383B51831D1CC003AE302 /* User.m */,
 			);
 			name = NSManagedObject;
 			sourceTree = "<group>";
@@ -474,10 +474,10 @@
 			files = (
 				6EA79BAD181895BA005F0866 /* Post.m in Sources */,
 				6E83837218305A36003AE302 /* NSObject+NSDictionaryRepresentation.m in Sources */,
+				6E8383B61831D1CC003AE302 /* User.m in Sources */,
 				6EA79BAF181895BA005F0866 /* ConnectViewController.m in Sources */,
 				6EA79BAC181895BA005F0866 /* Session.m in Sources */,
 				6E83839F18316CB7003AE302 /* PostComposerViewController.m in Sources */,
-				6EA79BAE181895BA005F0866 /* User.m in Sources */,
 				6E8383A3183177B8003AE302 /* ClientStore.m in Sources */,
 				6EEBC0571818AF4000DC0A92 /* Client+NOClientKeysProtocol.m in Sources */,
 				6EA79BA9181895BA005F0866 /* AppDelegate.m in Sources */,

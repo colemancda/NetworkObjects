@@ -1,8 +1,8 @@
 //
 //  User.m
-//  NetworkObjects
+//  NetworkObjectsClient
 //
-//  Created by Alsey Coleman Miller on 10/22/13.
+//  Created by Alsey Coleman Miller on 11/11/13.
 //  Copyright (c) 2013 CDA. All rights reserved.
 //
 

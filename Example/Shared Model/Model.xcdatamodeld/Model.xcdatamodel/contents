@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="3396" systemVersion="13A598" minimumToolsVersion="Xcode 4.3" macOSVersion="Automatic" iOSVersion="Automatic">
+<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="3400" systemVersion="13A603" minimumToolsVersion="Xcode 4.3" macOSVersion="Automatic" iOSVersion="Automatic">
     <entity name="Client" representedClassName="Client" syncable="YES">
         <attribute name="created" optional="YES" attributeType="Date" syncable="YES"/>
         <attribute name="isNotThirdParty" optional="YES" attributeType="Boolean" syncable="YES"/>
@@ -34,7 +34,7 @@
         <relationship name="authorizedClients" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Client" inverseName="authorizedUsers" inverseEntity="Client" syncable="YES"/>
         <relationship name="createdClients" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Client" inverseName="creator" inverseEntity="Client" syncable="YES"/>
         <relationship name="likedPosts" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Post" inverseName="likes" inverseEntity="Post" syncable="YES"/>
-        <relationship name="posts" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Post" inverseName="creator" inverseEntity="Post" syncable="YES"/>
+        <relationship name="posts" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Post" inverseName="creator" inverseEntity="Post" syncable="YES"/>
         <relationship name="sessions" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Session" inverseName="user" inverseEntity="Session" syncable="YES"/>
     </entity>
     <elements>

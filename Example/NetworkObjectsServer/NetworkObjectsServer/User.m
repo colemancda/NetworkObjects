@@ -1,8 +1,8 @@
 //
 //  User.m
-//  NetworkObjects
+//  NetworkObjectsServer
 //
-//  Created by Alsey Coleman Miller on 10/13/13.
+//  Created by Alsey Coleman Miller on 11/11/13.
 //  Copyright (c) 2013 CDA. All rights reserved.
 //
 
@@ -20,9 +20,16 @@
 @dynamic resourceID;
 @dynamic username;
 @dynamic authorizedClients;
+@dynamic createdClients;
 @dynamic likedPosts;
 @dynamic posts;
 @dynamic sessions;
-@dynamic createdClients;
+
+-(void)awakeFromInsert
+{
+    [super awakeFromInsert];
+    
+    self.created = [NSDate date];
+}
 
 @end

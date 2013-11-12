@@ -700,7 +700,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         
         NSString *userResourceIDKey = [[user class] resourceIDKey];
         
-        NSString *userResourceID = [user valueForKey:userResourceIDKey];
+        NSNumber *userResourceID = [user valueForKey:userResourceIDKey];
         
         [jsonObject addEntriesFromDictionary:@{sessionUserKey: userResourceID}];
     }

@@ -222,7 +222,7 @@
     NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"User"];
     request.resultType = NSDictionaryResultType;
     
-    request.predicate = [NSPredicate predicateWithFormat:@"%K == %@", @"resourceID", [ClientStore sharedStore].api.username];
+    request.predicate = [NSPredicate predicateWithFormat:@"%K == %@", @"resourceID", [ClientStore sharedStore].api.userResourceID];
     
      [[ClientStore sharedStore].context performBlock:^{
          
@@ -238,8 +238,11 @@
              return;
          }
          
+         // get user
          
+         NSDictionary *userDict = results.firstObject;
          
+         _postIDs = userDict[@"posts"];
          
          [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             

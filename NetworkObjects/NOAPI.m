@@ -224,6 +224,17 @@
             return;
         }
         
+        // get user ID if availible
+        
+        NSString *userResourceIDKey = [userEntityClass resourceIDKey];
+        
+        NSNumber *userResourceID = jsonResponse[userResourceIDKey];
+        
+        if (userResourceID) {
+            
+            self.userResourceID = userResourceID;
+        }
+        
         self.sessionToken = token;
         
         completionBlock(nil);

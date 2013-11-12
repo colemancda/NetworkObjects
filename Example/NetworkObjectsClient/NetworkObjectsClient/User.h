@@ -1,8 +1,8 @@
 //
 //  User.h
-//  NetworkObjects
+//  NetworkObjectsClient
 //
-//  Created by Alsey Coleman Miller on 10/22/13.
+//  Created by Alsey Coleman Miller on 11/11/13.
 //  Copyright (c) 2013 CDA. All rights reserved.
 //
 
@@ -20,7 +20,7 @@
 @property (nonatomic, retain) NSSet *authorizedClients;
 @property (nonatomic, retain) Client *createdClients;
 @property (nonatomic, retain) NSSet *likedPosts;
-@property (nonatomic, retain) Post *posts;
+@property (nonatomic, retain) NSSet *posts;
 @property (nonatomic, retain) NSSet *sessions;
 @end
 
@@ -35,6 +35,11 @@
 - (void)removeLikedPostsObject:(Post *)value;
 - (void)addLikedPosts:(NSSet *)values;
 - (void)removeLikedPosts:(NSSet *)values;
+
+- (void)addPostsObject:(Post *)value;
+- (void)removePostsObject:(Post *)value;
+- (void)addPosts:(NSSet *)values;
+- (void)removePosts:(NSSet *)values;
 
 - (void)addSessionsObject:(Session *)value;
 - (void)removeSessionsObject:(Session *)value;
