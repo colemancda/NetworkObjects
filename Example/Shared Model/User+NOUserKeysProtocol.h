@@ -7,7 +7,8 @@
 //
 
 #import "User.h"
+#import <NetworkObjects/NOUserProtocol.h>
 
-@interface User (NOUserKeysProtocol)
+@interface User (NOUserKeysProtocol) <NOUserKeysProtocol>
 
 @end

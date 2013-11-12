@@ -7,7 +7,8 @@
 //
 
 #import "Post.h"
+#import <NetworkObjects/NOResourceProtocol.h>
 
-@interface Post (NOResourceKeysProtocol)
+@interface Post (NOResourceKeysProtocol) <NOResourceKeysProtocol>
 
 @end

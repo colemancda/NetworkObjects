@@ -113,6 +113,16 @@
     
     // put togeather POST body...
     
+    NSEntityDescription *sessionEntity = _model.entitiesByName[self.sessionEntityName];
+    
+    Class sessionEntityClass = NSClassFromString(sessionEntity.managedObjectClassName);
+    
+    NSString *sessionTokenKey = [sessionEntityClass sessionTokenKey];
+    
+    NSString *sessionUserKey = [sessionEntityClass sessionUserKey];
+    
+    NSString *sessionClientKey = [sessionEntityClass sessionClientKey];
+    
     NSEntityDescription *clientEntity = _model.entitiesByName[self.clientEntityName];
     
     Class clientEntityClass = NSClassFromString(clientEntity.managedObjectClassName);
@@ -132,7 +142,7 @@
     NSMutableDictionary *loginJSONObject = [[NSMutableDictionary alloc] init];
     
     // need at least client info to login
-    [loginJSONObject addEntriesFromDictionary:@{self.clientEntityName:
+    [loginJSONObject addEntriesFromDictionary:@{sessionClientKey:
                                                     @{clientResourceIDKey: self.clientResourceID,
                                                            clientSecretKey : self.clientSecret}}];
     
@@ -140,7 +150,7 @@
     
     if (self.username && self.userPassword) {
         
-        [loginJSONObject addEntriesFromDictionary:@{self.userEntityName: @{usernameKey: self.username, userPasswordKey : self.userPassword}}];
+        [loginJSONObject addEntriesFromDictionary:@{sessionUserKey: @{usernameKey: self.username, userPasswordKey : self.userPassword}}];
     }
     
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:loginUrl];
@@ -209,12 +219,6 @@
         
         // get session token key
         
-        NSEntityDescription *sessionEntity = _model.entitiesByName[self.sessionEntityName];
-        
-        Class sessionEntityClass = NSClassFromString(sessionEntity.managedObjectClassName);
-        
-        NSString *sessionTokenKey = [sessionEntityClass sessionTokenKey];
-        
         NSString *token = jsonResponse[sessionTokenKey];
         
         if (!token) {
@@ -225,8 +229,6 @@
         }
         
         // get user ID if availible
-        
-        NSString *sessionUserKey = [sessionEntityClass sessionUserKey];
         
         NSNumber *userResourceID = jsonResponse[sessionUserKey];
         

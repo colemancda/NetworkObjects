@@ -7,7 +7,8 @@
 //
 
 #import "Session.h"
+#import <NetworkObjects/NOSessionProtocol.h>
 
-@interface Session (NOSessionKeysProtocol)
+@interface Session (NOSessionKeysProtocol) <NOSessionKeysProtocol>
 
 @end

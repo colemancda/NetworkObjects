@@ -11,8 +11,7 @@
 
 typedef NS_ENUM (NSUInteger, NOAPIStoreErrorCode) {
     
-    NOAPIStoreFetchRequestEntityIsNotResourceErrorCode = 2000,
-    NOAPIStoreFetchRequestEntityNotFoundErrorCode
+    NOAPIStoreInvalidPredicateErrorCode = 2000
     
 };
 

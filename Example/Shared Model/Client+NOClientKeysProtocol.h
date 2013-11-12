@@ -7,7 +7,8 @@
 //
 
 #import "Client.h"
+#import <NetworkObjects/NOClientProtocol.h>
 
-@interface Client (NOClientKeysProtocol)
+@interface Client (NOClientKeysProtocol) <NOClientKeysProtocol>
 
 @end

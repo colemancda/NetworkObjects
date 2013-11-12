@@ -8,7 +8,24 @@
 
 #import "NOAPIStore.h"
 #import "NOResourceProtocol.h"
-#import "NOAPIStore+Errors.h"
+#import "NetworkObjectsConstants.h"
+#import "NOAPI.h"
+
+@implementation NOAPIStore (Errors)
+
+-(NSError *)invalidPredicate
+{
+    NSString *description = NSLocalizedString(@"Invalid predicate",
+                                              @"Invalid predicate");
+    
+    NSError *error = [NSError errorWithDomain:NetworkObjectsErrorDomain
+                                         code:NOAPIStoreInvalidPredicateErrorCode
+                                     userInfo:@{NSLocalizedDescriptionKey: description}];
+    
+    return error;
+}
+
+@end
 
 @implementation NOAPIStore
 
@@ -125,9 +142,8 @@
     
     if (!entity) {
         
-        *error = self.entityNotFoundError;
-        
-        return nil;
+        [NSException raise:NSInternalInconsistencyException
+                    format:@"NSFetchRequest doesn't specify a entity"];
     }
     
     // verify that it conforms to protocol
@@ -136,9 +152,8 @@
     
     if (![entityClass conformsToProtocol:@protocol(NOResourceKeysProtocol)]) {
         
-        *error = self.entityNotResourceError;
-        
-        return nil;
+        [NSException raise:NSInvalidArgumentException
+                    format:@"%@ does not conform to NOResourceProtocol", entity.name];
     }
     
     // incremental store is only capable of fetching single results...
@@ -147,7 +162,50 @@
     
     NSString *resourceIDKey = [entityClass resourceIDKey];
     
+    // parse predicate (only 'resourceID == x' is valid)
     
+    NSString *desiredPredicatePrefix = [NSString stringWithFormat:@"%@ == ", resourceIDKey];
+    
+    NSString *predicate = request.predicate.description;
+    
+    NSRange range = [predicate rangeOfString:desiredPredicatePrefix];
+    
+    if (range.location == NSNotFound) {
+        
+        *error = [self invalidPredicate];
+        
+        return nil;
+    }
+    
+    NSString *resourceIDString = [predicate substringFromIndex:range.location];
+    
+    if (!resourceIDString) {
+        
+        *error = [self invalidPredicate];
+        
+        return nil;
+    }
+    
+    NSUInteger resourceID = resourceIDString.integerValue;
+    
+    __block NSDictionary *resourceDict;
+    
+    // GCD
+    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    dispatch_group_t group = dispatch_group_create();
+    
+    [self.api getResource:entity.name withID:resourceID completion:^(NSError *error, NSDictionary *resource)
+    {
+        // Add a task to the group
+        dispatch_group_async(group, queue, ^{
+            // Some asynchronous work
+            
+            
+        });
+    }];
+    
+    // wait on the group to block the current thread.
+    dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
     
     return nil;
 }

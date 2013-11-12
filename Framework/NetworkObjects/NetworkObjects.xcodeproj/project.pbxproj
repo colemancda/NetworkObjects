@@ -35,10 +35,6 @@
 		6E838379183083B0003AE302 /* NOServerConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E838377183083B0003AE302 /* NOServerConstants.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6E83838118308E73003AE302 /* NetworkObjectsConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E83838018308E73003AE302 /* NetworkObjectsConstants.h */; };
 		6E83838218308E73003AE302 /* NetworkObjectsConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E83838018308E73003AE302 /* NetworkObjectsConstants.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		6E8383A6183189A0003AE302 /* NOAPIStore+Errors.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E8383A4183189A0003AE302 /* NOAPIStore+Errors.h */; };
-		6E8383A7183189A0003AE302 /* NOAPIStore+Errors.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E8383A4183189A0003AE302 /* NOAPIStore+Errors.h */; };
-		6E8383A8183189A0003AE302 /* NOAPIStore+Errors.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E8383A5183189A0003AE302 /* NOAPIStore+Errors.m */; };
-		6E8383A9183189A0003AE302 /* NOAPIStore+Errors.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E8383A5183189A0003AE302 /* NOAPIStore+Errors.m */; };
 		6E8383AB183189CA003AE302 /* NOAPIStoreConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E8383AA183189CA003AE302 /* NOAPIStoreConstants.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6E8383AC183189CA003AE302 /* NOAPIStoreConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E8383AA183189CA003AE302 /* NOAPIStoreConstants.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6EA79B9918189324005F0866 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E2BD7C41817309E00E9D04C /* Foundation.framework */; };
@@ -277,8 +273,6 @@
 		6E2BDA911817341900E9D04C /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		6E838377183083B0003AE302 /* NOServerConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NOServerConstants.h; path = ../../../NetworkObjects/NOServerConstants.h; sourceTree = "<group>"; };
 		6E83838018308E73003AE302 /* NetworkObjectsConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NetworkObjectsConstants.h; path = ../../../NetworkObjects/NetworkObjectsConstants.h; sourceTree = "<group>"; };
-		6E8383A4183189A0003AE302 /* NOAPIStore+Errors.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NOAPIStore+Errors.h"; path = "../../NetworkObjects/NOAPIStore+Errors.h"; sourceTree = "<group>"; };
-		6E8383A5183189A0003AE302 /* NOAPIStore+Errors.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NOAPIStore+Errors.m"; path = "../../NetworkObjects/NOAPIStore+Errors.m"; sourceTree = "<group>"; };
 		6E8383AA183189CA003AE302 /* NOAPIStoreConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NOAPIStoreConstants.h; path = ../../NetworkObjects/NOAPIStoreConstants.h; sourceTree = "<group>"; };
 		6EA79B9A18189339005F0866 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS7.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		6EED73E21818648F00F911BC /* libNetworkObjects.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libNetworkObjects.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -497,15 +491,6 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		6E8383AD183191E1003AE302 /* Categories */ = {
-			isa = PBXGroup;
-			children = (
-				6E8383A4183189A0003AE302 /* NOAPIStore+Errors.h */,
-				6E8383A5183189A0003AE302 /* NOAPIStore+Errors.m */,
-			);
-			name = Categories;
-			sourceTree = "<group>";
-		};
 		6ECD2B6C1818B18400244E05 /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
@@ -521,7 +506,6 @@
 				6EED74661818852200F911BC /* NOAPIStore.h */,
 				6EED74671818852200F911BC /* NOAPIStore.m */,
 				6E8383AA183189CA003AE302 /* NOAPIStoreConstants.h */,
-				6E8383AD183191E1003AE302 /* Categories */,
 			);
 			name = Stores;
 			sourceTree = "<group>";
@@ -813,7 +797,6 @@
 				6EED74E01818852200F911BC /* NOServer.h in Headers */,
 				6EED75641818852200F911BC /* RouteRequest.h in Headers */,
 				6EED74C81818852200F911BC /* NOAPIStore.h in Headers */,
-				6E8383A6183189A0003AE302 /* NOAPIStore+Errors.h in Headers */,
 				6EED74F01818852200F911BC /* NSManagedObject+CoreDataJSONCompatibility.h in Headers */,
 				6EED74F41818852200F911BC /* RouteResponse+IPAddress.h in Headers */,
 				6EED75341818852200F911BC /* HTTPServer.h in Headers */,
@@ -871,7 +854,6 @@
 				6EED75651818852200F911BC /* RouteRequest.h in Headers */,
 				6EED74C91818852200F911BC /* NOAPIStore.h in Headers */,
 				6EED74F11818852200F911BC /* NSManagedObject+CoreDataJSONCompatibility.h in Headers */,
-				6E8383A7183189A0003AE302 /* NOAPIStore+Errors.h in Headers */,
 				6EED74F51818852200F911BC /* RouteResponse+IPAddress.h in Headers */,
 				6EED75351818852200F911BC /* HTTPServer.h in Headers */,
 				6EED74CD1818852200F911BC /* NOHTTPConnection.h in Headers */,
@@ -1115,7 +1097,6 @@
 				6EED74CE1818852200F911BC /* NOHTTPConnection.m in Sources */,
 				6EED75021818852200F911BC /* DDRange.m in Sources */,
 				6EED75161818852200F911BC /* DDTTYLogger.m in Sources */,
-				6E8383A8183189A0003AE302 /* NOAPIStore+Errors.m in Sources */,
 				6EED75561818852200F911BC /* HTTPRedirectResponse.m in Sources */,
 				6EED75061818852200F911BC /* DDAbstractDatabaseLogger.m in Sources */,
 				6EED755A1818852200F911BC /* WebSocket.m in Sources */,
@@ -1170,7 +1151,6 @@
 				6EED755F1818852200F911BC /* HTTPResponseProxy.m in Sources */,
 				6EED74E31818852200F911BC /* NOServer.m in Sources */,
 				6EED74E91818852200F911BC /* NOStore.m in Sources */,
-				6E8383A9183189A0003AE302 /* NOAPIStore+Errors.m in Sources */,
 				6EED74C71818852200F911BC /* NOAPI.m in Sources */,
 				6EED74FB1818852200F911BC /* DDData.m in Sources */,
 				6EED755B1818852200F911BC /* WebSocket.m in Sources */,

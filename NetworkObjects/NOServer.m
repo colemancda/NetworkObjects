@@ -657,7 +657,6 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         
         NSString *userPassword = userJSONObject[passwordKey];
         
-        
         // search for user with username and password
         NSFetchRequest *userFetchRequest = [NSFetchRequest fetchRequestWithEntityName:self.userEntityName];
         
