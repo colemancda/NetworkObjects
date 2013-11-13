@@ -175,12 +175,14 @@
     
     // parse predicate (must include 'resourceID == x')
     
+    NSLog(@"processing: %@", request.predicate.predicateFormat);
+    
     NSString *predicate = request.predicate.predicateFormat;
     
-    NSRegularExpression *exp = [NSRegularExpression regularExpressionWithPattern:@"(\S+) == (\S+)" options:NSRegularExpressionAllowCommentsAndWhitespace error:nil];
+    NSRegularExpression *exp = [NSRegularExpression regularExpressionWithPattern:@"(\\w+) == (\\w+)" options:NSRegularExpressionAllowCommentsAndWhitespace error:nil];
     
     NSArray *matches = [exp matchesInString:predicate
-                                    options:NSMatchingAnchored
+                                    options:0
                                       range:NSMakeRange(0, predicate.length)];
     
     NSString *resourceIDString;
@@ -212,10 +214,10 @@
             
             // verify it is a number
             
-            NSRegularExpression *numberCheck = [NSRegularExpression regularExpressionWithPattern:@"\d+" options:NSRegularExpressionAllowCommentsAndWhitespace error:nil];
+            NSRegularExpression *numberCheck = [NSRegularExpression regularExpressionWithPattern:@"\\d+" options:NSRegularExpressionAllowCommentsAndWhitespace error:nil];
             
             NSArray *numberMatches = [numberCheck matchesInString:resourceIDString
-                                                          options:NSMatchingAnchored
+                                                          options:0
                                                             range:NSMakeRange(0, resourceIDString.length)];
             
             if (numberMatches.count == 1) {
