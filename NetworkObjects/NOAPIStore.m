@@ -173,80 +173,20 @@
     
     NSString *resourceIDKey = [entityClass resourceIDKey];
     
-    // parse predicate (must include 'resourceID == x')
-    
-    NSLog(@"processing: %@", request.predicate.predicateFormat);
+    // parse predicate (only supports 'resourceID == x')
     
     NSString *predicate = request.predicate.predicateFormat;
     
-    NSRegularExpression *exp = [NSRegularExpression regularExpressionWithPattern:@"(\\w+) == (\\w+)" options:NSRegularExpressionAllowCommentsAndWhitespace error:nil];
-    
-    NSArray *matches = [exp matchesInString:predicate
-                                    options:0
-                                      range:NSMakeRange(0, predicate.length)];
+    NSString *desiredPrefix = [NSString stringWithFormat:@"%@ == ", resourceIDKey];
     
     NSString *resourceIDString;
     
-    for (NSTextCheckingResult *result in matches) {
+    NSRange prefixRange = [predicate rangeOfString:desiredPrefix];
+    
+    // found resource ID prefix
+    if (!NSEqualRanges(prefixRange, NSMakeRange(NSNotFound, 0))) {
         
-        // make sure one of the captured groups is the resource ID key
-        
-        NSString *capture1 = [predicate substringWithRange:[result rangeAtIndex:1]];
-        
-        NSString *capture2 = [predicate substringWithRange:[result rangeAtIndex:2]];
-        
-        NSString *resourceIDString;
-        
-        if ([capture1 isEqualToString:resourceIDKey]) {
-            
-            resourceIDString = capture2;
-        }
-        else {
-            
-            if ([capture2 isEqualToString:resourceIDKey]) {
-                
-                resourceIDString = capture1;
-            }
-        }
-        
-        // one of the captures is the resource ID key
-        if (resourceIDString) {
-            
-            // verify it is a number
-            
-            NSRegularExpression *numberCheck = [NSRegularExpression regularExpressionWithPattern:@"\\d+" options:NSRegularExpressionAllowCommentsAndWhitespace error:nil];
-            
-            NSArray *numberMatches = [numberCheck matchesInString:resourceIDString
-                                                          options:0
-                                                            range:NSMakeRange(0, resourceIDString.length)];
-            
-            if (numberMatches.count == 1) {
-                
-                // seem to have found the resourceID value
-                
-                NSTextCheckingResult *numberResult = numberMatches.firstObject;
-                
-                NSString *foundResourceID = [resourceIDString substringWithRange:numberResult.range];
-                
-                // conflicting resource IDs
-                if (resourceIDString &&
-                    resourceIDString.integerValue != foundResourceID.integerValue) {
-                    
-                    NSString *description = NSLocalizedString(@"Invalid predicate",
-                                                              @"Invalid predicate");
-                    
-                    NSString *reason = NSLocalizedString(@"Conflicting resource IDs specified in predicate",
-                                                         @"Conflicting resource IDs specified in predicate");
-                    
-                    *error = [NSError errorWithDomain:NetworkObjectsErrorDomain
-                                                 code:NSPersistentStoreUnsupportedRequestTypeError
-                                             userInfo:@{NSLocalizedDescriptionKey: description,
-                                                        NSLocalizedFailureReasonErrorKey: reason}];
-                    
-                    return nil;
-                }
-            }
-        }
+        resourceIDString = [predicate substringWithRange:prefixRange];
     }
     
     // resource ID not specified in predicate
@@ -437,7 +377,6 @@
             withContext:(NSManagedObjectContext *)context
                   error:(NSError *__autoreleasing *)error
 {
-    
     
     
     // increment version count after successful save
