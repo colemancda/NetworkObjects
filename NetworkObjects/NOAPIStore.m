@@ -36,6 +36,8 @@
         
         _managedObjectIDs = [[NSMutableDictionary alloc] init];
         
+        _versionCount = 0;
+        
     }
     return self;
 }
@@ -60,7 +62,11 @@
 {
     // check that API is not null
     
-    NSAssert(self.api, @"NOAPI property must not be nil");
+    if (!self.api) {
+        
+        [NSException raise:NSInternalInconsistencyException
+                    format:@"NOAPI property must not be nil"];
+    }
     
     if (request.requestType == NSSaveRequestType) {
         
@@ -78,67 +84,12 @@
                                error:error];
 }
 
--(NSArray *)obtainPermanentIDsForObjects:(NSArray *)array
-                                   error:(NSError *__autoreleasing *)error
-{
-    NSMutableArray *objectIDs = [[NSMutableArray alloc] init];
-    
-    for (NSManagedObject<NOResourceKeysProtocol> *resource in array) {
-        
-        NSString *resourceIDKey = [[resource class] resourceIDKey];
-        
-        NSNumber *resourceID = [resource valueForKey:resourceIDKey];
-        
-        NSManagedObjectID *objectID = [self newObjectIDForEntity:resource.entity
-                                                 referenceObject:resourceID];
-        
-        [objectIDs addObject:objectID];
-    }
-    
-    return objectIDs;
-}
-
--(NSIncrementalStoreNode *)newValuesForObjectWithID:(NSManagedObjectID *)objectID
-                                        withContext:(NSManagedObjectContext *)context
-                                              error:(NSError *__autoreleasing *)error
-{
-    NSNumber *resourceID = [self referenceObjectForObjectID:objectID];
-    
-    NSMutableDictionary *values = [NSMutableDictionary dictionaryWithDictionary:_cache[resourceID]];
-    
-    // Convert raw unique identifiers for to-one relationships into NSManagedObjectID instances
-    
-    objectID.entity.relationshipsByName;
-    
-    
-    
-    NSIncrementalStoreNode *node = [[NSIncrementalStoreNode alloc] initWithObjectID:objectID
-                                                                         withValues:values
-                                                                            version:_versionCount];
-    
-    return node;
-}
-
--(id)newValueForRelationship:(NSRelationshipDescription *)relationship
-             forObjectWithID:(NSManagedObjectID *)objectID
-                 withContext:(NSManagedObjectContext *)context
-                       error:(NSError *__autoreleasing *)error
-{
-    // to-one relationship
-    if (!relationship.isToMany) {
-        
-        
-    }
-    
-    return nil;
-}
-
-
 #pragma mark - Obtain Object ID
 
 -(NSManagedObjectID *)managedObjectIDForResourceID:(NSNumber *)resourceID
                                             entity:(NSEntityDescription *)entity
 {
+    // Creates the object ID if it doesnt have one already
     NSMutableDictionary *entityIDs = _managedObjectIDs[entity.name];
     
     if (!entityIDs) {
@@ -152,7 +103,7 @@
         
         entityIDs = [[NSMutableDictionary alloc] init];
         
-        [_managedObjectIDs setObject::entityIDs
+        [_managedObjectIDs setObject:entityIDs
                              forKey:entity.name];
     }
     
@@ -172,13 +123,10 @@
 
 -(NSNumber *)resourceIDForManagedObjectID:(NSManagedObjectID *)objectID
 {
-    NSMutableDictionary *entityIDs = _managedObjectIDs[objectID.entity.name];
-    
-    return entityIDs[];
-    
+    return [self referenceObjectForObjectID:objectID];
 }
 
-#pragma mark
+#pragma mark - Fetching
 
 -(id)executeFetchRequest:(NSFetchRequest *)request
              withContext:(NSManagedObjectContext *)context
@@ -353,9 +301,20 @@
     // resource found
     if (resourceDict) {
         
-        // add to cache
-        [_cache setObject:resourceDict
-                   forKey:[NSNumber numberWithInteger:resourceID]];
+        // add to cache...
+        NSMutableDictionary *entityCache = _cache[entity.name];
+        
+        // first entity to be caches
+        if (!entityCache) {
+            
+            entityCache = [[NSMutableDictionary alloc] init];
+            
+            [_cache setObject:entityCache
+                       forKey:entity.name];
+        }
+        
+        [entityCache setObject:resourceDict
+                        forKey:[NSNumber numberWithInteger:resourceID]];
         
         // further filter object
         dictionaryResults = [@[resourceDict] filteredArrayUsingPredicate:request.predicate];
@@ -384,8 +343,8 @@
         
         NSNumber *resourceIDReference = resourceDict[resourceIDKey];
         
-        NSManagedObjectID *objectID = [self newObjectIDForEntity:entity
-                                                 referenceObject:resourceIDReference];
+        NSManagedObjectID *objectID = [self managedObjectIDForResourceID:resourceIDReference
+                                                                  entity:entity];
         
         [objectIDs addObject:objectID];
     }
@@ -410,14 +369,101 @@
     return faults;
 }
 
+-(NSIncrementalStoreNode *)newValuesForObjectWithID:(NSManagedObjectID *)objectID
+                                        withContext:(NSManagedObjectContext *)context
+                                              error:(NSError *__autoreleasing *)error
+{
+    NSNumber *resourceID = [self referenceObjectForObjectID:objectID];
+    
+    NSMutableDictionary *entityCache = _cache[objectID.entity.name];
+    
+    NSMutableDictionary *values = [NSMutableDictionary dictionaryWithDictionary:entityCache[resourceID]];
+    
+    // Convert raw unique identifiers for to-one relationships into NSManagedObjectID instances
+    
+    for (NSRelationshipDescription *relationship in objectID.entity.relationshipsByName) {
+        
+        // to-one relationship
+        if (!relationship.isToMany) {
+            
+            NSString *key = relationship.name;
+            
+            NSNumber *destinationResourceID = values[key];
+            
+            NSManagedObjectID *destinationObjectID = [self managedObjectIDForResourceID:destinationResourceID entity:relationship.destinationEntity];
+            
+            // replace destination resourceIDs with objectIDs in values dictionary
+            [values setObject:destinationObjectID
+                       forKey:key];
+        }
+    }
+    
+    NSIncrementalStoreNode *node = [[NSIncrementalStoreNode alloc] initWithObjectID:objectID
+                                                                         withValues:values
+                                                                            version:_versionCount];
+    
+    return node;
+}
+
+-(id)newValueForRelationship:(NSRelationshipDescription *)relationship
+             forObjectWithID:(NSManagedObjectID *)objectID
+                 withContext:(NSManagedObjectContext *)context
+                       error:(NSError *__autoreleasing *)error
+{
+    // always to-many
+    NSMutableArray *objectIDs = [[NSMutableArray alloc] init];
+    
+    NSDictionary *entityCache = _cache[objectID.entity];
+    
+    // resourceIDs
+    NSArray *values = entityCache[relationship.name];
+    
+    // convert
+    for (NSNumber *destinationResourceID in values) {
+        
+        NSManagedObjectID *destinationObjectID = [self managedObjectIDForResourceID:destinationResourceID entity:relationship.destinationEntity];
+        
+        [objectIDs addObject:destinationObjectID];
+    }
+    
+    return objectIDs;
+}
+
+#pragma mark - Saving
+
 -(id)executeSaveRequest:(NSSaveChangesRequest *)request
             withContext:(NSManagedObjectContext *)context
                   error:(NSError *__autoreleasing *)error
 {
     
+    
+    
+    // increment version count after successful save
+    
+    _versionCount++;
+    
     return @[];
 }
 
+-(NSArray *)obtainPermanentIDsForObjects:(NSArray *)array
+                                   error:(NSError *__autoreleasing *)error
+{
+    NSMutableArray *objectIDs = [[NSMutableArray alloc] init];
+    
+    // create new resources
+    for (NSManagedObject *newObject in array) {
+        
+        
+    }
+    
+    // no errors occured
+    
+    // get permenant IDs
+    
+    
+    
+    return objectIDs;
+}
 
 
 @end
