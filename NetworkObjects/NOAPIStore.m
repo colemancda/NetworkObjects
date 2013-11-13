@@ -34,6 +34,8 @@
         
         _cache = [[NSMutableDictionary alloc] init];
         
+        _managedObjectIDs = [[NSMutableDictionary alloc] init];
+        
     }
     return self;
 }
@@ -100,8 +102,21 @@
                                         withContext:(NSManagedObjectContext *)context
                                               error:(NSError *__autoreleasing *)error
 {
+    NSNumber *resourceID = [self referenceObjectForObjectID:objectID];
     
-    return nil;
+    NSMutableDictionary *values = [NSMutableDictionary dictionaryWithDictionary:_cache[resourceID]];
+    
+    // Convert raw unique identifiers for to-one relationships into NSManagedObjectID instances
+    
+    objectID.entity.relationshipsByName;
+    
+    
+    
+    NSIncrementalStoreNode *node = [[NSIncrementalStoreNode alloc] initWithObjectID:objectID
+                                                                         withValues:values
+                                                                            version:_versionCount];
+    
+    return node;
 }
 
 -(id)newValueForRelationship:(NSRelationshipDescription *)relationship
@@ -109,8 +124,58 @@
                  withContext:(NSManagedObjectContext *)context
                        error:(NSError *__autoreleasing *)error
 {
+    // to-one relationship
+    if (!relationship.isToMany) {
+        
+        
+    }
     
     return nil;
+}
+
+
+#pragma mark - Obtain Object ID
+
+-(NSManagedObjectID *)managedObjectIDForResourceID:(NSNumber *)resourceID
+                                            entity:(NSEntityDescription *)entity
+{
+    NSMutableDictionary *entityIDs = _managedObjectIDs[entity.name];
+    
+    if (!entityIDs) {
+        
+        // validate that the given entity belongs to our store
+        if (self.persistentStoreCoordinator.managedObjectModel.entitiesByName[entity.name] != entity) {
+            
+            [NSException raise:NSInvalidArgumentException
+                        format:@"The entity was not found in the NOAPIStore's NSManagedObjectModel"];
+        }
+        
+        entityIDs = [[NSMutableDictionary alloc] init];
+        
+        [_managedObjectIDs setObject::entityIDs
+                             forKey:entity.name];
+    }
+    
+    NSManagedObjectID *objectID = entityIDs[resourceID];
+    
+    if (!objectID) {
+        
+        objectID = [self newObjectIDForEntity:entity
+                              referenceObject:resourceID];
+        
+        [entityIDs setObject:objectID
+                     forKey:resourceID];
+    }
+    
+    return objectID;
+}
+
+-(NSNumber *)resourceIDForManagedObjectID:(NSManagedObjectID *)objectID
+{
+    NSMutableDictionary *entityIDs = _managedObjectIDs[objectID.entity.name];
+    
+    return entityIDs[];
+    
 }
 
 #pragma mark
@@ -308,7 +373,7 @@
     
     if (request.resultType == NSDictionaryResultType) {
         
-        return results;
+        return dictionaryResults;
     }
     
     // get object IDs
@@ -350,7 +415,7 @@
                   error:(NSError *__autoreleasing *)error
 {
     
-    return nil;
+    return @[];
 }
 
 
