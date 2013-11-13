@@ -181,7 +181,7 @@
     
     NSArray *matches = [exp matchesInString:predicate
                                     options:NSMatchingAnchored
-                                      range:NSRangeFromString(predicate)];
+                                      range:NSMakeRange(0, predicate.length)];
     
     NSString *resourceIDString;
     
@@ -216,7 +216,7 @@
             
             NSArray *numberMatches = [numberCheck matchesInString:resourceIDString
                                                           options:NSMatchingAnchored
-                                                            range:NSRangeFromString(resourceIDString)];
+                                                            range:NSMakeRange(0, resourceIDString.length)];
             
             if (numberMatches.count == 1) {
                 
