@@ -211,32 +211,38 @@
     __block NSDictionary *resourceDict;
     
     // GCD
-    dispatch_group_t group = dispatch_group_create();
-    dispatch_group_enter(group);
+    
+    NSThread *thread = [NSThread currentThread];
+    
+    NSLock *lock = [[NSLock alloc] init];
     
     [self.api getResource:entity.name withID:resourceID completion:^(NSError *getError, NSDictionary *resource)
-    {
-        if (getError) {
-            
-            // dont forward error if resource was not found
-            if (getError.code == NOAPINotFoundErrorCode) {
-                
-                resourceDict = nil;
-                
-                return;
-            }
-            
-            // forward error
-            *error = getError;
-            return;
-        }
-        
-        resourceDict = resource;
-        
-        dispatch_group_leave(group);
-    }];
+     {
+         if (getError) {
+             
+             // dont forward error if resource was not found
+             if (getError.code != NOAPINotFoundErrorCode) {
+                 
+                 // forward error
+                 *error = getError;
+             }
+         }
+         
+         else {
+             
+             resourceDict = resource;
+             
+         }
+         
+         // unlock thread
+         
+         [lock performSelector:@selector(unlock)
+                      onThread:thread
+                    withObject:nil
+                 waitUntilDone:NO];
+     }];
     
-    dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
+    [lock lock];
     
     NSArray *dictionaryResults;
     
