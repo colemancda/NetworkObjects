@@ -47,10 +47,6 @@
     
     [self.tableView reloadData];
     
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(textFieldDidEndEditing:)
-                                                 name:NSControlTextDidEndEditingNotification
-                                               object:nil];
 }
 
 #pragma mark - First Responder
@@ -189,6 +185,9 @@
         return checkBoxCellView;
     }
     
+    // set tags
+    cellView.textField.tag = row;
+    
     if ([identifier isEqualToString:@"created"]) {
         
         NSDate *date = client.created;
@@ -217,16 +216,22 @@
     return cellView;
 }
 
-#pragma mark - Text Field Editing
-
 -(void)controlTextDidEndEditing:(NSNotification *)notification
 {
-    // get control object
     NSTextField *textField = notification.object;
+    
+    NSInteger row = textField.tag;
     
     // get model object
     
+    Client *client = _clients[row];
     
+    // use KVC to set value
+    
+    [client setValue:textField.stringValue
+              forKey:textField.identifier];
+    
+    NSLog(@"Changed Client %@ attribute %@ to %@", client.resourceID, textField.identifier, textField.stringValue);
 }
 
 
