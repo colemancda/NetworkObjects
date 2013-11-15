@@ -265,6 +265,8 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
             [session usedSessionFromIP:response.ipAddress
                         requestHeaders:request.headers];
         }
+        
+        // cant use the session
         else {
             
             session = nil;
@@ -279,7 +281,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                                                                  error:nil];
     
     // make sure jsonObject is a dictionary
-    if (![jsonObject isKindOfClass:[NSDictionary class]]) {
+    if (jsonObject && ![jsonObject isKindOfClass:[NSDictionary class]]) {
         jsonObject = nil;
     }
     
@@ -315,6 +317,8 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                         resource:resource
                          session:session
                         response:response];
+            
+            return;
         }
         
         // requires a body
@@ -332,6 +336,8 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                   recievedJsonObject:jsonObject
                              session:session
                             response:response];
+            
+            return;
         }
         
         if ([request.method isEqualToString:@"GET"]) {
@@ -339,6 +345,8 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
             [self handleGetResource:resource
                             session:session
                            response:response];
+            
+            return;
         }
         
         
@@ -348,6 +356,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                                session:session
                               response:response];
             
+            return;
         }
     }
     
