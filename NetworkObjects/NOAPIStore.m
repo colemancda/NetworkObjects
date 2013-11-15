@@ -212,9 +212,7 @@
     
     // GCD
     
-    dispatch_group_t group = dispatch_group_create();
-    
-    dispatch_group_enter(group);
+    dispatch_semaphore_t semphore = dispatch_semaphore_create(0);
     
     [self.api getResource:entity.name withID:resourceID completion:^(NSError *getError, NSDictionary *resource)
      {
@@ -234,10 +232,16 @@
              
          }
          
-         dispatch_group_leave(group);
+         dispatch_semaphore_signal(semphore);
      }];
     
-    dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
+    dispatch_semaphore_wait(semphore, DISPATCH_TIME_FOREVER);
+    
+    // error
+    if (error) {
+        
+        return nil;
+    }
     
     NSArray *dictionaryResults;
     
