@@ -336,6 +336,8 @@
             if (httpResponse.statusCode == NotFoundStatusCode) {
                 
                 completionBlock([self notFoundError], nil);
+                
+                return;
             }
             
             // else

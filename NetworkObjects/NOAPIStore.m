@@ -212,7 +212,7 @@
     
     // GCD
     
-    dispatch_semaphore_t semphore = dispatch_semaphore_create(0);
+    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
     
     [self.api getResource:entity.name withID:resourceID completion:^(NSError *getError, NSDictionary *resource)
      {
@@ -232,11 +232,11 @@
              
          }
          
-         dispatch_semaphore_signal(semphore);
+         dispatch_semaphore_signal(semaphore);
      }];
     
-    dispatch_semaphore_wait(semphore, DISPATCH_TIME_FOREVER);
-    
+    dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
+        
     // error
     if (error) {
         
