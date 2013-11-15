@@ -212,9 +212,9 @@
     
     // GCD
     
-    NSThread *thread = [NSThread currentThread];
+    dispatch_group_t group = dispatch_group_create();
     
-    NSLock *lock = [[NSLock alloc] init];
+    dispatch_group_enter(group);
     
     [self.api getResource:entity.name withID:resourceID completion:^(NSError *getError, NSDictionary *resource)
      {
@@ -234,15 +234,10 @@
              
          }
          
-         // unlock thread
-         
-         [lock performSelector:@selector(unlock)
-                      onThread:thread
-                    withObject:nil
-                 waitUntilDone:NO];
+         dispatch_group_leave(group);
      }];
     
-    [lock lock];
+    dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
     
     NSArray *dictionaryResults;
     
