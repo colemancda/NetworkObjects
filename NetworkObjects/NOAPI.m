@@ -118,6 +118,25 @@
 
 @end
 
+@implementation NOAPI (Common)
+
+-(Class)entityWithResourceName:(NSString *)resourceName
+{
+    NSEntityDescription *entity = self.model.entitiesByName[resourceName];
+    
+    if (!entity) {
+        
+        [NSException raise:NSInvalidArgumentException
+                    format:@"No entity in the model matches '%@'", resourceName];
+    }
+    
+    Class entityClass = NSClassFromString(entity.managedObjectClassName);
+    
+    return entityClass;
+}
+
+@end
+
 @implementation NOAPI
 
 #pragma mark - Requests
@@ -269,9 +288,13 @@
 {
     // build URL
     
-    NSURL *getResourceURL = [self.serverURL URLByAppendingPathComponent:resourceName];
+    Class entityClass = [self entityWithResourceName:resourceName];
     
-    NSString *resourceIDString = [NSString stringWithFormat:@"%d", resourceID];
+    NSString *resourcePath = [entityClass resourcePath];
+    
+    NSURL *getResourceURL = [self.serverURL URLByAppendingPathComponent:resourcePath];
+    
+    NSString *resourceIDString = [NSString stringWithFormat:@"%ld", (unsigned long)resourceID];
     
     getResourceURL = [getResourceURL URLByAppendingPathComponent:resourceIDString];
     
@@ -372,9 +395,13 @@
     withInitialValues:(NSDictionary *)initialValues
            completion:(void (^)(NSError *, NSNumber *))completionBlock
 {
-    // build URL
+    // build URL...
     
-    NSURL *createResourceURL = [self.serverURL URLByAppendingPathComponent:resourceName];
+    Class entityClass = [self entityWithResourceName:resourceName];
+    
+    NSString *resourcePath = [entityClass resourcePath];
+    
+    NSURL *createResourceURL = [self.serverURL URLByAppendingPathComponent:resourcePath];
     
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:createResourceURL];
     
@@ -399,7 +426,7 @@
     
     if (self.sessionToken) {
         
-        [request addValue:self.sessionToken forHTTPHeaderField:@"Authentication"];
+        [request addValue:self.sessionToken forHTTPHeaderField:@"Authorization"];
     }
     
     request.HTTPMethod = @"POST";

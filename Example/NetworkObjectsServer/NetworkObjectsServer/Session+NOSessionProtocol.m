@@ -69,12 +69,13 @@
 
 +(BOOL)canCreateNewInstanceFromSession:(NSManagedObject<NOSessionProtocol> *)sessionProtocolObject
 {
-    // NOServer has its own authentication method
+    // NOServer has its own authentication (session creation) method
     return NO;
 }
 
 -(BOOL)canDeleteFromSession:(NSManagedObject<NOSessionProtocol> *)session
 {
+    // NO
     return [self.class canCreateNewInstanceFromSession:session];
 }
 

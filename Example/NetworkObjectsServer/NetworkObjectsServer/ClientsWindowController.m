@@ -47,6 +47,10 @@
     
     [self.tableView reloadData];
     
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(textFieldDidEndEditing:)
+                                                 name:NSControlTextDidEndEditingNotification
+                                               object:nil];
 }
 
 #pragma mark - First Responder
@@ -212,5 +216,18 @@
     
     return cellView;
 }
+
+#pragma mark - Text Field Editing
+
+-(void)controlTextDidEndEditing:(NSNotification *)notification
+{
+    // get control object
+    NSTextField *textField = notification.object;
+    
+    // get model object
+    
+    
+}
+
 
 @end

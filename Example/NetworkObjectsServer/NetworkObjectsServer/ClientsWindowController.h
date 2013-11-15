@@ -8,7 +8,7 @@
 
 #import <Cocoa/Cocoa.h>
 
-@interface ClientsWindowController : NSWindowController <NSTableViewDataSource, NSTableViewDelegate>
+@interface ClientsWindowController : NSWindowController <NSTableViewDataSource, NSTableViewDelegate, NSTextFieldDelegate>
 {
     NSMutableArray *_clients;
     
@@ -26,7 +26,5 @@
 -(void)populateClientsArrayWithSortDescriptor:(NSArray *)sortDescriptors;
 
 -(IBAction)checkBoxSelected:(NSButton *)sender;
-
-
 
 @end

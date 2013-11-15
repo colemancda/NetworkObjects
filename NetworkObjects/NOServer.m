@@ -176,7 +176,7 @@ forResourceWithEntityDescription:entityDescription
         
         // setup routes for resource instances
         
-        NSString *instancePathExpression = [NSString stringWithFormat:@"/%@/(\\d+)", path];
+        NSString *instancePathExpression = [NSString stringWithFormat:@"{^/%@/(\\d+)}", path];
         
         void (^instanceRequestHandler) (RouteRequest *, RouteResponse *) = ^(RouteRequest *request, RouteResponse *response) {
             
@@ -209,7 +209,7 @@ forResourceWithEntityDescription:entityDescription
         
         for (NSString *functionName in [entityClass resourceFunctions]) {
             
-            NSString *functionExpression = [NSString stringWithFormat:@"/%@/(\\d+)/%@", path, functionName];
+            NSString *functionExpression = [NSString stringWithFormat:@"{^/%@/(\\d+)/%@}", path, functionName];
             
             void (^instanceFunctionRequestHandler) (RouteRequest *, RouteResponse *) = ^(RouteRequest *request, RouteResponse *response) {
                 
@@ -245,7 +245,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
 {
     // get session from request
     
-    NSString *token = request.headers[@"Authentication"];
+    NSString *token = request.headers[@"Authorization"];
     
     NSManagedObject<NOSessionProtocol> *session = [self sessionWithToken:token];
     

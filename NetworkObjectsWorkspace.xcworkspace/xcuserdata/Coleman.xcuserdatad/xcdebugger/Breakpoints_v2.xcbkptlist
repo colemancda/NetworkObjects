@@ -9,13 +9,13 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "Example/NetworkObjectsClient/NetworkObjectsClient/ConnectViewController.m"
-            timestampString = "406182811.353508"
+            filePath = "NetworkObjects/RoutingHTTPServer/RoutingConnection.m"
+            timestampString = "406186781.379541"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "239"
-            endingLineNumber = "239"
-            landmarkName = "-pushPostsVCWithUserPosts"
+            startingLineNumber = "55"
+            endingLineNumber = "55"
+            landmarkName = "-httpResponseForMethod:URI:"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>

@@ -240,6 +240,19 @@
          
          NSDictionary *userDict = results.firstObject;
          
+         if (!userDict) {
+             
+             NSLog(@"Could not download user profile");
+             
+             NSError *error = [NSError errorWithDomain:@"domain"
+                                                  code:100
+                                              userInfo:@{NSLocalizedDescriptionKey: @"Could not fetch user profile"}];
+             
+             [error presentError];
+             
+             return;
+         }
+         
          _postIDs = userDict[@"posts"];
          
          [[NSOperationQueue mainQueue] addOperationWithBlock:^{

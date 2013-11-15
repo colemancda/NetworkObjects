@@ -74,4 +74,10 @@ typedef NS_ENUM(NSUInteger, NOAPIErrorCode) {
     withInitialValues:(NSDictionary *)initialValues
            completion:(void (^)(NSError *error, NSNumber *resourceID))completionBlock;
 
+-(void)performFunction:(NSString *)functionName
+            onResource:(NSString *)resourceName
+                withID:(NSUInteger)resourceID
+        withJSONObject:(NSDictionary *)jsonObject
+            completion:(void (^)(NSError *error, NSNumber *statusCode, NSDictionary *response))completionBlock;
+
 @end

@@ -523,11 +523,11 @@
 			isa = PBXGroup;
 			children = (
 				6ECD2B731818B20D00244E05 /* Categories */,
-				6EED746F1818852200F911BC /* NOClientProtocol.h */,
 				6EED74701818852200F911BC /* NOResourceProtocol.h */,
 				6EED74711818852200F911BC /* NOResourceProtocolConstants.h */,
-				6EED74741818852200F911BC /* NOSessionProtocol.h */,
 				6EED74771818852200F911BC /* NOUserProtocol.h */,
+				6EED746F1818852200F911BC /* NOClientProtocol.h */,
+				6EED74741818852200F911BC /* NOSessionProtocol.h */,
 			);
 			name = Model;
 			sourceTree = "<group>";
