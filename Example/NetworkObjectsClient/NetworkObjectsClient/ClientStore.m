@@ -133,12 +133,16 @@
                    password:(NSString *)password
                  completion:(void (^)(NSError *))completionBlock
 {
-    // create object
+    // login as client
     
-    NSLog(@"Creating new User '%@'", username);
+    self.apiStore.api.username = nil;
     
-    [self.apiStore.api createResource:@"User" withInitialValues:@{@"username": username, @"password" : password} completion:^(NSError *error, NSNumber *resourceID) {
-       
+    self.apiStore.api.userPassword = nil;
+    
+    NSLog(@"Logging in as App");
+    
+    [self.apiStore.api loginWithCompletion:^(NSError *error) {
+        
         if (error) {
             
             completionBlock(error);
@@ -146,9 +150,10 @@
             return;
         }
         
-        // login
+        NSLog(@"Creating new User '%@'", username);
         
-        [self.apiStore.api loginWithCompletion:^(NSError *error) {
+        [self.apiStore.api createResource:@"User" withInitialValues:@{@"username": username, @"password" : password} completion:^(NSError *error, NSNumber *resourceID)
+        {
             
             if (error) {
                 
@@ -157,7 +162,20 @@
                 return;
             }
             
-            completionBlock(nil);
+            [self loginWithUsername:username password:password completion:^(NSError *error) {
+                
+                if (error) {
+                    
+                    completionBlock(error);
+                    
+                    return;
+                }
+                
+                NSLog(@"Sucessfully registered user '%@'", username);
+                
+                completionBlock(nil);
+                
+            }];
             
         }];
     }];

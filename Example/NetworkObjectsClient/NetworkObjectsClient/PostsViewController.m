@@ -47,7 +47,16 @@ static NSString *CellIdentifier = @"PostCell";
                             action:@selector(downloadData)
                   forControlEvents:UIControlEventValueChanged];
     
-    [self downloadData];
+    [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
+    
+    AppDelegate *delegate = [UIApplication sharedApplication].delegate;
+    
+    ClientStore *store = delegate.clientStore;
+    
+    NSLog(@"User '%@'", store.user.username);
+    
+    
+    
 }
 
 - (void)didReceiveMemoryWarning

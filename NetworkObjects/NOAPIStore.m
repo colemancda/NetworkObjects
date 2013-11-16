@@ -351,7 +351,7 @@
     
     // Convert raw unique identifiers for to-one relationships into NSManagedObjectID instances
     
-    for (NSRelationshipDescription *relationship in objectID.entity.relationshipsByName) {
+    for (NSRelationshipDescription *relationship in objectID.entity.relationshipsByName.allValues) {
         
         // to-one relationship
         if (!relationship.isToMany) {
