@@ -514,6 +514,8 @@
         if (!resourceID) {
             
             completionBlock(self.invalidServerResponse, nil);
+            
+            return;
         }
         
         // got it!

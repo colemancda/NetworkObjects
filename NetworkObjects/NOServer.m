@@ -770,7 +770,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
             return;
         }
         
-        session = result[0];
+        session = result.firstObject;
         
     }];
     

@@ -238,7 +238,7 @@
     dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
         
     // error
-    if (error) {
+    if (*error) {
         
         return nil;
     }

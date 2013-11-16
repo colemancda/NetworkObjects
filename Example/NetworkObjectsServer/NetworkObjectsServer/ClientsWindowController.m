@@ -231,7 +231,7 @@
     [client setValue:textField.stringValue
               forKey:textField.identifier];
     
-    NSLog(@"Changed Client %@ attribute %@ to %@", client.resourceID, textField.identifier, textField.stringValue);
+    NSLog(@"Changed Client %@ attribute '%@' to '%@'", client.resourceID, textField.identifier, textField.stringValue);
 }
 
 
