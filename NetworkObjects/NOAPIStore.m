@@ -302,6 +302,9 @@
     
     if (request.resultType == NSDictionaryResultType) {
         
+        [NSException raise:@"resultType not supported"
+                    format:@"NSDictionaryResultType results needs to be implemented"];
+        
         return dictionaryResults;
     }
     
@@ -347,25 +350,155 @@
     
     NSMutableDictionary *entityCache = _cache[objectID.entity.name];
     
-    NSMutableDictionary *values = [NSMutableDictionary dictionaryWithDictionary:entityCache[resourceID]];
+    NSDictionary *cachedValues = entityCache[resourceID];
+    
+    NSMutableDictionary *values;
+    
+    // download if not previously downloaded by -executeFetchRequest:context:error:
+    if (!entityCache || !cachedValues) {
+        
+        __block NSDictionary *downloadedValues;
+        
+        // GCD
+        
+        dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+        
+        [self.api getResource:objectID.entity.name withID:resourceID.integerValue completion:^(NSError *getError, NSDictionary *resource)
+         {
+             if (getError) {
+                 
+                 // forward error
+                 *error = getError;
+             }
+             
+             else {
+                 
+                 downloadedValues = resource;
+                 
+             }
+             
+             dispatch_semaphore_signal(semaphore);
+         }];
+        
+        dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
+        
+        if (*error) {
+            
+            return nil;
+        }
+        
+        values = [NSMutableDictionary dictionaryWithDictionary:downloadedValues];
+        
+    }
+    
+    else {
+        
+        values = [NSMutableDictionary dictionaryWithDictionary:cachedValues];
+    }
     
     // Convert raw unique identifiers for to-one relationships into NSManagedObjectID instances
     
-    for (NSRelationshipDescription *relationship in objectID.entity.relationshipsByName.allValues) {
+    for (NSString *relationshipName in objectID.entity.relationshipsByName) {
+        
+        // find matching key in JSON dictionary
+        for (NSString *key in values.allKeys) {
+            
+            // will only run once becuase a dictionary doesnt have duplicate keys
+            if ([key isEqualToString:relationshipName]) {
+                
+                // get JSON value
+                
+                
+            }
+        }
+        
+        NSRelationshipDescription *relationship = objectID.entity.relationshipsByName[relationshipName];
         
         // to-one relationship
         if (!relationship.isToMany) {
             
-            NSString *key = relationship.name;
-            
-            NSNumber *destinationResourceID = values[key];
+            NSNumber *destinationResourceID = values[relationshipName];
             
             NSManagedObjectID *destinationObjectID = [self managedObjectIDForResourceID:destinationResourceID entity:relationship.destinationEntity];
             
-            // replace destination resourceIDs with objectIDs in values dictionary
+            // replace destination resourceIDs with NSManagedObjectIDs in values dictionary
             [values setObject:destinationObjectID
-                       forKey:key];
+                       forKey:relationshipName];
         }
+    }
+    
+    // convert attributes from JSON
+    
+    for (NSString *attributeName in objectID.entity.attributesByName) {
+        
+        NSAttributeDescription *attributeDescription = objectID.entity.attributesByName[attributeName];
+        
+        id jsonValue = values[attributeName];
+        
+        id value;
+        
+        // no JSON conversion for these values, no dont put them in NOResources
+        if (attributeDescription.attributeType == NSUndefinedAttributeType ||
+            attributeDescription.attributeType == NSTransformableAttributeType ||
+            attributeDescription.attributeType == NSObjectIDAttributeType) {
+            
+            return NO;
+        }
+        
+        // number types
+        if (attributeDescription.attributeType == (NSInteger16AttributeType
+                                                   | NSInteger32AttributeType
+                                                   | NSInteger64AttributeType
+                                                   | NSDecimalAttributeType
+                                                   | NSDoubleAttributeType
+                                                   | NSFloatAttributeType
+                                                   | NSBooleanAttributeType)) {
+            
+            if ([convertedValue isKindOfClass:[NSNumber class]]) {
+                
+                return YES;
+            }
+            
+            return NO;
+        }
+        
+        // string type
+        if (attributeDescription.attributeType == NSStringAttributeType) {
+            
+            if ([convertedValue isKindOfClass:[NSString class]]) {
+                
+                return YES;
+            }
+            
+            return NO;
+        }
+        
+        // date type
+        if (attributeDescription.attributeType == NSDateAttributeType) {
+            
+            if ([convertedValue isKindOfClass:[NSDate class]]) {
+                
+                return YES;
+            }
+            
+            return NO;
+        }
+        
+        // data type
+        if (attributeDescription.attributeType == NSBinaryDataAttributeType) {
+            
+            if ([convertedValue isKindOfClass:[NSData class]]) {
+                
+                return YES;
+            }
+            
+            return NO;
+        }
+        
+        // set value
+        [values setValue:value
+                  forKey:attributeName];
+        
     }
     
     NSIncrementalStoreNode *node = [[NSIncrementalStoreNode alloc] initWithObjectID:objectID
