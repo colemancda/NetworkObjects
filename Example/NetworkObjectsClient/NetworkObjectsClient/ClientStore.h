@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 @import CoreData;
 
-@class NOAPI, NOAPIStore;
+@class NOAPI, NOAPIStore, User;
 
 @interface ClientStore : NSObject
 
@@ -22,6 +22,10 @@
 @property (readonly) NOAPIStore *apiStore;
 
 @property (readonly) NSManagedObjectContext *context;
+
+@property (readonly) User *user;
+
+-(void)loginWithCompletion:(void (^)(NSError *error))completionBlock;
 
 
 @end

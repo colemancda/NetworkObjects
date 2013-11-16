@@ -9,9 +9,6 @@
 #import <UIKit/UIKit.h>
 
 @interface ConnectViewController : UITableViewController <UITextFieldDelegate>
-{
-    NSArray *_postIDs;
-}
 
 @property (weak, nonatomic) IBOutlet UITextField *urlTextField;
 

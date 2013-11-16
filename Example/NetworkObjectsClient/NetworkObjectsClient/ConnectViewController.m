@@ -110,6 +110,10 @@
     
     [ClientStore sharedStore].api.userPassword = nil;
     
+    NSString *username = self.usernameTextField.text;
+    
+    NSString *password = self.passwordTextField.text;
+    
     // login
     
     [[ClientStore sharedStore].api loginWithCompletion:^(NSError *error) {
@@ -145,15 +149,26 @@
             
             // login as new user
             
-            //...
+            [ClientStore sharedStore].api.username = username;
             
-            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            [ClientStore sharedStore].api.userPassword = password;
+            
+            [[ClientStore sharedStore].api loginWithCompletion:^(NSError *error) {
                 
-                [self pushPostsVCWithUserPosts];
+                if (error) {
+                    
+                    [error presentError];
+                    
+                    return;
+                }
+                
+                [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                    
+                    [self pushPostsVCWithUserPosts];
+                }];
+                
             }];
-            
         }];
-        
     }];
 }
 
@@ -218,7 +233,6 @@
     NSLog(@"Downloading user profile...");
     
     NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"User"];
-    request.resultType = NSDictionaryResultType;
     
     request.predicate = [NSPredicate predicateWithFormat:@"%K == %@", @"resourceID", [ClientStore sharedStore].api.userResourceID];
     
@@ -238,9 +252,9 @@
          
          // get user
          
-         NSDictionary *userDict = results.firstObject;
+         User *user = results.firstObject;
          
-         if (!userDict) {
+         if (!user) {
              
              NSLog(@"Could not download user profile");
              
@@ -252,8 +266,6 @@
              
              return;
          }
-         
-         _postIDs = userDict[@"posts"];
          
          [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             

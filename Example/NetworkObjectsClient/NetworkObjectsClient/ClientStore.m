@@ -75,7 +75,11 @@
 
 #pragma mark
 
-
+-(void)loginWithCompletion:(void (^)(NSError *))completionBlock
+{
+    
+    
+}
 
 
 
