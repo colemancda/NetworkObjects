@@ -9,6 +9,10 @@
 #import "PostsViewController.h"
 #import "ClientStore.h"
 #import "Post.h"
+#import "AppDelegate.h"
+#import "NSError+presentError.h"
+#import "User.h"
+#import "Post.h"
 
 static NSString *CellIdentifier = @"PostCell";
 
@@ -60,41 +64,52 @@ static NSString *CellIdentifier = @"PostCell";
     
     [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
     
+    AppDelegate *delegate = [UIApplication sharedApplication].delegate;
+    
+    ClientStore *store = delegate.clientStore;
+    
     NSMutableArray *posts = [[NSMutableArray alloc] init];
     
-    for (NSNumber *postID in self.postIDs) {
+    // download User again
+    
+    [store.context performBlock:^{
         
-        NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Post"];
+        NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"User"];
         
-        __block NSError *error;
+        fetchRequest.predicate = [NSPredicate predicateWithFormat:@"resourceID == %@", store.user.resourceID];
+       
+        NSError *error;
         
-        __block NSArray *result;
-        
-        [[ClientStore sharedStore].context performBlockAndWait:^{
-            
-            result = [[ClientStore sharedStore].context executeFetchRequest:request
-                                                                      error:&error];
-        }];
+        NSArray *results = [store.context executeFetchRequest:fetchRequest
+                                                        error:&error];
         
         if (error) {
             
-            NSLog(@"Error loading post %@ (%@)", postID, error.localizedDescription);
-        }
-        else {
+            [error presentError];
             
-            Post *post = result.firstObject;
-            
-            // add to array
-            if (post) {
-                
-                [posts addObject:post];
-            }
+            return;
         }
-    }
+        
+        User *user = results.firstObject;
+        
+        if (!user) {
+            
+            NSLog(@"Could not fetch user");
+            
+            return;
+        }
+        
+        
+        
+    }];
+    
+    _posts = posts;
     
     [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
     
     [self.tableView reloadData];
+    
+    [self.refreshControl endRefreshing];
 }
 
 #pragma mark - Table view data source

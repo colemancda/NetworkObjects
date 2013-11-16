@@ -7,9 +7,14 @@
 //
 
 #import <UIKit/UIKit.h>
+@class ClientStore;
+
+#define AppErrorDomain @"com.ColemanCDA.NetworkObjectsClient.ErrorDomain"
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 
 @property (strong, nonatomic) UIWindow *window;
+
+@property ClientStore *clientStore;
 
 @end

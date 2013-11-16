@@ -7,13 +7,12 @@
 //
 
 #import <UIKit/UIKit.h>
+@class User;
 
 @interface PostsViewController : UITableViewController
 {
     NSMutableArray *_posts;
 }
-
-@property NSArray *postIDs;
 
 -(IBAction)unwindToPostsVC:(UIStoryboardSegue *)segue;
 

@@ -19,7 +19,7 @@
     uint64_t _versionCount;
 }
 
-@property NOAPI *api;
+@property (readonly) NOAPI *api;
 
 +(NSString *)type;
 

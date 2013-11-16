@@ -44,6 +44,29 @@
 
 -(BOOL)loadMetadata:(NSError *__autoreleasing *)error
 {
+    // check URL
+    
+    [NSURLConnection sendSynchronousRequest:[NSURLRequest requestWithURL:self.URL]
+                          returningResponse:nil
+                                      error:error];
+    
+    if (*error) {
+        
+        return NO;
+    }
+    
+    // initialize internal API
+    _api = [[NOAPI alloc] initWithURL:self.URL
+                                model:self.persistentStoreCoordinator.managedObjectModel];
+    
+    if (!_api) {
+        
+        [NSException raise:NSInternalInconsistencyException
+                    format:@"Failed to initialize NOAPI which is required for internal operation of NOAPIStore"];
+        
+        return NO;
+    }
+    
     NSMutableDictionary *mutableMetadata = [NSMutableDictionary dictionary];
     [mutableMetadata setValue:[[NSProcessInfo processInfo] globallyUniqueString]
                        forKey:NSStoreUUIDKey];

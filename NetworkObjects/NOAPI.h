@@ -23,7 +23,12 @@ typedef NS_ENUM(NSUInteger, NOAPIErrorCode) {
 
 @interface NOAPI : NSObject
 
-@property NSManagedObjectModel *model;
+-(id)initWithURL:(NSURL *)url
+           model:(NSManagedObjectModel *)model;
+
+#pragma mark
+
+@property (readonly) NSManagedObjectModel *model;
 
 @property NSURLSession *urlSession;
 
@@ -37,7 +42,7 @@ typedef NS_ENUM(NSUInteger, NOAPIErrorCode) {
 
 @property BOOL prettyPrintJSON;
 
-@property NSURL *serverURL;
+@property (readonly) NSURL *serverURL;
 
 @property NSString *loginPath;
 

@@ -48,75 +48,77 @@
 
 #pragma mark - Actions
 
-- (IBAction)login:(UIButton *)sender {
+- (IBAction)login:(UIButton *)sender
+{
+    AppDelegate *delegate = [UIApplication sharedApplication].delegate;
     
-    // set values for connection
+    NSURL *url = [NSURL URLWithString:self.urlTextField.text];
     
-    [ClientStore sharedStore].api.serverURL = [NSURL URLWithString:self.urlTextField.text];
+    NSError *error;
+    
+    delegate.clientStore = [[ClientStore alloc] initWithURL:url
+                                                      error:&error];
+    
+    if (error) {
+        
+        [error presentError];
+        
+        return;
+    }
     
     NSNumber *clientResourceID = [NSNumber numberWithInteger:self.clientIDTextField.text.integerValue];
     
-    [ClientStore sharedStore].api.clientResourceID = clientResourceID;
+    delegate.clientStore.apiStore.api.clientResourceID = clientResourceID;
     
-    [ClientStore sharedStore].api.clientSecret = self.clientSecretTextField.text;
-    
-    [ClientStore sharedStore].api.username = self.usernameTextField.text;
-    
-    [ClientStore sharedStore].api.userPassword = self.passwordTextField.text;
+    delegate.clientStore.apiStore.api.clientSecret = self.clientSecretTextField.text;
     
     // login
     
-    [[ClientStore sharedStore].api loginWithCompletion:^(NSError *error) {
+    [delegate.clientStore loginWithUsername:self.usernameTextField.text password:self.passwordTextField.text completion:^(NSError *error) {
         
         if (error) {
             
-            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-                
-                UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Error", @"Error") message:error.localizedDescription delegate:nil cancelButtonTitle:NSLocalizedString(@"OK", @"OK") otherButtonTitles:nil];
-                
-                [alertView show];
-                
-            }];
+            [error presentError];
             
             return;
         }
-        
-        NSLog(@"Got '%@' token", [ClientStore sharedStore].api.sessionToken);
-        
+       
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             
-            // push VC
-            
-            [self pushPostsVCWithUserPosts];
+            [self performSegueWithIdentifier:@"pushPostsVC"
+                                      sender:self];
             
         }];
     }];
-    
 }
 
--(void)registerNewUser:(id)sender
+-(void)registerNewUser:(UIButton *)sender
 {
-    // set values for connection (login only as app and not as user & app)
+    AppDelegate *delegate = [UIApplication sharedApplication].delegate;
     
-    [ClientStore sharedStore].api.serverURL = [NSURL URLWithString:self.urlTextField.text];
+    NSURL *url = [NSURL URLWithString:self.urlTextField.text];
+    
+    NSError *error;
+    
+    delegate.clientStore = [[ClientStore alloc] initWithURL:url
+                                                      error:&error];
+    
+    if (error) {
+        
+        [error presentError];
+        
+        return;
+    }
     
     NSNumber *clientResourceID = [NSNumber numberWithInteger:self.clientIDTextField.text.integerValue];
     
-    [ClientStore sharedStore].api.clientResourceID = clientResourceID;
+    delegate.clientStore.apiStore.api.clientResourceID = clientResourceID;
     
-    [ClientStore sharedStore].api.clientSecret = self.clientSecretTextField.text;
-    
-    [ClientStore sharedStore].api.username = nil;
-    
-    [ClientStore sharedStore].api.userPassword = nil;
-    
-    NSString *username = self.usernameTextField.text;
-    
-    NSString *password = self.passwordTextField.text;
+    delegate.clientStore.apiStore.api.clientSecret = self.clientSecretTextField.text;
     
     // login
     
-    [[ClientStore sharedStore].api loginWithCompletion:^(NSError *error) {
+    [delegate.clientStore registerWithUsername:self.usernameTextField.text password:self.passwordTextField.text completion:^(NSError *error) {
         
         if (error) {
             
@@ -125,49 +127,11 @@
             return;
         }
         
-        NSLog(@"Got '%@' token", [ClientStore sharedStore].api.sessionToken);
-        
-        NSDictionary *initialValues = @{@"username": self.usernameTextField.text,
-                                        @"password": self.passwordTextField.text};
-        
-        [[ClientStore sharedStore].api createResource:@"User" withInitialValues:initialValues completion:^(NSError *error, NSNumber *resourceID) {
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             
-            if (error) {
-                
-                [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-                    
-                    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Error", @"Error") message:error.localizedDescription delegate:nil cancelButtonTitle:NSLocalizedString(@"OK", @"OK") otherButtonTitles:nil];
-                    
-                    [alertView show];
-                    
-                }];
-                
-                return;
-            }
+            [self performSegueWithIdentifier:@"pushPostsVC"
+                                      sender:self];
             
-            NSLog(@"Created new user with resource ID %@", resourceID);
-            
-            // login as new user
-            
-            [ClientStore sharedStore].api.username = username;
-            
-            [ClientStore sharedStore].api.userPassword = password;
-            
-            [[ClientStore sharedStore].api loginWithCompletion:^(NSError *error) {
-                
-                if (error) {
-                    
-                    [error presentError];
-                    
-                    return;
-                }
-                
-                [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-                    
-                    [self pushPostsVCWithUserPosts];
-                }];
-                
-            }];
         }];
     }];
 }
@@ -220,60 +184,6 @@
             }
         }
     }
-}
-
-#pragma mark
-
--(void)pushPostsVCWithUserPosts
-{
-    // push VC
-    
-    // get user's post IDs...
-    
-    NSLog(@"Downloading user profile...");
-    
-    NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"User"];
-    
-    request.predicate = [NSPredicate predicateWithFormat:@"%K == %@", @"resourceID", [ClientStore sharedStore].api.userResourceID];
-    
-     [[ClientStore sharedStore].context performBlock:^{
-         
-         NSError *error;
-         
-         NSArray *results = [[ClientStore sharedStore].context executeFetchRequest:request
-                                                                             error:&error];
-         
-         if (error) {
-             
-             [error presentError];
-             
-             return;
-         }
-         
-         // get user
-         
-         User *user = results.firstObject;
-         
-         if (!user) {
-             
-             NSLog(@"Could not download user profile");
-             
-             NSError *error = [NSError errorWithDomain:@"domain"
-                                                  code:100
-                                              userInfo:@{NSLocalizedDescriptionKey: @"Could not fetch user profile"}];
-             
-             [error presentError];
-             
-             return;
-         }
-         
-         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-            
-             [self performSegueWithIdentifier:@"pushPostsVC"
-                                       sender:self];
-             
-         }];
-     }];
 }
 
 -(void)prepareForSegue:(UIStoryboardSegue *)segue

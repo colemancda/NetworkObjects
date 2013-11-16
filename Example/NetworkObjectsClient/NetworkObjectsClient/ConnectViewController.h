@@ -22,10 +22,8 @@
 
 -(IBAction)login:(UIButton *)sender;
 
--(IBAction)registerNewUser:(id)sender;
+-(IBAction)registerNewUser:(UIButton *)sender;
 
 -(void)loadTextFromPreferences;
-
--(void)pushPostsVCWithUserPosts;
 
 @end

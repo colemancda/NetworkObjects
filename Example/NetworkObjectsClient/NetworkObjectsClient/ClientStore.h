@@ -13,11 +13,10 @@
 
 @interface ClientStore : NSObject
 
-+ (ClientStore *)sharedStore;
+- (id)initWithURL:(NSURL *)url
+            error:(NSError **)error;
 
 #pragma mark
-
-@property (readonly) NOAPI *api;
 
 @property (readonly) NOAPIStore *apiStore;
 
@@ -25,7 +24,21 @@
 
 @property (readonly) User *user;
 
--(void)loginWithCompletion:(void (^)(NSError *error))completionBlock;
+@property (readonly) NSString *token;
+
+#pragma mark - Authentication
+
+-(void)loginWithUsername:(NSString *)username
+                password:(NSString *)password
+              completion:(void (^)(NSError *error))completionBlock;
+
+-(void)registerWithUsername:(NSString *)username
+                   password:(NSString *)password
+                 completion:(void (^)(NSError *error))completionBlock;
+
+#pragma mark
+
+
 
 
 @end
