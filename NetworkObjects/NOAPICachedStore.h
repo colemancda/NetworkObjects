@@ -9,8 +9,7 @@
 #import <Foundation/Foundation.h>
 #import <NetworkObjects/NOAPI.h>
 #import <NetworkObjects/NOResourceProtocol.h>
-
-@import CoreData;
+#import <CoreData/CoreData.h>
 
 @interface NOAPICachedStore : NSObject
 

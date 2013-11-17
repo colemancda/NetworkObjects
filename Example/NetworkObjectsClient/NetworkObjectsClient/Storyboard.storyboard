@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="4514" systemVersion="13A603" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="jqu-mw-WBk">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3746"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3747"/>
     </dependencies>
     <scenes>
         <!--Connect View Controller - Connect-->
@@ -170,7 +170,7 @@
         <scene sceneID="fWa-HC-sEf">
             <objects>
                 <tableViewController title="Posts" id="DCo-iV-Zvz" customClass="PostsViewController" sceneMemberID="viewController">
-                    <tableView key="view" opaque="NO" clipsSubviews="YES" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="113" sectionHeaderHeight="22" sectionFooterHeight="22" id="j0I-Xl-TAQ">
+                    <tableView key="view" opaque="NO" clipsSubviews="YES" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="j0I-Xl-TAQ">
                         <rect key="frame" x="0.0" y="64" width="320" height="504"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -242,7 +242,7 @@
                     <navigationItem key="navigationItem" title="Post Composer" id="7HK-OH-sSf">
                         <barButtonItem key="rightBarButtonItem" systemItem="done" id="WPb-Cn-mRY">
                             <connections>
-                                <action selector="done:" destination="651-gv-BLs" id="ylo-hd-9Qb"/>
+                                <action selector="done:" destination="651-gv-BLs" id="a7j-Da-O6U"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
