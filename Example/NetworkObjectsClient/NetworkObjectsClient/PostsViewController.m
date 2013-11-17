@@ -247,8 +247,6 @@ static NSString *CellIdentifier = @"PostCell";
          // get model object
          
          composerVC.post = _posts[self.tableView.indexPathForSelectedRow.row];
-         
-         composerVC.textView.text = composerVC.post.text;
      }
  }
 
