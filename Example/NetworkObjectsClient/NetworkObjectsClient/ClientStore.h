@@ -9,16 +9,13 @@
 #import <Foundation/Foundation.h>
 @import CoreData;
 
-@class NOAPI, NOAPIStore, User;
+@class NOAPI, User;
 
 @interface ClientStore : NSObject
 
-- (id)initWithURL:(NSURL *)url
-            error:(NSError **)error;
-
 #pragma mark
 
-@property (readonly) NOAPIStore *apiStore;
+@property (readonly) NOAPI *api;
 
 @property (readonly) NSManagedObjectContext *context;
 

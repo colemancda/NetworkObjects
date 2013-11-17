@@ -23,6 +23,5 @@
 #import <NetworkObjects/NOClientProtocol.h>
 
 #import <NetworkObjects/NOAPI.h>
-#import <NetworkObjects/NOAPIStore.h>
 
 #endif

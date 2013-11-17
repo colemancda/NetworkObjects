@@ -8,7 +8,6 @@
 
 #import "ClientStore.h"
 #import <NetworkObjects/NOAPI.h>
-#import <NetworkObjects/NOAPIStore.h>
 #import "AppDelegate.h"
 
 @implementation ClientStore
@@ -19,41 +18,20 @@
     self = [super init];
     if (self) {
         
-        // initialize context
-        
-        _context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-        
-        _context.persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:[NSManagedObjectModel mergedModelFromBundles:nil]];
-        
-        // add incremental store
-        NSString *storeType = [NOAPIStore type];
-        
-        NSPersistentStore *store = [_context.persistentStoreCoordinator addPersistentStoreWithType:storeType
-                                                                                     configuration:nil
-                                                                                               URL:url
-                                                                                           options:nil
-                                                                                             error:error];
-        
-        if (*error) {
-            
-            return nil;
-        }
-        
-        _apiStore = (NOAPIStore *)store;
-        
         // initialize API
         
-        _apiStore.api.urlSession = [NSURLSession sharedSession];
+        _api.urlSession = [NSURLSession sharedSession];
         
-        _apiStore.api.sessionEntityName = @"Session";
+        _api.sessionEntityName = @"Session";
         
-        _apiStore.api.userEntityName = @"User";
+        _api.userEntityName = @"User";
         
-        _apiStore.api.clientEntityName = @"Client";
+        _api.clientEntityName = @"Client";
         
-        _apiStore.api.prettyPrintJSON = YES;
+        _api.prettyPrintJSON = YES;
         
-        _apiStore.api.loginPath = @"login";
+        _api.loginPath = @"login";
+        
         
         
         
@@ -67,9 +45,9 @@
                 password:(NSString *)password
               completion:(void (^)(NSError *))completionBlock
 {
-    self.apiStore.api.username = username;
+    self.api.username = username;
     
-    self.apiStore.api.userPassword = password;
+    self.api.userPassword = password;
     
     NSLog(@"Logging in as '%@'...", username);
     

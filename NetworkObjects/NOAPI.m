@@ -139,30 +139,6 @@
 
 @implementation NOAPI
 
--(id)initWithURL:(NSURL *)url
-           model:(NSManagedObjectModel *)model
-{
-    self = [super init];
-    if (self) {
-        
-        _serverURL = url;
-        
-        _model = model;
-        
-    }
-    return self;
-}
-
-- (id)init
-{
-    [NSException raise:@"Wrong initialization method"
-                format:@"You cannot use %@ with '-%@', you have to use '-%@'",
-     self,
-     NSStringFromSelector(_cmd),
-     NSStringFromSelector(@selector(initWithURL:model:))];
-    return nil;
-}
-
 #pragma mark - Requests
 
 -(void)loginWithCompletion:(void (^)(NSError *))completionBlock
