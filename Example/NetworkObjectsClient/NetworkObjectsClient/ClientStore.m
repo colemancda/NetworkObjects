@@ -49,13 +49,15 @@
         
         api.loginPath = @"login";
         
+        api.model = [NSManagedObjectModel mergedModelFromBundles:nil];
+        
         _store = [[NOAPICachedStore alloc] init];
         
         _store.api = api;
         
         // initialize context
         
-        _store.context.persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:[NSManagedObjectModel mergedModelFromBundles:nil]];
+        _store.context.persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:api.model];
         
         NSError *error;
         

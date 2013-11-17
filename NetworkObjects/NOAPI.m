@@ -143,6 +143,15 @@
 
 -(void)loginWithCompletion:(void (^)(NSError *))completionBlock
 {
+    if (!self.clientResourceID ||
+        !self.clientSecret) {
+        
+        [NSException raise:NSInternalInconsistencyException
+                    format:@"clientResourceID and clientSecret are required for authentication"];
+        
+        return;
+    }
+    
     // build login URL
     
     NSURL *loginUrl = [self.serverURL URLByAppendingPathComponent:self.loginPath];
