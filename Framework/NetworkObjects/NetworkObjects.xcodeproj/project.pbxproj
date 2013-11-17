@@ -50,10 +50,6 @@
 		6EED74C51818852200F911BC /* NOAPI.h in Headers */ = {isa = PBXBuildFile; fileRef = 6EED74641818852200F911BC /* NOAPI.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6EED74C61818852200F911BC /* NOAPI.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EED74651818852200F911BC /* NOAPI.m */; };
 		6EED74C71818852200F911BC /* NOAPI.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EED74651818852200F911BC /* NOAPI.m */; };
-		6EED74C81818852200F911BC /* NOAPIStore.h in Headers */ = {isa = PBXBuildFile; fileRef = 6EED74661818852200F911BC /* NOAPIStore.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		6EED74C91818852200F911BC /* NOAPIStore.h in Headers */ = {isa = PBXBuildFile; fileRef = 6EED74661818852200F911BC /* NOAPIStore.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		6EED74CA1818852200F911BC /* NOAPIStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EED74671818852200F911BC /* NOAPIStore.m */; };
-		6EED74CB1818852200F911BC /* NOAPIStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EED74671818852200F911BC /* NOAPIStore.m */; };
 		6EED74CC1818852200F911BC /* NOHTTPConnection.h in Headers */ = {isa = PBXBuildFile; fileRef = 6EED74681818852200F911BC /* NOHTTPConnection.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6EED74CD1818852200F911BC /* NOHTTPConnection.h in Headers */ = {isa = PBXBuildFile; fileRef = 6EED74681818852200F911BC /* NOHTTPConnection.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6EED74CE1818852200F911BC /* NOHTTPConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EED74691818852200F911BC /* NOHTTPConnection.m */; };
@@ -283,8 +279,6 @@
 		6EED74611818835100F911BC /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS7.0.sdk/System/Library/Frameworks/CoreData.framework; sourceTree = DEVELOPER_DIR; };
 		6EED74641818852200F911BC /* NOAPI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NOAPI.h; path = ../../NetworkObjects/NOAPI.h; sourceTree = "<group>"; };
 		6EED74651818852200F911BC /* NOAPI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NOAPI.m; path = ../../NetworkObjects/NOAPI.m; sourceTree = "<group>"; };
-		6EED74661818852200F911BC /* NOAPIStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NOAPIStore.h; path = ../../NetworkObjects/NOAPIStore.h; sourceTree = "<group>"; };
-		6EED74671818852200F911BC /* NOAPIStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NOAPIStore.m; path = ../../NetworkObjects/NOAPIStore.m; sourceTree = "<group>"; };
 		6EED74681818852200F911BC /* NOHTTPConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NOHTTPConnection.h; path = ../../../NetworkObjects/NOHTTPConnection.h; sourceTree = "<group>"; };
 		6EED74691818852200F911BC /* NOHTTPConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NOHTTPConnection.m; path = ../../../NetworkObjects/NOHTTPConnection.m; sourceTree = "<group>"; };
 		6EED746A1818852200F911BC /* NOHTTPServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NOHTTPServer.h; path = ../../../NetworkObjects/NOHTTPServer.h; sourceTree = "<group>"; };
@@ -500,8 +494,6 @@
 		6ECD2B6D1818B18C00244E05 /* Stores */ = {
 			isa = PBXGroup;
 			children = (
-				6EED74661818852200F911BC /* NOAPIStore.h */,
-				6EED74671818852200F911BC /* NOAPIStore.m */,
 			);
 			name = Stores;
 			sourceTree = "<group>";
@@ -791,7 +783,6 @@
 				6EED74D01818852200F911BC /* NOHTTPServer.h in Headers */,
 				6EED74E01818852200F911BC /* NOServer.h in Headers */,
 				6EED75641818852200F911BC /* RouteRequest.h in Headers */,
-				6EED74C81818852200F911BC /* NOAPIStore.h in Headers */,
 				6EED74F01818852200F911BC /* NSManagedObject+CoreDataJSONCompatibility.h in Headers */,
 				6EED74F41818852200F911BC /* RouteResponse+IPAddress.h in Headers */,
 				6EED75341818852200F911BC /* HTTPServer.h in Headers */,
@@ -846,7 +837,6 @@
 				6EED74D11818852200F911BC /* NOHTTPServer.h in Headers */,
 				6EED74E11818852200F911BC /* NOServer.h in Headers */,
 				6EED75651818852200F911BC /* RouteRequest.h in Headers */,
-				6EED74C91818852200F911BC /* NOAPIStore.h in Headers */,
 				6EED74F11818852200F911BC /* NSManagedObject+CoreDataJSONCompatibility.h in Headers */,
 				6EED74F51818852200F911BC /* RouteResponse+IPAddress.h in Headers */,
 				6EED75351818852200F911BC /* HTTPServer.h in Headers */,
@@ -1080,7 +1070,6 @@
 				6EED750E1818852200F911BC /* DDFileLogger.m in Sources */,
 				6EED75121818852200F911BC /* DDLog.m in Sources */,
 				6EED756E1818852200F911BC /* RoutingConnection.m in Sources */,
-				6EED74CA1818852200F911BC /* NOAPIStore.m in Sources */,
 				6EED751E1818852200F911BC /* DispatchQueueLogFormatter.m in Sources */,
 				6EED752A1818852200F911BC /* HTTPConnection.m in Sources */,
 				6EED74FE1818852200F911BC /* DDNumber.m in Sources */,
@@ -1150,7 +1139,6 @@
 				6EED74C71818852200F911BC /* NOAPI.m in Sources */,
 				6EED74FB1818852200F911BC /* DDData.m in Sources */,
 				6EED755B1818852200F911BC /* WebSocket.m in Sources */,
-				6EED74CB1818852200F911BC /* NOAPIStore.m in Sources */,
 				6EED75471818852200F911BC /* HTTPAsyncFileResponse.m in Sources */,
 				6EED756F1818852200F911BC /* RoutingConnection.m in Sources */,
 				6EED75671818852200F911BC /* RouteRequest.m in Sources */,
