@@ -14,6 +14,7 @@
 #import "User.h"
 #import "Post.h"
 #import "PostComposerViewController.h"
+#import "PostCell.h"
 
 static NSString *CellIdentifier = @"PostCell";
 
@@ -59,15 +60,29 @@ static NSString *CellIdentifier = @"PostCell";
     // Dispose of any resources that can be recreated.
 }
 
+-(void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    
+    [self refreshFromCache];
+}
+
 #pragma mark
+
+-(void)refreshFromCache
+{
+    NSLog(@"Loading posts from cache");
+    
+    _posts = [NSMutableArray arrayWithArray:[ClientStore sharedStore].user.posts.allObjects];
+    
+    [self.tableView reloadData];
+}
 
 -(void)downloadData
 {
     // download all the posts specified
     
     [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
-    
-    NSMutableArray *posts = [[NSMutableArray alloc] init];
     
     // download User again
     
@@ -79,6 +94,14 @@ static NSString *CellIdentifier = @"PostCell";
             
             [error presentError];
             
+            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                
+                [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+                
+                [self.refreshControl endRefreshing];
+                
+            }];
+            
             return;
         }
         
@@ -88,7 +111,7 @@ static NSString *CellIdentifier = @"PostCell";
         
         if (!user.posts.count) {
             
-            _posts = posts;
+            _posts = [[NSMutableArray alloc] init];
             
             NSLog(@"User has 0 posts");
             
@@ -107,32 +130,17 @@ static NSString *CellIdentifier = @"PostCell";
         
         NSLog(@"Downloading posts...");
         
-        NSMutableArray *dataTasks = [[NSMutableArray alloc] init];
+        __block NSError *previousError;
         
-        __block BOOL errorOcurred;
+        __block NSInteger counter = user.posts.count;
         
         for (Post *post in user.posts) {
             
-            if (errorOcurred) {
-                
-                return;
-            }
-            
-            NSURLSessionDataTask *task = [[ClientStore sharedStore].store getResource:@"Post" resourceID:post.resourceID.integerValue completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource)
+            [[ClientStore sharedStore].store getResource:@"Post" resourceID:post.resourceID.integerValue completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource)
             {
                 if (error) {
                     
-                    if (errorOcurred) {
-                        
-                        return;
-                    }
-                    
-                    errorOcurred = YES;
-                    
-                    for (NSURLSessionDataTask *dataTask in dataTasks) {
-                        
-                        [dataTask cancel];
-                    }
+                    previousError = error;
                     
                     [error presentError];
                     
@@ -147,13 +155,18 @@ static NSString *CellIdentifier = @"PostCell";
                     return;
                 }
                 
-                [posts addObject:resource];
+                if (previousError) {
+                    
+                    return;
+                }
                 
-                if (posts.count == user.posts.count) {
+                counter--;
+                
+                if (counter == 0) {
                     
                     // all posts finished downloading
                     
-                    _posts = posts;
+                    _posts = [NSMutableArray arrayWithArray:user.posts.allObjects];
                     
                     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
                         
@@ -168,8 +181,6 @@ static NSString *CellIdentifier = @"PostCell";
                     }];
                 }
             }];
-            
-            [dataTasks addObject:task];
         }
     }];
 }
@@ -179,7 +190,7 @@ static NSString *CellIdentifier = @"PostCell";
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
     // Return the number of sections.
-    return 0;
+    return 1;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
@@ -190,25 +201,29 @@ static NSString *CellIdentifier = @"PostCell";
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
+    PostCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
     
     // Configure the cell...
     
+    // get the model object
+    Post *post = _posts[indexPath.row];
     
+    cell.textLabel.text = post.text;
+    
+    cell.userLabel.text = post.creator.username;
+    
+    cell.dateLabel.text = post.created.description;
     
     return cell;
 }
 
-/*
 // Override to support conditional editing of the table view.
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
 {
     // Return NO if you do not want the specified item to be editable.
     return YES;
 }
-*/
 
-/*
 // Override to support editing the table view.
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
 {
@@ -220,23 +235,6 @@ static NSString *CellIdentifier = @"PostCell";
         // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
     }   
 }
-*/
-
-/*
-// Override to support rearranging the table view.
-- (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath
-{
-}
-*/
-
-/*
-// Override to support conditional rearranging of the table view.
-- (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    // Return NO if you do not want the item to be re-orderable.
-    return YES;
-}
-*/
 
 #pragma mark - Navigation
 

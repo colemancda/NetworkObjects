@@ -10,4 +10,10 @@
 
 @interface PostCell : UITableViewCell
 
+@property (weak, nonatomic) IBOutlet UILabel *userLabel;
+
+@property (weak, nonatomic) IBOutlet UILabel *textLabel;
+
+@property (weak, nonatomic) IBOutlet UILabel *dateLabel;
+
 @end

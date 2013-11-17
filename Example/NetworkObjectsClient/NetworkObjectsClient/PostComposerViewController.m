@@ -10,6 +10,8 @@
 #import "ClientStore.h"
 #import <NetworkObjects/NOAPICachedStore.h>
 #import "NSError+presentError.h"
+#import "User.h"
+#import "Post.h"
 
 @interface PostComposerViewController ()
 
@@ -57,6 +59,10 @@
                     
                     return;
                 }
+                
+                Post *post = (Post *)resource;
+                
+                post.creator = [ClientStore sharedStore].user;
                 
                 NSLog(@"Successfully created new post");
                 

@@ -18,4 +18,6 @@
 
 -(void)downloadData;
 
+-(void)refreshFromCache;
+
 @end
