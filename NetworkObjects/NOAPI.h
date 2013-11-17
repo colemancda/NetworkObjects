@@ -57,30 +57,30 @@ typedef NS_ENUM(NSUInteger, NOAPIErrorCode) {
 
 #pragma mark - Requests
 
--(void)loginWithCompletion:(void (^)(NSError *error))completionBlock;
+-(NSURLSessionDataTask *)loginWithCompletion:(void (^)(NSError *error))completionBlock;
 
--(void)getResource:(NSString *)resourceName
-            withID:(NSUInteger)resourceID
-        completion:(void (^)(NSError *error, NSDictionary *resource))completionBlock;
+-(NSURLSessionDataTask *)getResource:(NSString *)resourceName
+                              withID:(NSUInteger)resourceID
+                          completion:(void (^)(NSError *error, NSDictionary *resource))completionBlock;
 
--(void)editResource:(NSString *)resourceName
-             withID:(NSUInteger)resourceID
-            changes:(NSDictionary *)changes
-         completion:(void (^)(NSError *error))completionBlock;
+-(NSURLSessionDataTask *)editResource:(NSString *)resourceName
+                               withID:(NSUInteger)resourceID
+                              changes:(NSDictionary *)changes
+                           completion:(void (^)(NSError *error))completionBlock;
 
--(void)deleteResource:(NSString *)resourceName
-               withID:(NSUInteger)resourceID
-           completion:(void (^)(NSError *error))completionBlock;
+-(NSURLSessionDataTask *)deleteResource:(NSString *)resourceName
+                                 withID:(NSUInteger)resourceID
+                             completion:(void (^)(NSError *error))completionBlock;
 
--(void)createResource:(NSString *)resourceName
-    withInitialValues:(NSDictionary *)initialValues
-           completion:(void (^)(NSError *error, NSNumber *resourceID))completionBlock;
+-(NSURLSessionDataTask *)createResource:(NSString *)resourceName
+                      withInitialValues:(NSDictionary *)initialValues
+                             completion:(void (^)(NSError *error, NSNumber *resourceID))completionBlock;
 
--(void)performFunction:(NSString *)functionName
-            onResource:(NSString *)resourceName
-                withID:(NSUInteger)resourceID
-        withJSONObject:(NSDictionary *)jsonObject
-            completion:(void (^)(NSError *error, NSNumber *statusCode, NSDictionary *response))completionBlock;
+-(NSURLSessionDataTask *)performFunction:(NSString *)functionName
+                              onResource:(NSString *)resourceName
+                                  withID:(NSUInteger)resourceID
+                          withJSONObject:(NSDictionary *)jsonObject
+                              completion:(void (^)(NSError *error, NSNumber *statusCode, NSDictionary *response))completionBlock;
 
 
 @end

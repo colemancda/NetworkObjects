@@ -43,11 +43,11 @@
 
 #pragma mark - Requests
 
--(void)getResource:(NSString *)resourceName
+-(NSURLSessionDataTask *)getResource:(NSString *)resourceName
         resourceID:(NSUInteger)resourceID
         completion:(void (^)(NSError *, NSManagedObject<NOResourceKeysProtocol> *))completionBlock
 {
-    [self.api getResource:resourceName withID:resourceID completion:^(NSError *error, NSDictionary *resourceDict) {
+    return [self.api getResource:resourceName withID:resourceID completion:^(NSError *error, NSDictionary *resourceDict) {
         
         if (error) {
             
@@ -64,7 +64,7 @@
     }];
 }
 
--(void)createResource:(NSString *)resourceName
+-(NSURLSessionDataTask *)createResource:(NSString *)resourceName
         initialValues:(NSDictionary *)initialValues
            completion:(void (^)(NSError *, NSManagedObject<NOResourceKeysProtocol> *))completionBlock
 {
@@ -75,7 +75,7 @@
     // convert those Core Data values to JSON
     NSDictionary *jsonValues = [entity jsonObjectFromCoreDataValues:initialValues];
     
-    [self.api createResource:resourceName withInitialValues:jsonValues completion:^(NSError *error, NSNumber *resourceID) {
+    return [self.api createResource:resourceName withInitialValues:jsonValues completion:^(NSError *error, NSNumber *resourceID) {
        
         if (error) {
             
@@ -107,7 +107,7 @@
     }];
 }
 
--(void)editResource:(NSManagedObject<NOResourceKeysProtocol> *)resource
+-(NSURLSessionDataTask *)editResource:(NSManagedObject<NOResourceKeysProtocol> *)resource
             changes:(NSDictionary *)values
          completion:(void (^)(NSError *))completionBlock
 {
@@ -122,7 +122,7 @@
     
     NSNumber *resourceID = [resource valueForKey:resourceIDKey];
     
-    [self.api editResource:resource.entity.name withID:resourceID.integerValue changes:jsonValues completion:^(NSError *error) {
+    return [self.api editResource:resource.entity.name withID:resourceID.integerValue changes:jsonValues completion:^(NSError *error) {
        
         if (error) {
             
@@ -152,7 +152,7 @@
     }];
 }
 
--(void)deleteResource:(NSManagedObject<NOResourceKeysProtocol> *)resource
+-(NSURLSessionDataTask *)deleteResource:(NSManagedObject<NOResourceKeysProtocol> *)resource
            completion:(void (^)(NSError *))completionBlock
 {
     // get resourceID
@@ -163,7 +163,7 @@
     
     NSNumber *resourceID = [resource valueForKey:resourceIDKey];
     
-    [self.api deleteResource:resource.entity.name withID:resourceID.integerValue completion:^(NSError *error) {
+    return [self.api deleteResource:resource.entity.name withID:resourceID.integerValue completion:^(NSError *error) {
         
         if (error) {
             
@@ -182,7 +182,7 @@
     }];
 }
 
--(void)performFunction:(NSString *)functionName
+-(NSURLSessionDataTask *)performFunction:(NSString *)functionName
             onResource:(NSManagedObject<NOResourceKeysProtocol> *)resource
         withJSONObject:(NSDictionary *)jsonObject
             completion:(void (^)(NSError *, NSNumber *, NSDictionary *))completionBlock
@@ -195,11 +195,11 @@
     
     NSNumber *resourceID = [resource valueForKey:resourceIDKey];
     
-    [self.api performFunction:functionName
-                   onResource:resource.entity.name
-                       withID:resourceID.integerValue
-               withJSONObject:jsonObject
-                   completion:completionBlock];
+    return [self.api performFunction:functionName
+                          onResource:resource.entity.name
+                              withID:resourceID.integerValue
+                      withJSONObject:jsonObject
+                          completion:completionBlock];
 }
 
 @end

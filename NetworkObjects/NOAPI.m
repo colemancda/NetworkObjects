@@ -141,7 +141,7 @@
 
 #pragma mark - Requests
 
--(void)loginWithCompletion:(void (^)(NSError *))completionBlock
+-(NSURLSessionDataTask *)loginWithCompletion:(void (^)(NSError *))completionBlock
 {
     if (!self.clientResourceID ||
         !self.clientSecret) {
@@ -149,7 +149,7 @@
         [NSException raise:NSInternalInconsistencyException
                     format:@"clientResourceID and clientSecret are required for authentication"];
         
-        return;
+        return nil;
     }
     
     // build login URL
@@ -289,9 +289,11 @@
     }];
     
     [task resume];
+    
+    return task;
 }
 
--(void)getResource:(NSString *)resourceName
+-(NSURLSessionDataTask *)getResource:(NSString *)resourceName
             withID:(NSUInteger)resourceID
         completion:(void (^)(NSError *, NSDictionary *))completionBlock
 {
@@ -398,9 +400,11 @@
     }];
     
     [dataTask resume];
+    
+    return dataTask;
 }
 
--(void)createResource:(NSString *)resourceName
+-(NSURLSessionDataTask *)createResource:(NSString *)resourceName
     withInitialValues:(NSDictionary *)initialValues
            completion:(void (^)(NSError *, NSNumber *))completionBlock
 {
@@ -425,7 +429,7 @@
             
             completionBlock(self.badRequestError, nil);
             
-            return;
+            return nil;
         }
         
         request.HTTPBody = postData;
@@ -533,6 +537,8 @@
     }];
     
     [dataTask resume];
+    
+    return nil;
 }
 
 @end

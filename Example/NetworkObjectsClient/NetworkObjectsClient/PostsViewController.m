@@ -70,15 +70,90 @@ static NSString *CellIdentifier = @"PostCell";
     
     // download User again
     
-    [ClientStore sharedStore]
+    NSLog(@"Downloading User...");
     
-    _posts = posts;
-    
-    [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
-    
-    [self.tableView reloadData];
-    
-    [self.refreshControl endRefreshing];
+    [[ClientStore sharedStore].store getResource:@"User" resourceID:[ClientStore sharedStore].user.resourceID.integerValue completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
+       
+        if (error) {
+            
+            [error presentError];
+            
+            return;
+        }
+        
+        // download each post
+        
+        User *user = (User *)resource;
+        
+        NSMutableArray *dataTasks = [[NSMutableArray alloc] init];
+        
+        __block BOOL errorOcurred;
+        
+        __block BOOL finished;
+        
+        NSLog(@"Downloading posts...");
+        
+        for (Post *post in user.posts) {
+            
+            if (errorOcurred) {
+                
+                return;
+            }
+            
+            NSURLSessionDataTask *task = [[ClientStore sharedStore].store getResource:@"Post" resourceID:post.resourceID.integerValue completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource)
+            {
+                if (error) {
+                    
+                    errorOcurred = YES;
+                    
+                    for (NSURLSessionDataTask *dataTask in dataTasks) {
+                        
+                        [dataTask cancel];
+                    }
+                    
+                    return;
+                }
+                
+                [posts addObject:resource];
+                
+                if (finished) {
+                    
+                    return;
+                }
+                
+                if (user.posts.count == dataTasks.count) {
+                    
+                    for (NSURLSessionDataTask *dataTask in dataTasks) {
+                        
+                        if (dataTask.state != NSURLSessionTaskStateCompleted) {
+                            
+                            return;
+                        }
+                        
+                        // all posts finished downloading
+                        
+                        _posts = posts;
+                        
+                        finished = YES;
+                        
+                        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                            
+                            [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+                            
+                            [self.tableView reloadData];
+                            
+                            [self.refreshControl endRefreshing];
+                            
+                            NSLog(@"Finished downloading Posts");
+                            
+                        }];
+                    }
+                }
+            }];
+            
+            [dataTasks addObject:task];
+        }
+    }];
 }
 
 #pragma mark - Table view data source

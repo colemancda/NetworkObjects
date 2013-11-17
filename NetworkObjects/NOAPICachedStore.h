@@ -22,24 +22,24 @@
 
 #pragma mark - Requests
 
--(void)getResource:(NSString *)resourceName
-        resourceID:(NSUInteger)resourceID
-        completion:(void (^)(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource))completionBlock;
+-(NSURLSessionDataTask *)getResource:(NSString *)resourceName
+                          resourceID:(NSUInteger)resourceID
+                          completion:(void (^)(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource))completionBlock;
 
--(void)editResource:(NSManagedObject<NOResourceKeysProtocol>*)resource
-            changes:(NSDictionary *)values
-         completion:(void (^)(NSError *error))completionBlock;
+-(NSURLSessionDataTask *)editResource:(NSManagedObject<NOResourceKeysProtocol>*)resource
+                              changes:(NSDictionary *)values
+                           completion:(void (^)(NSError *error))completionBlock;
 
--(void)deleteResource:(NSManagedObject<NOResourceKeysProtocol>*)resource
-           completion:(void (^)(NSError *error))completionBlock;
+-(NSURLSessionDataTask *)deleteResource:(NSManagedObject<NOResourceKeysProtocol>*)resource
+                             completion:(void (^)(NSError *error))completionBlock;
 
--(void)createResource:(NSString *)resourceName
-        initialValues:(NSDictionary *)initialValues
-           completion:(void (^)(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource))completionBlock;
+-(NSURLSessionDataTask *)createResource:(NSString *)resourceName
+                          initialValues:(NSDictionary *)initialValues
+                             completion:(void (^)(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource)) completionBlock;
 
--(void)performFunction:(NSString *)functionName
-            onResource:(NSManagedObject<NOResourceKeysProtocol>*)resource
-        withJSONObject:(NSDictionary *)jsonObject
-            completion:(void (^)(NSError *error, NSNumber *statusCode, NSDictionary *jsonResponse))completionBlock;
+-(NSURLSessionDataTask *)performFunction:(NSString *)functionName
+                              onResource:(NSManagedObject<NOResourceKeysProtocol>*)resource
+                          withJSONObject:(NSDictionary *)jsonObject
+                              completion:(void (^)(NSError *error, NSNumber *statusCode, NSDictionary *jsonResponse))completionBlock;
 
 @end
