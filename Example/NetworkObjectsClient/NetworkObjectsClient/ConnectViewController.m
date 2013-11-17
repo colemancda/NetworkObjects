@@ -50,31 +50,18 @@
 
 - (IBAction)login:(UIButton *)sender
 {
-    AppDelegate *delegate = [UIApplication sharedApplication].delegate;
+    // set API values
+    [ClientStore sharedStore].api.serverURL = [NSURL URLWithString:self.urlTextField.text];
     
-    NSURL *url = [NSURL URLWithString:self.urlTextField.text];
-    
-    NSError *error;
-    
-    delegate.clientStore = [[ClientStore alloc] initWithURL:url
-                                                      error:&error];
-    
-    if (error) {
-        
-        [error presentError];
-        
-        return;
-    }
+    [ClientStore sharedStore].api.clientSecret = self.clientSecretTextField.text;
     
     NSNumber *clientResourceID = [NSNumber numberWithInteger:self.clientIDTextField.text.integerValue];
     
-    delegate.clientStore.apiStore.api.clientResourceID = clientResourceID;
-    
-    delegate.clientStore.apiStore.api.clientSecret = self.clientSecretTextField.text;
+    [ClientStore sharedStore].api.clientResourceID = clientResourceID;
     
     // login
     
-    [delegate.clientStore loginWithUsername:self.usernameTextField.text password:self.passwordTextField.text completion:^(NSError *error) {
+    [[ClientStore sharedStore] loginWithUsername:self.usernameTextField.text password:self.passwordTextField.text completion:^(NSError *error) {
         
         if (error) {
             
@@ -94,31 +81,18 @@
 
 -(void)registerNewUser:(UIButton *)sender
 {
-    AppDelegate *delegate = [UIApplication sharedApplication].delegate;
+    // set API values
+    [ClientStore sharedStore].api.serverURL = [NSURL URLWithString:self.urlTextField.text];
     
-    NSURL *url = [NSURL URLWithString:self.urlTextField.text];
-    
-    NSError *error;
-    
-    delegate.clientStore = [[ClientStore alloc] initWithURL:url
-                                                      error:&error];
-    
-    if (error) {
-        
-        [error presentError];
-        
-        return;
-    }
+    [ClientStore sharedStore].api.clientSecret = self.clientSecretTextField.text;
     
     NSNumber *clientResourceID = [NSNumber numberWithInteger:self.clientIDTextField.text.integerValue];
     
-    delegate.clientStore.apiStore.api.clientResourceID = clientResourceID;
+    [ClientStore sharedStore].api.clientResourceID = clientResourceID;
     
-    delegate.clientStore.apiStore.api.clientSecret = self.clientSecretTextField.text;
+    // register
     
-    // login
-    
-    [delegate.clientStore registerWithUsername:self.usernameTextField.text password:self.passwordTextField.text completion:^(NSError *error) {
+    [[ClientStore sharedStore] registerWithUsername:self.usernameTextField.text password:self.passwordTextField.text completion:^(NSError *error) {
         
         if (error) {
             

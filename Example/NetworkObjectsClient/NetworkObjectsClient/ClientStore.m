@@ -12,8 +12,21 @@
 
 @implementation ClientStore
 
--(id)initWithURL:(NSURL *)url
-           error:(NSError *__autoreleasing *)error
++ (ClientStore *)sharedStore
+{
+    static ClientStore *sharedStore = nil;
+    if (!sharedStore) {
+        sharedStore = [[super allocWithZone:nil] init];
+    }
+    return sharedStore;
+}
+
++ (id)allocWithZone:(NSZone *)zone
+{
+    return [self sharedStore];
+}
+
+- (id)init
 {
     self = [super init];
     if (self) {
@@ -31,9 +44,6 @@
         _api.prettyPrintJSON = YES;
         
         _api.loginPath = @"login";
-        
-        
-        
         
     }
     return self;
@@ -113,13 +123,13 @@
 {
     // login as client
     
-    self.apiStore.api.username = nil;
+    self.api.username = nil;
     
-    self.apiStore.api.userPassword = nil;
+    self.api.userPassword = nil;
     
     NSLog(@"Logging in as App");
     
-    [self.apiStore.api loginWithCompletion:^(NSError *error) {
+    [self.api loginWithCompletion:^(NSError *error) {
         
         if (error) {
             
@@ -130,7 +140,7 @@
         
         NSLog(@"Creating new User '%@'", username);
         
-        [self.apiStore.api createResource:@"User" withInitialValues:@{@"username": username, @"password" : password} completion:^(NSError *error, NSNumber *resourceID)
+        [self.api createResource:@"User" withInitialValues:@{@"username": username, @"password" : password} completion:^(NSError *error, NSNumber *resourceID)
         {
             
             if (error) {

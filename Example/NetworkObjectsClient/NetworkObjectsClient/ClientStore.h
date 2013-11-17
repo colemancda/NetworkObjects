@@ -13,6 +13,8 @@
 
 @interface ClientStore : NSObject
 
++ (ClientStore *)sharedStore;
+
 #pragma mark
 
 @property (readonly) NOAPI *api;
@@ -33,7 +35,7 @@
                    password:(NSString *)password
                  completion:(void (^)(NSError *error))completionBlock;
 
-#pragma mark
+#pragma mark - Cache or 
 
 
 
