@@ -7,6 +7,9 @@
 //
 
 #import "PostComposerViewController.h"
+#import "ClientStore.h"
+#import <NetworkObjects/NOAPICachedStore.h>
+#import "NSError+presentError.h"
 
 @interface PostComposerViewController ()
 
@@ -39,11 +42,53 @@
 
 -(void)done:(id)sender
 {
+    // create new post
+    if (!self.post) {
+        
+        NSLog(@"Uploading post...");
+        
+        [[ClientStore sharedStore].store createResource:@"Post" initialValues:@{@"text": self.textView.text} completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
+           
+            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+               
+                if (error) {
+                    
+                    [error presentError];
+                    
+                    return;
+                }
+                
+                NSLog(@"Successfully created new post");
+                
+                [self performSegueWithIdentifier:@"postComposerVCDone"
+                                          sender:self];
+            }];
+        }];
+        
+        return;
+    }
     
+    // edit post
     
-    [self performSegueWithIdentifier:@"unwindToPostsVCFromPostsComposer"
-                              sender:self];
+    NSLog(@"Editing post...");
     
+    [[ClientStore sharedStore].store editResource:(NSManagedObject<NOResourceKeysProtocol> *)self.post changes:@{@"text": self.textView.text} completion:^(NSError *error) {
+        
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            
+            if (error) {
+                
+                [error presentError];
+                
+                return;
+            }
+            
+            NSLog(@"Successfully edited post");
+            
+            [self performSegueWithIdentifier:@"postComposerVCDone"
+                                      sender:self];
+        }];
+    }];
 }
 
 @end

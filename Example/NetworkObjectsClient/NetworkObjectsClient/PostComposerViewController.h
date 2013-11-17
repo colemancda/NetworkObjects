@@ -7,8 +7,13 @@
 //
 
 #import <UIKit/UIKit.h>
+@class Post;
 
 @interface PostComposerViewController : UIViewController
+
+@property (strong, nonatomic) IBOutlet UITextView *textView;
+
+@property Post *post;
 
 -(IBAction)done:(id)sender;
 

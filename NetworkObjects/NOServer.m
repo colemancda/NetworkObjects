@@ -485,6 +485,9 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     // create new instance
     NSManagedObject<NOResourceProtocol> *newResource = [_store newResourceWithEntityDescription:entityDescription];
     
+    // notify
+    [newResource wasCreatedBySession:session];
+    
     // validate initial values
     NOServerStatusCode applyInitialValuesStatusCode = [self verifyEditResource:newResource
                                                             recievedJsonObject:initialValues
@@ -518,9 +521,6 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                                                          error:nil];
     
     [response respondWithData:jsonData];
-    
-    // notify
-    [newResource wasCreatedBySession:session];
     
     response.statusCode = OKStatusCode;
 }

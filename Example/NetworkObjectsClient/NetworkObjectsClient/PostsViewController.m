@@ -13,6 +13,7 @@
 #import "NSError+presentError.h"
 #import "User.h"
 #import "Post.h"
+#import "PostComposerViewController.h"
 
 static NSString *CellIdentifier = @"PostCell";
 
@@ -237,16 +238,30 @@ static NSString *CellIdentifier = @"PostCell";
 }
 */
 
-/*
 #pragma mark - Navigation
 
 // In a story board-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
+ -(void)prepareForSegue:(UIStoryboardSegue *)segue
+                 sender:(id)sender
+ {
+     if ([segue.identifier isEqualToString:@"editPostComposer"]) {
+         
+         PostComposerViewController *composerVC = segue.destinationViewController;
+         
+         // get model object
+         
+         composerVC.post = _posts[self.tableView.indexPathForSelectedRow.row];
+         
+     }
+ }
+
+#pragma mark - Unwinding
+
+-(void)unwindToPostsVC:(UIStoryboardSegue *)segue
 {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
+    
+    
 }
 
- */
 
 @end
