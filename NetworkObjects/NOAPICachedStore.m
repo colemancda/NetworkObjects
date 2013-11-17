@@ -244,6 +244,15 @@
             
             resource = [NSEntityDescription insertNewObjectForEntityForName:resourceName
                                                      inManagedObjectContext:self.context];
+            
+            // set resource ID
+            entityClass = NSClassFromString(resource.entity.managedObjectClassName);
+            
+            NSString *resourceIDKey = [entityClass resourceIDKey];
+            
+            [resource setValue:[NSNumber numberWithInteger:resourceID]
+                        forKey:resourceIDKey];
+            
         }
     }];
     

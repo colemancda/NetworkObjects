@@ -73,7 +73,10 @@ static NSString *CellIdentifier = @"PostCell";
 {
     NSLog(@"Loading posts from cache");
     
-    _posts = [NSMutableArray arrayWithArray:[ClientStore sharedStore].user.posts.allObjects];
+    NSSortDescriptor *sort = [NSSortDescriptor sortDescriptorWithKey:@"resourceID"
+                                                           ascending:YES];
+    
+    _posts = [NSMutableArray arrayWithArray:[[ClientStore sharedStore].user.posts.allObjects sortedArrayUsingDescriptors:@[sort]]];
     
     [self.tableView reloadData];
 }
@@ -105,83 +108,18 @@ static NSString *CellIdentifier = @"PostCell";
             return;
         }
         
-        // download each post
-        
-        User *user = (User *)resource;
-        
-        if (!user.posts.count) {
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             
-            _posts = [[NSMutableArray alloc] init];
+            [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
             
-            NSLog(@"User has 0 posts");
+            [self refreshFromCache];
             
-            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-                
-                [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
-                
-                [self.tableView reloadData];
-                
-                [self.refreshControl endRefreshing];
-                
-                NSLog(@"Finished downloading Posts");
-                
-            }];
-        }
-        
-        NSLog(@"Downloading posts...");
-        
-        __block NSError *previousError;
-        
-        __block NSInteger counter = user.posts.count;
-        
-        for (Post *post in user.posts) {
+            [self.refreshControl endRefreshing];
             
-            [[ClientStore sharedStore].store getResource:@"Post" resourceID:post.resourceID.integerValue completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource)
-            {
-                if (error) {
-                    
-                    previousError = error;
-                    
-                    [error presentError];
-                    
-                    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-                        
-                        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
-                        
-                        [self.refreshControl endRefreshing];
-                        
-                    }];
-                    
-                    return;
-                }
-                
-                if (previousError) {
-                    
-                    return;
-                }
-                
-                counter--;
-                
-                if (counter == 0) {
-                    
-                    // all posts finished downloading
-                    
-                    _posts = [NSMutableArray arrayWithArray:user.posts.allObjects];
-                    
-                    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-                        
-                        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
-                        
-                        [self.tableView reloadData];
-                        
-                        [self.refreshControl endRefreshing];
-                        
-                        NSLog(@"Finished downloading Posts");
-                        
-                    }];
-                }
-            }];
-        }
+            NSLog(@"Finished downloading user");
+            
+        }];
+        
     }];
 }
 
@@ -208,11 +146,49 @@ static NSString *CellIdentifier = @"PostCell";
     // get the model object
     Post *post = _posts[indexPath.row];
     
+    if (!post.created ||
+        !post.creator ||
+        !post.text) {
+        
+        cell.textLabel.text = @"Loading...";
+        
+        cell.dateLabel.text = @"";
+        
+        cell.userLabel.text = @"";
+        
+        // download post
+        [[ClientStore sharedStore].store getResource:post.entity.name resourceID:post.resourceID.integerValue completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
+           
+            if (error) {
+                
+                [error presentError];
+                
+                return;
+            }
+            
+            Post *post = (Post *)resource;
+            
+            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+               
+                cell.textLabel.text = post.text;
+                
+                cell.dateLabel.text = post.created.description;
+                
+                cell.userLabel.text = post.creator.username;
+                
+                NSLog(@"downloaded post %@", post.resourceID);
+                
+            }];
+        }];
+        
+        return cell;
+    }
+    
     cell.textLabel.text = post.text;
     
-    cell.userLabel.text = post.creator.username;
-    
     cell.dateLabel.text = post.created.description;
+    
+    cell.userLabel.text = post.creator.username;
     
     return cell;
 }
@@ -250,6 +226,7 @@ static NSString *CellIdentifier = @"PostCell";
          
          composerVC.post = _posts[self.tableView.indexPathForSelectedRow.row];
          
+         composerVC.textView.text = composerVC.post.text;
      }
  }
 
