@@ -29,15 +29,15 @@ For all other entities use NOResourceProtocol.
 Client
 ==============
 
-NetworkObjects provides a convient controller and store class so that you dont have to know how NOServer's URLs and authentication work and so you dont have to write code to connect to the server. There are two classes availible for a client.
+NetworkObjects provides a convient controller and store class so that you dont have to know how NOServer's URLs and authentication work and so you don't have to write code to connect to the server. There are two classes availible for a client.
 
-NOAPI is a controller that connects to a NetworkObjects server and return JSON NSDictionaries. You must make sure to the the necesary properties such as the 'model' and 'serverURL' property for it to work.
+NOAPI is a controller that connects to a NetworkObjects server and return JSON NSDictionaries. You must make sure to the the necessary properties such as the 'model' and 'serverURL' property for it to work.
 
 NOAPICachedStore is store that has a NOAPI property which you must initialize and setup so it can use it to initialize a Core Data context. It is important to initialize a persistent store cooridnator and add a persistent store to the 'context' property so it can function.
 
 The server and client can share the same xcdatamodel file but not the same NSManagedObject subclass for each entity. Your server's NSManagedObject subclasses must conform to NOResourceProtocol for proper functionality. The client Core Data NSManagedObject subclasses only has to conform to NOResourceProtocolKeys.
 
-This framework is OS X 10.9+ and iOS 7+
+This framework is OS X 10.9+ and iOS 7+.
 
-If you have any questions you can contact me at @colemancda
+If you have any questions you can contact me at @colemancda.
 
