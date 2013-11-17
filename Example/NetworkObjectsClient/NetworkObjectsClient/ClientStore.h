@@ -37,6 +37,8 @@
 -(void)fetchPostsOfUser:(User *)user
              completion:(void (^)(NSError *error))completionBlock;
 
+-(void)fetchFriendsPostsForUser:(User *)user
+                     completion:(void (^)(NSError *error))completionBlock;
 
 
 @end

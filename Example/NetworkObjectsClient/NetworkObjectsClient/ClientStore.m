@@ -174,4 +174,13 @@
     }];
 }
 
+#pragma mark - Requests
+
+-(void)fetchPostsOfUser:(User *)user
+             completion:(void (^)(NSError *))completionBlock
+{
+    
+    
+}
+
 @end
