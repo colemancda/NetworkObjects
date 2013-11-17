@@ -35,4 +35,9 @@
         initialValues:(NSDictionary *)initialValues
            completion:(void (^)(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource))completionBlock;
 
+-(void)performFunction:(NSString *)functionName
+            onResource:(NSManagedObject<NOResourceKeysProtocol>*)resource
+        withJSONObject:(NSDictionary *)jsonObject
+            completion:(void (^)(NSError *error, NSNumber *statusCode, NSDictionary *jsonResponse))completionBlock;
+
 @end
