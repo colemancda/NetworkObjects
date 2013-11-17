@@ -32,5 +32,11 @@
                    password:(NSString *)password
                  completion:(void (^)(NSError *error))completionBlock;
 
+#pragma mark - Requests
+
+-(void)fetchPostsOfUser:(User *)user
+             completion:(void (^)(NSError *error))completionBlock;
+
+
 
 @end

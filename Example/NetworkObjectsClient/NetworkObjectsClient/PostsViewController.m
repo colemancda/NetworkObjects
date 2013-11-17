@@ -51,7 +51,7 @@ static NSString *CellIdentifier = @"PostCell";
     
     [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
     
-    [self downloadData];
+    [self refreshFromCache];
 }
 
 - (void)didReceiveMemoryWarning
@@ -150,7 +150,7 @@ static NSString *CellIdentifier = @"PostCell";
         !post.creator ||
         !post.text) {
         
-        cell.textLabel.text = @"Loading...";
+        cell.contentTextLabel.text = @"Loading...";
         
         cell.dateLabel.text = @"";
         
@@ -170,7 +170,7 @@ static NSString *CellIdentifier = @"PostCell";
             
             [[NSOperationQueue mainQueue] addOperationWithBlock:^{
                
-                cell.textLabel.text = post.text;
+                cell.contentTextLabel.text = post.text;
                 
                 cell.dateLabel.text = post.created.description;
                 
@@ -184,7 +184,7 @@ static NSString *CellIdentifier = @"PostCell";
         return cell;
     }
     
-    cell.textLabel.text = post.text;
+    cell.contentTextLabel.text = post.text;
     
     cell.dateLabel.text = post.created.description;
     

@@ -74,6 +74,8 @@
                 
                 post.creator = [ClientStore sharedStore].user;
                 
+                post.created = [NSDate date];
+                
                 NSLog(@"Successfully created new post");
                 
                 [self performSegueWithIdentifier:@"postComposerVCDone"

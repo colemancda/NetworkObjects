@@ -12,7 +12,7 @@
 
 @property (weak, nonatomic) IBOutlet UILabel *userLabel;
 
-@property (weak, nonatomic) IBOutlet UILabel *textLabel;
+@property (weak, nonatomic) IBOutlet UILabel *contentTextLabel;
 
 @property (weak, nonatomic) IBOutlet UILabel *dateLabel;
 
