@@ -7,8 +7,15 @@
 //
 
 #import <CoreData/CoreData.h>
-#import <NetworkObjects/NOAPIStoreConstants.h>
+#import <NetworkObjects/NOResourceProtocol.h>
 @class NOAPI;
+
+typedef NS_ENUM (NSUInteger, NOAPIStoreErrorCode) {
+    
+    NOAPIStoreInvalidPredicateErrorCode = 2000,
+    NOAPIStoreJSONInconsistent
+    
+};
 
 @interface NOAPIStore : NSIncrementalStore
 {
@@ -32,6 +39,12 @@
 -(id)executeFetchRequest:(NSFetchRequest *)request
              withContext:(NSManagedObjectContext *)context
                    error:(NSError *__autoreleasing *)error;
+
+#pragma mark - Functions
+
+-(NOResourceFunctionCode)sendFunctionToResource:(NSManagedObject<NOResourceKeysProtocol> *)resource
+                                     jsonObject:(NSDictionary *)dictionary
+                                   jsonResponse:(NSDictionary **)jsonResponse;
 
 #pragma mark - Obtain Object ID
 

@@ -10,6 +10,22 @@
 #import "NOResourceProtocol.h"
 #import "NetworkObjectsConstants.h"
 #import "NOAPI.h"
+#import "NSDate+ISO8601.h"
+
+@implementation NOAPIStore (Errors)
+
+-(NSError *)inconsistentJSONError
+{
+    NSString *description = NSLocalizedString(@"The downloaded JSON respresentation is inconsistent with the model", @"The downloaded JSON respresentation is inconsistent with the model");
+    
+    NSError *error = [NSError errorWithDomain:NetworkObjectsErrorDomain
+                                         code:NOAPIStoreInvalidPredicateErrorCode
+                                     userInfo:@{NSLocalizedDescriptionKey: description}];
+    
+    return error;
+}
+
+@end
 
 @implementation NOAPIStore
 
@@ -403,27 +419,27 @@
         // find matching key in JSON dictionary
         for (NSString *key in values.allKeys) {
             
+            NSRelationshipDescription *relationship = objectID.entity.relationshipsByName[relationshipName];
+            
             // will only run once becuase a dictionary doesnt have duplicate keys
-            if ([key isEqualToString:relationshipName]) {
+            if ([key isEqualToString:relationshipName] &&
+                !relationship.isToMany) {
                 
-                // get JSON value
+                NSNumber *destinationResourceID = values[relationshipName];
                 
+                if (![destinationResourceID isKindOfClass:[NSNumber class]]) {
+                    
+                    *error = [self inconsistentJSONError];
+                    
+                    return nil;
+                }
                 
+                NSManagedObjectID *destinationObjectID = [self managedObjectIDForResourceID:destinationResourceID entity:relationship.destinationEntity];
+                
+                // replace destination resourceIDs with NSManagedObjectIDs in values dictionary
+                [values setObject:destinationObjectID
+                           forKey:relationshipName];
             }
-        }
-        
-        NSRelationshipDescription *relationship = objectID.entity.relationshipsByName[relationshipName];
-        
-        // to-one relationship
-        if (!relationship.isToMany) {
-            
-            NSNumber *destinationResourceID = values[relationshipName];
-            
-            NSManagedObjectID *destinationObjectID = [self managedObjectIDForResourceID:destinationResourceID entity:relationship.destinationEntity];
-            
-            // replace destination resourceIDs with NSManagedObjectIDs in values dictionary
-            [values setObject:destinationObjectID
-                       forKey:relationshipName];
         }
     }
     
@@ -442,7 +458,10 @@
             attributeDescription.attributeType == NSTransformableAttributeType ||
             attributeDescription.attributeType == NSObjectIDAttributeType) {
             
-            return NO;
+            [NSException raise:NSInternalInconsistencyException
+                        format:@"Resource models cannot have Undefined or Transformable attributes"];
+            
+            return nil;
         }
         
         // number types
@@ -454,45 +473,70 @@
                                                    | NSFloatAttributeType
                                                    | NSBooleanAttributeType)) {
             
-            if ([convertedValue isKindOfClass:[NSNumber class]]) {
+            if (![jsonValue isKindOfClass:[NSNumber class]]) {
                 
-                return YES;
+                *error = [self inconsistentJSONError];
+                
+                return nil;
             }
             
-            return NO;
+            value = jsonValue;
+            
         }
         
         // string type
         if (attributeDescription.attributeType == NSStringAttributeType) {
             
-            if ([convertedValue isKindOfClass:[NSString class]]) {
+            if (![jsonValue isKindOfClass:[NSString class]]) {
                 
-                return YES;
+                *error = [self inconsistentJSONError];
+                
+                return nil;
             }
             
-            return NO;
+            value = jsonValue;
         }
         
         // date type
         if (attributeDescription.attributeType == NSDateAttributeType) {
             
-            if ([convertedValue isKindOfClass:[NSDate class]]) {
+            if (![value isKindOfClass:[NSString class]]) {
                 
-                return YES;
+                *error = [self inconsistentJSONError];
+                
+                return nil;
             }
             
-            return NO;
+            // convert
+            value = [NSDate dateWithISO8601String:value];
+            
+            if (!value) {
+                
+                *error = [self inconsistentJSONError];
+                
+                return nil;
+            }
         }
         
         // data type
         if (attributeDescription.attributeType == NSBinaryDataAttributeType) {
             
-            if ([convertedValue isKindOfClass:[NSData class]]) {
+            if (![value isKindOfClass:[NSString class]]) {
                 
-                return YES;
+                *error = [self inconsistentJSONError];
+                
+                return nil;
             }
             
-            return NO;
+            // convert
+            value = [[NSData alloc] initWithBase64EncodedString:value
+                                                        options:NSDataBase64DecodingIgnoreUnknownCharacters];
+            if (!value) {
+                
+                *error = [self inconsistentJSONError];
+                
+                return nil;
+            }
         }
         
         // set value
