@@ -14,7 +14,7 @@
 
 @property NOAPI *api;
 
-// have to add a persistent store for it to work
+// must initialize the persistent store coordinator
 
 @property (readonly) NSManagedObjectContext *context;
 

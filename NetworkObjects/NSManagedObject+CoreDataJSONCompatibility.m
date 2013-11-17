@@ -39,49 +39,8 @@
 -(NSObject *)JSONCompatibleValueForAttributeValue:(NSObject *)attributeValue
                                      forAttribute:(NSString *)attributeName
 {
-    NSAttributeDescription *attributeDescription = self.entity.attributesByName[attributeName];
-    
-    if (!attributeDescription) {
-        return nil;
-    }
-    
-    // give value based on attribute type
-    
-    NSObject *originalCoreDataValue = [self valueForKey:attributeName];
-    
-    Class attributeClass = NSClassFromString(attributeDescription.attributeValueClassName);
-    
-    // nil attributes can be represented in JSON by NSNull
-    if (!originalCoreDataValue) {
-        
-        return [NSNull null];
-    }
-    
-    // strings and numbers are standard json data types
-    if (attributeClass == [NSString class] ||
-        attributeClass == [NSNumber class]) {
-        
-        return originalCoreDataValue;
-    }
-    
-    // date
-    if (attributeClass == [NSDate class]) {
-        
-        // convert to string
-        NSDate *date = (NSDate *)originalCoreDataValue;
-        return date.ISO8601String;
-    }
-    
-    // data
-    if (attributeClass == [NSData class]) {
-        
-        NSData *data = (NSData *)originalCoreDataValue;
-        NSString *stringValue = [data base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
-        return stringValue;
-    }
-    
-    // error
-    return nil;
+    return [self.entity JSONCompatibleValueForAttributeValue:attributeValue
+                                                forAttribute:attributeName];
 }
 
 -(NSObject *)attributeValueForJSONCompatibleValue:(NSObject *)jsonValue
@@ -211,6 +170,62 @@
     }
     
     return NO;
+}
+
+@end
+
+@implementation NSEntityDescription (CoreDataJSONCompatibility)
+
+-(NSObject *)JSONCompatibleValueForAttributeValue:(NSObject *)attributeValue
+                                     forAttribute:(NSString *)attributeName
+{
+    NSAttributeDescription *attributeDescription = self.attributesByName[attributeName];
+    
+    if (!attributeDescription) {
+        return nil;
+    }
+    
+    // give value based on attribute type...
+    
+    Class attributeClass = NSClassFromString(attributeDescription.attributeValueClassName);
+    
+    // if nsnull then just return NSNull
+    if (attributeValue == [NSNull null]) {
+        
+        return [NSNull null];
+    }
+    
+    // nil attributes can be represented in JSON by NSNull
+    if (!attributeValue) {
+        
+        return [NSNull null];
+    }
+    
+    // strings and numbers are standard json data types
+    if (attributeClass == [NSString class] ||
+        attributeClass == [NSNumber class]) {
+        
+        return attributeValue;
+    }
+    
+    // date
+    if (attributeClass == [NSDate class]) {
+        
+        // convert to string
+        NSDate *date = (NSDate *)attributeValue;
+        return date.ISO8601String;
+    }
+    
+    // data
+    if (attributeClass == [NSData class]) {
+        
+        NSData *data = (NSData *)attributeValue;
+        NSString *stringValue = [data base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
+        return stringValue;
+    }
+    
+    // error
+    return nil;
 }
 
 @end

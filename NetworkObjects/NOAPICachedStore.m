@@ -35,6 +35,8 @@
         
         _context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
         
+        _context.undoManager = nil;
+        
     }
     return self;
 }
@@ -90,6 +92,13 @@
             
             id value = initialValues[key];
             
+            // Core Data cannot hold NSNull
+            
+            if (value == [NSNull null]) {
+                
+                value = nil;
+            }
+            
             [resource setValue:value
                         forKey:key];
         }
@@ -123,9 +132,16 @@
         }
         
         // set values
-        for (NSString *key in jsonValues) {
+        for (NSString *key in values) {
             
-            id value = jsonValues[key];
+            id value = values[key];
+            
+            // Core Data cannot hold NSNull
+            
+            if (value == [NSNull null]) {
+                
+                value = nil;
+            }
             
             [resource setValue:value
                         forKey:key];
@@ -332,23 +348,24 @@
             // found matching key (will only run once because dictionaries dont have duplicates)
             if ([key isEqualToString:attributeName]) {
                 
+                id value = [values valueForKey:key];
                 
+                id jsonValue = [self JSONCompatibleValueForAttributeValue:value
+                                                             forAttribute:key];
                 
-                id value = [resourceDict valueForKey:key];
-                
-                [resource setJSONCompatibleValue:value
-                                    forAttribute:attributeName];
+                [jsonObject setObject:jsonValue
+                               forKey:key];
                 
                 break;
             }
         }
     }
     
-    for (NSString *relationshipName in entity.relationshipsByName) {
+    for (NSString *relationshipName in self.relationshipsByName) {
         
-        NSRelationshipDescription *relationship = entity.relationshipsByName[relationshipName];
+        NSRelationshipDescription *relationship = self.relationshipsByName[relationshipName];
         
-        for (NSString *key in resourceDict) {
+        for (NSString *key in values) {
             
             // found matching key (will only run once because dictionaries dont have duplicates)
             if ([key isEqualToString:relationshipName]) {
@@ -356,35 +373,41 @@
                 // destination entity
                 NSEntityDescription *destinationEntity = relationship.destinationEntity;
                 
+                Class entityClass = NSClassFromString(destinationEntity.managedObjectClassName);
+                
+                NSString *destinationResourceIDKey = [entityClass resourceIDKey];
+                
                 // to-one relationship
                 if (!relationship.isToMany) {
                     
-                    // get the resource ID
-                    NSNumber *destinationResourceID = [resourceDict valueForKey:relationshipName];
+                    // get resource ID of object
                     
-                    NSManagedObject<NOResourceKeysProtocol> *destinationResource = [self resource:destinationEntity.name withID:destinationResourceID.integerValue];
+                    NSManagedObject<NOResourceKeysProtocol> *destinationResource = [values objectForKey:key];
                     
-                    [resource setValue:destinationResource
-                                forKey:key];
+                    NSNumber *destinationResourceID = [destinationResource valueForKey:destinationResourceIDKey];
+                    
+                    [jsonObject setObject:destinationResourceID
+                                   forKey:key];
+                    
                 }
                 
                 // to-many relationship
                 else {
                     
-                    // get the resourceIDs
-                    NSArray *destinationResourceIDs = [resourceDict valueForKey:relationshipName];
+                    NSSet *destinationResources = [values valueForKey:relationshipName];
                     
-                    NSMutableSet *destinationResources = [[NSMutableSet alloc] init];
+                    NSMutableArray *destinationResourceIDs = [[NSMutableArray alloc] init];
                     
-                    for (NSNumber *destinationResourceID in destinationResourceIDs) {
+                    for (NSManagedObject *destinationResource in destinationResources) {
                         
-                        NSManagedObject *destinationResource = [self resource:destinationEntity.name withID:destinationResourceID.integerValue];
+                        NSNumber *destinationResourceID = [destinationResource valueForKey:destinationResourceIDKey];
                         
-                        [destinationResources addObject:destinationResource];
+                        [destinationResourceIDs addObject:destinationResourceID];
                     }
                     
-                    [resource setValue:destinationResources
-                                forKey:key];
+                    [jsonObject setObject:destinationResourceIDs
+                                   forKey:key];
+                    
                 }
                 
                 break;

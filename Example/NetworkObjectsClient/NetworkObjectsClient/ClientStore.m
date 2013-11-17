@@ -54,9 +54,6 @@
         _store.api = api;
         
         // initialize context
-        _store.context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-        
-        _store.context.undoManager = nil;
         
         _store.context.persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:[NSManagedObjectModel mergedModelFromBundles:nil]];
         
@@ -146,7 +143,7 @@
         
         NSLog(@"Creating new User '%@'", username);
         
-        [self.store createResource:@"User" initialValues:@{@"username": username, @"password" : password} completion:^(NSError *error) {
+        [self.store createResource:@"User" initialValues:@{@"username": username, @"password" : password} completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
             
             if (error) {
                 
@@ -163,6 +160,8 @@
                     
                     return;
                 }
+                
+                _user = (User *)resource;
                 
                 NSLog(@"Sucessfully registered user '%@'", username);
                 

@@ -51,13 +51,13 @@
 - (IBAction)login:(UIButton *)sender
 {
     // set API values
-    [ClientStore sharedStore].api.serverURL = [NSURL URLWithString:self.urlTextField.text];
+    [ClientStore sharedStore].store.api.serverURL = [NSURL URLWithString:self.urlTextField.text];
     
-    [ClientStore sharedStore].api.clientSecret = self.clientSecretTextField.text;
+    [ClientStore sharedStore].store.api.clientSecret = self.clientSecretTextField.text;
     
     NSNumber *clientResourceID = [NSNumber numberWithInteger:self.clientIDTextField.text.integerValue];
     
-    [ClientStore sharedStore].api.clientResourceID = clientResourceID;
+    [ClientStore sharedStore].store.api.clientResourceID = clientResourceID;
     
     // login
     
@@ -82,13 +82,13 @@
 -(void)registerNewUser:(UIButton *)sender
 {
     // set API values
-    [ClientStore sharedStore].api.serverURL = [NSURL URLWithString:self.urlTextField.text];
+    [ClientStore sharedStore].store.api.serverURL = [NSURL URLWithString:self.urlTextField.text];
     
-    [ClientStore sharedStore].api.clientSecret = self.clientSecretTextField.text;
+    [ClientStore sharedStore].store.api.clientSecret = self.clientSecretTextField.text;
     
     NSNumber *clientResourceID = [NSNumber numberWithInteger:self.clientIDTextField.text.integerValue];
     
-    [ClientStore sharedStore].api.clientResourceID = clientResourceID;
+    [ClientStore sharedStore].store.api.clientResourceID = clientResourceID;
     
     // register
     

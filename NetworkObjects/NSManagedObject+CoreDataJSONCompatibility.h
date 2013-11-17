@@ -20,14 +20,21 @@
 #pragma mark - Conversion methods
 
 -(NSObject *)attributeValueForJSONCompatibleValue:(NSObject *)jsonValue
-                             forAttribute:(NSString *)attributeName;
+                                     forAttribute:(NSString *)attributeName;
 
 -(NSObject *)JSONCompatibleValueForAttributeValue:(NSObject *)attributeValue
-                             forAttribute:(NSString *)attributeName;
+                                     forAttribute:(NSString *)attributeName;
 
 #pragma mark - Validate
 
 -(BOOL)isValidConvertedValue:(id)value
                 forAttribute:(NSString *)attributeName;
+
+@end
+
+@interface NSEntityDescription (CoreDataJSONCompatibility)
+
+-(NSObject *)JSONCompatibleValueForAttributeValue:(NSObject *)attributeValue
+                                     forAttribute:(NSString *)attributeName;
 
 @end
