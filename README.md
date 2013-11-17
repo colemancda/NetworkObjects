@@ -3,9 +3,9 @@ NetworkObjects
 
 NetworkObjects is a distributed object graph inspired by WebObjects. Its purpose is to broadcast Core Data entities over the network through REST URLs, serialize them to JSON and use HTTP verbs to manipulate the object graph.
 
-Your Core Data entities must be subclasses of NSManagedObject and conform to NOResourceProtocol. You are also required to have exactly one entity for each of the special NOResourceProtocols: NOUserProtocol, NOClientProtocol, and NOSessionProtocol. Your entities must not have transformable or undefined attributes. On the client side, should the exact same .xcdatamodel file you used in your server, but the NSManagedObject subclasses must adopt to NOResourceKeysProtocol and not to NOResourceProtocol. The reason is becuase NOResourceProtocol defines how a entity behaves on the server side. NOResourceKeys only defines the basic keys needed for the client.
+Your Core Data entities must be subclasses of NSManagedObject and conform to NOResourceProtocol. You are also required to have exactly one entity for each of the special NOResourceProtocols: NOUserProtocol, NOClientProtocol, and NOSessionProtocol. Your entities must not have transformable or undefined attributes. On the client side, should use the exact same .xcdatamodel file you use in your server, but the NSManagedObject subclasses must adopt to NOResourceKeysProtocol and not to NOResourceProtocol. The reason is becuase NOResourceProtocol defines how a entity behaves on the server side. NOResourceKeys only defines the basic keys needed for the client classes to function properly.
 
-The rest of framework's classes are sorted in two sections: Server & Client.
+The rest of this framework's classes are sorted in two sections: Server & Client.
 
 To broadcast a Core Data context you must initialize a NOStore first.
 
