@@ -204,9 +204,31 @@ static NSString *CellIdentifier = @"PostCell";
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if (editingStyle == UITableViewCellEditingStyleDelete) {
-        // Delete the row from the data source
-        [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
-    }   
+        
+        // Delete the row from the data source...
+        
+        Post *post = _posts[indexPath.row];
+        
+        [[ClientStore sharedStore].store deleteResource:(NSManagedObject<NOResourceKeysProtocol> *)post completion:^(NSError *error) {
+            
+            if (error) {
+                
+                [error presentError];
+                
+                return;
+            }
+            
+            [_posts removeObject:post];
+            
+            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                
+                [tableView deleteRowsAtIndexPaths:@[indexPath]
+                                 withRowAnimation:UITableViewRowAnimationFade];
+            }];
+            
+        }];
+        
+    }
     else if (editingStyle == UITableViewCellEditingStyleInsert) {
         // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
     }   

@@ -90,8 +90,8 @@
 {
     Session *session = (Session *)sessionProtocolObject;
     
-    // only first party apps can create posts
-    if (session.client.isNotThirdParty) {
+    // only first party apps can create users
+    if (session.client.isNotThirdParty.boolValue) {
         
         return YES;
     }
@@ -99,9 +99,17 @@
     return NO;
 }
 
--(BOOL)canDeleteFromSession:(NSManagedObject<NOSessionProtocol> *)session
+-(BOOL)canDeleteFromSession:(NSManagedObject<NOSessionProtocol> *)sessionProtocolObject
 {
-    return [self.class canCreateNewInstanceFromSession:session];
+    Session *session = (Session *)sessionProtocolObject;
+    
+    // only first party apps can delete users
+    if (session.client.isNotThirdParty.boolValue && session.user == self) {
+        
+        return YES;
+    }
+    
+    return NO;
 }
 
 -(NOResourcePermission)permissionForSession:(NSManagedObject<NOSessionProtocol> *)sessionProtocolObject

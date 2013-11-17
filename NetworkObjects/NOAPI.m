@@ -578,6 +578,13 @@
     
     request.HTTPBody = httpBody;
     
+    // add authentication header if availible
+    
+    if (self.sessionToken) {
+        
+        [request addValue:self.sessionToken forHTTPHeaderField:@"Authorization"];
+    }
+    
     NSURLSessionDataTask *dataTask = [_urlSession dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         
         if (error) {
@@ -662,6 +669,13 @@
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:deleteResourceURL];
     
     request.HTTPMethod = @"DELETE";
+    
+    // add authentication header if availible
+    
+    if (self.sessionToken) {
+        
+        [request addValue:self.sessionToken forHTTPHeaderField:@"Authorization"];
+    }
     
     NSURLSessionDataTask *dataTask = [_urlSession dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         
@@ -749,6 +763,13 @@
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:deleteResourceURL];
     
     request.HTTPMethod = @"POST";
+    
+    // add authentication header if availible
+    
+    if (self.sessionToken) {
+        
+        [request addValue:self.sessionToken forHTTPHeaderField:@"Authorization"];
+    }
     
     // add HTTP body
     if (jsonObject) {

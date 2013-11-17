@@ -55,9 +55,17 @@
     return NO;
 }
 
--(BOOL)canDeleteFromSession:(NSManagedObject<NOSessionProtocol> *)session
+-(BOOL)canDeleteFromSession:(NSManagedObject<NOSessionProtocol> *)sessionProtocolObject
 {
-    return [self.class canCreateNewInstanceFromSession:session];
+    Session *session = (Session *)sessionProtocolObject;
+    
+    // only creator can delete post
+    if (session.user == self.creator && session.client.isNotThirdParty.boolValue) {
+        
+        return YES;
+    }
+    
+    return NO;
 }
 
 -(NOResourcePermission)permissionForSession:(NSManagedObject<NOSessionProtocol> *)sessionProtocolObject
