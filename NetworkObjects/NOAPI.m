@@ -541,6 +541,269 @@
     return dataTask;
 }
 
+-(NSURLSessionDataTask *)editResource:(NSString *)resourceName
+                               withID:(NSUInteger)resourceID
+                              changes:(NSDictionary *)changes
+                           completion:(void (^)(NSError *))completionBlock
+{
+    // build URL
+    
+    Class entityClass = [self entityWithResourceName:resourceName];
+    
+    NSString *resourcePath = [entityClass resourcePath];
+    
+    NSURL *editResourceURL = [self.serverURL URLByAppendingPathComponent:resourcePath];
+    
+    NSString *resourceIDString = [NSString stringWithFormat:@"%ld", (unsigned long)resourceID];
+    
+    editResourceURL = [editResourceURL URLByAppendingPathComponent:resourceIDString];
+    
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:editResourceURL];
+    
+    request.HTTPMethod = @"PUT";
+    
+    // add HTTP body
+    
+    NSData *httpBody = [NSJSONSerialization dataWithJSONObject:changes
+                                                       options:self.jsonWritingOption
+                                                         error:nil];
+    
+    if (!httpBody) {
+        
+        [NSException raise:NSInvalidArgumentException
+                    format:@"The 'changes' dictionary must be a valid JSON object"];
+        
+        return nil;
+    }
+    
+    request.HTTPBody = httpBody;
+    
+    NSURLSessionDataTask *dataTask = [_urlSession dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+        
+        if (error) {
+            
+            completionBlock(error);
+            
+            return;
+        }
+        
+        // error status codes
+        
+        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+        
+        if (httpResponse.statusCode != 200) {
+            
+            if (httpResponse.statusCode == UnauthorizedStatusCode) {
+                
+                completionBlock(self.unauthorizedError);
+                return;
+            }
+            
+            if (httpResponse.statusCode == ForbiddenStatusCode) {
+                
+                NSString *errorDescription = NSLocalizedString(@"Permission to edit resource is denied",
+                                                               @"Permission to edit resource is denied");
+                
+                NSError *forbiddenError = [NSError errorWithDomain:NetworkObjectsErrorDomain
+                                                              code:NOAPIForbiddenErrorCode
+                                                          userInfo:@{NSLocalizedDescriptionKey: errorDescription}];
+                
+                completionBlock(forbiddenError);
+                
+                return;
+            }
+            
+            if (httpResponse.statusCode == InternalServerErrorStatusCode) {
+                
+                completionBlock(self.serverError);
+                
+                return;
+            }
+            
+            if (httpResponse.statusCode == BadRequestStatusCode) {
+                
+                completionBlock(self.badRequestError);
+                
+                return;
+            }
+            
+            // else
+            
+            completionBlock(self.invalidServerResponse);
+            
+            return;
+        }
+        
+        completionBlock(nil);
+        
+    }];
+    
+    [dataTask resume];
+    
+    return dataTask;
+}
 
+-(NSURLSessionDataTask *)deleteResource:(NSString *)resourceName
+                                 withID:(NSUInteger)resourceID
+                             completion:(void (^)(NSError *))completionBlock
+{
+    // build URL
+    
+    Class entityClass = [self entityWithResourceName:resourceName];
+    
+    NSString *resourcePath = [entityClass resourcePath];
+    
+    NSURL *deleteResourceURL = [self.serverURL URLByAppendingPathComponent:resourcePath];
+    
+    NSString *resourceIDString = [NSString stringWithFormat:@"%ld", (unsigned long)resourceID];
+    
+    deleteResourceURL = [deleteResourceURL URLByAppendingPathComponent:resourceIDString];
+    
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:deleteResourceURL];
+    
+    request.HTTPMethod = @"DELETE";
+    
+    NSURLSessionDataTask *dataTask = [_urlSession dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+        
+        if (error) {
+            
+            completionBlock(error);
+            
+            return;
+        }
+        
+        // error status codes
+        
+        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+        
+        if (httpResponse.statusCode != 200) {
+            
+            if (httpResponse.statusCode == UnauthorizedStatusCode) {
+                
+                completionBlock(self.unauthorizedError);
+                return;
+            }
+            
+            if (httpResponse.statusCode == ForbiddenStatusCode) {
+                
+                NSString *errorDescription = NSLocalizedString(@"Permission to delete resource is denied",
+                                                               @"Permission to delete resource is denied");
+                
+                NSError *forbiddenError = [NSError errorWithDomain:NetworkObjectsErrorDomain
+                                                              code:NOAPIForbiddenErrorCode
+                                                          userInfo:@{NSLocalizedDescriptionKey: errorDescription}];
+                
+                completionBlock(forbiddenError);
+                
+                return;
+            }
+            
+            if (httpResponse.statusCode == InternalServerErrorStatusCode) {
+                
+                completionBlock(self.serverError);
+                
+                return;
+            }
+            
+            if (httpResponse.statusCode == BadRequestStatusCode) {
+                
+                completionBlock(self.badRequestError);
+                
+                return;
+            }
+            
+            // else
+            
+            completionBlock(self.invalidServerResponse);
+            
+            return;
+        }
+        
+        completionBlock(nil);
+        
+    }];
+    
+    [dataTask resume];
+    
+    return dataTask;
+}
+
+-(NSURLSessionDataTask *)performFunction:(NSString *)functionName
+                              onResource:(NSString *)resourceName
+                                  withID:(NSUInteger)resourceID
+                          withJSONObject:(NSDictionary *)jsonObject
+                              completion:(void (^)(NSError *, NSNumber *, NSDictionary *))completionBlock
+{
+    // build URL
+    
+    Class entityClass = [self entityWithResourceName:resourceName];
+    
+    NSString *resourcePath = [entityClass resourcePath];
+    
+    NSURL *deleteResourceURL = [self.serverURL URLByAppendingPathComponent:resourcePath];
+    
+    NSString *resourceIDString = [NSString stringWithFormat:@"%ld", (unsigned long)resourceID];
+    
+    deleteResourceURL = [deleteResourceURL URLByAppendingPathComponent:resourceIDString];
+    
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:deleteResourceURL];
+    
+    request.HTTPMethod = @"POST";
+    
+    // add HTTP body
+    if (jsonObject) {
+        
+        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonObject
+                                                           options:self.jsonWritingOption
+                                                             error:nil];
+        
+        if (!jsonData) {
+            
+            [NSException raise:NSInvalidArgumentException
+                        format:@"Invalid JSON NSDicitionary"];
+            
+            return nil;
+        }
+        
+        request.HTTPBody = jsonData;
+    }
+    
+    NSURLSessionDataTask *dataTask = [_urlSession dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+        
+        if (error) {
+            
+            completionBlock(error, nil, nil);
+            
+            return;
+        }
+        
+        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+        
+        NSNumber *statusCode = [NSNumber numberWithInteger:httpResponse.statusCode];
+        
+        // get response body
+        
+        NSDictionary *jsonResponse;
+        
+        if (data) {
+            
+            jsonResponse = [NSJSONSerialization JSONObjectWithData:data
+                                                           options:NSJSONReadingAllowFragments
+                                                             error:nil];
+            
+            if (![jsonResponse isKindOfClass:[NSDictionary class]]) {
+                
+                jsonResponse = nil;
+            }
+        }
+        
+        completionBlock(nil, statusCode, jsonResponse);
+        
+    }];
+    
+    [dataTask resume];
+    
+    return dataTask;
+}
 
 @end
