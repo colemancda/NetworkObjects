@@ -49,14 +49,7 @@ static NSString *CellIdentifier = @"PostCell";
     
     [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
     
-    AppDelegate *delegate = [UIApplication sharedApplication].delegate;
-    
-    ClientStore *store = delegate.clientStore;
-    
-    NSLog(@"User '%@'", store.user.username);
-    
-    
-    
+    [self downloadData];
 }
 
 - (void)didReceiveMemoryWarning
@@ -73,44 +66,11 @@ static NSString *CellIdentifier = @"PostCell";
     
     [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
     
-    AppDelegate *delegate = [UIApplication sharedApplication].delegate;
-    
-    ClientStore *store = delegate.clientStore;
-    
     NSMutableArray *posts = [[NSMutableArray alloc] init];
     
     // download User again
     
-    [store.context performBlock:^{
-        
-        NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"User"];
-        
-        fetchRequest.predicate = [NSPredicate predicateWithFormat:@"resourceID == %@", store.user.resourceID];
-       
-        NSError *error;
-        
-        NSArray *results = [store.context executeFetchRequest:fetchRequest
-                                                        error:&error];
-        
-        if (error) {
-            
-            [error presentError];
-            
-            return;
-        }
-        
-        User *user = results.firstObject;
-        
-        if (!user) {
-            
-            NSLog(@"Could not fetch user");
-            
-            return;
-        }
-        
-        
-        
-    }];
+    
     
     _posts = posts;
     

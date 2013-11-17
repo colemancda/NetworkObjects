@@ -23,5 +23,6 @@
 #import <NetworkObjects/NOClientProtocol.h>
 
 #import <NetworkObjects/NOAPI.h>
+#import <NetworkObjects/NOAPICachedStore.h>
 
 #endif

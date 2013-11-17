@@ -7,8 +7,10 @@
 //
 
 #import "ClientStore.h"
-#import <NetworkObjects/NOAPI.h>
 #import "AppDelegate.h"
+#import "User.h"
+#import <NetworkObjects/NSManagedObject+CoreDataJSONCompatibility.h>
+#import <NetworkObjects/NOAPICachedStore.h>
 
 @implementation ClientStore
 
@@ -33,17 +35,45 @@
         
         // initialize API
         
-        _api.urlSession = [NSURLSession sharedSession];
+        NOAPI *api = [[NOAPI alloc] init];
         
-        _api.sessionEntityName = @"Session";
+        api.urlSession = [NSURLSession sharedSession];
         
-        _api.userEntityName = @"User";
+        api.sessionEntityName = @"Session";
         
-        _api.clientEntityName = @"Client";
+        api.userEntityName = @"User";
         
-        _api.prettyPrintJSON = YES;
+        api.clientEntityName = @"Client";
         
-        _api.loginPath = @"login";
+        api.prettyPrintJSON = YES;
+        
+        api.loginPath = @"login";
+        
+        _store = [[NOAPICachedStore alloc] init];
+        
+        _store.api = api;
+        
+        // initialize context
+        _store.context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+        
+        _store.context.undoManager = nil;
+        
+        _store.context.persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:[NSManagedObjectModel mergedModelFromBundles:nil]];
+        
+        NSError *error;
+        
+        [_store.context.persistentStoreCoordinator addPersistentStoreWithType:NSInMemoryStoreType
+                                                                configuration:nil
+                                                                          URL:nil
+                                                                      options:nil
+                                                                        error:&error];
+        if (error) {
+            
+            [NSException raise:NSInternalInconsistencyException
+                        format:@"Could not add In-Memory store"];
+            
+            return nil;
+        }
         
     }
     return self;
@@ -55,13 +85,13 @@
                 password:(NSString *)password
               completion:(void (^)(NSError *))completionBlock
 {
-    self.api.username = username;
+    self.store.api.username = username;
     
-    self.api.userPassword = password;
+    self.store.api.userPassword = password;
     
     NSLog(@"Logging in as '%@'...", username);
     
-    [self.apiStore.api loginWithCompletion:^(NSError *error) {
+    [self.store.api loginWithCompletion:^(NSError *error) {
         
         if (error) {
             
@@ -73,34 +103,10 @@
         NSLog(@"Fetching logged in User...");
         
         // get user that logged in
-        [_context performBlock:^{
-            
-            NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"User"];
-            
-            request.predicate = [NSPredicate predicateWithFormat:@"%K == %@", @"resourceID", self.apiStore.api.userResourceID];
-            
-            NSError *error;
-            
-            NSArray *results = [_context executeFetchRequest:request
-                                                       error:&error];
-            
+        
+        [self.store getResource:@"User" resourceID:self.store.api.userResourceID.integerValue completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
+           
             if (error) {
-                
-                completionBlock(error);
-                
-                return;
-            }
-            
-            User *user = results.firstObject;
-            
-            if (!user) {
-                
-                NSString *errorDescription = NSLocalizedString(@"Could not fetch user",
-                                                               @"Could not fetch user");
-                
-                error = [NSError errorWithDomain:AppErrorDomain
-                                            code:1000
-                                        userInfo:@{NSLocalizedDescriptionKey: errorDescription}];
                 
                 completionBlock(error);
                 
@@ -109,7 +115,7 @@
             
             NSLog(@"Got user, finished login process");
             
-            _user = user;
+            _user = (User *)resource;
             
             completionBlock(nil);
             
@@ -123,13 +129,13 @@
 {
     // login as client
     
-    self.api.username = nil;
+    self.store.api.username = nil;
     
-    self.api.userPassword = nil;
+    self.store.api.userPassword = nil;
     
     NSLog(@"Logging in as App");
     
-    [self.api loginWithCompletion:^(NSError *error) {
+    [self.store.api loginWithCompletion:^(NSError *error) {
         
         if (error) {
             
@@ -140,8 +146,7 @@
         
         NSLog(@"Creating new User '%@'", username);
         
-        [self.api createResource:@"User" withInitialValues:@{@"username": username, @"password" : password} completion:^(NSError *error, NSNumber *resourceID)
-        {
+        [self.store createResource:@"User" initialValues:@{@"username": username, @"password" : password} completion:^(NSError *error) {
             
             if (error) {
                 
@@ -164,10 +169,8 @@
                 completionBlock(nil);
                 
             }];
-            
         }];
     }];
 }
-
 
 @end

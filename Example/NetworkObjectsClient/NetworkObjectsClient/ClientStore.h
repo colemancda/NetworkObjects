@@ -7,9 +7,10 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <NetworkObjects/NetworkObjects.h>
 @import CoreData;
 
-@class NOAPI, User;
+@class NOAPI, User, NOAPICachedStore;
 
 @interface ClientStore : NSObject
 
@@ -17,13 +18,9 @@
 
 #pragma mark
 
-@property (readonly) NOAPI *api;
-
-@property (readonly) NSManagedObjectContext *context;
+@property (readonly) NOAPICachedStore *store;
 
 @property (readonly) User *user;
-
-@property (readonly) NSString *token;
 
 #pragma mark - Authentication
 
@@ -34,10 +31,6 @@
 -(void)registerWithUsername:(NSString *)username
                    password:(NSString *)password
                  completion:(void (^)(NSError *error))completionBlock;
-
-#pragma mark - Cache or 
-
-
 
 
 @end
