@@ -43,7 +43,7 @@ static NSString *CellIdentifier = @"PostCell";
     
     _posts = [[NSMutableArray alloc] init];
     
-    [self.refreshControl addTarget:self.tableView
+    [self.refreshControl addTarget:self
                             action:@selector(downloadData)
                   forControlEvents:UIControlEventValueChanged];
     
@@ -85,13 +85,30 @@ static NSString *CellIdentifier = @"PostCell";
         
         User *user = (User *)resource;
         
+        if (!user.posts.count) {
+            
+            _posts = posts;
+            
+            NSLog(@"User has 0 posts");
+            
+            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                
+                [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+                
+                [self.tableView reloadData];
+                
+                [self.refreshControl endRefreshing];
+                
+                NSLog(@"Finished downloading Posts");
+                
+            }];
+        }
+        
+        NSLog(@"Downloading posts...");
+        
         NSMutableArray *dataTasks = [[NSMutableArray alloc] init];
         
         __block BOOL errorOcurred;
-        
-        __block BOOL finished;
-        
-        NSLog(@"Downloading posts...");
         
         for (Post *post in user.posts) {
             
@@ -104,6 +121,11 @@ static NSString *CellIdentifier = @"PostCell";
             {
                 if (error) {
                     
+                    if (errorOcurred) {
+                        
+                        return;
+                    }
+                    
                     errorOcurred = YES;
                     
                     for (NSURLSessionDataTask *dataTask in dataTasks) {
@@ -111,43 +133,38 @@ static NSString *CellIdentifier = @"PostCell";
                         [dataTask cancel];
                     }
                     
+                    [error presentError];
+                    
+                    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                        
+                        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+                        
+                        [self.refreshControl endRefreshing];
+                        
+                    }];
+                    
                     return;
                 }
                 
                 [posts addObject:resource];
                 
-                if (finished) {
+                if (posts.count == user.posts.count) {
                     
-                    return;
-                }
-                
-                if (user.posts.count == dataTasks.count) {
+                    // all posts finished downloading
                     
-                    for (NSURLSessionDataTask *dataTask in dataTasks) {
+                    _posts = posts;
+                    
+                    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
                         
-                        if (dataTask.state != NSURLSessionTaskStateCompleted) {
-                            
-                            return;
-                        }
+                        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
                         
-                        // all posts finished downloading
+                        [self.tableView reloadData];
                         
-                        _posts = posts;
+                        [self.refreshControl endRefreshing];
                         
-                        finished = YES;
+                        NSLog(@"Finished downloading Posts");
                         
-                        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-                            
-                            [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
-                            
-                            [self.tableView reloadData];
-                            
-                            [self.refreshControl endRefreshing];
-                            
-                            NSLog(@"Finished downloading Posts");
-                            
-                        }];
-                    }
+                    }];
                 }
             }];
             

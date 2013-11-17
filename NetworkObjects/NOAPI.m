@@ -538,7 +538,7 @@
     
     [dataTask resume];
     
-    return nil;
+    return dataTask;
 }
 
 @end
