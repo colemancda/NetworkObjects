@@ -44,7 +44,8 @@ typedef NS_ENUM (NSUInteger, NOAPIStoreErrorCode) {
 
 -(NOResourceFunctionCode)sendFunctionToResource:(NSManagedObject<NOResourceKeysProtocol> *)resource
                                      jsonObject:(NSDictionary *)dictionary
-                                   jsonResponse:(NSDictionary **)jsonResponse;
+                                   jsonResponse:(NSDictionary **)jsonResponse
+                                          error:(NSError **)error;
 
 #pragma mark - Obtain Object ID
 

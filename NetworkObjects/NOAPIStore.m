@@ -447,102 +447,127 @@
     
     for (NSString *attributeName in objectID.entity.attributesByName) {
         
-        NSAttributeDescription *attributeDescription = objectID.entity.attributesByName[attributeName];
-        
-        id jsonValue = values[attributeName];
-        
-        id value;
-        
-        // no JSON conversion for these values, no dont put them in NOResources
-        if (attributeDescription.attributeType == NSUndefinedAttributeType ||
-            attributeDescription.attributeType == NSTransformableAttributeType ||
-            attributeDescription.attributeType == NSObjectIDAttributeType) {
+        // find matching key in JSON dictionary
+        for (NSString *key in values.allKeys) {
             
-            [NSException raise:NSInternalInconsistencyException
-                        format:@"Resource models cannot have Undefined or Transformable attributes"];
-            
-            return nil;
+            // will only be called once becuase dictionaries dont have duplicate keys
+            if ([key isEqualToString:attributeName]) {
+             
+                NSAttributeDescription *attributeDescription = objectID.entity.attributesByName[attributeName];
+                
+                if (!attributeDescription) {
+                    
+                    *error = [self inconsistentJSONError];
+                    
+                    return nil;
+                }
+                
+                id jsonValue = values[attributeName];
+                
+                id value;
+                
+                // no JSON conversion for these values, no dont put them in NOResources
+                if (attributeDescription.attributeType == NSUndefinedAttributeType ||
+                    attributeDescription.attributeType == NSTransformableAttributeType ||
+                    attributeDescription.attributeType == NSObjectIDAttributeType) {
+                    
+                    [NSException raise:NSInternalInconsistencyException
+                                format:@"Resource models cannot have Undefined or Transformable attributes"];
+                    
+                    return nil;
+                }
+                
+                // for NSNull
+                if (value == [NSNull null]) {
+                    
+                    value = nil;
+                }
+                
+                else {
+                    
+                    // number types
+                    if (attributeDescription.attributeType == (NSInteger16AttributeType
+                                                               | NSInteger32AttributeType
+                                                               | NSInteger64AttributeType
+                                                               | NSDecimalAttributeType
+                                                               | NSDoubleAttributeType
+                                                               | NSFloatAttributeType
+                                                               | NSBooleanAttributeType)) {
+                        
+                        if (![jsonValue isKindOfClass:[NSNumber class]]) {
+                            
+                            *error = [self inconsistentJSONError];
+                            
+                            return nil;
+                        }
+                        
+                        value = jsonValue;
+                        
+                    }
+                    
+                    // string type
+                    if (attributeDescription.attributeType == NSStringAttributeType) {
+                        
+                        if (![jsonValue isKindOfClass:[NSString class]]) {
+                            
+                            *error = [self inconsistentJSONError];
+                            
+                            return nil;
+                        }
+                        
+                        value = jsonValue;
+                    }
+                    
+                    // date type
+                    if (attributeDescription.attributeType == NSDateAttributeType) {
+                        
+                        if (![jsonValue isKindOfClass:[NSString class]]) {
+                            
+                            *error = [self inconsistentJSONError];
+                            
+                            return nil;
+                        }
+                        
+                        // convert
+                        value = [NSDate dateWithISO8601String:value];
+                        
+                        if (!value) {
+                            
+                            *error = [self inconsistentJSONError];
+                            
+                            return nil;
+                        }
+                    }
+                    
+                    // data type
+                    if (attributeDescription.attributeType == NSBinaryDataAttributeType) {
+                        
+                        if (![jsonValue isKindOfClass:[NSString class]]) {
+                            
+                            *error = [self inconsistentJSONError];
+                            
+                            return nil;
+                        }
+                        
+                        // convert
+                        value = [[NSData alloc] initWithBase64EncodedString:value
+                                                                    options:NSDataBase64DecodingIgnoreUnknownCharacters];
+                        if (!value) {
+                            
+                            *error = [self inconsistentJSONError];
+                            
+                            return nil;
+                        }
+                    }
+                    
+                }
+                
+                // set value
+                [values setValue:value
+                          forKey:attributeName];
+                
+            }
         }
-        
-        // number types
-        if (attributeDescription.attributeType == (NSInteger16AttributeType
-                                                   | NSInteger32AttributeType
-                                                   | NSInteger64AttributeType
-                                                   | NSDecimalAttributeType
-                                                   | NSDoubleAttributeType
-                                                   | NSFloatAttributeType
-                                                   | NSBooleanAttributeType)) {
-            
-            if (![jsonValue isKindOfClass:[NSNumber class]]) {
-                
-                *error = [self inconsistentJSONError];
-                
-                return nil;
-            }
-            
-            value = jsonValue;
-            
-        }
-        
-        // string type
-        if (attributeDescription.attributeType == NSStringAttributeType) {
-            
-            if (![jsonValue isKindOfClass:[NSString class]]) {
-                
-                *error = [self inconsistentJSONError];
-                
-                return nil;
-            }
-            
-            value = jsonValue;
-        }
-        
-        // date type
-        if (attributeDescription.attributeType == NSDateAttributeType) {
-            
-            if (![value isKindOfClass:[NSString class]]) {
-                
-                *error = [self inconsistentJSONError];
-                
-                return nil;
-            }
-            
-            // convert
-            value = [NSDate dateWithISO8601String:value];
-            
-            if (!value) {
-                
-                *error = [self inconsistentJSONError];
-                
-                return nil;
-            }
-        }
-        
-        // data type
-        if (attributeDescription.attributeType == NSBinaryDataAttributeType) {
-            
-            if (![value isKindOfClass:[NSString class]]) {
-                
-                *error = [self inconsistentJSONError];
-                
-                return nil;
-            }
-            
-            // convert
-            value = [[NSData alloc] initWithBase64EncodedString:value
-                                                        options:NSDataBase64DecodingIgnoreUnknownCharacters];
-            if (!value) {
-                
-                *error = [self inconsistentJSONError];
-                
-                return nil;
-            }
-        }
-        
-        // set value
-        [values setValue:value
-                  forKey:attributeName];
-        
     }
     
     NSIncrementalStoreNode *node = [[NSIncrementalStoreNode alloc] initWithObjectID:objectID
@@ -609,6 +634,18 @@
     
     
     return objectIDs;
+}
+
+#pragma mark - Functions
+
+-(NOResourceFunctionCode)sendFunctionToResource:(NSManagedObject<NOResourceKeysProtocol> *)resource
+                                     jsonObject:(NSDictionary *)dictionary
+                                   jsonResponse:(NSDictionary *__autoreleasing *)jsonResponse
+                                          error:(NSError *__autoreleasing *)error
+{
+    
+    
+    return 0;
 }
 
 

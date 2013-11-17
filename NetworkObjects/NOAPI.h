@@ -17,7 +17,7 @@ typedef NS_ENUM(NSUInteger, NOAPIErrorCode) {
     NOAPIUnauthorizedErrorCode,
     NOAPIForbiddenErrorCode,
     NOAPINotFoundErrorCode,
-    NOAPIServerInternalErrorCode
+    NOAPIServerInternalErrorCode,
     
 };
 

@@ -31,6 +31,8 @@
 		6E2BDA901817341300E9D04C /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E2BD7C51817309E00E9D04C /* CoreData.framework */; };
 		6E2BDA921817341900E9D04C /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E2BDA911817341900E9D04C /* Security.framework */; };
 		6E4CA0311817786A00433D43 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E2BD7C11817309E00E9D04C /* Cocoa.framework */; };
+		6E6BB59718385ACB00FAE40E /* NSDate+ISO8601.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EED74791818852200F911BC /* NSDate+ISO8601.m */; };
+		6E6BB59818385AD100FAE40E /* NSManagedObject+CoreDataJSONCompatibility.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EED747B1818852200F911BC /* NSManagedObject+CoreDataJSONCompatibility.m */; };
 		6E838378183083B0003AE302 /* NOServerConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E838377183083B0003AE302 /* NOServerConstants.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6E838379183083B0003AE302 /* NOServerConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E838377183083B0003AE302 /* NOServerConstants.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6E83838118308E73003AE302 /* NetworkObjectsConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E83838018308E73003AE302 /* NetworkObjectsConstants.h */; };
@@ -83,11 +85,9 @@
 		6EED74EC1818852200F911BC /* NSDate+ISO8601.h in Headers */ = {isa = PBXBuildFile; fileRef = 6EED74781818852200F911BC /* NSDate+ISO8601.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6EED74ED1818852200F911BC /* NSDate+ISO8601.h in Headers */ = {isa = PBXBuildFile; fileRef = 6EED74781818852200F911BC /* NSDate+ISO8601.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6EED74EE1818852200F911BC /* NSDate+ISO8601.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EED74791818852200F911BC /* NSDate+ISO8601.m */; };
-		6EED74EF1818852200F911BC /* NSDate+ISO8601.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EED74791818852200F911BC /* NSDate+ISO8601.m */; };
 		6EED74F01818852200F911BC /* NSManagedObject+CoreDataJSONCompatibility.h in Headers */ = {isa = PBXBuildFile; fileRef = 6EED747A1818852200F911BC /* NSManagedObject+CoreDataJSONCompatibility.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6EED74F11818852200F911BC /* NSManagedObject+CoreDataJSONCompatibility.h in Headers */ = {isa = PBXBuildFile; fileRef = 6EED747A1818852200F911BC /* NSManagedObject+CoreDataJSONCompatibility.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6EED74F21818852200F911BC /* NSManagedObject+CoreDataJSONCompatibility.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EED747B1818852200F911BC /* NSManagedObject+CoreDataJSONCompatibility.m */; };
-		6EED74F31818852200F911BC /* NSManagedObject+CoreDataJSONCompatibility.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EED747B1818852200F911BC /* NSManagedObject+CoreDataJSONCompatibility.m */; };
 		6EED74F41818852200F911BC /* RouteResponse+IPAddress.h in Headers */ = {isa = PBXBuildFile; fileRef = 6EED747C1818852200F911BC /* RouteResponse+IPAddress.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6EED74F51818852200F911BC /* RouteResponse+IPAddress.h in Headers */ = {isa = PBXBuildFile; fileRef = 6EED747C1818852200F911BC /* RouteResponse+IPAddress.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6EED74F61818852200F911BC /* RouteResponse+IPAddress.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EED747D1818852200F911BC /* RouteResponse+IPAddress.m */; };
@@ -1119,11 +1119,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6E6BB59718385ACB00FAE40E /* NSDate+ISO8601.m in Sources */,
 				6EED74CF1818852200F911BC /* NOHTTPConnection.m in Sources */,
 				6EED750F1818852200F911BC /* DDFileLogger.m in Sources */,
 				6EED752B1818852200F911BC /* HTTPConnection.m in Sources */,
 				6EED751B1818852200F911BC /* ContextFilterLogFormatter.m in Sources */,
 				6EED75271818852200F911BC /* HTTPAuthenticationRequest.m in Sources */,
+				6E6BB59818385AD100FAE40E /* NSManagedObject+CoreDataJSONCompatibility.m in Sources */,
 				6EED753F1818852200F911BC /* MultipartMessageHeader.m in Sources */,
 				6EED75171818852200F911BC /* DDTTYLogger.m in Sources */,
 				6EED756B1818852200F911BC /* RouteResponse.m in Sources */,
@@ -1148,14 +1150,12 @@
 				6EED74C71818852200F911BC /* NOAPI.m in Sources */,
 				6EED74FB1818852200F911BC /* DDData.m in Sources */,
 				6EED755B1818852200F911BC /* WebSocket.m in Sources */,
-				6EED74F31818852200F911BC /* NSManagedObject+CoreDataJSONCompatibility.m in Sources */,
 				6EED74CB1818852200F911BC /* NOAPIStore.m in Sources */,
 				6EED75471818852200F911BC /* HTTPAsyncFileResponse.m in Sources */,
 				6EED756F1818852200F911BC /* RoutingConnection.m in Sources */,
 				6EED75671818852200F911BC /* RouteRequest.m in Sources */,
 				6EED75531818852200F911BC /* HTTPFileResponse.m in Sources */,
 				6EED75571818852200F911BC /* HTTPRedirectResponse.m in Sources */,
-				6EED74EF1818852200F911BC /* NSDate+ISO8601.m in Sources */,
 				6EED750B1818852200F911BC /* DDASLLogger.m in Sources */,
 				6EED753B1818852200F911BC /* MultipartFormDataParser.m in Sources */,
 			);
