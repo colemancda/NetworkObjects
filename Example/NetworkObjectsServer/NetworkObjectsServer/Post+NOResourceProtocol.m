@@ -47,7 +47,7 @@
     Session *session = (Session *)sessionProtocolObject;
     
     // only first party apps can create posts
-    if (session.user && session.client.isNotThirdParty) {
+    if (session.user && session.client.isNotThirdParty.boolValue) {
         
         return YES;
     }
