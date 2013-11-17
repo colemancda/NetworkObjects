@@ -10,6 +10,8 @@
 #import <NetworkObjects/NOAPI.h>
 #import <NetworkObjects/NOResourceProtocol.h>
 
+@import CoreData;
+
 @interface NOAPICachedStore : NSObject
 
 @property NOAPI *api;

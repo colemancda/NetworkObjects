@@ -70,7 +70,7 @@ static NSString *CellIdentifier = @"PostCell";
     
     // download User again
     
-    
+    [ClientStore sharedStore]
     
     _posts = posts;
     

@@ -57,13 +57,13 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "NetworkObjects/NSDate+ISO8601.m"
-            timestampString = "406345798.489179"
+            filePath = "Example/NetworkObjectsClient/NetworkObjectsClient/PostsViewController.m"
+            timestampString = "406363464.403181"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "27"
-            endingLineNumber = "27"
-            landmarkName = "+dateWithISO8601String:"
+            startingLineNumber = "71"
+            endingLineNumber = "71"
+            landmarkName = "-downloadData"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
