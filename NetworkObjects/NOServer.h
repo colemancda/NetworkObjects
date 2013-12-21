@@ -45,6 +45,8 @@
 
 @property BOOL prettyPrintJSON;
 
+@property NSDictionary *security;
+
 #pragma mark - Responding to requests
 
 // code for handling incoming REST requests (authentication, returning JSON data)
