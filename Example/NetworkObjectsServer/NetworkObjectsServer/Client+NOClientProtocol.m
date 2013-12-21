@@ -80,7 +80,7 @@
 
 -(void)wasCreatedBySession:(NSManagedObject<NOSessionProtocol> *)sessionProtocolObject
 {
-    //
+    // Assign secret
 }
 
 -(void)wasAccessedBySession:(NSManagedObject<NOSessionProtocol> *)sessionProtocolObject

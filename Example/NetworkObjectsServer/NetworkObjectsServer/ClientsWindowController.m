@@ -80,7 +80,8 @@
     // set new values
     newClient.name = @"New Client";
     
-    NSInteger tokenLength = [[NSUserDefaults standardUserDefaults] integerForKey:TokenLengthPreferenceKey];
+    // secret legnth TODO CHANGE
+    NSInteger secretLength = [[NSUserDefaults standardUserDefaults] integerForKey:TokenLengthPreferenceKey];
     
     newClient.secret = [NSString randomStringWithLength:tokenLength];
     
