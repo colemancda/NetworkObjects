@@ -144,10 +144,19 @@ static NSString *CellIdentifier = @"PostCell";
     // get the model object
     Post *post = _posts[indexPath.row];
     
-    if (!post.created ||
-        !post.creator ||
-        !post.text) {
+    if (post.created &&
+        post.creator &&
+        post.text) {
         
+        cell.contentTextLabel.text = post.text;
+        
+        cell.dateLabel.text = post.created.description;
+        
+        cell.userLabel.text = post.creator.username;
+        
+    }
+    else {
+    
         cell.contentTextLabel.text = @"Loading...";
         
         cell.dateLabel.text = @"";
@@ -179,15 +188,8 @@ static NSString *CellIdentifier = @"PostCell";
             }];
         }];
         
-        return cell;
     }
-    
-    cell.contentTextLabel.text = post.text;
-    
-    cell.dateLabel.text = post.created.description;
-    
-    cell.userLabel.text = post.creator.username;
-    
+
     return cell;
 }
 

@@ -1004,7 +1004,6 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                     attribute.attributeType != NSUndefinedAttributeType) {
                     
                     return BadRequestStatusCode;
-                    
                 }
                 
                 // get pre-edit value
