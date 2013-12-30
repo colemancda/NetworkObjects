@@ -343,12 +343,12 @@
 			isa = PBXGroup;
 			children = (
 				6E4CA0251817740C00433D43 /* Client+NOClientKeysProtocol.h */,
-				6E4CA0261817740C00433D43 /* Post+NOResourceKeysProtocol.h */,
-				6E4CA0271817740C00433D43 /* Session+NOSessionKeysProtocol.h */,
-				6E4CA0281817740C00433D43 /* User+NOUserKeysProtocol.h */,
 				6E4CA0291817740C00433D43 /* Client+NOClientKeysProtocol.m */,
+				6E4CA0261817740C00433D43 /* Post+NOResourceKeysProtocol.h */,
 				6E4CA02A1817740C00433D43 /* Post+NOResourceKeysProtocol.m */,
+				6E4CA0271817740C00433D43 /* Session+NOSessionKeysProtocol.h */,
 				6E4CA02B1817740C00433D43 /* Session+NOSessionKeysProtocol.m */,
+				6E4CA0281817740C00433D43 /* User+NOUserKeysProtocol.h */,
 				6E4CA02C1817740C00433D43 /* User+NOUserKeysProtocol.m */,
 			);
 			name = "Keys Protocols";

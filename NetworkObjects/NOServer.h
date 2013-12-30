@@ -206,17 +206,25 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
 /**
  Fetches a Session Resource that has the specified token.
  
+ @param token A NSString value representing the token of a session.
+ 
  @return Returns an NSManagedObject subclass that conforms to NOSessionProtocol for the specified token or @c nil if none was found.
  
  */
 -(NSManagedObject<NOSessionProtocol> *)sessionWithToken:(NSString *)token;
 
 /**
- Generates a JSON representation of a NSManagedObject subclass that conforms to NOResourceProtocol based on the authentication of the user requesting the Resource instance.
+ Generates a JSON representation of a Resource based on the session requesting the Resource instance.
  
- @return Returns an NSDictionary with values that are JSON compatible representing the Resource instance requested and filtering attributes or relationships that the requesting User does not that permission to view. 
+ @param resource A NSManagedObject subclass that conforms to NOResourceProtocol. This is the Resource that will be represented by the returned JSON dictionary.
  
- Note that attributes are converted from their Core Data value to a JSON compatible value and Transformable or Undefined attributes are ommitted. Relationships are represented by their Resource IDs.
+ @param session The session that is requesting the JSON representation of the @c resource.
+ 
+ @return Returns an NSDictionary with values that are JSON compatible representing the Resource instance requested and filters attributes or relationships that the requesting session does not have permission to view.
+ 
+ Note that attributes are converted from their Core Data values to JSON compatible values. Transformable or Undefined attributes are ommitted. Relationships are represented by their Resource IDs.
+ 
+ @see NOResourceProtocol
  
  */
 
@@ -224,10 +232,16 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                                    forSession:(NSManagedObject<NOSessionProtocol> *)session;
 
 /**
- Goes through the JSON dictionary representing edit values a user submits and checks for the user's permission to change those values and if those values are valid.
- Returns a @c NOServerStatusCode based on the requesting user's permission to view the Resource.
+ Goes through the JSON dictionary representing edit values a session submits and checks for the session's permission to change those values and also if those values are valid.
+ Returns a @c NOServerStatusCode based on the requesting session's permission to view the Resource and the validity of the subitted JSON object.
  
- @return Returns @c OKStatusCode if the user can apply the edit,@c BadRequestStatusCode if the JSON object is invalid, or @c ForbiddenStatusCode if the user does not have permission the edit the values.
+ @param resource The resource that the edits will be applied to.
+ 
+ @param recievedJsonObject The JSON object representing the edits the @c session wants to apply.
+ 
+ @param session The session that wants to apply the edits.
+ 
+ @return Returns @c OKStatusCode if the session can apply the edit, @c BadRequestStatusCode if the JSON object is invalid, or @c ForbiddenStatusCode if the session does not have permission the edit the values.
  
  @see NOServerStatusCode
  

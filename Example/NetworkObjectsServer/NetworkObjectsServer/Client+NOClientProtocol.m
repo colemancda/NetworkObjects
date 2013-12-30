@@ -140,6 +140,7 @@ wasAccessedBySession:(NSManagedObject<NOSessionProtocol> *)session
 }
 
 -(NOResourceFunctionCode)performFunction:(NSString *)functionName
+                             withSession:(NSManagedObject<NOSessionProtocol> *)session
                       recievedJsonObject:(NSDictionary *)recievedJsonObject
                                 response:(NSDictionary *__autoreleasing *)jsonObjectResponse
 {

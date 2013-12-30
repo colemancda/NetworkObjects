@@ -129,7 +129,7 @@
                                       session:(NSManagedObject<NOSessionProtocol> *)session;
 
 /**
- Determines the permission level of a relationship for for the session requesting it.
+ Determines the permission level of a relationship for the session requesting it.
  
  @param relationshipName The name of the relationship that is being accessed.
  
