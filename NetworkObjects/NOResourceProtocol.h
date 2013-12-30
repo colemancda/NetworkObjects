@@ -72,31 +72,91 @@
 /**
  An NSSet with the names of attributes and relationships that must have a value when this Resource is being created.
  
- @return Returns @c nil for no initial properties and an NSSet with NSString values representing the properties that must have a value upon creation of new instances.
+ @return Returns @c nil (for no initial values) or an NSSet with NSString values representing the properties that must have a value upon creation of new instances.
  */
 
 +(NSSet *)requiredInitialProperties;
 
 #pragma mark - Access
 
+/**
+ Determines whether a session can create new instances of this resource.
+ 
+ @param session The session that wants to create a new instance.
+ 
+ @return Returns @c YES or @c NO.
+ */
+
 +(BOOL)canCreateNewInstanceFromSession:(NSManagedObject<NOSessionProtocol> *)session;
+
+/**
+ Determines whether a session can delete an instance of a Resoource.
+ 
+ @param session The session that wants to delete an instance.
+ 
+ @return Returns @c YES or @c NO.
+ */
 
 -(BOOL)canDeleteFromSession:(NSManagedObject<NOSessionProtocol> *)session;
 
 // for access and edits it ask for the entire resource's permission per session first and then for individual relationships and attruibutes.
+
+/**
+ Determines the permission level of the entire Resource instance for the session requesting it.
+ 
+ @param session The session that wants to access an instance.
+ 
+ @see NOResourcePermission
+ 
+ @return Returns a NOResourcePermission constant.
+ */
 -(NOResourcePermission)permissionForSession:(NSManagedObject<NOSessionProtocol> *)session;
 
 // e.g. you can use this to make a item editable or visible to a group but limit certain attributes or relationship to only be visible or edited by one person.
+
+/**
+ Determines the permission level of an attribute for for the session requesting it.
+ 
+ @param session The session that wants to access an instance's attribute.
+ 
+ @see NOResourcePermission
+ 
+ @return Returns a NOResourcePermission constant.
+ */
 -(NOResourcePermission)permissionForAttribute:(NSString *)attributeName
                                       session:(NSManagedObject<NOSessionProtocol> *)session;
 
+/**
+ Determines the permission level of a relationship for for the session requesting it.
+ 
+ @param session The session that wants to access an instance's relationship.
+ 
+ @see NOResourcePermission
+ 
+ @return Returns a NOResourcePermission constant.
+ */
+
 -(NOResourcePermission)permissionForRelationship:(NSString *)relationshipName
                                          session:(NSManagedObject<NOSessionProtocol> *)session;
+
+/**
+ Determines whether a session can perform a function on an instance of a Resource.
+ 
+ @param functionName The name of the function that was previously declared.
+ 
+ @param session The session that wants to perform a function.
+ 
+ @return Returns @c YES or @c NO.
+ 
+ @see +(NSSet *)resourceFunctions;
+ */
 
 -(BOOL)canPerformFunction:(NSString *)functionName
                   session:(NSManagedObject<NOSessionProtocol> *)session;
 
 #pragma mark - Validate
+
+
 
 -(BOOL)isValidValue:(NSObject *)newValue
        forAttribute:(NSString *)attributeName;
