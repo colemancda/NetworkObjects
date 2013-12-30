@@ -15,28 +15,64 @@
 
 // clients only need to implement the keys protocol
 
+/**
+ This is the protocol that Core Data entities in clients and servers must implement.
+ */
+
 @protocol NOResourceKeysProtocol <NSObject>
 
 #pragma mark - Mapping Keys
 
 // Core Data attribute must be Integer type, is the numerical identifier of this resource
+
+/**
+ This returns the key of the attribute that holds the Resource ID.
+ 
+ @return Returns the name of a integer attribute (preferably Integer 64) that will hold the Resource ID of this Resource.
+ */
+
 +(NSString *)resourceIDKey;
 
 // URL instances of this resource can be accessed from
+
+/**
+ This returns the URL that will be used to access instances of this Resource.
+ 
+ @return Returns a string that will be used to generate a REST URL scheme for this Resource.
+ */
+
 +(NSString *)resourcePath;
 
 @end
+
+// For servers only
+
+/**
+ This is the protocol that Core Data entities in servers must implement.
+ */
 
 @protocol NOResourceProtocol <NSObject, NOResourceKeysProtocol>
 
 #pragma mark - Network Access
 
 // require authorization for this resource to be accessed
+
+/**
+ Returns a boolean value indicating whether an authentication session is required to access this Resource.
+ 
+ @return @c YES if this Resource requires authentication or @c NO if this Resource does not require authentication.
+ */
+
 +(BOOL)requireSession;
 
 #pragma - Initial Values
 
 // requires that the object be created with provided values
+
+/**
+ 
+ */
+
 +(NSSet *)requiredInitialProperties;
 
 #pragma mark - Access
