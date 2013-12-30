@@ -1000,8 +1000,8 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                 NSAttributeDescription *attribute = resource.entity.attributesByName[attributeName];
                 
                 // make sure the attribute to edit is not transformable or undefined
-                if (attribute.attributeType != NSTransformableAttributeType ||
-                    attribute.attributeType != NSUndefinedAttributeType) {
+                if (attribute.attributeType == NSTransformableAttributeType ||
+                    attribute.attributeType == NSUndefinedAttributeType) {
                     
                     return BadRequestStatusCode;
                 }
