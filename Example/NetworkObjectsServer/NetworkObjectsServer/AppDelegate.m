@@ -8,6 +8,8 @@
 
 #import "AppDelegate.h"
 #import "ClientsWindowController.h"
+#import "DDKeychain.h"
+#import <NetworkObjects/NetworkObjects.h>
 
 NSString *const ServerOnOffStatePreferenceKey = @"serverOnOffState";
 
@@ -179,6 +181,16 @@ NSString *const PrettyPrintJSONPreferenceKey = @"prettyPrintJSON";
         NSUInteger port = self.portTextField.integerValue;
         
         NSLog(@"Starting Server on port %lu...", (unsigned long)port);
+        
+        // enable HTTPS
+        
+        // create a new certificate if non exists
+        if (![DDKeychain SSLIdentityAndCertificates].count) {
+            
+            [DDKeychain createNewIdentity];
+        }
+        
+        self.server.sslIdentityAndCertificates = [DDKeychain SSLIdentityAndCertificates];
         
         NSError *startError = [self.server startOnPort:port];
         

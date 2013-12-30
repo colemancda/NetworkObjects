@@ -11,6 +11,7 @@
 #import "Client.h"
 #import "CheckBoxCellView.h"
 #import "NSString+RandomString.h"
+#import <NetworkObjects/NetworkObjects.h>
 
 @interface ClientsWindowController ()
 
@@ -83,7 +84,7 @@
     // secret legnth TODO CHANGE
     NSInteger secretLength = [[NSUserDefaults standardUserDefaults] integerForKey:TokenLengthPreferenceKey];
     
-    newClient.secret = [NSString randomStringWithLength:tokenLength];
+    newClient.secret = [NSString randomStringWithLength:secretLength];
     
     [_clients addObject:newClient];
     

@@ -11,6 +11,7 @@
 #import "Session.h"
 #import "Client.h"
 #import "AppDelegate.h"
+#import <NetworkObjects/NetworkObjects.h>
 
 @implementation User (NOResourceProtocol)
 

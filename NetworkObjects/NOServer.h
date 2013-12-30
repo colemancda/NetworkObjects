@@ -45,7 +45,7 @@
 
 @property BOOL prettyPrintJSON;
 
-@property NSDictionary *security;
+@property NSArray *sslIdentityAndCertificates;
 
 #pragma mark - Responding to requests
 

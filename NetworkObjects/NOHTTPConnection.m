@@ -9,7 +9,7 @@
 #import "NOHTTPConnection.h"
 #import "NOServer.h"
 #import "NOHTTPServer.h"
-@import Security;
+#import <Security/Security.h>
 
 @implementation NOHTTPConnection
 
@@ -24,17 +24,7 @@
     
     NOServer *server = httpServer.server;
     
-    if (server) {
-        
-        SecIdentityRef identityRef = NULL;
-        SecCertificateRef certificateRef = NULL;
-        SecTrustRef trustRef = NULL;
-        
-        
-        
-    }
-    
-    return nil;
+    return server.sslIdentityAndCertificates;
 }
 
 @end

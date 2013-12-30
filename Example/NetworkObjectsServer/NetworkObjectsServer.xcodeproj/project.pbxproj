@@ -35,7 +35,9 @@
 		6E4CA04618177ABB00433D43 /* ClientsWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6E4CA04318177ABB00433D43 /* ClientsWindowController.xib */; };
 		6E4CA04A18177C5300433D43 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 6E4CA04818177C5300433D43 /* Model.xcdatamodeld */; };
 		6E4CA04C18177D9600433D43 /* NetworkObjects.framework in Copy Files */ = {isa = PBXBuildFile; fileRef = 6E4C9FF31817711800433D43 /* NetworkObjects.framework */; };
+		6E78876B186F27A6008689E1 /* DDKeychain.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E78876A186F27A6008689E1 /* DDKeychain.m */; };
 		6E8383B31831D154003AE302 /* User.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E8383B21831D154003AE302 /* User.m */; };
+		6EBAE38118711F43004F172A /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6EBAE38018711F43004F172A /* Security.framework */; };
 		6EEBC0311818A6D400DC0A92 /* NetworkObjects.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E4C9FF31817711800433D43 /* NetworkObjects.framework */; };
 /* End PBXBuildFile section */
 
@@ -149,8 +151,11 @@
 		6E4CA04218177ABB00433D43 /* ClientsWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ClientsWindowController.m; sourceTree = "<group>"; };
 		6E4CA04318177ABB00433D43 /* ClientsWindowController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ClientsWindowController.xib; sourceTree = "<group>"; };
 		6E4CA04918177C5300433D43 /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
+		6E788769186F27A6008689E1 /* DDKeychain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDKeychain.h; sourceTree = "<group>"; };
+		6E78876A186F27A6008689E1 /* DDKeychain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDKeychain.m; sourceTree = "<group>"; };
 		6E8383B11831D154003AE302 /* User.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = User.h; sourceTree = "<group>"; };
 		6E8383B21831D154003AE302 /* User.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = User.m; sourceTree = "<group>"; };
+		6EBAE38018711F43004F172A /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		6EEBC01F1818A68400DC0A92 /* NetworkObjects.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = NetworkObjects.xcodeproj; path = ../../Framework/NetworkObjects/NetworkObjects.xcodeproj; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -159,6 +164,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6EBAE38118711F43004F172A /* Security.framework in Frameworks */,
 				6E2BD834181731FF00E9D04C /* Cocoa.framework in Frameworks */,
 				6EEBC0311818A6D400DC0A92 /* NetworkObjects.framework in Frameworks */,
 			);
@@ -199,6 +205,7 @@
 		6E2BD832181731FF00E9D04C /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				6EBAE38018711F43004F172A /* Security.framework */,
 				6E4C9FF31817711800433D43 /* NetworkObjects.framework */,
 				6E2BD833181731FF00E9D04C /* Cocoa.framework */,
 				6E2BD852181731FF00E9D04C /* XCTest.framework */,
@@ -274,6 +281,7 @@
 		6E4CA0041817733900433D43 /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				6E788770186F27BB008689E1 /* DDKeychain */,
 				6E4CA04118177ABB00433D43 /* ClientsWindowController.h */,
 				6E4CA04218177ABB00433D43 /* ClientsWindowController.m */,
 				6E4CA04318177ABB00433D43 /* ClientsWindowController.xib */,
@@ -344,6 +352,15 @@
 				6E4CA02C1817740C00433D43 /* User+NOUserKeysProtocol.m */,
 			);
 			name = "Keys Protocols";
+			sourceTree = "<group>";
+		};
+		6E788770186F27BB008689E1 /* DDKeychain */ = {
+			isa = PBXGroup;
+			children = (
+				6E788769186F27A6008689E1 /* DDKeychain.h */,
+				6E78876A186F27A6008689E1 /* DDKeychain.m */,
+			);
+			name = DDKeychain;
 			sourceTree = "<group>";
 		};
 		6E83838A1831485B003AE302 /* CheckBoxCellView */ = {
@@ -514,6 +531,7 @@
 				6E4CA04518177ABB00433D43 /* ClientsWindowController.m in Sources */,
 				6E4CA01E1817738500433D43 /* User+NOResourceProtocol.m in Sources */,
 				6E4CA02D1817740C00433D43 /* Client+NOClientKeysProtocol.m in Sources */,
+				6E78876B186F27A6008689E1 /* DDKeychain.m in Sources */,
 				6E4C9FF81817721400433D43 /* AppDelegate.m in Sources */,
 				6E4CA02F1817740C00433D43 /* Session+NOSessionKeysProtocol.m in Sources */,
 				6E4CA0191817738500433D43 /* Client.m in Sources */,

@@ -7,9 +7,8 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import <NetworkObjects/NetworkObjects.h>
-
 @class ClientsWindowController;
+@class NOServer, NOStore;
 
 extern NSString *const ServerOnOffStatePreferenceKey;
 

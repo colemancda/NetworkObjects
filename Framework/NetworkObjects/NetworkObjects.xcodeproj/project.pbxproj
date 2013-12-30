@@ -30,7 +30,6 @@
 		6E2BD7E31817309E00E9D04C /* NetworkObjectsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E2BD7E21817309E00E9D04C /* NetworkObjectsTests.m */; };
 		6E2BDA901817341300E9D04C /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E2BD7C51817309E00E9D04C /* CoreData.framework */; };
 		6E2BDA921817341900E9D04C /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E2BDA911817341900E9D04C /* Security.framework */; };
-		6E4CA0311817786A00433D43 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E2BD7C11817309E00E9D04C /* Cocoa.framework */; };
 		6E6BB59718385ACB00FAE40E /* NSDate+ISO8601.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EED74791818852200F911BC /* NSDate+ISO8601.m */; };
 		6E6BB59818385AD100FAE40E /* NSManagedObject+CoreDataJSONCompatibility.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EED747B1818852200F911BC /* NSManagedObject+CoreDataJSONCompatibility.m */; };
 		6E79DE39183872770044B78E /* NOAPICachedStore.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E79DE37183872770044B78E /* NOAPICachedStore.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -39,10 +38,11 @@
 		6E79DE3C183872770044B78E /* NOAPICachedStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E79DE38183872770044B78E /* NOAPICachedStore.m */; };
 		6E838378183083B0003AE302 /* NOServerConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E838377183083B0003AE302 /* NOServerConstants.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6E838379183083B0003AE302 /* NOServerConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E838377183083B0003AE302 /* NOServerConstants.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		6E83838118308E73003AE302 /* NetworkObjectsConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E83838018308E73003AE302 /* NetworkObjectsConstants.h */; };
+		6E83838118308E73003AE302 /* NetworkObjectsConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E83838018308E73003AE302 /* NetworkObjectsConstants.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6E83838218308E73003AE302 /* NetworkObjectsConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E83838018308E73003AE302 /* NetworkObjectsConstants.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6EA79B9918189324005F0866 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E2BD7C41817309E00E9D04C /* Foundation.framework */; };
 		6EA79B9B18189339005F0866 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6EA79B9A18189339005F0866 /* Foundation.framework */; };
+		6EBAE37D18711E91004F172A /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E2BD7C11817309E00E9D04C /* Cocoa.framework */; };
 		6EED73F11818648F00F911BC /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E2BD7D61817309E00E9D04C /* XCTest.framework */; };
 		6EED73F41818648F00F911BC /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6EED73F31818648F00F911BC /* UIKit.framework */; };
 		6EED73F71818648F00F911BC /* libNetworkObjects.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6EED73E21818648F00F911BC /* libNetworkObjects.a */; };
@@ -274,6 +274,7 @@
 		6E838377183083B0003AE302 /* NOServerConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NOServerConstants.h; path = ../../../NetworkObjects/NOServerConstants.h; sourceTree = "<group>"; };
 		6E83838018308E73003AE302 /* NetworkObjectsConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NetworkObjectsConstants.h; path = ../../../NetworkObjects/NetworkObjectsConstants.h; sourceTree = "<group>"; };
 		6EA79B9A18189339005F0866 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS7.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		6EBAE37E18711F1A004F172A /* libcrypto.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcrypto.dylib; path = usr/lib/libcrypto.dylib; sourceTree = SDKROOT; };
 		6EED73E21818648F00F911BC /* libNetworkObjects.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libNetworkObjects.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		6EED73E71818648F00F911BC /* NetworkObjectsiOS-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NetworkObjectsiOS-Prefix.pch"; sourceTree = "<group>"; };
 		6EED73F01818648F00F911BC /* NetworkObjectsiOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NetworkObjectsiOSTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -374,8 +375,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6EBAE37D18711E91004F172A /* Cocoa.framework in Frameworks */,
 				6EA79B9918189324005F0866 /* Foundation.framework in Frameworks */,
-				6E4CA0311817786A00433D43 /* Cocoa.framework in Frameworks */,
 				6E2BDA921817341900E9D04C /* Security.framework in Frameworks */,
 				6E2BDA901817341300E9D04C /* CoreData.framework in Frameworks */,
 			);
@@ -440,6 +441,7 @@
 		6E2BD7C01817309E00E9D04C /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				6EBAE37E18711F1A004F172A /* libcrypto.dylib */,
 				6EED7577181886E000F911BC /* OS X */,
 				6EED7576181886D800F911BC /* iOS */,
 				6E2BD7D61817309E00E9D04C /* XCTest.framework */,
@@ -488,18 +490,11 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		6ECD2B6C1818B18400244E05 /* Controllers */ = {
+		6ECD2B6D1818B18C00244E05 /* Stores */ = {
 			isa = PBXGroup;
 			children = (
 				6EED74641818852200F911BC /* NOAPI.h */,
 				6EED74651818852200F911BC /* NOAPI.m */,
-			);
-			name = Controllers;
-			sourceTree = "<group>";
-		};
-		6ECD2B6D1818B18C00244E05 /* Stores */ = {
-			isa = PBXGroup;
-			children = (
 				6E79DE37183872770044B78E /* NOAPICachedStore.h */,
 				6E79DE38183872770044B78E /* NOAPICachedStore.m */,
 			);
@@ -744,7 +739,6 @@
 		6EED75751818854200F911BC /* Client */ = {
 			isa = PBXGroup;
 			children = (
-				6ECD2B6C1818B18400244E05 /* Controllers */,
 				6ECD2B6D1818B18C00244E05 /* Stores */,
 			);
 			name = Client;
