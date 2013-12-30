@@ -252,7 +252,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                                 session:(NSManagedObject<NOSessionProtocol> *)session;
 
 /**
- Applies the the edits to a Resource from a valid JSON object. The JSON object should be verified first to avoid errors.
+ Applies the the edits to a Resource instance from a valid JSON object. The JSON object should be verified first to avoid errors.
  
  */
 

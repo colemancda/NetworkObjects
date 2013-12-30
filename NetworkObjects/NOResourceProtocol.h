@@ -144,15 +144,14 @@
                                          session:(NSManagedObject<NOSessionProtocol> *)session;
 
 /**
- Determines whether a session can perform a function on an instance of a Resource. Note that the function name given will always be valid.
+ Determines whether a session can perform a function on an instance of the Resource. Note that the function name given will always be valid.
  
- @param functionName The name of the function that was previously declared.
+ @param functionName The name of the function that the @c session want to perform.
  
  @param session The session that wants to perform a function.
  
  @return Returns @c YES or @c NO.
  
- @see +(NSSet *)resourceFunctions;
  */
 
 -(BOOL)canPerformFunction:(NSString *)functionName
