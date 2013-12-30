@@ -102,7 +102,7 @@
 // for access and edits it ask for the entire resource's permission per session first and then for individual relationships and attruibutes.
 
 /**
- Determines the permission level of the entire Resource instance for the session requesting it.
+ Determines the permission level of the entire Resource instance for the session requesting it. When a session requests access (read or write) to an instance, this method is called first an then the individiual permissions for the properties to be accessed.
  
  @param session The session that wants to access an instance.
  
@@ -117,6 +117,8 @@
 /**
  Determines the permission level of an attribute for for the session requesting it.
  
+ @param attributeName The name of the attribute that is being accessed.
+ 
  @param session The session that wants to access an instance's attribute.
  
  @see NOResourcePermission
@@ -129,6 +131,8 @@
 /**
  Determines the permission level of a relationship for for the session requesting it.
  
+ @param relationshipName The name of the relationship that is being accessed.
+ 
  @param session The session that wants to access an instance's relationship.
  
  @see NOResourcePermission
@@ -140,7 +144,7 @@
                                          session:(NSManagedObject<NOSessionProtocol> *)session;
 
 /**
- Determines whether a session can perform a function on an instance of a Resource.
+ Determines whether a session can perform a function on an instance of a Resource. Note that the function name given will always be valid.
  
  @param functionName The name of the function that was previously declared.
  
@@ -156,20 +160,63 @@
 
 #pragma mark - Validate
 
-
+/**
+ Determines whether a new value is a valid new value for an attribute.
+ 
+ @param newValue The new value that will be given to the attribute. Note that this will be a Core Data compatible value and not a JSON compatible value.
+ 
+ @param attributeName The name of the attribute that will be given a new value.
+ 
+ @return Returns @c YES or @c NO.
+  */
 
 -(BOOL)isValidValue:(NSObject *)newValue
        forAttribute:(NSString *)attributeName;
+
+/**
+ Determines whether a new value is a valid new value for a relationship.
+ 
+ @param newValue The new value that will be given to the relationship. Note that this will be a Core Data compatible value and not a JSON compatible value. For to-one relationships this will be the potential destination Resource and for to-many relationships this will be an array of the potential destination Resources.
+ 
+ @param relationshipName The name of the relationship that will be given a new value. This can be a to-one or to-many relationship.
+ 
+ @return Returns @c YES or @c NO.
+ */
 
 -(BOOL)isValidValue:(NSObject *)newValue
     forRelationship:(NSString *)relationshipName;
 
 #pragma mark - Notification
 
+/**
+ Notifies the resource that it was created by a certain session. 
+ 
+ @param session The session that created the instance of the Resource.
+ 
+ @see NOSessionProtocol
+ */
+
 -(void)wasCreatedBySession:(NSManagedObject<NOSessionProtocol> *)session;
 
 // was viewed
+
+/**
+ Notifies the resource that it was accessed (viewed) by a certain session.
+ 
+ @param session The session that accessed the instance of the Resource.
+ 
+ @see NOSessionProtocol
+ */
+
 -(void)wasAccessedBySession:(NSManagedObject<NOSessionProtocol> *)session;
+
+/**
+ Notifies the resource that it was edited by a certain session.
+ 
+ @param session The session that edited the instance of the Resource.
+ 
+ @see NOSessionProtocol
+ */
 
 -(void)wasEditedBySession:(NSManagedObject<NOSessionProtocol> *)session;
 
