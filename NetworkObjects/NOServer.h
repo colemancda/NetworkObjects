@@ -15,7 +15,30 @@
 @protocol NOResourceProtocol;
 @protocol NOSessionProtocol;
 
+/**
+ This is the server class that broadcasts the Core Data entities in a NOStore (called Resources) over the network.
+ */
+
 @interface NOServer : NSObject
+
+/**
+ The supported initializer for this class. Do not use -init as it will raise an exception. All parameters must not be nil.
+ 
+ @param store The NOStore this server will broadcast. Note that only subclasses of NSManagedObject that conform to NOResourceProtocol will be broadcasted.
+ 
+ @param userEntityName The name of the entity that will represent users.
+ 
+ @param sessionEntityName The name of the entity that will represent authentication sessions.
+
+ @param clientEntityName The name of the entity that will represent client that can connect to the server.
+
+ @param loginPath The string will be the URL that will be used to authenticate. It must not conflict with any of the resourcePath values that the Resources return.
+ 
+ @return A fully initialized NOServer instance.
+ 
+ @see NOStore
+
+ */
 
 -(id)initWithStore:(NOStore *)store
     userEntityName:(NSString *)userEntityName
