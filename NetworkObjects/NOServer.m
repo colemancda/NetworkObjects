@@ -543,6 +543,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     // perform function
     NSDictionary *jsonResponse;
     response.statusCode = [resource performFunction:functionName
+                                        withSession:session
                                  recievedJsonObject:recievedJsonObject
                                            response:&jsonResponse];
     

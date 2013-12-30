@@ -16,7 +16,7 @@
 // clients only need to implement the keys protocol
 
 /**
- This is the protocol that Core Data entities in clients and servers must implement.
+ This is the protocol that Core Data entities in NetworkObject clients and servers must implement.
  */
 
 @protocol NOResourceKeysProtocol <NSObject>
@@ -48,7 +48,7 @@
 // For servers only
 
 /**
- This is the protocol that Core Data entities in servers must implement.
+ This is the protocol that Core Data entities in NetworkObject servers must implement.
  */
 
 @protocol NOResourceProtocol <NSObject, NOResourceKeysProtocol>
@@ -220,14 +220,54 @@
 
 -(void)wasEditedBySession:(NSManagedObject<NOSessionProtocol> *)session;
 
+/**
+ Notifies the resource that an attribute was accessed (viewed) by a certain session.
+ 
+ @param attributeName The name of the attribute that was accessed.
+ 
+ @param session The session that accessed an attribute of an instance of the Resource.
+ 
+ @see NOSessionProtocol
+ */
+
 -(void)attribute:(NSString *)attributeName
 wasAccessedBySession:(NSManagedObject<NOSessionProtocol> *)session;
+
+/**
+ Notifies the resource that an attribute was edited by a certain session.
+ 
+ @param attributeName The name of the attribute that was edited.
+ 
+@param session The session that edited an attribute of an instance of the Resource.
+ 
+ @see NOSessionProtocol
+ */
 
 -(void)attribute:(NSString *)attributeName
 wasEditedBySession:(NSManagedObject<NOSessionProtocol> *)session;
 
+/**
+ Notifies the resource that a relationship was accessed (viewed) by a certain session.
+ 
+ @param relationshipName The name of the relationship that was accessed.
+ 
+@param session The session that accessed an relationship of an instance of the Resource.
+ 
+ @see NOSessionProtocol
+ */
+
 -(void)relationship:(NSString *)relationshipName
 wasAccessedBySession:(NSManagedObject<NOSessionProtocol> *)session;
+
+/**
+ Notifies the resource that a relationship was edited by a certain session.
+ 
+ @param relationshipName The name of the relationship that was edited.
+ 
+ @param session The session that edited an relationship of an instance of the Resource.
+ 
+ @see NOSessionProtocol
+ */
 
 -(void)relationship:(NSString *)relationshipName
  wasEditedBySession:(NSManagedObject<NOSessionProtocol> *)session;
@@ -236,9 +276,32 @@ wasAccessedBySession:(NSManagedObject<NOSessionProtocol> *)session;
 
 // if you want to add a function like liking a post or adding a friend without write access to a user's friend relationship
 
+/**
+ Return an NSSet containing NSStrings with the names of functions instances of this resource can perform.
+ 
+ @return Returns @c nil if the Resource provides no functions to perform or an NSSet containing NSStrings representing the names of functions that can be performed on instances of the Resource.
+ */
+
 +(NSSet *)resourceFunctions;
 
+/**
+ Performs a function and returns a NOResourceFunctionCode constant based on the paramters.
+ 
+ @param functionName The name of the function that will be performed.
+ 
+ @param session The session that is performing the function.
+ 
+ @param recievedJsonObject A JSON dictionary that the function can use as input. It may be nil.
+ 
+ @param jsonObjectResponse An optional JSON response that a function can provide.
+ 
+ @return Returns a NOResourceFunctionCode constant indicating the status of the function.
+ 
+ @see NOResourceFunctionCode
+ */
+
 -(NOResourceFunctionCode)performFunction:(NSString *)functionName
+                             withSession:(id<NOSessionProtocol>)session
                       recievedJsonObject:(NSDictionary *)recievedJsonObject
                                 response:(NSDictionary **)jsonObjectResponse;
 
