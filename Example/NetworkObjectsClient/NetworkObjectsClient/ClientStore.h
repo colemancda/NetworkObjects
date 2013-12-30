@@ -12,7 +12,7 @@
 
 @class NOAPI, User, NOAPICachedStore;
 
-@interface ClientStore : NSObject
+@interface ClientStore : NSObject <NSURLSessionDelegate>
 
 + (ClientStore *)sharedStore;
 

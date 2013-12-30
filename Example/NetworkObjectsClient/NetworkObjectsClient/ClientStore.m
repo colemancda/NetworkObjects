@@ -37,7 +37,9 @@
         
         NOAPI *api = [[NOAPI alloc] init];
         
-        api.urlSession = [NSURLSession sharedSession];
+        api.urlSession = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]
+                                                       delegate:self
+                                                  delegateQueue:[[NSOperationQueue alloc] init]];
         
         api.sessionEntityName = @"Session";
         
@@ -76,6 +78,15 @@
         
     }
     return self;
+}
+
+#pragma mark - NSURLSession Delegate
+
+-(void)URLSession:(NSURLSession *)session didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition, NSURLCredential *))completionHandler
+{
+    // trust any certificate
+    
+    completionHandler(NSURLSessionAuthChallengeUseCredential, [NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust]);
 }
 
 #pragma mark
