@@ -837,7 +837,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                         // get resourceID
                         NSString *destinationResourceIDKey = [destinationResource.class resourceIDKey];
                         
-                        NSNumber *destinationResourceID = [resource valueForKey:destinationResourceIDKey];
+                        NSNumber *destinationResourceID = [destinationResource valueForKey:destinationResourceIDKey];
                         
                         // add to json object
                         [jsonObject setValue:destinationResourceID
