@@ -301,7 +301,7 @@ wasAccessedBySession:(NSManagedObject<NOSessionProtocol> *)session;
  */
 
 -(NOResourceFunctionCode)performFunction:(NSString *)functionName
-                             withSession:(id<NOSessionProtocol>)session
+                             withSession:(NSManagedObject<NOSessionProtocol> *)session
                       recievedJsonObject:(NSDictionary *)recievedJsonObject
                                 response:(NSDictionary **)jsonObjectResponse;
 

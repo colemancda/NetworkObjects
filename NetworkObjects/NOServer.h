@@ -98,7 +98,8 @@
 /**
  This setting defines whether the JSON output generated should be pretty printed (contain whitespacing for human readablility) or not.
  
- @see NSJSONSerialization.h
+ @see NSJSONWritingPrettyPrinted
+ 
  */
 
 @property BOOL prettyPrintJSON;
