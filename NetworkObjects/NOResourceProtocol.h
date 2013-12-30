@@ -70,7 +70,9 @@
 // requires that the object be created with provided values
 
 /**
+ An NSSet with the names of attributes and relationships that must have a value when this Resource is being created.
  
+ @return Returns @c nil for no initial properties and an NSSet with NSString values representing the properties that must have a value upon creation of new instances.
  */
 
 +(NSSet *)requiredInitialProperties;
