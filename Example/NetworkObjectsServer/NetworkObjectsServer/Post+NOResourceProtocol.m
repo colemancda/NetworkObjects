@@ -11,7 +11,14 @@
 #import "Client.h"
 #import "Session.h"
 
+// LLVM thinks we didnt implement the protocol becuase its in a category
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wprotocol"
+
 @implementation Post (NOResourceProtocol)
+
+#pragma clang diagnostic pop
 
 +(BOOL)requireSession
 {

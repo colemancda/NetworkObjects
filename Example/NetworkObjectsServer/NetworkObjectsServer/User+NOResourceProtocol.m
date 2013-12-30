@@ -13,7 +13,14 @@
 #import "AppDelegate.h"
 #import <NetworkObjects/NetworkObjects.h>
 
+// LLVM thinks we didnt implement the protocol becuase its in a category
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wprotocol"
+
 @implementation User (NOResourceProtocol)
+
+#pragma clang diagnostic pop
 
 +(BOOL)requireSession
 {

@@ -11,7 +11,14 @@
 #import "AppDelegate.h"
 #import "Session+NOSessionKeysProtocol.h"
 
+// LLVM thinks we didnt implement the protocol becuase its in a category
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wprotocol"
+
 @implementation Session (NOSessionProtocol)
+
+#pragma clang diagnostic pop
 
 -(void)generateToken
 {
