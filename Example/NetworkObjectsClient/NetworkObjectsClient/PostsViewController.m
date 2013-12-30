@@ -48,9 +48,7 @@ static NSString *CellIdentifier = @"PostCell";
     [self.refreshControl addTarget:self
                             action:@selector(downloadData)
                   forControlEvents:UIControlEventValueChanged];
-    
-    [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
-    
+        
     [self refreshFromCache];
 }
 

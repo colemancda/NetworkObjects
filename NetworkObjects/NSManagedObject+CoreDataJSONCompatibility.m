@@ -95,8 +95,6 @@
     
     // unknown value
     
-    NSLog(@"Unknown JSON compatible class %@", NSStringFromClass([jsonValue class]));
-    
     return nil;
 }
 
@@ -111,7 +109,7 @@
         return NO;
     }
     
-    // no JSON conversion for these values, no dont put them in NOResources
+    // no JSON conversion for these values, so dont put them in NOResources
     if (attributeDescription.attributeType == NSUndefinedAttributeType ||
         attributeDescription.attributeType == NSTransformableAttributeType ||
         attributeDescription.attributeType == NSObjectIDAttributeType) {

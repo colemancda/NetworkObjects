@@ -792,14 +792,22 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         if ([resource permissionForAttribute:attributeName session:session] >= ReadOnlyPermission ||
             [attributeName isEqualToString:[[resource class] resourceIDKey]]) {
             
+            // get attribute
+            NSAttributeDescription *attribute = resource.entity.attributesByName[attributeName];
             
-            // add to JSON representation
-            [jsonObject setObject:[resource JSONCompatibleValueForAttribute:attributeName]
-                           forKey:attributeName];
-            
-            // notify
-            [resource attribute:attributeName
-           wasAccessedBySession:session];
+            // make sure the attribute is not transformable or undefined
+            if (attribute.attributeType != NSTransformableAttributeType ||
+                attribute.attributeType != NSUndefinedAttributeType) {
+                
+                // add to JSON representation
+                [jsonObject setObject:[resource JSONCompatibleValueForAttribute:attributeName]
+                               forKey:attributeName];
+                
+                // notify
+                [resource attribute:attributeName
+               wasAccessedBySession:session];
+                
+            }
         }
     }
     
@@ -987,6 +995,16 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                 if ([key isEqualToString:resourceIDKey]) {
                     
                     return ForbiddenStatusCode;
+                }
+                
+                NSAttributeDescription *attribute = resource.entity.attributesByName[attributeName];
+                
+                // make sure the attribute to edit is not transformable or undefined
+                if (attribute.attributeType != NSTransformableAttributeType ||
+                    attribute.attributeType != NSUndefinedAttributeType) {
+                    
+                    return BadRequestStatusCode;
+                    
                 }
                 
                 // get pre-edit value

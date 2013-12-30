@@ -46,6 +46,14 @@
     // Dispose of any resources that can be recreated.
 }
 
+-(void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+    
+    // reset cache
+    [[ClientStore sharedStore].store.context reset];
+}
+
 #pragma mark - Actions
 
 - (IBAction)login:(UIButton *)sender
