@@ -51,19 +51,19 @@ typedef NS_ENUM(NSUInteger, NOAPIErrorCode) {
  The name of the entity in the Managed Object Model that conforms to NOSessionProtocol. There should only be only entity that conforms to NOSessionProtocol in the Managed Object Model.
  */
 
-@property (readonly) NSString *sessionEntityName;
+@property NSString *sessionEntityName;
 
 /**
  The name of the entity in the Managed Object Model that conforms to NOUserProtocol. There should only be only entity that conforms to NOUserProtocol in the Managed Object Model.
  */
 
-@property (readonly) NSString *userEntityName;
+@property NSString *userEntityName;
 
 /**
  The name of the entity in the Managed Object Model that conforms to NOClientProtocol. There should only be only entity that conforms to NOClientProtocol in the Managed Object Model.
  */
 
-@property (readonly) NSString *clientEntityName;
+@property NSString *clientEntityName;
 
 #pragma mark - Connection Info
 
