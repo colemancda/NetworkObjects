@@ -11,6 +11,8 @@
 
 #define AppErrorDomain @"com.ColemanCDA.NetworkObjectsClient.ErrorDomain"
 
+#define SessionPreferenceKey @"session"
+
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 
 @property (strong, nonatomic) UIWindow *window;

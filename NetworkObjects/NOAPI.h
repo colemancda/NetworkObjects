@@ -6,8 +6,8 @@
 //  Copyright (c) 2013 CDA. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
-#import <CoreData/CoreData.h>
+@import Foundation;
+@import CoreData;
 
 /**
  NOAPI Store error codes.

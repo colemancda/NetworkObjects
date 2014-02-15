@@ -7,7 +7,7 @@
         <!--Connect View Controller - Connect-->
         <scene sceneID="BRY-Mk-rsk">
             <objects>
-                <tableViewController id="2fR-gY-iax" customClass="ConnectViewController" sceneMemberID="viewController">
+                <tableViewController storyboardIdentifier="AuthenticationVC" useStoryboardIdentifierAsRestorationIdentifier="YES" id="2fR-gY-iax" customClass="ConnectViewController" sceneMemberID="viewController">
                     <tableView key="view" opaque="NO" clipsSubviews="YES" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" alwaysBounceVertical="YES" keyboardDismissMode="interactive" dataMode="static" style="plain" separatorStyle="default" rowHeight="72" sectionHeaderHeight="22" sectionFooterHeight="22" id="5DH-C0-aeA">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -169,7 +169,7 @@
         <!--Posts View Controller - Posts-->
         <scene sceneID="fWa-HC-sEf">
             <objects>
-                <tableViewController title="Posts" id="DCo-iV-Zvz" customClass="PostsViewController" sceneMemberID="viewController">
+                <tableViewController storyboardIdentifier="PostsVC" title="Posts" useStoryboardIdentifierAsRestorationIdentifier="YES" id="DCo-iV-Zvz" customClass="PostsViewController" sceneMemberID="viewController">
                     <tableView key="view" opaque="NO" clipsSubviews="YES" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="113" sectionHeaderHeight="22" sectionFooterHeight="22" id="j0I-Xl-TAQ">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -236,7 +236,7 @@
         <!--Navigation Controller - Posts-->
         <scene sceneID="Xb3-me-eBe">
             <objects>
-                <navigationController definesPresentationContext="YES" id="hno-DU-lMQ" sceneMemberID="viewController">
+                <navigationController storyboardIdentifier="PostsNavigationController" definesPresentationContext="YES" useStoryboardIdentifierAsRestorationIdentifier="YES" id="hno-DU-lMQ" sceneMemberID="viewController">
                     <tabBarItem key="tabBarItem" title="Posts" id="5bJ-s9-vWO"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="qX7-OP-hV4">
                         <autoresizingMask key="autoresizingMask"/>
@@ -248,6 +248,47 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="okc-f2-5gJ" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1580" y="-855"/>
+        </scene>
+        <!--Table View Controller - Root View Controller-->
+        <scene sceneID="CIN-1c-a40">
+            <objects>
+                <tableViewController id="8vI-1c-Nkd" sceneMemberID="viewController">
+                    <tableView key="view" opaque="NO" clipsSubviews="YES" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="xnV-8t-ErB">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <prototypes>
+                            <tableViewCell contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" id="M1J-dV-DRL">
+                                <rect key="frame" x="0.0" y="86" width="320" height="44"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="M1J-dV-DRL" id="xMP-wR-VD8">
+                                    <rect key="frame" x="0.0" y="0.0" width="320" height="43"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                </tableViewCellContentView>
+                            </tableViewCell>
+                        </prototypes>
+                    </tableView>
+                    <navigationItem key="navigationItem" title="Root View Controller" id="Azj-df-djm"/>
+                </tableViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="cLM-si-Pf7" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="2114" y="-171"/>
+        </scene>
+        <!--Navigation Controller - Item-->
+        <scene sceneID="LLg-wU-4ns">
+            <objects>
+                <navigationController definesPresentationContext="YES" id="x8m-5j-U05" sceneMemberID="viewController">
+                    <tabBarItem key="tabBarItem" title="Item" id="98g-pD-usl"/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="vya-Ab-rr4">
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <connections>
+                        <segue destination="8vI-1c-Nkd" kind="relationship" relationship="rootViewController" id="3RP-Cl-RcD"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Qua-XD-A41" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1580" y="-171"/>
         </scene>
         <!--SessionTabBarController-->
         <scene sceneID="Uod-6r-ssW">
@@ -261,6 +302,7 @@
                     </tabBar>
                     <connections>
                         <segue destination="hno-DU-lMQ" kind="relationship" relationship="viewControllers" id="acW-4L-Faa"/>
+                        <segue destination="x8m-5j-U05" kind="relationship" relationship="viewControllers" id="06I-dQ-JAQ"/>
                     </connections>
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ZcO-ar-y8k" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -270,7 +312,7 @@
         <!--Post Composer View Controller - Post Composer-->
         <scene sceneID="SDp-YO-6c5">
             <objects>
-                <viewController id="651-gv-BLs" customClass="PostComposerViewController" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="PostComposer" useStoryboardIdentifierAsRestorationIdentifier="YES" id="651-gv-BLs" customClass="PostComposerViewController" sceneMemberID="viewController">
                     <textView key="view" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" id="ATO-0c-Nja">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -298,7 +340,7 @@
         <!--Navigation Controller-->
         <scene sceneID="dlp-Qf-hSq">
             <objects>
-                <navigationController definesPresentationContext="YES" id="jqu-mw-WBk" sceneMemberID="viewController">
+                <navigationController storyboardIdentifier="rootNavigationController" definesPresentationContext="YES" useStoryboardIdentifierAsRestorationIdentifier="YES" id="jqu-mw-WBk" sceneMemberID="viewController">
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="ajj-Kd-x5t">
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>

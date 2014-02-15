@@ -6,10 +6,10 @@
 //  Copyright (c) 2013 CDA. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
+@import Foundation;
+@import CoreData;
 #import <NetworkObjects/NOAPI.h>
 #import <NetworkObjects/NOResourceProtocol.h>
-#import <CoreData/CoreData.h>
 
 @interface NOAPICachedStore : NSObject
 

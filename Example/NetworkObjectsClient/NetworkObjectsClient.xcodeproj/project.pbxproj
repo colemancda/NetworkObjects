@@ -18,7 +18,6 @@
 		6E2BD8141817316F00E9D04C /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E2BD7FC1817316F00E9D04C /* UIKit.framework */; };
 		6E2BD81C1817316F00E9D04C /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6E2BD81A1817316F00E9D04C /* InfoPlist.strings */; };
 		6E2BD81E1817316F00E9D04C /* NetworkObjectsClientTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E2BD81D1817316F00E9D04C /* NetworkObjectsClientTests.m */; };
-		6E83837218305A36003AE302 /* NSObject+NSDictionaryRepresentation.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E83837118305A36003AE302 /* NSObject+NSDictionaryRepresentation.m */; };
 		6E838373183074F4003AE302 /* libNetworkObjects.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6EEBC03F1818AACE00DC0A92 /* libNetworkObjects.a */; };
 		6E838399183164D4003AE302 /* PostsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E838398183164D4003AE302 /* PostsViewController.m */; };
 		6E83839C1831657E003AE302 /* PostCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E83839B1831657E003AE302 /* PostCell.m */; };
@@ -100,8 +99,6 @@
 		6E2BD8191817316F00E9D04C /* NetworkObjectsClientTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "NetworkObjectsClientTests-Info.plist"; sourceTree = "<group>"; };
 		6E2BD81B1817316F00E9D04C /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		6E2BD81D1817316F00E9D04C /* NetworkObjectsClientTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NetworkObjectsClientTests.m; sourceTree = "<group>"; };
-		6E83837018305A36003AE302 /* NSObject+NSDictionaryRepresentation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+NSDictionaryRepresentation.h"; sourceTree = "<group>"; };
-		6E83837118305A36003AE302 /* NSObject+NSDictionaryRepresentation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+NSDictionaryRepresentation.m"; sourceTree = "<group>"; };
 		6E838397183164D4003AE302 /* PostsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PostsViewController.h; sourceTree = "<group>"; };
 		6E838398183164D4003AE302 /* PostsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PostsViewController.m; sourceTree = "<group>"; };
 		6E83839A1831657E003AE302 /* PostCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PostCell.h; sourceTree = "<group>"; };
@@ -261,8 +258,6 @@
 		6E83836F18305A1A003AE302 /* Categories */ = {
 			isa = PBXGroup;
 			children = (
-				6E83837018305A36003AE302 /* NSObject+NSDictionaryRepresentation.h */,
-				6E83837118305A36003AE302 /* NSObject+NSDictionaryRepresentation.m */,
 				6E8383AE1831C602003AE302 /* NSError+presentError.h */,
 				6E8383AF1831C602003AE302 /* NSError+presentError.m */,
 			);
@@ -473,7 +468,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				6EA79BAD181895BA005F0866 /* Post.m in Sources */,
-				6E83837218305A36003AE302 /* NSObject+NSDictionaryRepresentation.m in Sources */,
 				6E8383B61831D1CC003AE302 /* User.m in Sources */,
 				6EA79BAF181895BA005F0866 /* ConnectViewController.m in Sources */,
 				6EA79BAC181895BA005F0866 /* Session.m in Sources */,

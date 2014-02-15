@@ -7,7 +7,7 @@
 //
 
 #import "NOStore.h"
-#import <CoreData/CoreData.h>
+@import CoreData;
 
 @implementation NOStore
 

@@ -24,6 +24,5 @@
 
 -(IBAction)registerNewUser:(UIButton *)sender;
 
--(void)loadTextFromPreferences;
 
 @end

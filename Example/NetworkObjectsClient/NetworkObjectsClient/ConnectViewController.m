@@ -9,7 +9,6 @@
 #import "ConnectViewController.h"
 #import "AppDelegate.h"
 #import <NetworkObjects/NetworkObjects.h>
-#import "NSObject+NSDictionaryRepresentation.h"
 #import <NetworkObjects/NOAPI.h>
 #import "ClientStore.h"
 #import "Post.h"
@@ -36,7 +35,6 @@
     [super viewDidLoad];
 	// Do any additional setup after loading the view.
     
-    [self loadTextFromPreferences];
     
 }
 
@@ -118,64 +116,6 @@
     }];
 }
 
-#pragma mark - UITextField Delegate
 
--(void)textFieldDidEndEditing:(UITextField *)textField
-{
-    // save the text of all textFields that are declared properties
-    
-    NSDictionary *dictRepresentation = self.dictionaryRepresentation;
-    
-    for (NSString *key in dictRepresentation) {
-        
-        id value = [dictRepresentation valueForKey:key];
-        
-        if (textField == value) {
-            
-            [[NSUserDefaults standardUserDefaults] setObject:textField.text
-                                                      forKey:key];
-            
-            [[NSUserDefaults standardUserDefaults] synchronize];
-        }
-    };
-}
-
-#pragma mark
-
--(void)loadTextFromPreferences
-{
-    NSDictionary *dictRepresentation = self.dictionaryRepresentation;
-    
-    for (NSString *key in dictRepresentation) {
-        
-        id value = [dictRepresentation valueForKey:key];
-        
-        if ([value isKindOfClass:[UITextField class]]) {
-            
-            UITextField *textField = (UITextField *)value;
-            
-            if (textField.delegate == self) {
-                
-                // restore text if it was saved
-                NSString *text = [[NSUserDefaults standardUserDefaults] stringForKey:key];
-                
-                if (text) {
-                    
-                    textField.text = text;
-                }
-            }
-        }
-    }
-}
-
--(void)prepareForSegue:(UIStoryboardSegue *)segue
-                sender:(id)sender
-{
-    if ([segue.identifier isEqualToString:@"pushPostsVC"]) {
-        
-        
-        
-    }
-}
 
 @end
