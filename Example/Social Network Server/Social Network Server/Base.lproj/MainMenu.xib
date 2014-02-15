@@ -646,14 +646,144 @@
                 </menuItem>
             </items>
         </menu>
-        <window title="Social Network Server" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" animationBehavior="default" id="371">
+        <window title="Social Network Server" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" appearanceType="lightContent" frameAutosaveName="MainWindow" animationBehavior="default" id="371">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
-            <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
+            <windowCollectionBehavior key="collectionBehavior" fullScreenPrimary="YES"/>
             <rect key="contentRect" x="335" y="390" width="480" height="360"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1280" height="800"/>
             <view key="contentView" id="372">
                 <rect key="frame" x="0.0" y="0.0" width="480" height="360"/>
                 <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <box autoresizesSubviews="NO" ambiguous="YES" misplaced="YES" title="Server Control" borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="WwA-JY-VzD">
+                        <rect key="frame" x="17" y="246" width="446" height="94"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <view key="contentView">
+                            <rect key="frame" x="1" y="1" width="444" height="78"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                            <subviews>
+                                <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="tzC-8c-Dfp">
+                                    <rect key="frame" x="187" y="40" width="70" height="32"/>
+                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                    <buttonCell key="cell" type="push" title="Start" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="TtI-uT-WDD">
+                                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                        <font key="font" metaFont="system"/>
+                                    </buttonCell>
+                                </button>
+                                <textField verticalHuggingPriority="750" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="axV-Z9-kpZ">
+                                    <rect key="frame" x="174" y="14" width="96" height="22"/>
+                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" alignment="center" title="8,080" drawsBackground="YES" id="91P-Zn-gXK">
+                                        <numberFormatter key="formatter" formatterBehavior="default10_4" positiveFormat="#,##0.###" negativeFormat="#,##0.###" numberStyle="decimal" minimumIntegerDigits="1" maximumIntegerDigits="309" minimumFractionDigits="0" maximumFractionDigits="3" id="y60-1L-msG">
+                                            <real key="roundingIncrement" value="0.0"/>
+                                            <metadata>
+                                                <bool key="localizesFormat" value="YES"/>
+                                            </metadata>
+                                        </numberFormatter>
+                                        <font key="font" metaFont="system"/>
+                                        <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                        <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                    </textFieldCell>
+                                </textField>
+                            </subviews>
+                        </view>
+                        <constraints>
+                            <constraint firstItem="tzC-8c-Dfp" firstAttribute="centerX" secondItem="axV-Z9-kpZ" secondAttribute="centerX" id="2DR-cR-Ci5"/>
+                            <constraint firstItem="tzC-8c-Dfp" firstAttribute="top" secondItem="WwA-JY-VzD" secondAttribute="top" constant="25" id="EaR-Ta-PKc"/>
+                            <constraint firstItem="tzC-8c-Dfp" firstAttribute="centerX" secondItem="WwA-JY-VzD" secondAttribute="centerX" id="K1n-Zv-wUy"/>
+                            <constraint firstAttribute="centerX" secondItem="tzC-8c-Dfp" secondAttribute="centerX" id="N1E-tu-hyY"/>
+                            <constraint firstItem="tzC-8c-Dfp" firstAttribute="top" relation="greaterThanOrEqual" secondItem="WwA-JY-VzD" secondAttribute="top" constant="25" id="gAo-0G-MSd"/>
+                            <constraint firstAttribute="bottom" secondItem="tzC-8c-Dfp" secondAttribute="bottom" constant="44" id="ggp-s5-r5c"/>
+                            <constraint firstItem="axV-Z9-kpZ" firstAttribute="top" secondItem="tzC-8c-Dfp" secondAttribute="bottom" constant="11" id="gvK-Dv-TTw"/>
+                            <constraint firstItem="tzC-8c-Dfp" firstAttribute="leading" secondItem="WwA-JY-VzD" secondAttribute="leading" constant="191" id="kAG-Jb-NPN"/>
+                        </constraints>
+                        <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
+                        <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                    </box>
+                    <tabView appearanceType="lightContent" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="efi-HY-1A5">
+                        <rect key="frame" x="13" y="10" width="454" height="238"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <font key="font" metaFont="system"/>
+                        <tabViewItems>
+                            <tabViewItem label="Log" identifier="1" id="g4i-AR-qcC">
+                                <view key="view" id="dER-da-OX3">
+                                    <rect key="frame" x="10" y="33" width="434" height="184"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                    <subviews>
+                                        <scrollView appearanceType="lightContent" fixedFrame="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Cba-f2-nbS">
+                                            <rect key="frame" x="17" y="17" width="400" height="164"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <clipView key="contentView" ambiguous="YES" misplaced="YES" id="CUc-Me-hZ0">
+                                                <rect key="frame" x="1" y="1" width="398" height="162"/>
+                                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                <subviews>
+                                                    <textView ambiguous="YES" importsGraphics="NO" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" usesRuler="YES" usesFontPanel="YES" verticallyResizable="YES" allowsNonContiguousLayout="YES" quoteSubstitution="YES" dashSubstitution="YES" spellingCorrection="YES" smartInsertDelete="YES" id="ent-FJ-tfa">
+                                                        <rect key="frame" x="0.0" y="0.0" width="398" height="162"/>
+                                                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                                        <size key="minSize" width="398" height="162"/>
+                                                        <size key="maxSize" width="463" height="10000000"/>
+                                                        <color key="insertionPointColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                                        <size key="minSize" width="398" height="162"/>
+                                                        <size key="maxSize" width="463" height="10000000"/>
+                                                    </textView>
+                                                </subviews>
+                                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                            </clipView>
+                                            <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="YES" id="UJa-8z-Xf5">
+                                                <rect key="frame" x="-100" y="-100" width="87" height="18"/>
+                                                <autoresizingMask key="autoresizingMask"/>
+                                            </scroller>
+                                            <scroller key="verticalScroller" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="qqi-Ib-CI7">
+                                                <rect key="frame" x="383" y="1" width="16" height="162"/>
+                                                <autoresizingMask key="autoresizingMask"/>
+                                            </scroller>
+                                        </scrollView>
+                                    </subviews>
+                                </view>
+                            </tabViewItem>
+                            <tabViewItem label="Browser" identifier="2" id="nZF-MQ-gP2">
+                                <view key="view" id="bcQ-vs-8Ed">
+                                    <rect key="frame" x="10" y="33" width="434" height="184"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                    <subviews>
+                                        <browser appearanceType="lightContent" verticalHuggingPriority="750" fixedFrame="YES" allowsExpansionToolTips="YES" enabled="YES" hasHorizontalScroller="YES" allowsEmptySelection="YES" defaultColumnWidth="100" minColumnWidth="100" titled="YES" separatesColumns="YES" allowsTypeSelect="YES" columnResizingType="auto" translatesAutoresizingMaskIntoConstraints="NO" id="Ghi-X2-nEM">
+                                            <rect key="frame" x="17" y="17" width="400" height="184"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        </browser>
+                                    </subviews>
+                                </view>
+                            </tabViewItem>
+                            <tabViewItem label="Add resource" identifier="" id="yBg-cc-pTG">
+                                <view key="view" ambiguous="YES" id="F7L-BN-xqC">
+                                    <rect key="frame" x="10" y="33" width="434" height="192"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                    <subviews>
+                                        <comboBox appearanceType="lightContent" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="spu-VB-h2O">
+                                            <rect key="frame" x="150" y="135" width="137" height="26"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                            <comboBoxCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" drawsBackground="YES" completes="NO" numberOfVisibleItems="5" id="EZR-Tn-sJG">
+                                                <font key="font" metaFont="system"/>
+                                                <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                            </comboBoxCell>
+                                        </comboBox>
+                                    </subviews>
+                                </view>
+                            </tabViewItem>
+                        </tabViewItems>
+                    </tabView>
+                </subviews>
+                <constraints>
+                    <constraint firstAttribute="centerX" secondItem="efi-HY-1A5" secondAttribute="centerX" id="CoV-Kf-KVG"/>
+                    <constraint firstItem="efi-HY-1A5" firstAttribute="top" secondItem="WwA-JY-VzD" secondAttribute="bottom" constant="8" id="Eu9-iR-8mw"/>
+                    <constraint firstItem="efi-HY-1A5" firstAttribute="leading" secondItem="372" secondAttribute="leading" constant="20" id="Ihw-eq-z2d"/>
+                    <constraint firstAttribute="trailing" secondItem="WwA-JY-VzD" secondAttribute="trailing" constant="20" id="Ipm-DC-9cg"/>
+                    <constraint firstAttribute="trailing" secondItem="efi-HY-1A5" secondAttribute="trailing" constant="20" id="ZkQ-V5-lyR"/>
+                    <constraint firstItem="WwA-JY-VzD" firstAttribute="leading" secondItem="372" secondAttribute="leading" constant="20" id="cRX-wb-8lz"/>
+                    <constraint firstAttribute="bottom" secondItem="efi-HY-1A5" secondAttribute="bottom" constant="20" id="nlz-zP-ktr"/>
+                    <constraint firstAttribute="centerX" secondItem="WwA-JY-VzD" secondAttribute="centerX" id="yeU-Bn-uCG"/>
+                </constraints>
             </view>
         </window>
         <customObject id="494" customClass="SNSAppDelegate">

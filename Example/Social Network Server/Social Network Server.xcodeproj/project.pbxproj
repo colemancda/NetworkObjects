@@ -20,6 +20,7 @@
 		6E11BD1118AFD13A00FF75FB /* Social_Network_ServerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E11BD1018AFD13A00FF75FB /* Social_Network_ServerTests.m */; };
 		6E11BD1C18AFD16C00FF75FB /* Model.xcdatamodeld in Resources */ = {isa = PBXBuildFile; fileRef = 6E11BD1B18AFD16C00FF75FB /* Model.xcdatamodeld */; };
 		6E11BD1D18AFD16C00FF75FB /* Model.xcdatamodeld in Resources */ = {isa = PBXBuildFile; fileRef = 6E11BD1B18AFD16C00FF75FB /* Model.xcdatamodeld */; };
+		6E11BD8118AFD4D100FF75FB /* NetworkObjects.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E11BD6A18AFD46000FF75FB /* NetworkObjects.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -29,6 +30,41 @@
 			proxyType = 1;
 			remoteGlobalIDString = 6E11BCE218AFD13900FF75FB;
 			remoteInfo = "Social Network Server";
+		};
+		6E11BD6918AFD46000FF75FB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6E11BD6118AFD46000FF75FB /* NetworkObjects.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 6E2BD7BE1817309E00E9D04C;
+			remoteInfo = NetworkObjects;
+		};
+		6E11BD6B18AFD46000FF75FB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6E11BD6118AFD46000FF75FB /* NetworkObjects.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 6E2BD7D51817309E00E9D04C;
+			remoteInfo = NetworkObjectsTests;
+		};
+		6E11BD6D18AFD46000FF75FB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6E11BD6118AFD46000FF75FB /* NetworkObjects.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 6EED73E21818648F00F911BC;
+			remoteInfo = NetworkObjectsiOS;
+		};
+		6E11BD6F18AFD46000FF75FB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6E11BD6118AFD46000FF75FB /* NetworkObjects.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 6EED73F01818648F00F911BC;
+			remoteInfo = NetworkObjectsiOSTests;
+		};
+		6E11BD8218AFD4DD00FF75FB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6E11BD6118AFD46000FF75FB /* NetworkObjects.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 6E2BD7BD1817309E00E9D04C;
+			remoteInfo = NetworkObjects;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -52,7 +88,8 @@
 		6E11BD0C18AFD13A00FF75FB /* Social Network ServerTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Social Network ServerTests-Info.plist"; sourceTree = "<group>"; };
 		6E11BD0E18AFD13A00FF75FB /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		6E11BD1018AFD13A00FF75FB /* Social_Network_ServerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Social_Network_ServerTests.m; sourceTree = "<group>"; };
-		6E11BD1A18AFD16C00FF75FB /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = file; path = Model.xcdatamodel; sourceTree = "<group>"; };
+		6E11BD1A18AFD16C00FF75FB /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
+		6E11BD6118AFD46000FF75FB /* NetworkObjects.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = NetworkObjects.xcodeproj; path = "/Users/Coleman/Programming/My Apps/NetworkObjects/Example/NetworkObjectsServer/../../Framework/NetworkObjects/NetworkObjects.xcodeproj"; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,6 +97,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6E11BD8118AFD4D100FF75FB /* NetworkObjects.framework in Frameworks */,
 				6E11BCE718AFD13900FF75FB /* Cocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -98,6 +136,7 @@
 		6E11BCE518AFD13900FF75FB /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				6E11BD6118AFD46000FF75FB /* NetworkObjects.xcodeproj */,
 				6E11BCE618AFD13900FF75FB /* Cocoa.framework */,
 				6E11BD0518AFD13A00FF75FB /* XCTest.framework */,
 				6E11BCE818AFD13900FF75FB /* Other Frameworks */,
@@ -158,6 +197,17 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		6E11BD6218AFD46000FF75FB /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				6E11BD6A18AFD46000FF75FB /* NetworkObjects.framework */,
+				6E11BD6C18AFD46000FF75FB /* NetworkObjectsTests.xctest */,
+				6E11BD6E18AFD46000FF75FB /* libNetworkObjects.a */,
+				6E11BD7018AFD46000FF75FB /* NetworkObjectsiOSTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -172,6 +222,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				6E11BD8318AFD4DD00FF75FB /* PBXTargetDependency */,
 			);
 			name = "Social Network Server";
 			productName = "Social Network Server";
@@ -222,6 +273,12 @@
 			mainGroup = 6E11BCDA18AFD13900FF75FB;
 			productRefGroup = 6E11BCE418AFD13900FF75FB /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 6E11BD6218AFD46000FF75FB /* Products */;
+					ProjectRef = 6E11BD6118AFD46000FF75FB /* NetworkObjects.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				6E11BCE218AFD13900FF75FB /* Social Network Server */,
@@ -229,6 +286,37 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		6E11BD6A18AFD46000FF75FB /* NetworkObjects.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = NetworkObjects.framework;
+			remoteRef = 6E11BD6918AFD46000FF75FB /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		6E11BD6C18AFD46000FF75FB /* NetworkObjectsTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = NetworkObjectsTests.xctest;
+			remoteRef = 6E11BD6B18AFD46000FF75FB /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		6E11BD6E18AFD46000FF75FB /* libNetworkObjects.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libNetworkObjects.a;
+			remoteRef = 6E11BD6D18AFD46000FF75FB /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		6E11BD7018AFD46000FF75FB /* NetworkObjectsiOSTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = NetworkObjectsiOSTests.xctest;
+			remoteRef = 6E11BD6F18AFD46000FF75FB /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		6E11BCE118AFD13900FF75FB /* Resources */ = {
@@ -279,6 +367,11 @@
 			isa = PBXTargetDependency;
 			target = 6E11BCE218AFD13900FF75FB /* Social Network Server */;
 			targetProxy = 6E11BD0818AFD13A00FF75FB /* PBXContainerItemProxy */;
+		};
+		6E11BD8318AFD4DD00FF75FB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = NetworkObjects;
+			targetProxy = 6E11BD8218AFD4DD00FF75FB /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -471,6 +564,7 @@
 				6E11BD1618AFD13A00FF75FB /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		6E11BD1718AFD13A00FF75FB /* Build configuration list for PBXNativeTarget "Social Network ServerTests" */ = {
 			isa = XCConfigurationList;
@@ -479,6 +573,7 @@
 				6E11BD1918AFD13A00FF75FB /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 
