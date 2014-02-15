@@ -15,22 +15,18 @@
 #import "User.h"
 #import "NSError+presentError.h"
 
-#define kServerURLTextKey @"serverUrl"
+// UI Restoration Keys
+#define kServerURLTextField @"ServerURLTextField"
+#define kClientIDTextField @"ClientIDTextField"
+#define kClientSecretTextField @"ClientSecretTextField"
+#define kUsernameTextField @"UsernameTextField"
+#define kPasswordTextField @"PasswordTextField"
 
 @interface ConnectViewController ()
 
 @end
 
 @implementation ConnectViewController
-
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
-{
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-    if (self) {
-        // Custom initialization
-    }
-    return self;
-}
 
 - (void)viewDidLoad
 {
@@ -125,7 +121,19 @@
     [super encodeRestorableStateWithCoder:coder];
     
     [coder encodeObject:self.urlTextField.text
-                 forKey:kServerURLTextKey];
+                 forKey:kServerURLTextField];
+    
+    [coder encodeObject:self.clientIDTextField.text
+                 forKey:kClientIDTextField];
+    
+    [coder encodeObject:self.clientSecretTextField.text
+                 forKey:kClientSecretTextField];
+    
+    [coder encodeObject:self.usernameTextField.text
+                 forKey:kUsernameTextField];
+    
+    [coder encodeObject:self.passwordTextField.text
+                 forKey:kPasswordTextField];
     
     
 }
@@ -134,7 +142,15 @@
 {
     [super decodeRestorableStateWithCoder:coder];
     
-    self.urlTextField.text = [coder decodeObjectForKey:kServerURLTextKey];
+    self.urlTextField.text = [coder decodeObjectForKey:kServerURLTextField];
+    
+    self.clientIDTextField.text = [coder decodeObjectForKey:kClientIDTextField];
+    
+    self.clientSecretTextField.text = [coder decodeObjectForKey:kClientSecretTextField];
+    
+    self.usernameTextField.text = [coder decodeObjectForKey:kUsernameTextField];
+    
+    self.passwordTextField.text = [coder decodeObjectForKey:kPasswordTextField];
 }
 
 

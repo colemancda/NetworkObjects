@@ -12,11 +12,13 @@
 
 @class NOAPI, User, NOAPICachedStore;
 
-@interface ClientStore : NOAPICachedStore <NSURLSessionDelegate>
+@interface ClientStore : NSObject <NSURLSessionDelegate>
 
 + (ClientStore *)sharedStore;
 
 #pragma mark
+
+@property (readonly) NOAPICachedStore *store;
 
 @property (readonly) User *user;
 
