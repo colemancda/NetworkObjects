@@ -22,7 +22,7 @@
     NSMutableDictionary *_lastResourceIDs;
     
     /**
-     A dictionary that contains NSOperationQueues for that coordinated creation of resources so that they can be given valid Resource ID.
+     A dictionary that contains NSOperationQueues for the coordinated creation of resources so that they can be given valid Resource ID.
      */
     NSDictionary *_createResourcesQueues;
 }

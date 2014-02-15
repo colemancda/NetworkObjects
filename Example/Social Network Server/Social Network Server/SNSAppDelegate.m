@@ -8,7 +8,6 @@
 
 #import "SNSAppDelegate.h"
 #import "SNSConstants.h"
-#import "SNSServer.h"
 
 @interface SNSAppDelegate (URL)
 
@@ -19,8 +18,6 @@
 @interface SNSAppDelegate (Initialization)
 
 -(void)setupServer;
-
--(void)setupUI;
 
 @end
 
@@ -34,7 +31,8 @@
     
     NSDictionary *defaults = @{kSNSPrettyPrintJSONPreferenceKey: @NO,
                                kSNSTokenLengthPreferenceKey : @10,
-                               kSNSPrettyPrintJSONPreferenceKey : @YES};
+                               kSNSPrettyPrintJSONPreferenceKey : @YES,
+                               kSNSServerPort : @8080};
     
     [[NSUserDefaults standardUserDefaults] registerDefaults:defaults];
     
@@ -46,36 +44,76 @@
     
     [self setupServer];
     
-    [self setupUI];
-    
     // start server if it was running last time
     BOOL resume = [[NSUserDefaults standardUserDefaults] boolForKey:kSNSServerOnOffStatePreferenceKey];
     
     if (resume) {
-        [self startServer];
+        [self startServer:nil];
     }
+}
+
+-(void)applicationWillTerminate:(NSNotification *)notification
+{
+    NSLog(@"Terminating...");
+    
+    if (![self.store save]) {
+        
+        NSLog(@"Could not save SNSStore to disk!");
+    }
+    
 }
 
 #pragma mark Actions
 
-- (IBAction)startServer; {
-    
+-(void)startServer:(id)sender
+{
     BOOL isServerRunning = self.server.httpServer.isRunning;
     
     // start server
     
-    switch (isServerRunning) {
-        case NO:
+    if (!isServerRunning) {
+        
+        NSLog(@"Starting Server");
+        
+        NSInteger port = self.portTextField.integerValue;
+        
+        NSError *startServerError = [self.server startOnPort:port];
+        
+        if (startServerError) {
             
+            [NSApp presentError:startServerError];
             
+            return;
+        }
+        
+        // if port was 0 then the HTTP server will give it a random value, we need to assign that to the UI
+        
+        if (!port) {
             
-            break;
+            NSLog(@"A random port was assigned to the server");
             
-        default:
+            self.portTextField.integerValue = (NSInteger)self.server.httpServer.port;
             
-            
-            
-            break;
+        }
+        
+        // update UI
+        
+        [self.portTextField setEnabled:NO];
+        
+        self.startButton.state = NSOnState;
+        
+    }
+    
+    // stop the server
+    else {
+        
+        NSLog(@"Stopping Server");
+        
+        [self.server stop];
+        
+        [self.portTextField setEnabled:YES];
+        
+        self.startButton.state = NSOffState;
     }
     
 }
@@ -163,13 +201,16 @@
                              clientEntityName:@"Client"
                                     loginPath:@"login"];
     
-    
-    
-}
-
--(void)setupUI
-{
-    
+    // Set a default Server header in the form of YourApp/1.0
+	NSDictionary *bundleInfo = [[NSBundle mainBundle] infoDictionary];
+	NSString *appVersion = [bundleInfo objectForKey:@"CFBundleShortVersionString"];
+	if (!appVersion) {
+		appVersion = [bundleInfo objectForKey:@"CFBundleVersion"];
+	}
+	NSString *serverHeader = [NSString stringWithFormat:@"%@/%@",
+							  [bundleInfo objectForKey:@"CFBundleName"],
+							  appVersion];
+	[_server.httpServer setDefaultHeader:@"Server" value:serverHeader];
     
 }
 

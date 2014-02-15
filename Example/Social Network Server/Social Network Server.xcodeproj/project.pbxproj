@@ -47,10 +47,6 @@
 		6E11BE0E18AFDFCB00FF75FB /* Session+NOSessionKeysProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E11BE0618AFDFCB00FF75FB /* Session+NOSessionKeysProtocol.m */; };
 		6E11BE0F18AFDFCB00FF75FB /* User+NOUserKeysProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E11BE0818AFDFCB00FF75FB /* User+NOUserKeysProtocol.m */; };
 		6E11BE1018AFDFCB00FF75FB /* User+NOUserKeysProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E11BE0818AFDFCB00FF75FB /* User+NOUserKeysProtocol.m */; };
-		6E11BE1318AFE83800FF75FB /* SNSServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E11BE1218AFE83800FF75FB /* SNSServer.m */; };
-		6E11BE1418AFE83800FF75FB /* SNSServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E11BE1218AFE83800FF75FB /* SNSServer.m */; };
-		6E11BE1818AFEC4D00FF75FB /* SNSStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E11BE1718AFEC4D00FF75FB /* SNSStore.m */; };
-		6E11BE1918AFEC4D00FF75FB /* SNSStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E11BE1718AFEC4D00FF75FB /* SNSStore.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -147,10 +143,6 @@
 		6E11BE0618AFDFCB00FF75FB /* Session+NOSessionKeysProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "Session+NOSessionKeysProtocol.m"; sourceTree = "<group>"; };
 		6E11BE0718AFDFCB00FF75FB /* User+NOUserKeysProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "User+NOUserKeysProtocol.h"; sourceTree = "<group>"; };
 		6E11BE0818AFDFCB00FF75FB /* User+NOUserKeysProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "User+NOUserKeysProtocol.m"; sourceTree = "<group>"; };
-		6E11BE1118AFE83800FF75FB /* SNSServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SNSServer.h; sourceTree = "<group>"; };
-		6E11BE1218AFE83800FF75FB /* SNSServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SNSServer.m; sourceTree = "<group>"; };
-		6E11BE1618AFEC4D00FF75FB /* SNSStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SNSStore.h; sourceTree = "<group>"; };
-		6E11BE1718AFEC4D00FF75FB /* SNSStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SNSStore.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -221,8 +213,6 @@
 				6E11BCF818AFD13900FF75FB /* SNSAppDelegate.h */,
 				6E11BCF918AFD13900FF75FB /* SNSAppDelegate.m */,
 				6E11BD8418AFDD8B00FF75FB /* SNSConstants.h */,
-				6E11BE1A18AFEC5100FF75FB /* Store */,
-				6E11BE1518AFE83D00FF75FB /* Controller */,
 				6E11BCFB18AFD13A00FF75FB /* MainMenu.xib */,
 				6E11BD1B18AFD16C00FF75FB /* Model.xcdatamodeld */,
 				6E11BDDC18AFDF1D00FF75FB /* Model */,
@@ -336,24 +326,6 @@
 				6E11BE0818AFDFCB00FF75FB /* User+NOUserKeysProtocol.m */,
 			);
 			name = "Keys Protocol";
-			sourceTree = "<group>";
-		};
-		6E11BE1518AFE83D00FF75FB /* Controller */ = {
-			isa = PBXGroup;
-			children = (
-				6E11BE1118AFE83800FF75FB /* SNSServer.h */,
-				6E11BE1218AFE83800FF75FB /* SNSServer.m */,
-			);
-			name = Controller;
-			sourceTree = "<group>";
-		};
-		6E11BE1A18AFEC5100FF75FB /* Store */ = {
-			isa = PBXGroup;
-			children = (
-				6E11BE1618AFEC4D00FF75FB /* SNSStore.h */,
-				6E11BE1718AFEC4D00FF75FB /* SNSStore.m */,
-			);
-			name = Store;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -496,7 +468,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				6E11BE0918AFDFCB00FF75FB /* Client+NOClientKeysProtocol.m in Sources */,
-				6E11BE1318AFE83800FF75FB /* SNSServer.m in Sources */,
 				6E11BE0F18AFDFCB00FF75FB /* User+NOUserKeysProtocol.m in Sources */,
 				6E11BCF318AFD13900FF75FB /* main.m in Sources */,
 				6E11BE0D18AFDFCB00FF75FB /* Session+NOSessionKeysProtocol.m in Sources */,
@@ -510,7 +481,6 @@
 				6E11BDF818AFDF8F00FF75FB /* Post+NOResourceProtocol.m in Sources */,
 				6E11BDE618AFDF4A00FF75FB /* Post.m in Sources */,
 				6E11BDE818AFDF4A00FF75FB /* Client.m in Sources */,
-				6E11BE1818AFEC4D00FF75FB /* SNSStore.m in Sources */,
 				6E11BDEC18AFDF4A00FF75FB /* Session.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -525,14 +495,12 @@
 				6E11BDF918AFDF8F00FF75FB /* Post+NOResourceProtocol.m in Sources */,
 				6E11BD1118AFD13A00FF75FB /* Social_Network_ServerTests.m in Sources */,
 				6E11BDED18AFDF4A00FF75FB /* Session.m in Sources */,
-				6E11BE1918AFEC4D00FF75FB /* SNSStore.m in Sources */,
 				6E11BE0E18AFDFCB00FF75FB /* Session+NOSessionKeysProtocol.m in Sources */,
 				6E11BDE718AFDF4A00FF75FB /* Post.m in Sources */,
 				6E11BDFB18AFDF8F00FF75FB /* User+NOResourceProtocol.m in Sources */,
 				6E11BDFD18AFDF8F00FF75FB /* Session+NOSessionProtocol.m in Sources */,
 				6E11BDE918AFDF4A00FF75FB /* Client.m in Sources */,
 				6E11BDDB18AFDF1800FF75FB /* NSString+RandomString.m in Sources */,
-				6E11BE1418AFE83800FF75FB /* SNSServer.m in Sources */,
 				6E11BE1018AFDFCB00FF75FB /* User+NOUserKeysProtocol.m in Sources */,
 				6E11BE0A18AFDFCB00FF75FB /* Client+NOClientKeysProtocol.m in Sources */,
 			);

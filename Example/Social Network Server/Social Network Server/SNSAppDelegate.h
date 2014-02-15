@@ -28,6 +28,6 @@
 
 #pragma mark - Actions
 
-- (IBAction)startServer;
+- (IBAction)startServer:(id)sender;
 
 @end

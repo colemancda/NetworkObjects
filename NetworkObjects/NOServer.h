@@ -112,7 +112,7 @@
 @property NSArray *sslIdentityAndCertificates;
 
 /**
- This setting defines whether the JSON output generated should be pretty printed (contain whitespacing for human readablility) or not.
+ Start the HTTP REST server on the specified port.
  
  @param port Can be 0 for a random port or a specific port.
  
