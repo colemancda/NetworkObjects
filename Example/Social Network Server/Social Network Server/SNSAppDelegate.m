@@ -7,8 +7,21 @@
 //
 
 #import "SNSAppDelegate.h"
+#import "SNSConstants.h"
 
 @implementation SNSAppDelegate
+
++(void)initialize
+{
+    // register defaults
+    
+    NSDictionary *defaults = @{kSNSPrettyPrintJSONPreferenceKey: @NO,
+                               kSNSTokenLengthPreferenceKey : @10,
+                               kSNSPrettyPrintJSONPreferenceKey : @YES};
+    
+    [[NSUserDefaults standardUserDefaults] registerDefaults:defaults];
+    
+}
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
@@ -16,5 +29,14 @@
     
     
 }
+
+#pragma mark - Actions
+
+- (IBAction)startServer:(NSButton *)sender {
+    
+    
+    
+}
+
 
 @end

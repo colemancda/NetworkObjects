@@ -90,6 +90,7 @@
 		6E11BD1018AFD13A00FF75FB /* Social_Network_ServerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Social_Network_ServerTests.m; sourceTree = "<group>"; };
 		6E11BD1A18AFD16C00FF75FB /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
 		6E11BD6118AFD46000FF75FB /* NetworkObjects.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = NetworkObjects.xcodeproj; path = "/Users/Coleman/Programming/My Apps/NetworkObjects/Example/NetworkObjectsServer/../../Framework/NetworkObjects/NetworkObjects.xcodeproj"; sourceTree = "<absolute>"; };
+		6E11BD8418AFDD8B00FF75FB /* SNSConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SNSConstants.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -159,6 +160,7 @@
 			children = (
 				6E11BCF818AFD13900FF75FB /* SNSAppDelegate.h */,
 				6E11BCF918AFD13900FF75FB /* SNSAppDelegate.m */,
+				6E11BD8418AFDD8B00FF75FB /* SNSConstants.h */,
 				6E11BCFB18AFD13A00FF75FB /* MainMenu.xib */,
 				6E11BD1B18AFD16C00FF75FB /* Model.xcdatamodeld */,
 				6E11BCFE18AFD13A00FF75FB /* Images.xcassets */,
@@ -483,6 +485,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Social Network Server/Social Network Server-Prefix.pch";
@@ -496,6 +499,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Social Network Server/Social Network Server-Prefix.pch";

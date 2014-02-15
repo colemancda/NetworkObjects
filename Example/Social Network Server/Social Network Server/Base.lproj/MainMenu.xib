@@ -655,7 +655,7 @@
                 <rect key="frame" x="0.0" y="0.0" width="480" height="360"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <box autoresizesSubviews="NO" ambiguous="YES" misplaced="YES" title="Server Control" borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="WwA-JY-VzD">
+                    <box autoresizesSubviews="NO" title="Server Control" borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="WwA-JY-VzD">
                         <rect key="frame" x="17" y="246" width="446" height="94"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <view key="contentView">
@@ -669,12 +669,18 @@
                                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                         <font key="font" metaFont="system"/>
                                     </buttonCell>
+                                    <connections>
+                                        <action selector="startServer:" target="494" id="Bcl-NM-xRM"/>
+                                    </connections>
                                 </button>
-                                <textField verticalHuggingPriority="750" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="axV-Z9-kpZ">
+                                <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="axV-Z9-kpZ">
                                     <rect key="frame" x="174" y="14" width="96" height="22"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" alignment="center" title="8,080" drawsBackground="YES" id="91P-Zn-gXK">
-                                        <numberFormatter key="formatter" formatterBehavior="default10_4" positiveFormat="#,##0.###" negativeFormat="#,##0.###" numberStyle="decimal" minimumIntegerDigits="1" maximumIntegerDigits="309" minimumFractionDigits="0" maximumFractionDigits="3" id="y60-1L-msG">
+                                    <constraints>
+                                        <constraint firstAttribute="width" constant="96" id="XxI-xb-29X"/>
+                                    </constraints>
+                                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" alignment="center" title="8080" placeholderString="Server Port" drawsBackground="YES" usesSingleLineMode="YES" id="91P-Zn-gXK">
+                                        <numberFormatter key="formatter" formatterBehavior="custom10_4" positiveFormat="#" negativeFormat="#" allowsFloats="NO" usesGroupingSeparator="NO" groupingSize="0" minimumIntegerDigits="0" maximumIntegerDigits="42" minimumFractionDigits="0" maximumFractionDigits="0" groupingSeparator="" id="bKP-m3-eb5">
                                             <real key="roundingIncrement" value="0.0"/>
                                             <metadata>
                                                 <bool key="localizesFormat" value="YES"/>
@@ -684,47 +690,49 @@
                                         <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                         <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                     </textFieldCell>
+                                    <connections>
+                                        <binding destination="Whn-Tj-bGk" name="value" keyPath="values.serverPort" id="Cti-kZ-4kr"/>
+                                    </connections>
                                 </textField>
                             </subviews>
                         </view>
                         <constraints>
-                            <constraint firstItem="tzC-8c-Dfp" firstAttribute="centerX" secondItem="axV-Z9-kpZ" secondAttribute="centerX" id="2DR-cR-Ci5"/>
                             <constraint firstItem="tzC-8c-Dfp" firstAttribute="top" secondItem="WwA-JY-VzD" secondAttribute="top" constant="25" id="EaR-Ta-PKc"/>
                             <constraint firstItem="tzC-8c-Dfp" firstAttribute="centerX" secondItem="WwA-JY-VzD" secondAttribute="centerX" id="K1n-Zv-wUy"/>
                             <constraint firstAttribute="centerX" secondItem="tzC-8c-Dfp" secondAttribute="centerX" id="N1E-tu-hyY"/>
+                            <constraint firstAttribute="bottom" secondItem="axV-Z9-kpZ" secondAttribute="bottom" constant="11" id="cV4-gf-jbw"/>
                             <constraint firstItem="tzC-8c-Dfp" firstAttribute="top" relation="greaterThanOrEqual" secondItem="WwA-JY-VzD" secondAttribute="top" constant="25" id="gAo-0G-MSd"/>
                             <constraint firstAttribute="bottom" secondItem="tzC-8c-Dfp" secondAttribute="bottom" constant="44" id="ggp-s5-r5c"/>
-                            <constraint firstItem="axV-Z9-kpZ" firstAttribute="top" secondItem="tzC-8c-Dfp" secondAttribute="bottom" constant="11" id="gvK-Dv-TTw"/>
-                            <constraint firstItem="tzC-8c-Dfp" firstAttribute="leading" secondItem="WwA-JY-VzD" secondAttribute="leading" constant="191" id="kAG-Jb-NPN"/>
+                            <constraint firstItem="axV-Z9-kpZ" firstAttribute="centerX" secondItem="tzC-8c-Dfp" secondAttribute="centerX" id="x1h-Ve-JXr"/>
                         </constraints>
                         <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
                         <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                     </box>
-                    <tabView appearanceType="lightContent" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="efi-HY-1A5">
+                    <tabView appearanceType="lightContent" translatesAutoresizingMaskIntoConstraints="NO" id="efi-HY-1A5">
                         <rect key="frame" x="13" y="10" width="454" height="238"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <font key="font" metaFont="system"/>
                         <tabViewItems>
                             <tabViewItem label="Log" identifier="1" id="g4i-AR-qcC">
                                 <view key="view" id="dER-da-OX3">
-                                    <rect key="frame" x="10" y="33" width="434" height="184"/>
+                                    <rect key="frame" x="10" y="33" width="434" height="192"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
-                                        <scrollView appearanceType="lightContent" fixedFrame="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Cba-f2-nbS">
-                                            <rect key="frame" x="17" y="17" width="400" height="164"/>
+                                        <scrollView appearanceType="lightContent" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Cba-f2-nbS">
+                                            <rect key="frame" x="17" y="17" width="400" height="172"/>
                                             <autoresizingMask key="autoresizingMask"/>
-                                            <clipView key="contentView" ambiguous="YES" misplaced="YES" id="CUc-Me-hZ0">
-                                                <rect key="frame" x="1" y="1" width="398" height="162"/>
+                                            <clipView key="contentView" id="CUc-Me-hZ0">
+                                                <rect key="frame" x="1" y="1" width="398" height="170"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
-                                                    <textView ambiguous="YES" importsGraphics="NO" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" usesRuler="YES" usesFontPanel="YES" verticallyResizable="YES" allowsNonContiguousLayout="YES" quoteSubstitution="YES" dashSubstitution="YES" spellingCorrection="YES" smartInsertDelete="YES" id="ent-FJ-tfa">
-                                                        <rect key="frame" x="0.0" y="0.0" width="398" height="162"/>
+                                                    <textView importsGraphics="NO" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" usesRuler="YES" usesFontPanel="YES" verticallyResizable="YES" allowsNonContiguousLayout="YES" quoteSubstitution="YES" dashSubstitution="YES" spellingCorrection="YES" smartInsertDelete="YES" id="ent-FJ-tfa">
+                                                        <rect key="frame" x="0.0" y="0.0" width="398" height="170"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                                        <size key="minSize" width="398" height="162"/>
+                                                        <size key="minSize" width="398" height="170"/>
                                                         <size key="maxSize" width="463" height="10000000"/>
                                                         <color key="insertionPointColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                                        <size key="minSize" width="398" height="162"/>
+                                                        <size key="minSize" width="398" height="170"/>
                                                         <size key="maxSize" width="463" height="10000000"/>
                                                     </textView>
                                                 </subviews>
@@ -735,11 +743,17 @@
                                                 <autoresizingMask key="autoresizingMask"/>
                                             </scroller>
                                             <scroller key="verticalScroller" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="qqi-Ib-CI7">
-                                                <rect key="frame" x="383" y="1" width="16" height="162"/>
+                                                <rect key="frame" x="383" y="1" width="16" height="170"/>
                                                 <autoresizingMask key="autoresizingMask"/>
                                             </scroller>
                                         </scrollView>
                                     </subviews>
+                                    <constraints>
+                                        <constraint firstItem="Cba-f2-nbS" firstAttribute="top" secondItem="dER-da-OX3" secondAttribute="top" constant="3" id="6mb-Pn-WB9"/>
+                                        <constraint firstAttribute="bottom" secondItem="Cba-f2-nbS" secondAttribute="bottom" constant="17" id="ehD-Cj-RYy"/>
+                                        <constraint firstItem="Cba-f2-nbS" firstAttribute="leading" secondItem="dER-da-OX3" secondAttribute="leading" constant="17" id="ilE-Mz-Ju7"/>
+                                        <constraint firstAttribute="trailing" secondItem="Cba-f2-nbS" secondAttribute="trailing" constant="17" id="x1R-wi-iVR"/>
+                                    </constraints>
                                 </view>
                             </tabViewItem>
                             <tabViewItem label="Browser" identifier="2" id="nZF-MQ-gP2">
@@ -755,7 +769,7 @@
                                 </view>
                             </tabViewItem>
                             <tabViewItem label="Add resource" identifier="" id="yBg-cc-pTG">
-                                <view key="view" ambiguous="YES" id="F7L-BN-xqC">
+                                <view key="view" id="F7L-BN-xqC">
                                     <rect key="frame" x="10" y="33" width="434" height="192"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
@@ -775,6 +789,7 @@
                     </tabView>
                 </subviews>
                 <constraints>
+                    <constraint firstItem="WwA-JY-VzD" firstAttribute="top" secondItem="372" secondAttribute="top" constant="20" symbolic="YES" id="9tz-cb-MVe"/>
                     <constraint firstAttribute="centerX" secondItem="efi-HY-1A5" secondAttribute="centerX" id="CoV-Kf-KVG"/>
                     <constraint firstItem="efi-HY-1A5" firstAttribute="top" secondItem="WwA-JY-VzD" secondAttribute="bottom" constant="8" id="Eu9-iR-8mw"/>
                     <constraint firstItem="efi-HY-1A5" firstAttribute="leading" secondItem="372" secondAttribute="leading" constant="20" id="Ihw-eq-z2d"/>
@@ -788,9 +803,12 @@
         </window>
         <customObject id="494" customClass="SNSAppDelegate">
             <connections>
+                <outlet property="portTextField" destination="axV-Z9-kpZ" id="cWO-QD-5mc"/>
+                <outlet property="startButton" destination="tzC-8c-Dfp" id="fx3-bP-ghO"/>
                 <outlet property="window" destination="371" id="532"/>
             </connections>
         </customObject>
         <customObject id="420" customClass="NSFontManager"/>
+        <userDefaultsController representsSharedInstance="YES" id="Whn-Tj-bGk"/>
     </objects>
 </document>
