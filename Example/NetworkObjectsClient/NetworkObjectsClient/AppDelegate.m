@@ -94,7 +94,18 @@
     
     UIViewController *restorableVC = [storyBoard instantiateViewControllerWithIdentifier:identifier];
     
+    restorableVC.restorationIdentifier = identifier;
+    
+    restorableVC.restorationClass = [restorableVC class];
+    
     return restorableVC;
+}
+
+-(void)application:(UIApplication *)application didDecodeRestorableStateWithCoder:(NSCoder *)coder
+{
+    
+    
+    
 }
 
 @end

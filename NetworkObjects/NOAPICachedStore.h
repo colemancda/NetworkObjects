@@ -11,11 +11,26 @@
 #import <NetworkObjects/NOAPI.h>
 #import <NetworkObjects/NOResourceProtocol.h>
 
+/**
+ This class uses a NOAPI property behind the scenes to communicate with a NetworkObjects server and cache them to a Core Data context. It returns NSManagedObject instances that conform to NOResourceProtocol.
+ */
+
 @interface NOAPICachedStore : NSObject
+
+/**
+ This property must be set to a non-nil value and be properly set up in order for this class to function correctly. 
+ 
+ @see NOAPI
+ */
 
 @property NOAPI *api;
 
 // must initialize the persistent store coordinator
+
+/**
+ This property must be set to a non-nil value and be properly set up in order for this class to function correctly.
+ 
+ */
 
 @property (readonly) NSManagedObjectContext *context;
 

@@ -15,6 +15,8 @@
 #import "User.h"
 #import "NSError+presentError.h"
 
+#define kServerURLTextKey @"serverUrl"
+
 @interface ConnectViewController ()
 
 @end
@@ -116,6 +118,24 @@
     }];
 }
 
+#pragma mark - State Restoration and Preservation
+
+-(void)encodeRestorableStateWithCoder:(NSCoder *)coder
+{
+    [super encodeRestorableStateWithCoder:coder];
+    
+    [coder encodeObject:self.urlTextField.text
+                 forKey:kServerURLTextKey];
+    
+    
+}
+
+-(void)decodeRestorableStateWithCoder:(NSCoder *)coder
+{
+    [super decodeRestorableStateWithCoder:coder];
+    
+    self.urlTextField.text = [coder decodeObjectForKey:kServerURLTextKey];
+}
 
 
 @end
