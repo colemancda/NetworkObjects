@@ -16,9 +16,6 @@
     // initialize store
     [ClientStore sharedStore];
     
-    // attempt to restore previous session
-    
-    
     
     return YES;
 }
@@ -66,6 +63,38 @@
 -(BOOL)application:(UIApplication *)application shouldRestoreApplicationState:(NSCoder *)coder
 {
     return YES;
+}
+
+-(UIViewController *)application:(UIApplication *)application viewControllerWithRestorationIdentifierPath:(NSArray *)identifierComponents coder:(NSCoder *)coder
+{
+    // decode storyboard
+    UIStoryboard *storyBoard = [coder decodeObjectForKey:UIStateRestorationViewControllerStoryboardKey];
+    
+    if (!storyBoard) {
+        
+        return nil;
+    }
+    
+    NSString *identifier;
+    
+    // if there is no session than just restore the authentication VC
+    
+    NSString *sessionToken = [[NSUserDefaults standardUserDefaults] stringForKey:SessionPreferenceKey];
+    
+    if (!sessionToken) {
+        
+        identifier = identifierComponents.firstObject;
+    }
+    
+    // restore last VC
+    else {
+        
+        identifierComponents = identifierComponents.lastObject;
+    }
+    
+    UIViewController *restorableVC = [storyBoard instantiateViewControllerWithIdentifier:identifier];
+    
+    return restorableVC;
 }
 
 @end
