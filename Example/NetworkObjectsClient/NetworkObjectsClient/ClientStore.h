@@ -18,8 +18,6 @@
 
 #pragma mark
 
-@property (readonly) NOAPICachedStore *store;
-
 @property (readonly) User *user;
 
 #pragma mark - Authentication

@@ -12,6 +12,12 @@
 #import <NetworkObjects/NSManagedObject+CoreDataJSONCompatibility.h>
 #import <NetworkObjects/NOAPICachedStore.h>
 
+@interface ClientStore ()
+
+
+
+@end
+
 @implementation ClientStore
 
 + (ClientStore *)sharedStore
