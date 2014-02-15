@@ -31,8 +31,8 @@
     
     NSDictionary *defaults = @{kSNSPrettyPrintJSONPreferenceKey: @NO,
                                kSNSTokenLengthPreferenceKey : @10,
-                               kSNSPrettyPrintJSONPreferenceKey : @YES,
-                               kSNSServerPort : @8080};
+                               kSNSServerPort : @8080,
+                               kSNSServerOnOffStatePreferenceKey : @NO};
     
     [[NSUserDefaults standardUserDefaults] registerDefaults:defaults];
     
@@ -48,6 +48,9 @@
     BOOL resume = [[NSUserDefaults standardUserDefaults] boolForKey:kSNSServerOnOffStatePreferenceKey];
     
     if (resume) {
+        
+        NSLog(@"Server will be resumed...");
+        
         [self startServer:nil];
     }
 }
@@ -61,6 +64,20 @@
         NSLog(@"Could not save SNSStore to disk!");
     }
     
+}
+
+-(BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)sender
+{
+    // intelligently terminate if the server is not running
+    return !self.server.httpServer.isRunning;
+}
+
+-(BOOL)applicationShouldHandleReopen:(NSApplication *)sender
+                   hasVisibleWindows:(BOOL)flag
+{
+    [self.window makeKeyAndOrderFront:nil];
+    
+    return YES;
 }
 
 #pragma mark Actions
@@ -102,6 +119,11 @@
         
         self.startButton.state = NSOnState;
         
+        // set preferences
+        
+        [[NSUserDefaults standardUserDefaults] setBool:YES
+                                                forKey:kSNSServerOnOffStatePreferenceKey];
+        
     }
     
     // stop the server
@@ -109,13 +131,21 @@
         
         NSLog(@"Stopping Server");
         
+        // update UI
+        
         [self.server stop];
         
         [self.portTextField setEnabled:YES];
         
         self.startButton.state = NSOffState;
+        
+        // set preferences
+        
+        [[NSUserDefaults standardUserDefaults] setBool:NO
+                                                forKey:kSNSServerOnOffStatePreferenceKey];
     }
     
+    [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
 
@@ -210,8 +240,8 @@
 	NSString *serverHeader = [NSString stringWithFormat:@"%@/%@",
 							  [bundleInfo objectForKey:@"CFBundleName"],
 							  appVersion];
-	[_server.httpServer setDefaultHeader:@"Server" value:serverHeader];
     
+	[_server.httpServer setDefaultHeader:@"Server" value:serverHeader];
 }
 
 @end

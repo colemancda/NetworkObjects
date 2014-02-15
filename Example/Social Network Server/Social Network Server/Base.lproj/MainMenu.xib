@@ -800,6 +800,9 @@
                     <constraint firstAttribute="centerX" secondItem="WwA-JY-VzD" secondAttribute="centerX" id="yeU-Bn-uCG"/>
                 </constraints>
             </view>
+            <connections>
+                <outlet property="initialFirstResponder" destination="axV-Z9-kpZ" id="LD2-GM-URO"/>
+            </connections>
         </window>
         <customObject id="494" customClass="SNSAppDelegate">
             <connections>
