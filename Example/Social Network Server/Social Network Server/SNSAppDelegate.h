@@ -9,6 +9,7 @@
 @import Cocoa;
 #import <NetworkObjects/NetworkObjects.h>
 #import "SNSConstants.h"
+@class SNSBrowserViewController, SNSLogViewController;
 
 @interface SNSAppDelegate : NSObject <NSApplicationDelegate>
 
@@ -20,6 +21,12 @@
 
 @property (readonly) NOStore *store;
 
+#pragma mark - View Controllers
+
+@property IBOutlet SNSBrowserViewController *browserVC;
+
+@property IBOutlet SNSLogViewController *logVC;
+
 #pragma mark - IB Outlets
 
 @property (weak) IBOutlet NSButton *startButton;
@@ -29,5 +36,7 @@
 #pragma mark - Actions
 
 - (IBAction)startServer:(id)sender;
+
+
 
 @end
