@@ -28,9 +28,9 @@
 // must initialize the persistent store coordinator
 
 /**
- Upon initialization a NSManagedObjectContext is initialized without a persistent store coordinator. In order for this class to function properly assign a NSPersistentStoreCoordinator to this property. When initializng the NSPersistentStoreCoordinator make sure to use the same NSManagedObjectModel instance specified in self.api.model
+ Upon initialization a @c NSManagedObjectContext is initialized without a persistent store coordinator. In order for this class to function properly assign a @c NSPersistentStoreCoordinator to this property. When initializng the @c NSPersistentStoreCoordinator make sure to use the same @c NSManagedObjectModel instance specified in @c self.api.model
  
- @see NOAPI
+ @see NSManagedObjectContext
  
  */
 
