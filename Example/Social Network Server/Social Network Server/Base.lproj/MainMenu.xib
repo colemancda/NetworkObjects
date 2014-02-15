@@ -670,7 +670,7 @@
                                         <font key="font" metaFont="system"/>
                                     </buttonCell>
                                     <connections>
-                                        <action selector="startServer:" target="494" id="Bcl-NM-xRM"/>
+                                        <action selector="startServer" target="494" id="8oe-kd-6A3"/>
                                     </connections>
                                 </button>
                                 <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="axV-Z9-kpZ">

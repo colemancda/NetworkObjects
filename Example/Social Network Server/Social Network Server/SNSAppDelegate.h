@@ -7,11 +7,18 @@
 //
 
 @import Cocoa;
+#import <NetworkObjects/NetworkObjects.h>
 #import "SNSConstants.h"
 
 @interface SNSAppDelegate : NSObject <NSApplicationDelegate>
 
 @property (assign) IBOutlet NSWindow *window;
+
+#pragma mark - Properties
+
+@property (readonly) NOServer *server;
+
+@property (readonly) NOStore *store;
 
 #pragma mark - IB Outlets
 
@@ -21,6 +28,6 @@
 
 #pragma mark - Actions
 
-- (IBAction)startServer:(NSButton *)sender;
+- (IBAction)startServer;
 
 @end

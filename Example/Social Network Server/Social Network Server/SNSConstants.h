@@ -17,4 +17,6 @@
 
 #define kSNSPrettyPrintJSONPreferenceKey @"prettyPrintJSON"
 
+#define kSNSServerPort @"serverPort"
+
 #endif

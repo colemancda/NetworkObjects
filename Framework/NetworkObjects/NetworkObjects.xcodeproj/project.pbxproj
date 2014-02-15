@@ -967,7 +967,7 @@
 			attributes = {
 				CLASSPREFIX = NO;
 				LastUpgradeCheck = 0500;
-				ORGANIZATIONNAME = CDA;
+				ORGANIZATIONNAME = ColemanCDA;
 				TargetAttributes = {
 					6E2BD7D41817309E00E9D04C = {
 						TestTargetID = 6E2BD7BD1817309E00E9D04C;
