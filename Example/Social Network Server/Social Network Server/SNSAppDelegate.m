@@ -114,7 +114,7 @@
     [self.box.contentView resignFirstResponder];
     
     self.box.contentView = self.browserVC.view;
-    
+        
     [self.window makeFirstResponder:self.browserVC];
 }
 

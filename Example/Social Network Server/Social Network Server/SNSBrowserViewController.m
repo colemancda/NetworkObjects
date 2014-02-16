@@ -17,9 +17,46 @@
     NSArray *_sortedComboBox;
     
     NSMutableDictionary *_loadedWC;
+    
+    NSMutableArray *_arrangedfetchedObjects;
 }
 
 @property NSEntityDescription *selectedEntity;
+
+@end
+
+@implementation SNSBrowserViewController (Load)
+
+-(void)fetchAll:(NSEntityDescription *)entity
+{
+    assert(entity);
+    
+    NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:entity.name];
+    
+    Class entityClass = NSClassFromString(entity.managedObjectClassName);
+    
+    NSString *resourceIDKey = [entityClass resourceIDKey];
+    
+    NSSortDescriptor *sortByID = [NSSortDescriptor sortDescriptorWithKey:resourceIDKey
+                                                               ascending:NO];
+    
+    fetchRequest.sortDescriptors = @[sortByID];
+    
+    SNSAppDelegate *appDelegate = [NSApp delegate];
+    
+    NSManagedObjectContext *context = appDelegate.store.context;
+    
+    [context performBlockAndWait:^{
+       
+        NSArray *results = [context executeFetchRequest:fetchRequest
+                                                  error:nil];
+        
+        assert(results);
+        
+        _arrangedfetchedObjects = [[NSMutableArray alloc] initWithArray:results];
+        
+    }];
+}
 
 @end
 
@@ -52,7 +89,7 @@
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(contextDidChange:)
                                                  name:NSManagedObjectContextObjectsDidChangeNotification
-                                               object:appDelegate.store.context];
+                                               object:nil];
     
 }
 
@@ -69,18 +106,30 @@
     return YES;
 }
 
+-(BOOL)becomeFirstResponder
+{
+    return YES;
+}
+
 -(BOOL)validateMenuItem:(NSMenuItem *)menuItem
 {
     // new
     if (menuItem.action == @selector(newDocument:)) {
         
-        // a tableview row must selected and an entity must be selected
+        // an entity must be selected
         
-        return (BOOL)self.selectedEntity;
+        if (self.selectedEntity) {
+            
+            return YES;
+        }
+        
+        return NO;
     }
     
     // delete
     if (menuItem.action == @selector(delete:)) {
+        
+        // a tableview row must selected and an entity must be selected
         
         if (self.selectedEntity && self.tableView.selectedRow != -1) {
             
@@ -106,7 +155,7 @@
     
     // get selected resource
     
-    id selectedItem = self.arrayController.arrangedObjects[self.tableView.clickedRow];
+    id selectedItem = _arrangedfetchedObjects[self.tableView.clickedRow];
     
     [appDelegate.store deleteResource:selectedItem];
 }
@@ -133,10 +182,9 @@
 {
     NSString *selectedEntityName = _sortedComboBox[self.comboBox.indexOfSelectedItem];
     
-    // set array controller entity
-    self.arrayController.entityName = selectedEntityName;
+    // fetch
     
-    [self.arrayController fetch:self];
+    [self fetchAll:self.selectedEntity];
     
     // set selected entity
     
@@ -158,7 +206,7 @@
 {
     // get selected item
     
-    id selectedItem = self.arrayController.arrangedObjects[self.tableView.clickedRow];
+    id selectedItem = _arrangedfetchedObjects[self.tableView.clickedRow];
     
     // attempt to get already open WC for the selected object
     
@@ -197,6 +245,8 @@
 
 -(void)contextDidChange:(NSNotification *)notification
 {
+    
+    
     if (!self.selectedEntity) {
         
         return;
@@ -217,7 +267,7 @@
                 // update tableView if selected entity
                 if (object.entity == self.selectedEntity) {
                     
-                    [self.arrayController fetch:nil];
+                    [self fetchAll:self.selectedEntity];
                     
                     [self.tableView reloadData];
                     
@@ -232,7 +282,7 @@
         
         if (deletedObjects.count) {
             
-            id selectedItem = self.arrayController.arrangedObjects[self.tableView.clickedRow];
+            id selectedItem = _arrangedfetchedObjects[self.tableView.clickedRow];
             
             NSNumber *selectedItemResourceID = [selectedItem valueForKey:[[selectedItem class] resourceIDKey]];
             
@@ -246,7 +296,7 @@
                 
                 if (wc) {
                     
-                    // remove from dicitonary
+                    // remove from dictonary
                     
                     [_loadedWC removeObjectForKey:wcKey];
                     
@@ -257,5 +307,28 @@
         
     }];
 }
+
+#pragma mark - Table View Data Source
+
+-(NSInteger)numberOfRowsInTableView:(NSTableView *)tableView
+{
+    return _arrangedfetchedObjects.count;
+}
+
+-(id)tableView:(NSTableView *)tableView objectValueForTableColumn:(NSTableColumn *)tableColumn
+           row:(NSInteger)row
+{
+    // get object for row
+    
+    NSManagedObject<NOResourceProtocol> *resource = _arrangedfetchedObjects[row];
+    
+    NSNumber *resourceID = [resource valueForKey:[[resource class] resourceIDKey]];
+    
+    return resourceID;
+}
+
+#pragma mark
+
+
 
 @end

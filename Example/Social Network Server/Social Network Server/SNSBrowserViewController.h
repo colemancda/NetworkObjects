@@ -9,9 +9,7 @@
 #import <Cocoa/Cocoa.h>
 @class SNSClientWindowController;
 
-@interface SNSBrowserViewController : NSViewController <NSComboBoxDelegate, NSComboBoxDataSource, NSTableViewDelegate>
-
-@property (strong) IBOutlet NSArrayController *arrayController;
+@interface SNSBrowserViewController : NSViewController <NSComboBoxDelegate, NSComboBoxDataSource, NSTableViewDataSource>
 
 #pragma mark - IB UI
 

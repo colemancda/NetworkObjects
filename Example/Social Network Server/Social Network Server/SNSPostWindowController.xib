@@ -130,7 +130,11 @@
                                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                     </textFieldCell>
                                     <connections>
-                                        <binding destination="-2" name="value" keyPath="self.representedObject.creator.username" id="9kD-CP-VDc"/>
+                                        <binding destination="-2" name="value" keyPath="self.representedObject.creator.username" id="f2a-kx-pe8">
+                                            <dictionary key="options">
+                                                <string key="NSNullPlaceholder">None</string>
+                                            </dictionary>
+                                        </binding>
                                     </connections>
                                 </textField>
                                 <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="dy4-st-NMZ">

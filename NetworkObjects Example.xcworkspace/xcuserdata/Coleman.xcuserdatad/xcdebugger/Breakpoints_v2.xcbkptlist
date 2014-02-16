@@ -10,11 +10,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Example/Social Network Server/Social Network Server/SNSBrowserViewController.m"
-            timestampString = "414270069.437533"
+            timestampString = "414274024.7111"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "251"
-            endingLineNumber = "251"
+            startingLineNumber = "301"
+            endingLineNumber = "301"
             landmarkName = "-contextDidChange:"
             landmarkType = "5">
          </BreakpointContent>
@@ -26,28 +26,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Example/Social Network Server/Social Network Server/SNSBrowserViewController.m"
-            timestampString = "414270069.437533"
+            timestampString = "414274024.7111"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "200"
-            endingLineNumber = "200"
+            startingLineNumber = "248"
+            endingLineNumber = "248"
             landmarkName = "-contextDidChange:"
-            landmarkType = "5">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "Example/Social Network Server/Social Network Server/SNSBrowserViewController.m"
-            timestampString = "414270069.437533"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "74"
-            endingLineNumber = "74"
-            landmarkName = "-validateMenuItem:"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
