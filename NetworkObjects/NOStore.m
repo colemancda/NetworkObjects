@@ -11,8 +11,6 @@
 
 @implementation NOStore
 
-@synthesize lastIDsURL = _lastIDsURL;
-
 -(id)initWithManagedObjectModel:(NSManagedObjectModel *)model
                      lastIDsURL:(NSURL *)lastIDsURL
 {
@@ -55,15 +53,15 @@
         // load previously saved last resourceIDs
         if (lastIDsURL) {
             
+            _lastIDsURL = lastIDsURL;
+            
             NSDictionary *savedLastIDs = [NSDictionary dictionaryWithContentsOfURL:lastIDsURL];
             
             // not new store
             if (savedLastIDs) {
                 
                 [_lastResourceIDs addEntriesFromDictionary:savedLastIDs];
-                
-                _lastIDsURL = lastIDsURL;
-                
+                                
             }
         }
     }
@@ -117,7 +115,8 @@
         }
     }];
     
-    if (!savedContext) {
+    // restore lastIDs file becuase the Core Data save failed
+    if (!savedContext && _lastIDsURL) {
         
         // restore saved lastIDs
         BOOL restoreLastIDs = [lastIDsBackup writeToURL:_lastIDsURL

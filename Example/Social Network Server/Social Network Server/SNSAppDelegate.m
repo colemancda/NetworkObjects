@@ -245,7 +245,6 @@
     NSString *lastIDsPath = [self.appSupportFolderPath stringByAppendingPathComponent:@"lastIDs.plist"];
     
     NSURL *lastIDsURL = [NSURL fileURLWithPath:lastIDsPath];
-
     
     // setup store
     
