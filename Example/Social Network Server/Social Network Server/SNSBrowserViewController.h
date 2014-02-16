@@ -26,7 +26,6 @@
 @property (readonly) NSEntityDescription *selectedEntity;
 
 
-
 #pragma mark - Actions
 
 -(void)doubleClickedTableViewRow:(id)sender;

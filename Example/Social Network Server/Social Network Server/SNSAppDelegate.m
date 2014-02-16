@@ -19,9 +19,9 @@
 
 @end
 
-@interface SNSAppDelegate (URL)
+@interface SNSAppDelegate (Paths)
 
-@property (readonly) NSURL *SQLURL;
+@property (readonly) NSString *appSupportFolderPath;
 
 @end
 
@@ -190,9 +190,9 @@
 
 #pragma mark - Category Implementation
 
-@implementation SNSAppDelegate (URL)
+@implementation SNSAppDelegate (Paths)
 
--(NSURL *)SQLURL
+-(NSString *)appSupportFolderPath
 {
     // App Support Directory
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory,
@@ -227,11 +227,7 @@
         }
     }
     
-    NSString *sqliteFilePath = [appSupportFolder stringByAppendingPathComponent:@"NOExample.sqlite"];
-    
-    NSURL *sqlURL = [NSURL fileURLWithPath:sqliteFilePath];
-    
-    return sqlURL;
+    return appSupportFolder;
 }
 
 @end
@@ -240,12 +236,24 @@
 
 -(void)setupServer
 {
+    // get paths
+    
+    NSString *sqliteFilePath = [self.appSupportFolderPath stringByAppendingPathComponent:@"NOExample.sqlite"];
+    
+    NSURL *sqlURL = [NSURL fileURLWithPath:sqliteFilePath];
+    
+    NSString *lastIDsPath = [self.appSupportFolderPath stringByAppendingPathComponent:@"lastIDs.plist"];
+    
+    NSURL *lastIDsURL = [NSURL fileURLWithPath:lastIDsPath];
+
+    
     // setup store
-    _store = [[NOStore alloc] init];
+    
+    _store = [[NOStore alloc] initWithManagedObjectModel:nil
+                                              lastIDsURL:lastIDsURL];
+    
     
     // get URL for store persistance...
-    
-    NSURL *sqlURL = self.SQLURL;
     
     // add persistance
     NSError *addPersistentStoreError;

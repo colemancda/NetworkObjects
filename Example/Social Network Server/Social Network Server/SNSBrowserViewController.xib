@@ -111,10 +111,5 @@
                 <outlet property="nextKeyView" destination="iWl-dl-ocf" id="PvU-sm-iGJ"/>
             </connections>
         </view>
-        <arrayController mode="entity" editable="NO" automaticallyPreparesContent="YES" id="ab2-Od-2Wm">
-            <connections>
-                <binding destination="-3" name="managedObjectContext" keyPath="self.delegate.store.context" id="BeC-e6-P2S"/>
-            </connections>
-        </arrayController>
     </objects>
 </document>

@@ -88,7 +88,7 @@
     
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(contextDidChange:)
-                                                 name:nsmanagana
+                                                 name:NSManagedObjectContextObjectsDidChangeNotification
                                                object:nil];
     
 }
@@ -201,17 +201,17 @@
         
         [self.tableView reloadData];
     }
-    else {
-        
-        self.tableView.enabled = NO;
-    }
-    
 }
 
 #pragma mark - Actions
 
 -(void)doubleClickedTableViewRow:(id)sender
 {
+    if (self.tableView.clickedRow == -1 && !_arrangedfetchedObjects.count) {
+        
+        return;
+    }
+    
     // get selected item
     
     id selectedItem = _arrangedfetchedObjects[self.tableView.clickedRow];

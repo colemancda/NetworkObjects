@@ -10,11 +10,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Example/Social Network Server/Social Network Server/SNSBrowserViewController.m"
-            timestampString = "414275248.793522"
+            timestampString = "414278674.704104"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "309"
-            endingLineNumber = "309"
+            startingLineNumber = "257"
+            endingLineNumber = "257"
             landmarkName = "-contextDidChange:"
             landmarkType = "5">
          </BreakpointContent>

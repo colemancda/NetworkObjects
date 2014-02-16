@@ -57,15 +57,13 @@
             
             NSDictionary *savedLastIDs = [NSDictionary dictionaryWithContentsOfURL:lastIDsURL];
             
-            if (!savedLastIDs) {
-                
-                NSLog(@"Could not open lastIDs");
-            }
-            else {
+            // not new store
+            if (savedLastIDs) {
                 
                 [_lastResourceIDs addEntriesFromDictionary:savedLastIDs];
                 
                 _lastIDsURL = lastIDsURL;
+                
             }
         }
     }
@@ -79,7 +77,7 @@
     return self;
 }
 
-#pragma mark
+#pragma mark - Save
 
 -(BOOL)save
 {
@@ -87,6 +85,7 @@
     
     NSDictionary *lastIDsBackup;
     
+    // this will be nil for in-memory stores
     if (_lastIDsURL) {
         
         // store backup of lastIDs in case there's an error in saving the context
