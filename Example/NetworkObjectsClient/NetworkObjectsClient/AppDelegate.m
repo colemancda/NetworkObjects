@@ -57,12 +57,12 @@
 
 -(BOOL)application:(UIApplication *)application shouldSaveApplicationState:(NSCoder *)coder
 {
-    return YES;
+    return NO;
 }
 
 -(BOOL)application:(UIApplication *)application shouldRestoreApplicationState:(NSCoder *)coder
 {
-    return YES;
+    return NO;
 }
 
 -(void)application:(UIApplication *)application didDecodeRestorableStateWithCoder:(NSCoder *)coder
