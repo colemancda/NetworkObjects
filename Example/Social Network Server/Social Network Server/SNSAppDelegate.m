@@ -8,6 +8,16 @@
 
 #import "SNSAppDelegate.h"
 #import "SNSConstants.h"
+#import "SNSBrowserViewController.h"
+#import "SNSLogViewController.h"
+
+@interface SNSAppDelegate ()
+
+@property SNSBrowserViewController *browserVC;
+
+@property SNSLogViewController *logVC;
+
+@end
 
 @interface SNSAppDelegate (URL)
 
@@ -18,6 +28,8 @@
 @interface SNSAppDelegate (Initialization)
 
 -(void)setupServer;
+
+-(void)setupVCs;
 
 @end
 
@@ -43,6 +55,11 @@
     // Insert code here to initialize your application
     
     [self setupServer];
+    
+    // TEMP
+    [self.store newResourceWithEntityDescription:[NSEntityDescription entityForName:@"Client" inManagedObjectContext:self.store.context]];
+    
+    [self setupVCs];
     
     // start server if it was running last time
     BOOL resume = [[NSUserDefaults standardUserDefaults] boolForKey:kSNSServerOnOffStatePreferenceKey];
@@ -243,6 +260,25 @@
 							  appVersion];
     
 	[_server.httpServer setDefaultHeader:@"Server" value:serverHeader];
+}
+
+-(void)setupVCs
+{
+    // logVC
+    
+    self.logVC = [[SNSLogViewController alloc] init];
+    
+    NSTabViewItem *logTab = [self.tabView tabViewItemAtIndex:0];
+    
+    logTab.view = self.logVC.view;
+    
+    // browser VC
+    
+    self.browserVC = [[SNSBrowserViewController alloc] init];
+    
+    NSTabViewItem *browserTab = [self.tabView tabViewItemAtIndex:1];
+    
+    browserTab.view = self.browserVC.view;
 }
 
 @end

@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="4514" systemVersion="13B42" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="4514"/>
+    </dependencies>
+    <objects>
+        <customObject id="-2" userLabel="File's Owner" customClass="SNSBrowserViewController">
+            <connections>
+                <outlet property="arrayController" destination="uje-Fo-QJO" id="KAR-Lg-Ufz"/>
+                <outlet property="comboBox" destination="iWl-dl-ocf" id="4Tt-gm-FgA"/>
+                <outlet property="noSelectionLabel" destination="weY-3I-jgc" id="pHy-7g-9Zw"/>
+                <outlet property="tableView" destination="vBo-JZ-Pqn" id="Kar-hf-Obn"/>
+                <outlet property="tableViewScrollView" destination="bqc-yE-TNW" id="zeJ-2A-m4s"/>
+                <outlet property="view" destination="mCx-Wz-pbs" id="25n-rA-w5M"/>
+            </connections>
+        </customObject>
+        <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
+        <customObject id="-3" userLabel="Application"/>
+        <view id="mCx-Wz-pbs">
+            <rect key="frame" x="0.0" y="0.0" width="434" height="232"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="weY-3I-jgc">
+                    <rect key="frame" x="157" y="108" width="121" height="17"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="No selected entity" id="22l-eE-J81">
+                        <font key="font" metaFont="message"/>
+                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                </textField>
+                <comboBox appearanceType="lightContent" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="iWl-dl-ocf">
+                    <rect key="frame" x="17" y="205" width="403" height="26"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <comboBoxCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" continuous="YES" allowsUndo="NO" sendsActionOnEndEditing="YES" borderStyle="bezel" placeholderString="No Selection" drawsBackground="YES" usesSingleLineMode="YES" completes="NO" usesDataSource="YES" numberOfVisibleItems="5" id="JWh-Md-dET">
+                        <font key="font" metaFont="system"/>
+                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                    </comboBoxCell>
+                    <connections>
+                        <outlet property="dataSource" destination="-2" id="VBF-b3-VWP"/>
+                        <outlet property="delegate" destination="-2" id="9wT-gE-rfB"/>
+                        <outlet property="nextKeyView" destination="vBo-JZ-Pqn" id="YAT-Hg-oTP"/>
+                    </connections>
+                </comboBox>
+                <scrollView hidden="YES" appearanceType="lightContent" autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bqc-yE-TNW">
+                    <rect key="frame" x="17" y="17" width="400" height="184"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <clipView key="contentView" id="c9f-6x-aFK">
+                        <rect key="frame" x="1" y="17" width="398" height="166"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="none" columnSelection="YES" multipleSelection="NO" autosaveColumns="NO" headerView="8RI-nH-bk8" id="vBo-JZ-Pqn">
+                                <rect key="frame" x="0.0" y="0.0" width="398" height="166"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <size key="intercellSpacing" width="3" height="2"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
+                                <tableColumns>
+                                    <tableColumn width="381.21484375" minWidth="40" maxWidth="1000" id="A2A-cQ-F4d">
+                                        <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="ID">
+                                            <font key="font" metaFont="smallSystem"/>
+                                            <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
+                                            <color key="backgroundColor" white="0.33333298560000002" alpha="1" colorSpace="calibratedWhite"/>
+                                        </tableHeaderCell>
+                                        <textFieldCell key="dataCell" lineBreakMode="truncatingTail" alignment="left" title="Text Cell" placeholderString="Resource ID" usesSingleLineMode="YES" id="QfW-HI-qnp">
+                                            <font key="font" metaFont="system"/>
+                                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                            <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                        </textFieldCell>
+                                        <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
+                                        <connections>
+                                            <binding destination="uje-Fo-QJO" name="value" keyPath="arrangedObjects.resourceID" id="gbg-bh-yP4">
+                                                <dictionary key="options">
+                                                    <bool key="NSConditionallySetsEditable" value="NO"/>
+                                                </dictionary>
+                                            </binding>
+                                        </connections>
+                                    </tableColumn>
+                                </tableColumns>
+                                <connections>
+                                    <binding destination="uje-Fo-QJO" name="content" keyPath="arrangedObjects" id="uMr-0R-xwd"/>
+                                </connections>
+                            </tableView>
+                        </subviews>
+                        <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
+                    </clipView>
+                    <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="YES" id="uW9-SU-5cT">
+                        <rect key="frame" x="1" y="167" width="398" height="16"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </scroller>
+                    <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="1up-uE-QhF">
+                        <rect key="frame" x="-15" y="17" width="16" height="0.0"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </scroller>
+                    <tableHeaderView key="headerView" id="8RI-nH-bk8">
+                        <rect key="frame" x="0.0" y="0.0" width="398" height="17"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </tableHeaderView>
+                </scrollView>
+            </subviews>
+            <constraints>
+                <constraint firstItem="iWl-dl-ocf" firstAttribute="leading" secondItem="mCx-Wz-pbs" secondAttribute="leading" constant="17" id="9Mb-Fp-WQI"/>
+                <constraint firstAttribute="bottom" secondItem="bqc-yE-TNW" secondAttribute="bottom" constant="17" id="BaZ-mr-knd"/>
+                <constraint firstAttribute="trailing" secondItem="bqc-yE-TNW" secondAttribute="trailing" constant="17" id="FVL-Jw-uhI"/>
+                <constraint firstItem="bqc-yE-TNW" firstAttribute="leading" secondItem="mCx-Wz-pbs" secondAttribute="leading" constant="17" id="GvP-er-nLW"/>
+                <constraint firstItem="bqc-yE-TNW" firstAttribute="top" secondItem="iWl-dl-ocf" secondAttribute="bottom" constant="8" id="KoI-KV-GRB"/>
+                <constraint firstAttribute="centerX" secondItem="weY-3I-jgc" secondAttribute="centerX" id="M04-32-Sjw"/>
+                <constraint firstItem="iWl-dl-ocf" firstAttribute="top" secondItem="mCx-Wz-pbs" secondAttribute="top" constant="3" id="OEF-NS-ufK"/>
+                <constraint firstAttribute="centerY" secondItem="weY-3I-jgc" secondAttribute="centerY" id="d6b-5Y-CeS"/>
+                <constraint firstAttribute="trailing" secondItem="iWl-dl-ocf" secondAttribute="trailing" constant="17" id="t4i-BT-GNg"/>
+            </constraints>
+        </view>
+        <arrayController mode="entity" entityName="Client" usesLazyFetching="YES" automaticallyPreparesContent="YES" id="uje-Fo-QJO">
+            <connections>
+                <binding destination="-3" name="managedObjectContext" keyPath="self.delegate.store.context" id="vzs-s0-rgl"/>
+            </connections>
+        </arrayController>
+    </objects>
+</document>

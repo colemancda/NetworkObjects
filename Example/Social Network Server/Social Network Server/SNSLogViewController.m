@@ -14,4 +14,15 @@
 
 @implementation SNSLogViewController
 
+- (id)init
+{
+    self = [self initWithNibName:NSStringFromClass([self class]) bundle:nil];
+    if (self) {
+        
+    }
+    return self;
+}
+
+
+
 @end

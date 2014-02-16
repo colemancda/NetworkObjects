@@ -23,15 +23,17 @@
 
 #pragma mark - View Controllers
 
-@property IBOutlet SNSBrowserViewController *browserVC;
+@property (readonly) SNSBrowserViewController *browserVC;
 
-@property IBOutlet SNSLogViewController *logVC;
+@property (readonly) SNSLogViewController *logVC;
 
 #pragma mark - IB Outlets
 
 @property (weak) IBOutlet NSButton *startButton;
 
 @property (weak) IBOutlet NSTextField *portTextField;
+
+@property (weak) IBOutlet NSTabView *tabView;
 
 #pragma mark - Actions
 

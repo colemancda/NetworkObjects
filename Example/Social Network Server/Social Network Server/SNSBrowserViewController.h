@@ -8,12 +8,22 @@
 
 #import <Cocoa/Cocoa.h>
 
-@interface SNSBrowserViewController : NSViewController
+@interface SNSBrowserViewController : NSViewController <NSComboBoxDelegate, NSComboBoxDataSource>
+
+@property (strong) IBOutlet NSArrayController *arrayController;
+
+#pragma mark - IB UI
 
 @property (weak) IBOutlet NSComboBox *comboBox;
 
 @property (weak) IBOutlet NSTableView *tableView;
 
-@property NSEntityDescription *selectedEntity;
+@property (weak) IBOutlet NSTextField *noSelectionLabel;
+
+@property (weak) IBOutlet NSScrollView *tableViewScrollView;
+
+#pragma mark - KVO Properties
+
+@property (readonly) NSEntityDescription *selectedEntity;
 
 @end
