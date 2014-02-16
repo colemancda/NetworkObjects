@@ -8,12 +8,12 @@
 
 #import <Cocoa/Cocoa.h>
 
-@interface SNSBrowserViewController : NSViewController
+@interface SNSBrowserViewController : NSViewController <NSComboBoxDelegate, NSComboBoxDataSource>
 
 @property (weak) IBOutlet NSComboBox *comboBox;
 
 @property (weak) IBOutlet NSTableView *tableView;
 
-@property NSEntityDescription *selectedEntity;
+@property (readonly) NSEntityDescription *selectedEntity;
 
 @end

@@ -38,11 +38,27 @@
     
 }
 
+- (id)init
+{
+    self = [super init];
+    if (self) {
+        
+        // must be called here becuase XIBs get loaded before -applicationDidFinishLaunching is called
+        [self setupServer];
+        
+    }
+    return self;
+}
+
+-(void)applicationWillFinishLaunching:(NSNotification *)notification
+{
+    
+    
+}
+
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
     // Insert code here to initialize your application
-    
-    [self setupServer];
     
     // start server if it was running last time
     BOOL resume = [[NSUserDefaults standardUserDefaults] boolForKey:kSNSServerOnOffStatePreferenceKey];

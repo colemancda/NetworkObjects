@@ -11,6 +11,12 @@
 
 @interface SNSBrowserViewController ()
 
+{
+    NSArray *_sortedComboBox;
+}
+
+@property NSEntityDescription *selectedEntity;
+
 @end
 
 @implementation SNSBrowserViewController
@@ -20,28 +26,10 @@
     self = [super init];
     if (self) {
         
-        //
+        
         
     }
     return self;
-}
-
--(void)loadView
-{
-    [super loadView];
-    
-    // load comboBox...
-    
-    // get NSArray of strings from the names of the entities
-    
-    SNSAppDelegate *appDelegate = [NSApp delegate];
-    
-    NSArray *namesOfEntities = appDelegate.store.context.persistentStoreCoordinator.managedObjectModel.entitiesByName.allKeys;
-    
-    [self.comboBox addItemsWithObjectValues:namesOfEntities];
-    
-    
-    
 }
 
 #pragma mark - First Responder
@@ -51,5 +39,33 @@
     
     
 }
+
+#pragma mark - ComboBox Data Source
+
+-(NSInteger)numberOfItemsInComboBox:(NSComboBox *)aComboBox
+{
+    SNSAppDelegate *appDelegate = [NSApp delegate];
+    
+    NSArray *namesOfEntities = appDelegate.store.context.persistentStoreCoordinator.managedObjectModel.entitiesByName.allKeys;
+    
+    return namesOfEntities.count;
+}
+
+-(id)comboBox:(NSComboBox *)aComboBox objectValueForItemAtIndex:(NSInteger)index
+{
+    
+    
+    return nil;
+}
+
+#pragma mark - ComboBox Delegate
+
+-(void)comboBoxSelectionDidChange:(NSNotification *)notification
+{
+    
+    
+}
+
+
 
 @end
