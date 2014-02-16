@@ -6,6 +6,7 @@
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="SNSPostWindowController">
             <connections>
+                <outlet property="textView" destination="BZ4-XS-8eK" id="OGe-OX-Cop"/>
                 <outlet property="window" destination="1" id="3"/>
             </connections>
         </customObject>

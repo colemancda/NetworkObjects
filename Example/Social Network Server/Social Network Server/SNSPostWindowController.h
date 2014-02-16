@@ -11,4 +11,6 @@
 
 @interface SNSPostWindowController : SNSRepresentedObjectWindowController
 
+@property (strong) IBOutlet NSTextView *textView;
+
 @end
