@@ -38,7 +38,7 @@
     NSString *resourceIDKey = [entityClass resourceIDKey];
     
     NSSortDescriptor *sortByID = [NSSortDescriptor sortDescriptorWithKey:resourceIDKey
-                                                               ascending:NO];
+                                                               ascending:YES];
     
     fetchRequest.sortDescriptors = @[sortByID];
     
@@ -88,7 +88,7 @@
     
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(contextDidChange:)
-                                                 name:NSManagedObjectContextObjectsDidChangeNotification
+                                                 name:nsmanagana
                                                object:nil];
     
 }
@@ -182,22 +182,30 @@
 {
     NSString *selectedEntityName = _sortedComboBox[self.comboBox.indexOfSelectedItem];
     
-    // fetch
-    
-    [self fetchAll:self.selectedEntity];
-    
     // set selected entity
     
     SNSAppDelegate *appDelegate = [NSApp delegate];
-
+    
     self.selectedEntity = appDelegate.store.context.persistentStoreCoordinator.managedObjectModel.entitiesByName[selectedEntityName];
+    
+    // fetch
+    
+    [self fetchAll:self.selectedEntity];
     
     // update UI
     self.tableViewScrollView.hidden = NO;
     
     self.noSelectionLabel.hidden = YES;
     
-    [self.tableView reloadData];
+    if (_arrangedfetchedObjects.count) {
+        
+        [self.tableView reloadData];
+    }
+    else {
+        
+        self.tableView.enabled = NO;
+    }
+    
 }
 
 #pragma mark - Actions

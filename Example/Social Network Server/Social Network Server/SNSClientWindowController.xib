@@ -68,7 +68,12 @@
                                         <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                     </textFieldCell>
                                     <connections>
-                                        <binding destination="-2" name="value" keyPath="self.representedObject.name" id="TMk-A1-tLt"/>
+                                        <binding destination="-2" name="value" keyPath="self.representedObject.name" id="N6D-0J-VSs">
+                                            <dictionary key="options">
+                                                <string key="NSNullPlaceholder">No Name</string>
+                                                <string key="NSNotApplicablePlaceholder">N/A</string>
+                                            </dictionary>
+                                        </binding>
                                     </connections>
                                 </textField>
                                 <textField appearanceType="lightContent" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="MVi-uj-Byn">

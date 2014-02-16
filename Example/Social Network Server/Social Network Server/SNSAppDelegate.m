@@ -56,9 +56,6 @@
     
     [self setupServer];
     
-    // TEMP
-    [self.store newResourceWithEntityDescription:[NSEntityDescription entityForName:@"Client" inManagedObjectContext:self.store.context]];
-    
     [self setupVCs];
     
     // start server if it was running last time
@@ -70,15 +67,18 @@
         
         [self startServer:nil];
     }
+    
 }
 
 -(void)applicationWillTerminate:(NSNotification *)notification
 {
     NSLog(@"Terminating...");
     
-    if (![self.store save]) {
+    BOOL saved = [self.store save];
+    
+    if (saved) {
         
-        NSLog(@"Could not save SNSStore to disk!");
+        NSLog(@"Saved data successfully");
     }
     
 }
