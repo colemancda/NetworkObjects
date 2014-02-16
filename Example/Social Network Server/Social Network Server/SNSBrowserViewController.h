@@ -7,8 +7,9 @@
 //
 
 #import <Cocoa/Cocoa.h>
+@class SNSClientWindowController;
 
-@interface SNSBrowserViewController : NSViewController <NSComboBoxDelegate, NSComboBoxDataSource>
+@interface SNSBrowserViewController : NSViewController <NSComboBoxDelegate, NSComboBoxDataSource, NSTableViewDelegate>
 
 @property (strong) IBOutlet NSArrayController *arrayController;
 
@@ -25,5 +26,10 @@
 #pragma mark - KVO Properties
 
 @property (readonly) NSEntityDescription *selectedEntity;
+
+#pragma mark - Actions
+
+-(void)doubleClickedTableViewRow:(id)sender;
+
 
 @end

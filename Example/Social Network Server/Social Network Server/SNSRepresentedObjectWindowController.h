@@ -1,5 +1,5 @@
 //
-//  SNSClientWindowController.h
+//  SNSRepresentedObjectWindowController.h
 //  Social Network Server
 //
 //  Created by Alsey Coleman Miller on 2/15/14.
@@ -7,9 +7,9 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "SNSRepresentedObjectWindowController.h"
 
-@interface SNSClientWindowController : SNSRepresentedObjectWindowController
+@interface SNSRepresentedObjectWindowController : NSWindowController
 
+@property id representedObject;
 
 @end

@@ -8,11 +8,15 @@
 
 #import "SNSBrowserViewController.h"
 #import "SNSAppDelegate.h"
+#import "SNSClientWindowController.h"
+#import "SNSRepresentedObjectWindowController.h"
 
 @interface SNSBrowserViewController ()
 
 {
     NSArray *_sortedComboBox;
+    
+    NSMutableDictionary *_loadedWC;
 }
 
 @property NSEntityDescription *selectedEntity;
@@ -26,8 +30,21 @@
     self = [self initWithNibName:NSStringFromClass([self class]) bundle:nil];
     if (self) {
         
+        _loadedWC = [[NSMutableDictionary alloc] init];
+        
     }
     return self;
+}
+
+-(void)loadView
+{
+    [super loadView];
+    
+    // table view double click selector
+    [self.tableView setDoubleAction:@selector(doubleClickedTableViewRow:)];
+    
+    [self.tableView setTarget:self];
+    
 }
 
 #pragma mark - First Responder
@@ -80,6 +97,49 @@
     self.noSelectionLabel.hidden = YES;
     
     [self.tableView reloadData];
+}
+
+#pragma mark - Actions
+
+-(void)doubleClickedTableViewRow:(id)sender
+{
+    SNSAppDelegate *appDelegate = [NSApp delegate];
+    
+    // get selected item
+    
+    id selectedItem = self.arrayController.arrangedObjects[self.tableView.clickedRow];
+    
+    // attempt to get already open WC for the selected object
+    
+    NSNumber *selectedItemResourceID = [selectedItem valueForKey:[[selectedItem class] resourceIDKey]];
+    
+    NSString *wcKey = [NSString stringWithFormat:@"%@.%@", selectedItem, selectedItemResourceID];
+    
+    SNSRepresentedObjectWindowController *wc = _loadedWC[wcKey];
+    
+    // lazily initialize and add to loadedWC
+    
+    if (!wc) {
+        
+        // determine WC to load based on entity...
+        
+        NSString *wcClassName = [NSString stringWithFormat:@"SNS%@WindowController", self.selectedEntity.name];
+        
+        Class wcClass = NSClassFromString(wcClassName);
+        
+        wc = [[wcClass alloc] init];
+        
+        [_loadedWC setValue:wc
+                     forKey:wcKey];
+    }
+    
+    // set represented object
+    
+    wc.representedObject = selectedItem;
+    
+    // show window
+    [wc.window makeKeyAndOrderFront:nil];
+    
 }
 
 @end
