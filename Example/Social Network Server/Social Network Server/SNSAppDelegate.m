@@ -80,6 +80,10 @@
         
         NSLog(@"Saved data successfully");
     }
+    else {
+        
+        NSLog(@"Could not save data");
+    }
     
 }
 

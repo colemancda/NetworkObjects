@@ -79,23 +79,20 @@
 
 -(BOOL)save
 {
-    // save lastIDs first...
+    // this will be nil for in-memory stores
+    
+    BOOL savedLastIDs;
     
     NSDictionary *lastIDsBackup;
     
-    // this will be nil for in-memory stores
     if (_lastIDsURL) {
         
-        // store backup of lastIDs in case there's an error in saving the context
+        // attempt to make backup
+        
         lastIDsBackup = [NSDictionary dictionaryWithContentsOfURL:_lastIDsURL];
         
-        // the URL is invalid
-        if (!lastIDsBackup) {
-            return NO;
-        }
-        
-        BOOL savedLastIDs = [_lastResourceIDs writeToURL:_lastIDsURL
-                                              atomically:YES];
+        savedLastIDs = [_lastResourceIDs writeToURL:_lastIDsURL
+                                         atomically:YES];
         
         if (!savedLastIDs) {
             return NO;
@@ -116,7 +113,7 @@
     }];
     
     // restore lastIDs file becuase the Core Data save failed
-    if (!savedContext && _lastIDsURL) {
+    if (!savedContext && savedLastIDs && lastIDsBackup) {
         
         // restore saved lastIDs
         BOOL restoreLastIDs = [lastIDsBackup writeToURL:_lastIDsURL
