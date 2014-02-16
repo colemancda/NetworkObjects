@@ -99,6 +99,25 @@
 
 #pragma mark Actions
 
+- (IBAction)showServerControl:(NSToolbarItem *)sender {
+    
+    self.box.contentView = self.serverControlView;
+}
+
+- (IBAction)showLog:(NSToolbarItem *)sender {
+    
+    self.box.contentView = self.logVC.view;
+}
+
+- (IBAction)showBrowser:(NSToolbarItem *)sender {
+    
+    [self.box.contentView resignFirstResponder];
+    
+    self.box.contentView = self.browserVC.view;
+    
+    [self.window makeFirstResponder:self.browserVC];
+}
+
 -(void)startServer:(id)sender
 {
     BOOL isServerRunning = self.server.httpServer.isRunning;
@@ -268,17 +287,13 @@
     
     self.logVC = [[SNSLogViewController alloc] init];
     
-    NSTabViewItem *logTab = [self.tabView tabViewItemAtIndex:0];
-    
-    logTab.view = self.logVC.view;
-    
     // browser VC
     
     self.browserVC = [[SNSBrowserViewController alloc] init];
     
-    NSTabViewItem *browserTab = [self.tabView tabViewItemAtIndex:1];
+    // server control
     
-    browserTab.view = self.browserVC.view;
+    [self showServerControl:nil];
 }
 
 @end

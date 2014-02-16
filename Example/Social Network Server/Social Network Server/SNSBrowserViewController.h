@@ -31,5 +31,9 @@
 
 -(void)doubleClickedTableViewRow:(id)sender;
 
+#pragma mark - Notifications
+
+-(void)contextDidChange:(NSNotification *)notification;
+
 
 @end

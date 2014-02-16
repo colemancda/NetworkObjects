@@ -32,7 +32,7 @@
     
     [self addObserver:self
            forKeyPath:@"representedObject.text"
-              options:NSKeyValueObservingOptionNew
+              options:NSKeyValueObservingOptionOld
               context:nil];
 }
 

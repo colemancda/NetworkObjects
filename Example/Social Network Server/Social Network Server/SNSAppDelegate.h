@@ -29,16 +29,23 @@
 
 #pragma mark - IB Outlets
 
+@property (weak) IBOutlet NSBox *box;
+
 @property (weak) IBOutlet NSButton *startButton;
 
 @property (weak) IBOutlet NSTextField *portTextField;
 
-@property (weak) IBOutlet NSTabView *tabView;
+@property (weak) IBOutlet NSView *serverControlView;
 
 #pragma mark - Actions
 
-- (IBAction)startServer:(id)sender;
+- (IBAction)showServerControl:(NSToolbarItem *)sender;
 
+- (IBAction)showLog:(NSToolbarItem *)sender;
+
+- (IBAction)showBrowser:(NSToolbarItem *)sender;
+
+- (IBAction)startServer:(id)sender;
 
 
 @end
