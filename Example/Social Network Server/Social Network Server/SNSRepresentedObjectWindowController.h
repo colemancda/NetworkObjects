@@ -10,6 +10,6 @@
 
 @interface SNSRepresentedObjectWindowController : NSWindowController
 
-@property id representedObject;
+@property NSManagedObject *representedObject;
 
 @end

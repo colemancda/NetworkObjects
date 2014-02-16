@@ -103,8 +103,6 @@
 
 -(void)doubleClickedTableViewRow:(id)sender
 {
-    SNSAppDelegate *appDelegate = [NSApp delegate];
-    
     // get selected item
     
     id selectedItem = self.arrayController.arrangedObjects[self.tableView.clickedRow];
@@ -129,13 +127,13 @@
         
         wc = [[wcClass alloc] init];
         
+        // set represented object
+        
+        wc.representedObject = selectedItem;
+        
         [_loadedWC setValue:wc
                      forKey:wcKey];
     }
-    
-    // set represented object
-    
-    wc.representedObject = selectedItem;
     
     // show window
     [wc.window makeKeyAndOrderFront:nil];

@@ -47,7 +47,9 @@ static void *KVOContext;
                      ofObject:(id)object
                        change:(NSDictionary *)change
                       context:(void *)context
-{    
+{
+    [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
+    
     // self.representedObject changed
     if ([keyPath isEqualToString:@"representedObject"] &&
         context == KVOContext) {

@@ -7,6 +7,7 @@
 //
 
 #import "SNSRepresentedObjectWindowController.h"
+#import <NetworkObjects/NOResourceProtocol.h>
 
 static void *SNSRepresentedObjectWindowControllerContext;
 
@@ -65,7 +66,11 @@ static void *SNSRepresentedObjectWindowControllerContext;
     if ([keyPath isEqualToString:@"representedObject"] &&
         context == SNSRepresentedObjectWindowControllerContext) {
         
+        // update window title
         
+        NSNumber *resourceID = [self.representedObject valueForKey:[self.representedObject.class resourceIDKey]];
+        
+        self.window.title = [NSString stringWithFormat:@"%@ - %@", self.representedObject.entity.name, resourceID];
         
     }
 }
