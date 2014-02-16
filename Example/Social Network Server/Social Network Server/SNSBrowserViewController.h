@@ -12,6 +12,8 @@
 
 @property (weak) IBOutlet NSComboBox *comboBox;
 
+@property (weak) IBOutlet NSTableView *tableView;
 
+@property NSEntityDescription *selectedEntity;
 
 @end

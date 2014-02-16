@@ -766,7 +766,7 @@
                                         <comboBox appearanceType="lightContent" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="t6F-HA-WL2">
                                             <rect key="frame" x="17" y="205" width="403" height="26"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                            <comboBoxCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" drawsBackground="YES" completes="NO" numberOfVisibleItems="5" id="Dzw-iE-q9M">
+                                            <comboBoxCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" drawsBackground="YES" completes="NO" numberOfVisibleItems="5" id="Dzw-iE-q9M">
                                                 <font key="font" metaFont="system"/>
                                                 <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                 <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -875,6 +875,7 @@
         <viewController id="aPJ-Um-bCF" customClass="SNSBrowserViewController">
             <connections>
                 <outlet property="comboBox" destination="t6F-HA-WL2" id="DuF-nY-7VN"/>
+                <outlet property="tableView" destination="YKq-ij-iFr" id="7I1-4I-NYK"/>
                 <outlet property="view" destination="bcQ-vs-8Ed" id="LaK-jk-H2X"/>
             </connections>
         </viewController>
