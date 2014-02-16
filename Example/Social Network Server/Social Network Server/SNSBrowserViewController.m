@@ -89,7 +89,7 @@
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(contextDidChange:)
                                                  name:NSManagedObjectContextObjectsDidChangeNotification
-                                               object:nil];
+                                               object:appDelegate.store.context];
     
 }
 
@@ -147,6 +147,10 @@
     SNSAppDelegate *appDelegate = [NSApp delegate];
     
     [appDelegate.store newResourceWithEntityDescription:self.selectedEntity];
+    
+    [self fetchAll:self.selectedEntity];
+    
+    [self.tableView reloadData];
 }
 
 -(void)delete:(id)sender
@@ -158,6 +162,28 @@
     id selectedItem = _arrangedfetchedObjects[self.tableView.clickedRow];
     
     [appDelegate.store deleteResource:selectedItem];
+    
+    [self fetchAll:self.selectedEntity];
+    
+    [self.tableView reloadData];
+    
+    // try to get WC...
+    
+    NSNumber *selectedItemResourceID = [selectedItem valueForKey:[[selectedItem class] resourceIDKey]];
+    
+    NSString *wcKey = [NSString stringWithFormat:@"%@.%@", selectedItem, selectedItemResourceID];
+    
+    SNSRepresentedObjectWindowController *wc = _loadedWC[wcKey];
+    
+    if (wc) {
+        
+        // remove from dictonary
+        
+        [_loadedWC removeObjectForKey:wcKey];
+        
+    }
+    
+    
 }
 
 #pragma mark - ComboBox Data Source
@@ -197,17 +223,14 @@
     
     self.noSelectionLabel.hidden = YES;
     
-    if (_arrangedfetchedObjects.count) {
-        
-        [self.tableView reloadData];
-    }
+    [self.tableView reloadData];
 }
 
 #pragma mark - Actions
 
 -(void)doubleClickedTableViewRow:(id)sender
 {
-    if (self.tableView.clickedRow == -1 && !_arrangedfetchedObjects.count) {
+    if (self.tableView.clickedRow == -1 || !_arrangedfetchedObjects.count) {
         
         return;
     }
@@ -253,8 +276,6 @@
 
 -(void)contextDidChange:(NSNotification *)notification
 {
-    
-    
     if (!self.selectedEntity) {
         
         return;
