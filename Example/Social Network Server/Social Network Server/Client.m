@@ -11,6 +11,8 @@
 #import "User.h"
 
 #import "Client+NOClientProtocol.h"
+#import "NSString+RandomString.h"
+#import "SNSConstants.h"
 
 @implementation Client
 
@@ -30,6 +32,12 @@
     self.created = [NSDate date];
     
     self.isNotThirdParty = @NO;
+    
+    NSUInteger tokenLength = [[NSUserDefaults standardUserDefaults] integerForKey:kSNSTokenLengthPreferenceKey];
+    
+    self.secret = [NSString randomStringWithLength:tokenLength];
+    
+    
 }
 
 @end

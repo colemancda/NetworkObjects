@@ -21,29 +21,84 @@
                 <rect key="frame" x="0.0" y="0.0" width="477" height="323"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <textField appearanceType="lightContent" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="989-IV-a92">
-                        <rect key="frame" x="18" y="286" width="58" height="17"/>
+                    <box autoresizesSubviews="NO" appearanceType="lightContent" title="Attributes" borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="D7g-eI-7HI">
+                        <rect key="frame" x="119" y="154" width="239" height="149"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Created:" id="DIV-jd-Xcm">
-                            <font key="font" metaFont="system"/>
-                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                        </textFieldCell>
-                    </textField>
-                    <textField appearanceType="lightContent" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="LqZ-05-qWB">
-                        <rect key="frame" x="82" y="286" width="118" height="17"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="left" title="01/01/14" id="tuf-g9-2Mm">
-                            <font key="font" metaFont="system"/>
-                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                        </textFieldCell>
-                        <connections>
-                            <binding destination="-2" name="value" keyPath="self.representedObject.created" id="BjA-jO-Jh1"/>
-                            <outlet property="formatter" destination="glr-lP-EgW" id="zm7-Ki-Jrc"/>
-                        </connections>
-                    </textField>
+                        <view key="contentView">
+                            <rect key="frame" x="1" y="1" width="237" height="133"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                            <subviews>
+                                <textField appearanceType="lightContent" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="989-IV-a92">
+                                    <rect key="frame" x="16" y="106" width="58" height="17"/>
+                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Created:" id="DIV-jd-Xcm">
+                                        <font key="font" metaFont="system"/>
+                                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                    </textFieldCell>
+                                </textField>
+                                <textField appearanceType="lightContent" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="LqZ-05-qWB">
+                                    <rect key="frame" x="80" y="106" width="118" height="17"/>
+                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="left" title="01/01/14" id="tuf-g9-2Mm">
+                                        <font key="font" metaFont="system"/>
+                                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                    </textFieldCell>
+                                    <connections>
+                                        <binding destination="-2" name="value" keyPath="self.representedObject.created" id="BjA-jO-Jh1"/>
+                                        <outlet property="formatter" destination="glr-lP-EgW" id="zm7-Ki-Jrc"/>
+                                    </connections>
+                                </textField>
+                                <button appearanceType="lightContent" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="kor-97-Z1r">
+                                    <rect key="frame" x="16" y="82" width="85" height="18"/>
+                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                    <buttonCell key="cell" type="check" title="First Party" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="zbu-2W-umc">
+                                        <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                        <font key="font" metaFont="system"/>
+                                    </buttonCell>
+                                    <connections>
+                                        <binding destination="-2" name="value" keyPath="representedObject.isNotThirdParty" id="4mT-sX-VaX"/>
+                                    </connections>
+                                </button>
+                                <textField appearanceType="lightContent" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1GE-72-HJK">
+                                    <rect key="frame" x="18" y="54" width="201" height="22"/>
+                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" placeholderString="Name" drawsBackground="YES" id="w1i-cF-z8l">
+                                        <font key="font" metaFont="system"/>
+                                        <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                        <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                    </textFieldCell>
+                                    <connections>
+                                        <binding destination="-2" name="value" keyPath="self.representedObject.name" id="TMk-A1-tLt"/>
+                                    </connections>
+                                </textField>
+                                <textField appearanceType="lightContent" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="MVi-uj-Byn">
+                                    <rect key="frame" x="18" y="22" width="201" height="22"/>
+                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" placeholderString="Secret" drawsBackground="YES" id="IBY-Kh-kGE">
+                                        <font key="font" metaFont="system"/>
+                                        <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                        <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                    </textFieldCell>
+                                    <connections>
+                                        <binding destination="-2" name="value" keyPath="representedObject.secret" id="gDv-Aj-isT"/>
+                                    </connections>
+                                </textField>
+                            </subviews>
+                        </view>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="145" id="ZAY-HZ-QXJ"/>
+                            <constraint firstAttribute="width" constant="233" id="oA6-eW-G17"/>
+                        </constraints>
+                        <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
+                        <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                    </box>
                 </subviews>
+                <constraints>
+                    <constraint firstAttribute="centerX" secondItem="D7g-eI-7HI" secondAttribute="centerX" id="8Sb-lZ-ghs"/>
+                    <constraint firstItem="D7g-eI-7HI" firstAttribute="top" secondItem="2" secondAttribute="top" constant="20" id="vki-d1-8J1"/>
+                </constraints>
             </view>
             <connections>
                 <outlet property="delegate" destination="-2" id="4"/>

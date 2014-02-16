@@ -8,9 +8,6 @@
       location = "group:Example/Social Network Server/Social Network Server.xcodeproj">
    </FileRef>
    <FileRef
-      location = "group:Example/NetworkObjectsServer/NetworkObjectsServer.xcodeproj">
-   </FileRef>
-   <FileRef
       location = "group:Example/NetworkObjectsClient/NetworkObjectsClient.xcodeproj">
    </FileRef>
 </Workspace>

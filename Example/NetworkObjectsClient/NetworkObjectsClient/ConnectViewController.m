@@ -107,7 +107,7 @@
         
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             
-            [self performSegueWithIdentifier:@"pushPostsVC"
+            [self performSegueWithIdentifier:@"pushSessionVC"
                                       sender:self];
             
         }];
