@@ -155,7 +155,7 @@
     
     // get selected resource
     
-    id selectedItem = _arrangedfetchedObjects[self.tableView.clickedRow];
+    id selectedItem = _arrangedfetchedObjects[self.tableView.selectedRow];
     
     [appDelegate.store deleteResource:selectedItem];
     
@@ -178,7 +178,6 @@
         [_loadedWC removeObjectForKey:wcKey];
         
     }
-    
     
 }
 

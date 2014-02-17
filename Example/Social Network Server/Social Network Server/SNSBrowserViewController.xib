@@ -103,7 +103,7 @@
                         <font key="font" metaFont="system"/>
                     </buttonCell>
                     <connections>
-                        <action selector="newDocument:" target="-1" id="qBu-19-nDG"/>
+                        <action selector="newDocument:" target="-2" id="0CX-3k-RKj"/>
                         <binding destination="-2" name="enabled" keyPath="self.canCreateNew" id="e6C-FM-MY2"/>
                     </connections>
                 </button>
@@ -115,7 +115,7 @@
                         <font key="font" metaFont="system"/>
                     </buttonCell>
                     <connections>
-                        <action selector="delete:" target="-1" id="A21-Yv-tgo"/>
+                        <action selector="delete:" target="-2" id="6Af-oI-pID"/>
                         <binding destination="-2" name="enabled" keyPath="self.canDelete" id="7KG-t7-9Jd"/>
                     </connections>
                 </button>

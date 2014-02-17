@@ -33,6 +33,9 @@
 
 -(void)doubleClickedTableViewRow:(id)sender;
 
+-(IBAction)newDocument:(id)sender;
+
+-(IBAction)delete:(id)sender;
 
 
 
