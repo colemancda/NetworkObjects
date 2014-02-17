@@ -58,6 +58,10 @@
 		6E11BE3718B04EDD00FF75FB /* SNSBrowserViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6E11BE3518B04EDD00FF75FB /* SNSBrowserViewController.xib */; };
 		6E11BE3918B04F4400FF75FB /* SNSLogViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6E11BE3818B04F4400FF75FB /* SNSLogViewController.xib */; };
 		6E11BE3A18B04F4400FF75FB /* SNSLogViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6E11BE3818B04F4400FF75FB /* SNSLogViewController.xib */; };
+		6E46EF7918B179190065D5D0 /* SNSSessionWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E46EF7718B179190065D5D0 /* SNSSessionWindowController.m */; };
+		6E46EF7A18B179190065D5D0 /* SNSSessionWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6E46EF7818B179190065D5D0 /* SNSSessionWindowController.xib */; };
+		6E46EF8218B17F200065D5D0 /* SNSUserWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E46EF8018B17F200065D5D0 /* SNSUserWindowController.m */; };
+		6E46EF8318B17F200065D5D0 /* SNSUserWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6E46EF8118B17F200065D5D0 /* SNSUserWindowController.xib */; };
 		6E7F4B4718B071C300508181 /* SNSRepresentedObjectWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E7F4B4518B071C300508181 /* SNSRepresentedObjectWindowController.m */; };
 		6E7F4B4818B071C300508181 /* SNSRepresentedObjectWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6E7F4B4618B071C300508181 /* SNSRepresentedObjectWindowController.xib */; };
 		6E7F4B5018B08DF500508181 /* SNSPostWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E7F4B4E18B08DF500508181 /* SNSPostWindowController.m */; };
@@ -180,6 +184,12 @@
 		6E11BE3218B0453100FF75FB /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
 		6E11BE3518B04EDD00FF75FB /* SNSBrowserViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SNSBrowserViewController.xib; sourceTree = "<group>"; };
 		6E11BE3818B04F4400FF75FB /* SNSLogViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SNSLogViewController.xib; sourceTree = "<group>"; };
+		6E46EF7618B179190065D5D0 /* SNSSessionWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SNSSessionWindowController.h; sourceTree = "<group>"; };
+		6E46EF7718B179190065D5D0 /* SNSSessionWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SNSSessionWindowController.m; sourceTree = "<group>"; };
+		6E46EF7818B179190065D5D0 /* SNSSessionWindowController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SNSSessionWindowController.xib; sourceTree = "<group>"; };
+		6E46EF7F18B17F200065D5D0 /* SNSUserWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SNSUserWindowController.h; sourceTree = "<group>"; };
+		6E46EF8018B17F200065D5D0 /* SNSUserWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SNSUserWindowController.m; sourceTree = "<group>"; };
+		6E46EF8118B17F200065D5D0 /* SNSUserWindowController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SNSUserWindowController.xib; sourceTree = "<group>"; };
 		6E7F4B4418B071C300508181 /* SNSRepresentedObjectWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SNSRepresentedObjectWindowController.h; sourceTree = "<group>"; };
 		6E7F4B4518B071C300508181 /* SNSRepresentedObjectWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SNSRepresentedObjectWindowController.m; sourceTree = "<group>"; };
 		6E7F4B4618B071C300508181 /* SNSRepresentedObjectWindowController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SNSRepresentedObjectWindowController.xib; sourceTree = "<group>"; };
@@ -235,6 +245,12 @@
 				6E7F4B4D18B08DF500508181 /* SNSPostWindowController.h */,
 				6E7F4B4E18B08DF500508181 /* SNSPostWindowController.m */,
 				6E7F4B4F18B08DF500508181 /* SNSPostWindowController.xib */,
+				6E46EF7618B179190065D5D0 /* SNSSessionWindowController.h */,
+				6E46EF7718B179190065D5D0 /* SNSSessionWindowController.m */,
+				6E46EF7818B179190065D5D0 /* SNSSessionWindowController.xib */,
+				6E46EF7F18B17F200065D5D0 /* SNSUserWindowController.h */,
+				6E46EF8018B17F200065D5D0 /* SNSUserWindowController.m */,
+				6E46EF8118B17F200065D5D0 /* SNSUserWindowController.xib */,
 			);
 			name = "Window Controllers";
 			sourceTree = "<group>";
@@ -528,11 +544,13 @@
 			files = (
 				6E11BE2418B042A700FF75FB /* MainMenu.xib in Resources */,
 				6E7F4B4818B071C300508181 /* SNSRepresentedObjectWindowController.xib in Resources */,
+				6E46EF8318B17F200065D5D0 /* SNSUserWindowController.xib in Resources */,
 				6E7F4B5118B08DF500508181 /* SNSPostWindowController.xib in Resources */,
 				6E11BE3618B04EDD00FF75FB /* SNSBrowserViewController.xib in Resources */,
 				6E11BE3918B04F4400FF75FB /* SNSLogViewController.xib in Resources */,
 				6E04EC0B18B0639100723FBC /* SNSClientWindowController.xib in Resources */,
 				6E11BCF118AFD13900FF75FB /* InfoPlist.strings in Resources */,
+				6E46EF7A18B179190065D5D0 /* SNSSessionWindowController.xib in Resources */,
 				6E11BCFF18AFD13A00FF75FB /* Images.xcassets in Resources */,
 				6E11BCF718AFD13900FF75FB /* Credits.rtf in Resources */,
 			);
@@ -557,6 +575,7 @@
 			files = (
 				6E11BE0918AFDFCB00FF75FB /* Client+NOClientKeysProtocol.m in Sources */,
 				6E11BE0F18AFDFCB00FF75FB /* User+NOUserKeysProtocol.m in Sources */,
+				6E46EF8218B17F200065D5D0 /* SNSUserWindowController.m in Sources */,
 				6E11BCF318AFD13900FF75FB /* main.m in Sources */,
 				6E11BE2218B030A000FF75FB /* SNSLogViewController.m in Sources */,
 				6E11BE0D18AFDFCB00FF75FB /* Session+NOSessionKeysProtocol.m in Sources */,
@@ -570,6 +589,7 @@
 				6E11BDFA18AFDF8F00FF75FB /* User+NOResourceProtocol.m in Sources */,
 				6E7F4B5018B08DF500508181 /* SNSPostWindowController.m in Sources */,
 				6E11BCFA18AFD13900FF75FB /* SNSAppDelegate.m in Sources */,
+				6E46EF7918B179190065D5D0 /* SNSSessionWindowController.m in Sources */,
 				6E04EC0A18B0639100723FBC /* SNSClientWindowController.m in Sources */,
 				6E11BDF818AFDF8F00FF75FB /* Post+NOResourceProtocol.m in Sources */,
 				6E11BE1E18B02EB300FF75FB /* SNSBrowserViewController.m in Sources */,

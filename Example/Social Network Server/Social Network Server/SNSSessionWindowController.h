@@ -1,5 +1,5 @@
 //
-//  SNSPostWindowController.h
+//  SNSSessionWindowController.h
 //  Social Network Server
 //
 //  Created by Alsey Coleman Miller on 2/16/14.
@@ -9,8 +9,6 @@
 #import <Cocoa/Cocoa.h>
 #import "SNSRepresentedObjectWindowController.h"
 
-@interface SNSPostWindowController : SNSRepresentedObjectWindowController <NSTextStorageDelegate>
-
-@property (strong) IBOutlet NSTextView *textView;
+@interface SNSSessionWindowController : SNSRepresentedObjectWindowController
 
 @end

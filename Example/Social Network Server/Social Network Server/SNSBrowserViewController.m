@@ -120,7 +120,14 @@
         
         if (self.selectedEntity) {
             
-            return YES;
+            // dont create new sessions objects
+            
+            if ([self.selectedEntity.name isEqualToString:@"Client"]) {
+                
+                return YES;
+            }
+            
+            return NO;
         }
         
         return NO;

@@ -30,37 +30,26 @@
     
     // Implement this method to handle any initialization after your window controller's window has been loaded from its nib file.
     
-    [self addObserver:self
-           forKeyPath:@"representedObject.text"
-              options:NSKeyValueObservingOptionOld
-              context:nil];
+    // initially load text
+    
+    Post *post = (Post *)self.representedObject;
+    
+    self.textView.string = post.text;
+    
+    // text view changes
+    
+    self.textView.textStorage.delegate = self;
 }
 
--(void)dealloc
-{
-    [self removeObserver:self
-              forKeyPath:@"representedObject.text"];
-    
-    
-}
+#pragma mark - Text Storage Delegate
 
-#pragma mark - KVO
-
--(void)observeValueForKeyPath:(NSString *)keyPath
-                     ofObject:(id)object
-                       change:(NSDictionary *)change
-                      context:(void *)context
+-(void)textStorageDidProcessEditing:(NSNotification *)notification
 {
-    [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
+    // update model object
     
-    // Network edit
-    if ([keyPath isEqualToString:@"representedObject.text"]) {
-        
-        Post *post = (Post *)self.representedObject;
-        
-        self.textView.string = post.text;
-        
-    }
+    Post *post = (Post *)self.representedObject;
+    
+    post.text = self.textView.string;
     
 }
 

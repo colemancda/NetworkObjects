@@ -105,21 +105,31 @@
 
 - (IBAction)showServerControl:(NSToolbarItem *)sender {
     
-    self.box.contentView = self.serverControlView;
+    if (self.box.contentView != self.serverControlView) {
+        
+        self.box.contentView = self.serverControlView;
+    }
 }
 
 - (IBAction)showLog:(NSToolbarItem *)sender {
     
-    self.box.contentView = self.logVC.view;
+    if (self.box.contentView != self.logVC.view) {
+        
+        self.box.contentView = self.logVC.view;
+    }
 }
 
 - (IBAction)showBrowser:(NSToolbarItem *)sender {
     
-    [self.box.contentView resignFirstResponder];
-    
-    self.box.contentView = self.browserVC.view;
+    if (self.box.contentView != self.browserVC.view) {
         
-    [self.window makeFirstResponder:self.browserVC];
+        [self.box.contentView resignFirstResponder];
+        
+        self.box.contentView = self.browserVC.view;
+        
+        [self.window makeFirstResponder:self.browserVC];
+        
+    }
 }
 
 -(void)startServer:(id)sender
