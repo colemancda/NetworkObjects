@@ -43,14 +43,14 @@
                     </connections>
                 </comboBox>
                 <scrollView hidden="YES" appearanceType="lightContent" autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bqc-yE-TNW">
-                    <rect key="frame" x="20" y="20" width="426" height="246"/>
+                    <rect key="frame" x="20" y="58" width="426" height="208"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <clipView key="contentView" id="c9f-6x-aFK">
-                        <rect key="frame" x="1" y="17" width="424" height="228"/>
+                        <rect key="frame" x="1" y="17" width="424" height="190"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="none" columnSelection="YES" multipleSelection="NO" autosaveColumns="NO" headerView="8RI-nH-bk8" id="vBo-JZ-Pqn">
-                                <rect key="frame" x="0.0" y="0.0" width="424" height="228"/>
+                                <rect key="frame" x="0.0" y="0.0" width="424" height="190"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <size key="intercellSpacing" width="3" height="2"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -72,6 +72,7 @@
                                 </tableColumns>
                                 <connections>
                                     <outlet property="dataSource" destination="-2" id="1XQ-Yh-o5m"/>
+                                    <outlet property="delegate" destination="-2" id="FkQ-lW-M1P"/>
                                     <outlet property="nextKeyView" destination="iWl-dl-ocf" id="sQi-sP-Jak"/>
                                 </connections>
                             </tableView>
@@ -83,7 +84,7 @@
                         <autoresizingMask key="autoresizingMask"/>
                     </scroller>
                     <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="1up-uE-QhF">
-                        <rect key="frame" x="-15" y="17" width="16" height="0.0"/>
+                        <rect key="frame" x="409" y="17" width="16" height="0.0"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </scroller>
                     <tableHeaderView key="headerView" id="8RI-nH-bk8">
@@ -94,18 +95,48 @@
                         <outlet property="nextKeyView" destination="iWl-dl-ocf" id="bQ4-dQ-6mD"/>
                     </connections>
                 </scrollView>
+                <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="EXW-Iu-Enj">
+                    <rect key="frame" x="14" y="13" width="67" height="32"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <buttonCell key="cell" type="push" title="New" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="8cS-Vn-ohs">
+                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                        <font key="font" metaFont="system"/>
+                    </buttonCell>
+                    <connections>
+                        <action selector="newDocument:" target="-1" id="qBu-19-nDG"/>
+                        <binding destination="-2" name="enabled" keyPath="self.canCreateNew" id="e6C-FM-MY2"/>
+                    </connections>
+                </button>
+                <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="U9d-rx-y3n">
+                    <rect key="frame" x="81" y="13" width="81" height="32"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <buttonCell key="cell" type="push" title="Delete" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="ezG-bU-NfR">
+                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                        <font key="font" metaFont="system"/>
+                    </buttonCell>
+                    <connections>
+                        <action selector="delete:" target="-1" id="A21-Yv-tgo"/>
+                        <binding destination="-2" name="enabled" keyPath="self.canDelete" id="7KG-t7-9Jd"/>
+                    </connections>
+                </button>
             </subviews>
             <constraints>
                 <constraint firstAttribute="trailing" secondItem="bqc-yE-TNW" secondAttribute="trailing" constant="20" id="8BR-Yw-mWo"/>
+                <constraint firstItem="EXW-Iu-Enj" firstAttribute="top" secondItem="bqc-yE-TNW" secondAttribute="bottom" constant="17" id="C0Z-ya-cTS"/>
                 <constraint firstAttribute="trailing" secondItem="iWl-dl-ocf" secondAttribute="trailing" constant="20" id="C8G-fr-cj1"/>
+                <constraint firstItem="U9d-rx-y3n" firstAttribute="top" secondItem="bqc-yE-TNW" secondAttribute="bottom" constant="17" id="FsV-XQ-wSF"/>
                 <constraint firstItem="iWl-dl-ocf" firstAttribute="leading" secondItem="mCx-Wz-pbs" secondAttribute="leading" constant="20" id="Jdo-MG-Nll"/>
                 <constraint firstAttribute="centerX" secondItem="weY-3I-jgc" secondAttribute="centerX" id="Jou-VB-Ybo"/>
                 <constraint firstAttribute="centerY" secondItem="weY-3I-jgc" secondAttribute="centerY" id="LTv-bk-Iwg"/>
+                <constraint firstAttribute="bottom" secondItem="U9d-rx-y3n" secondAttribute="bottom" constant="20" id="MFz-Ca-YK7"/>
                 <constraint firstItem="bqc-yE-TNW" firstAttribute="leading" secondItem="mCx-Wz-pbs" secondAttribute="leading" constant="20" id="NRQ-nb-0F4"/>
                 <constraint firstItem="iWl-dl-ocf" firstAttribute="top" secondItem="mCx-Wz-pbs" secondAttribute="top" constant="20" id="OJu-sG-4aM"/>
                 <constraint firstItem="bqc-yE-TNW" firstAttribute="top" secondItem="iWl-dl-ocf" secondAttribute="bottom" constant="8" id="S7v-Bc-OMV"/>
+                <constraint firstAttribute="bottom" secondItem="EXW-Iu-Enj" secondAttribute="bottom" constant="20" id="d0U-mM-BGg"/>
+                <constraint firstItem="U9d-rx-y3n" firstAttribute="leading" secondItem="EXW-Iu-Enj" secondAttribute="trailing" constant="12" id="iPy-AX-d6h"/>
+                <constraint firstItem="EXW-Iu-Enj" firstAttribute="leading" secondItem="mCx-Wz-pbs" secondAttribute="leading" constant="20" id="ibU-VY-LtB"/>
                 <constraint firstItem="bqc-yE-TNW" firstAttribute="top" secondItem="iWl-dl-ocf" secondAttribute="bottom" constant="8" id="lwJ-kX-nsw"/>
-                <constraint firstAttribute="bottom" secondItem="bqc-yE-TNW" secondAttribute="bottom" constant="20" id="oZJ-7U-b78"/>
+                <constraint firstItem="U9d-rx-y3n" firstAttribute="top" secondItem="bqc-yE-TNW" secondAttribute="bottom" constant="17" id="zde-Ra-W5Q"/>
             </constraints>
             <connections>
                 <outlet property="nextKeyView" destination="iWl-dl-ocf" id="PvU-sm-iGJ"/>

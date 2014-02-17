@@ -14,14 +14,14 @@
         <window title="User - #" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" wantsToBeColor="NO" animationBehavior="default" id="1">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-            <rect key="contentRect" x="196" y="240" width="480" height="269"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1280" height="778"/>
+            <rect key="contentRect" x="196" y="240" width="480" height="153"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1280" height="800"/>
             <view key="contentView" id="2">
-                <rect key="frame" x="0.0" y="0.0" width="480" height="269"/>
+                <rect key="frame" x="0.0" y="0.0" width="480" height="153"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <box autoresizesSubviews="NO" fixedFrame="YES" title="Attributes" borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="H9E-Jt-Owc">
-                        <rect key="frame" x="17" y="140" width="446" height="109"/>
+                        <rect key="frame" x="17" y="24" width="446" height="109"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <view key="contentView">
                             <rect key="frame" x="1" y="1" width="444" height="93"/>
@@ -37,7 +37,7 @@
                                     </textFieldCell>
                                 </textField>
                                 <textField appearanceType="lightContent" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="SQD-ue-eim">
-                                    <rect key="frame" x="80" y="66" width="118" height="17"/>
+                                    <rect key="frame" x="80" y="66" width="348" height="17"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                     <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="left" title="01/01/14" id="Nf9-Ra-eQw">
                                         <font key="font" metaFont="system"/>

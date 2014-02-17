@@ -9,7 +9,7 @@
 #import <Cocoa/Cocoa.h>
 @class SNSClientWindowController;
 
-@interface SNSBrowserViewController : NSViewController <NSComboBoxDelegate, NSComboBoxDataSource, NSTableViewDataSource>
+@interface SNSBrowserViewController : NSViewController <NSComboBoxDelegate, NSComboBoxDataSource, NSTableViewDataSource, NSTableViewDelegate>
 
 #pragma mark - IB UI
 
@@ -25,14 +25,15 @@
 
 @property (readonly) NSEntityDescription *selectedEntity;
 
+@property (readonly) BOOL canCreateNew;
+
+@property (readonly) BOOL canDelete;
 
 #pragma mark - Actions
 
 -(void)doubleClickedTableViewRow:(id)sender;
 
-#pragma mark - Notifications
 
--(void)contextDidChange:(NSNotification *)notification;
 
 
 @end

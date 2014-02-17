@@ -23,6 +23,10 @@
 
 @property NSEntityDescription *selectedEntity;
 
+@property BOOL canCreateNew;
+
+@property BOOL canDelete;
+
 @end
 
 @implementation SNSBrowserViewController (Load)
@@ -81,21 +85,6 @@
     [self.tableView setDoubleAction:@selector(doubleClickedTableViewRow:)];
     
     [self.tableView setTarget:self];
-    
-    // register for core data context notifications
-    
-    SNSAppDelegate *appDelegate = [NSApp delegate];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(contextDidChange:)
-                                                 name:NSManagedObjectContextObjectsDidChangeNotification
-                                               object:appDelegate.store.context];
-    
-}
-
--(void)dealloc
-{
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
     
 }
 
@@ -226,11 +215,24 @@
     [self fetchAll:self.selectedEntity];
     
     // update UI
+    
     self.tableViewScrollView.hidden = NO;
     
     self.noSelectionLabel.hidden = YES;
     
     [self.tableView reloadData];
+    
+    // enable new button for client
+    if ([self.selectedEntity.name isEqualToString:@"Client"]) {
+        
+        self.canCreateNew = YES;
+    }
+    else {
+        
+        self.canCreateNew = NO;
+        
+    }
+    
 }
 
 #pragma mark - Actions
@@ -279,71 +281,6 @@
     
 }
 
-#pragma mark - Notifications
-
--(void)contextDidChange:(NSNotification *)notification
-{
-    if (!self.selectedEntity) {
-        
-        return;
-    }
-    
-    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-        
-        // check for insertions
-        
-        NSArray *insertedObjects = notification.userInfo[NSInsertedObjectsKey];
-        
-        if (insertedObjects.count) {
-            
-            // check for objects that are the same of the selected entity
-            
-            for (NSManagedObject *object in insertedObjects) {
-                
-                // update tableView if selected entity
-                if (object.entity == self.selectedEntity) {
-                    
-                    [self fetchAll:self.selectedEntity];
-                    
-                    [self.tableView reloadData];
-                    
-                    break;
-                }
-            }
-        }
-        
-        // check for deletions
-        
-        NSArray *deletedObjects = notification.userInfo[NSDeletedObjectsKey];
-        
-        if (deletedObjects.count) {
-            
-            id selectedItem = _arrangedfetchedObjects[self.tableView.clickedRow];
-            
-            NSNumber *selectedItemResourceID = [selectedItem valueForKey:[[selectedItem class] resourceIDKey]];
-            
-            for (NSManagedObject *object in deletedObjects) {
-                
-                // try to get WC...
-                
-                NSString *wcKey = [NSString stringWithFormat:@"%@.%@", selectedItem, selectedItemResourceID];
-                
-                SNSRepresentedObjectWindowController *wc = _loadedWC[wcKey];
-                
-                if (wc) {
-                    
-                    // remove from dictonary
-                    
-                    [_loadedWC removeObjectForKey:wcKey];
-                    
-                }
-                
-            }
-        }
-        
-    }];
-}
-
 #pragma mark - Table View Data Source
 
 -(NSInteger)numberOfRowsInTableView:(NSTableView *)tableView
@@ -363,8 +300,22 @@
     return resourceID;
 }
 
-#pragma mark
+#pragma mark - Table View Delegate
 
+-(void)tableViewSelectionDidChange:(NSNotification *)notification
+{
+    if (self.tableView.selectedRow == -1) {
+        
+        self.canDelete = NO;
+        
+    }
+    
+    else {
+        
+        self.canDelete = YES;
+    }
+    
+}
 
 
 @end
