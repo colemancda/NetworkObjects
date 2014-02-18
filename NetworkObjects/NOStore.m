@@ -169,6 +169,8 @@
     
     NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:entityDescription.name];
     
+    fetchRequest.fetchLimit = 1;
+    
     fetchRequest.predicate = [NSPredicate predicateWithFormat:@"%K == %lu", resourceIDKey, (unsigned long)resourceID];
     
     __block id<NOResourceProtocol> resource;
