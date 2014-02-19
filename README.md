@@ -14,13 +14,14 @@ By default, the NOStore's Core Data context does not have a persistent store coo
 Then initialize NOServer with 
 
 ´´´
+
 -(id)initWithStore:(NOStore *)store
     userEntityName:(NSString *)userEntityName
  sessionEntityName:(NSString *)sessionEntityName
   clientEntityName:(NSString *)clientEntityName
          loginPath:(NSString *)loginPath;
 		 
-		 ´´´
+´´´
 
 NetworkObjects provides convenient controller and store client classes so that you don't have to know how NOServer's URLs and authentication work. With these classes you dont have to write code to connect to the server.
 
