@@ -7,13 +7,46 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <NetworkObjects/NetworkObjects.h>
+@class NOAPICachedStore, User;
 
 @interface SNCStore : NSObject
 
 + (instancetype)sharedStore;
 
 #pragma mark
+
+@property (readonly) NOAPICachedStore *cacheStore;
+
+#pragma mark - Session Properties
+
+// properties set after successful authentication
+
+@property (readonly) NSURL *serverURL;
+
+@property (readonly) NSUInteger clientID;
+
+@property (readonly) NSString *clientSecret;
+
+@property (readonly) User *user;
+
+#pragma mark - Authentication
+
+-(void)loginWithUsername:(NSString *)username
+                password:(NSString *)password
+               serverURL:(NSURL *)serverURL
+                clientID:(NSUInteger)clientID
+            clientSecret:(NSString *)secret
+              completion:(void (^)(NSError *error))completionBlock;
+
+-(void)registerWithUsername:(NSString *)username
+                   password:(NSString *)password
+                  serverURL:(NSURL *)serverURL
+                   clientID:(NSUInteger)clientID
+               clientSecret:(NSString *)secret
+                 completion:(void (^)(NSError *error))completionBlock;
+
+#pragma mark - Complex Requests
+
 
 
 
