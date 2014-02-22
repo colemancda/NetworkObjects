@@ -87,7 +87,7 @@
                                                     <constraint firstAttribute="width" constant="180" id="oQy-aU-deb"/>
                                                 </constraints>
                                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                                <textInputTraits key="textInputTraits" keyboardType="numbersAndPunctuation" returnKeyType="next"/>
+                                                <textInputTraits key="textInputTraits" keyboardType="numberPad" returnKeyType="next"/>
                                                 <connections>
                                                     <outlet property="delegate" destination="Rac-A2-lyF" id="KB3-uF-Rcd"/>
                                                 </connections>
@@ -167,11 +167,11 @@
                     </view>
                     <connections>
                         <outlet property="scrollView" destination="RrL-Oh-Qvu" id="4ei-Zz-vke"/>
-                        <outletCollection property="textFields" destination="HWQ-ms-Jdm" id="Ws0-ts-bHC"/>
-                        <outletCollection property="textFields" destination="mLy-ub-cwY" id="rfT-yG-w8V"/>
-                        <outletCollection property="textFields" destination="BiN-0R-obz" id="tPY-8r-2BR"/>
-                        <outletCollection property="textFields" destination="sTm-L8-bte" id="EZm-Dk-Be3"/>
-                        <outletCollection property="textFields" destination="TUf-66-uuf" id="kk4-cw-ck0"/>
+                        <outletCollection property="textFields" destination="HWQ-ms-Jdm" id="DXS-s8-Fbr"/>
+                        <outletCollection property="textFields" destination="sTm-L8-bte" id="59h-4U-510"/>
+                        <outletCollection property="textFields" destination="TUf-66-uuf" id="fRC-bQ-gkS"/>
+                        <outletCollection property="textFields" destination="mLy-ub-cwY" id="GEy-uR-liZ"/>
+                        <outletCollection property="textFields" destination="BiN-0R-obz" id="12m-kR-xqF"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="p0u-di-LGg" userLabel="First Responder" sceneMemberID="firstResponder"/>

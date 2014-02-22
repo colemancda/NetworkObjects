@@ -16,11 +16,13 @@
 
 @property (readonly) UITextField *activeTextField;
 
-@property (readonly) BOOL keyboardIsVisible;
-
--(void)didFinishForm;
+@property (readonly) BOOL keyboardVisible;
 
 @property NSUInteger keyboardTextFieldSpacing;
+
+#pragma mark
+
+-(void)didFinishForm;
 
 #pragma mark - Tap Gesture
 
