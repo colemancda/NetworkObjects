@@ -34,9 +34,6 @@
     [super viewDidLoad];
 	// Do any additional setup after loading the view.
     
-    // musts set self.view to UIScrollView in IB
-    NSAssert([self.view isKindOfClass:[UIScrollView class]], @"self.view must be an instance of UIScrollView");
-    
     // register for keyboard notifications
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(keyboardWillShow:)
@@ -71,6 +68,14 @@
     
 }
 
+#pragma mark
+
+-(void)didFinishForm
+{
+    // do something
+    
+}
+
 #pragma mark - Text Field Delegate
 
 -(void)textFieldDidBeginEditing:(UITextField *)textField
@@ -78,15 +83,39 @@
     // set active text field
     self.activeTextField = textField;
     
-}
-
--(void)textFieldDidEndEditing:(UITextField *)textField
-{
     
 }
 
 -(BOOL)textFieldShouldReturn:(UITextField *)textField
 {
+    if ([_textFields containsObject:textField]) {
+        
+        // final text field
+        if (textField == _textFields.lastObject) {
+            
+            [self didFinishForm];
+            
+            return YES;
+        }
+        
+        // other text field
+        
+        [self.activeTextField resignFirstResponder];
+        
+        self.activeTextField = nil;
+        
+        // get next text field
+        
+        NSInteger index = [self.textFields indexOfObject:textField];
+        
+        UITextField *nextTextField = self.textFields[index + 1];
+        
+        self.activeTextField = nextTextField;
+        
+        [self.activeTextField becomeFirstResponder];
+        
+        return NO;
+    }
     
     return YES;
 }
@@ -115,6 +144,16 @@
 {
     
     
+}
+
+-(void)keyboardDidShow:(NSNotification *)notification
+{
+    self.keyboardIsVisible = YES;
+}
+
+-(void)keyboardDidHide:(NSNotification *)notification
+{
+    self.keyboardIsVisible = NO;
 }
 
 @end

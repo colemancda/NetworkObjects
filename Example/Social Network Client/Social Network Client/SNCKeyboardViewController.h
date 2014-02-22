@@ -10,7 +10,9 @@
 
 @interface SNCKeyboardViewController : UIViewController <UITextFieldDelegate>
 
-@property IBOutlet UITextField *initialTextField;
+@property IBOutletCollection(UITextField) NSArray *textFields;
+
+@property IBOutlet UIScrollView *scrollView;
 
 @property (readonly) UITextField *activeTextField;
 
