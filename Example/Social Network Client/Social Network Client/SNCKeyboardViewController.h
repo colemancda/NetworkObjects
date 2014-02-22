@@ -20,6 +20,8 @@
 
 -(void)didFinishForm;
 
+@property NSUInteger keyboardTextFieldSpacing;
+
 #pragma mark - Tap Gesture
 
 -(void)scrollViewWasTapped:(UIGestureRecognizer *)gesture;

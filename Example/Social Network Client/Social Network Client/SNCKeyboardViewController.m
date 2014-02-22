@@ -24,6 +24,8 @@
     if (self) {
         // Custom initialization
         
+        // defualt
+        self.keyboardTextFieldSpacing = 8;
         
     }
     return self;
@@ -54,6 +56,10 @@
                                              selector:@selector(keyboardWillHide:)
                                                  name:UIKeyboardDidHideNotification
                                                object:nil];
+    
+    // add tap gesture detector
+    [self.view addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self
+                                                                            action:@selector(scrollViewWasTapped:)]];
     
 }
 
