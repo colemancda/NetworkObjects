@@ -13,6 +13,8 @@
 
 + (instancetype)sharedStore;
 
+#pragma mark
+
 
 
 @end

@@ -23,8 +23,6 @@
 		6E11BD6018AFD2C700FF75FB /* Model.xcdatamodeld in Resources */ = {isa = PBXBuildFile; fileRef = 6E11BD5E18AFD2C700FF75FB /* Model.xcdatamodeld */; };
 		6E1F7DEB18B8447C00CF1369 /* Storyboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6E1F7DEA18B8447C00CF1369 /* Storyboard.storyboard */; };
 		6E1F7DEE18B8456800CF1369 /* SNCStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E1F7DED18B8456800CF1369 /* SNCStore.m */; };
-		6E1F7E1F18B84C4400CF1369 /* NSError+presentError.h in Resources */ = {isa = PBXBuildFile; fileRef = 6E1F7DF218B84C4400CF1369 /* NSError+presentError.h */; };
-		6E1F7E2018B84C4400CF1369 /* NSError+presentError.m in Resources */ = {isa = PBXBuildFile; fileRef = 6E1F7DF318B84C4400CF1369 /* NSError+presentError.m */; };
 		6E1F7E2118B84C4400CF1369 /* Client+NOClientKeysProtocol.h in Resources */ = {isa = PBXBuildFile; fileRef = 6E1F7DF418B84C4400CF1369 /* Client+NOClientKeysProtocol.h */; };
 		6E1F7E2218B84C4400CF1369 /* Client+NOClientKeysProtocol.m in Resources */ = {isa = PBXBuildFile; fileRef = 6E1F7DF518B84C4400CF1369 /* Client+NOClientKeysProtocol.m */; };
 		6E1F7E2318B84C4400CF1369 /* Post+NOResourceKeysProtocol.h in Resources */ = {isa = PBXBuildFile; fileRef = 6E1F7DF618B84C4400CF1369 /* Post+NOResourceKeysProtocol.h */; };
@@ -33,22 +31,12 @@
 		6E1F7E2618B84C4400CF1369 /* Session+NOSessionKeysProtocol.m in Resources */ = {isa = PBXBuildFile; fileRef = 6E1F7DF918B84C4400CF1369 /* Session+NOSessionKeysProtocol.m */; };
 		6E1F7E2718B84C4400CF1369 /* User+NOUserKeysProtocol.h in Resources */ = {isa = PBXBuildFile; fileRef = 6E1F7DFA18B84C4400CF1369 /* User+NOUserKeysProtocol.h */; };
 		6E1F7E2818B84C4400CF1369 /* User+NOUserKeysProtocol.m in Resources */ = {isa = PBXBuildFile; fileRef = 6E1F7DFB18B84C4400CF1369 /* User+NOUserKeysProtocol.m */; };
-		6E1F7E2918B84C4400CF1369 /* Client.h in Resources */ = {isa = PBXBuildFile; fileRef = 6E1F7DFD18B84C4400CF1369 /* Client.h */; };
-		6E1F7E2A18B84C4400CF1369 /* Client.m in Resources */ = {isa = PBXBuildFile; fileRef = 6E1F7DFE18B84C4400CF1369 /* Client.m */; };
-		6E1F7E2B18B84C4400CF1369 /* Session.h in Resources */ = {isa = PBXBuildFile; fileRef = 6E1F7DFF18B84C4400CF1369 /* Session.h */; };
-		6E1F7E2C18B84C4400CF1369 /* Session.m in Resources */ = {isa = PBXBuildFile; fileRef = 6E1F7E0018B84C4400CF1369 /* Session.m */; };
-		6E1F7E2D18B84C4400CF1369 /* Post.h in Resources */ = {isa = PBXBuildFile; fileRef = 6E1F7E0118B84C4400CF1369 /* Post.h */; };
-		6E1F7E2E18B84C4400CF1369 /* Post.m in Resources */ = {isa = PBXBuildFile; fileRef = 6E1F7E0218B84C4400CF1369 /* Post.m */; };
-		6E1F7E2F18B84C4400CF1369 /* User.h in Resources */ = {isa = PBXBuildFile; fileRef = 6E1F7E0318B84C4400CF1369 /* User.h */; };
-		6E1F7E3018B84C4400CF1369 /* User.m in Resources */ = {isa = PBXBuildFile; fileRef = 6E1F7E0418B84C4400CF1369 /* User.m */; };
-		6E1F7E3118B84C4400CF1369 /* Client+NOClientKeysProtocol.h in Resources */ = {isa = PBXBuildFile; fileRef = 6E1F7E0618B84C4400CF1369 /* Client+NOClientKeysProtocol.h */; };
-		6E1F7E3218B84C4400CF1369 /* Client+NOClientKeysProtocol.m in Resources */ = {isa = PBXBuildFile; fileRef = 6E1F7E0718B84C4400CF1369 /* Client+NOClientKeysProtocol.m */; };
-		6E1F7E3318B84C4400CF1369 /* Post+NOResourceKeysProtocol.h in Resources */ = {isa = PBXBuildFile; fileRef = 6E1F7E0818B84C4400CF1369 /* Post+NOResourceKeysProtocol.h */; };
-		6E1F7E3418B84C4400CF1369 /* Post+NOResourceKeysProtocol.m in Resources */ = {isa = PBXBuildFile; fileRef = 6E1F7E0918B84C4400CF1369 /* Post+NOResourceKeysProtocol.m */; };
-		6E1F7E3518B84C4400CF1369 /* Session+NOSessionKeysProtocol.h in Resources */ = {isa = PBXBuildFile; fileRef = 6E1F7E0A18B84C4400CF1369 /* Session+NOSessionKeysProtocol.h */; };
-		6E1F7E3618B84C4400CF1369 /* Session+NOSessionKeysProtocol.m in Resources */ = {isa = PBXBuildFile; fileRef = 6E1F7E0B18B84C4400CF1369 /* Session+NOSessionKeysProtocol.m */; };
-		6E1F7E3718B84C4400CF1369 /* User+NOUserKeysProtocol.h in Resources */ = {isa = PBXBuildFile; fileRef = 6E1F7E0C18B84C4400CF1369 /* User+NOUserKeysProtocol.h */; };
-		6E1F7E3818B84C4400CF1369 /* User+NOUserKeysProtocol.m in Resources */ = {isa = PBXBuildFile; fileRef = 6E1F7E0D18B84C4400CF1369 /* User+NOUserKeysProtocol.m */; };
+		6E1F7E4E18B84D6700CF1369 /* Client.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E1F7E4718B84D6700CF1369 /* Client.m */; };
+		6E1F7E4F18B84D6700CF1369 /* Session.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E1F7E4918B84D6700CF1369 /* Session.m */; };
+		6E1F7E5018B84D6700CF1369 /* Post.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E1F7E4B18B84D6700CF1369 /* Post.m */; };
+		6E1F7E5118B84D6700CF1369 /* User.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E1F7E4D18B84D6700CF1369 /* User.m */; };
+		6E1F7E5418B84E4200CF1369 /* SNCKeyboardViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E1F7E5318B84E4200CF1369 /* SNCKeyboardViewController.m */; };
+		6E1F7E5718B8529F00CF1369 /* SNCLoginViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E1F7E5618B8529F00CF1369 /* SNCLoginViewController.m */; };
 		6E46F06818B6E5BF0065D5D0 /* libNetworkObjects.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E11BD7E18AFD47700FF75FB /* libNetworkObjects.a */; };
 /* End PBXBuildFile section */
 
@@ -119,8 +107,6 @@
 		6E1F7DEA18B8447C00CF1369 /* Storyboard.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Storyboard.storyboard; sourceTree = "<group>"; };
 		6E1F7DEC18B8456800CF1369 /* SNCStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SNCStore.h; sourceTree = "<group>"; };
 		6E1F7DED18B8456800CF1369 /* SNCStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SNCStore.m; sourceTree = "<group>"; };
-		6E1F7DF218B84C4400CF1369 /* NSError+presentError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file; name = "NSError+presentError.h"; path = "../../NetworkObjectsClient/NetworkObjectsClient/NSError+presentError.h"; sourceTree = "<group>"; };
-		6E1F7DF318B84C4400CF1369 /* NSError+presentError.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file; name = "NSError+presentError.m"; path = "../../NetworkObjectsClient/NetworkObjectsClient/NSError+presentError.m"; sourceTree = "<group>"; };
 		6E1F7DF418B84C4400CF1369 /* Client+NOClientKeysProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file; name = "Client+NOClientKeysProtocol.h"; path = "../../Shared Model/Client+NOClientKeysProtocol.h"; sourceTree = "<group>"; };
 		6E1F7DF518B84C4400CF1369 /* Client+NOClientKeysProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file; name = "Client+NOClientKeysProtocol.m"; path = "../../Shared Model/Client+NOClientKeysProtocol.m"; sourceTree = "<group>"; };
 		6E1F7DF618B84C4400CF1369 /* Post+NOResourceKeysProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file; name = "Post+NOResourceKeysProtocol.h"; path = "../../Shared Model/Post+NOResourceKeysProtocol.h"; sourceTree = "<group>"; };
@@ -129,22 +115,18 @@
 		6E1F7DF918B84C4400CF1369 /* Session+NOSessionKeysProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file; name = "Session+NOSessionKeysProtocol.m"; path = "../../Shared Model/Session+NOSessionKeysProtocol.m"; sourceTree = "<group>"; };
 		6E1F7DFA18B84C4400CF1369 /* User+NOUserKeysProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file; name = "User+NOUserKeysProtocol.h"; path = "../../Shared Model/User+NOUserKeysProtocol.h"; sourceTree = "<group>"; };
 		6E1F7DFB18B84C4400CF1369 /* User+NOUserKeysProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file; name = "User+NOUserKeysProtocol.m"; path = "../../Shared Model/User+NOUserKeysProtocol.m"; sourceTree = "<group>"; };
-		6E1F7DFD18B84C4400CF1369 /* Client.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file; path = Client.h; sourceTree = "<group>"; };
-		6E1F7DFE18B84C4400CF1369 /* Client.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file; path = Client.m; sourceTree = "<group>"; };
-		6E1F7DFF18B84C4400CF1369 /* Session.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file; path = Session.h; sourceTree = "<group>"; };
-		6E1F7E0018B84C4400CF1369 /* Session.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file; path = Session.m; sourceTree = "<group>"; };
-		6E1F7E0118B84C4400CF1369 /* Post.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file; path = Post.h; sourceTree = "<group>"; };
-		6E1F7E0218B84C4400CF1369 /* Post.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file; path = Post.m; sourceTree = "<group>"; };
-		6E1F7E0318B84C4400CF1369 /* User.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file; path = User.h; sourceTree = "<group>"; };
-		6E1F7E0418B84C4400CF1369 /* User.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file; path = User.m; sourceTree = "<group>"; };
-		6E1F7E0618B84C4400CF1369 /* Client+NOClientKeysProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file; name = "Client+NOClientKeysProtocol.h"; path = "../../Shared Model/Client+NOClientKeysProtocol.h"; sourceTree = "<group>"; };
-		6E1F7E0718B84C4400CF1369 /* Client+NOClientKeysProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file; name = "Client+NOClientKeysProtocol.m"; path = "../../Shared Model/Client+NOClientKeysProtocol.m"; sourceTree = "<group>"; };
-		6E1F7E0818B84C4400CF1369 /* Post+NOResourceKeysProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file; name = "Post+NOResourceKeysProtocol.h"; path = "../../Shared Model/Post+NOResourceKeysProtocol.h"; sourceTree = "<group>"; };
-		6E1F7E0918B84C4400CF1369 /* Post+NOResourceKeysProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file; name = "Post+NOResourceKeysProtocol.m"; path = "../../Shared Model/Post+NOResourceKeysProtocol.m"; sourceTree = "<group>"; };
-		6E1F7E0A18B84C4400CF1369 /* Session+NOSessionKeysProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file; name = "Session+NOSessionKeysProtocol.h"; path = "../../Shared Model/Session+NOSessionKeysProtocol.h"; sourceTree = "<group>"; };
-		6E1F7E0B18B84C4400CF1369 /* Session+NOSessionKeysProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file; name = "Session+NOSessionKeysProtocol.m"; path = "../../Shared Model/Session+NOSessionKeysProtocol.m"; sourceTree = "<group>"; };
-		6E1F7E0C18B84C4400CF1369 /* User+NOUserKeysProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file; name = "User+NOUserKeysProtocol.h"; path = "../../Shared Model/User+NOUserKeysProtocol.h"; sourceTree = "<group>"; };
-		6E1F7E0D18B84C4400CF1369 /* User+NOUserKeysProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file; name = "User+NOUserKeysProtocol.m"; path = "../../Shared Model/User+NOUserKeysProtocol.m"; sourceTree = "<group>"; };
+		6E1F7E4618B84D6700CF1369 /* Client.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Client.h; sourceTree = "<group>"; };
+		6E1F7E4718B84D6700CF1369 /* Client.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Client.m; sourceTree = "<group>"; };
+		6E1F7E4818B84D6700CF1369 /* Session.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Session.h; sourceTree = "<group>"; };
+		6E1F7E4918B84D6700CF1369 /* Session.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Session.m; sourceTree = "<group>"; };
+		6E1F7E4A18B84D6700CF1369 /* Post.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Post.h; sourceTree = "<group>"; };
+		6E1F7E4B18B84D6700CF1369 /* Post.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Post.m; sourceTree = "<group>"; };
+		6E1F7E4C18B84D6700CF1369 /* User.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = User.h; sourceTree = "<group>"; };
+		6E1F7E4D18B84D6700CF1369 /* User.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = User.m; sourceTree = "<group>"; };
+		6E1F7E5218B84E4200CF1369 /* SNCKeyboardViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SNCKeyboardViewController.h; sourceTree = "<group>"; };
+		6E1F7E5318B84E4200CF1369 /* SNCKeyboardViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SNCKeyboardViewController.m; sourceTree = "<group>"; };
+		6E1F7E5518B8529F00CF1369 /* SNCLoginViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SNCLoginViewController.h; sourceTree = "<group>"; };
+		6E1F7E5618B8529F00CF1369 /* SNCLoginViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SNCLoginViewController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -273,7 +255,6 @@
 			children = (
 				6E1F7E4518B84C4900CF1369 /* Categories */,
 				6E1F7E0518B84C4400CF1369 /* NSManagedObject */,
-				6E1F7E0E18B84C4400CF1369 /* Categories */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -281,6 +262,10 @@
 		6E1F7DF118B84C2000CF1369 /* Controller */ = {
 			isa = PBXGroup;
 			children = (
+				6E1F7E5218B84E4200CF1369 /* SNCKeyboardViewController.h */,
+				6E1F7E5318B84E4200CF1369 /* SNCKeyboardViewController.m */,
+				6E1F7E5518B8529F00CF1369 /* SNCLoginViewController.h */,
+				6E1F7E5618B8529F00CF1369 /* SNCLoginViewController.m */,
 			);
 			name = Controller;
 			sourceTree = "<group>";
@@ -304,40 +289,22 @@
 			isa = PBXGroup;
 			children = (
 				6E1F7DFC18B84C4400CF1369 /* Categories */,
-				6E1F7DFD18B84C4400CF1369 /* Client.h */,
-				6E1F7DFE18B84C4400CF1369 /* Client.m */,
-				6E1F7DFF18B84C4400CF1369 /* Session.h */,
-				6E1F7E0018B84C4400CF1369 /* Session.m */,
-				6E1F7E0118B84C4400CF1369 /* Post.h */,
-				6E1F7E0218B84C4400CF1369 /* Post.m */,
-				6E1F7E0318B84C4400CF1369 /* User.h */,
-				6E1F7E0418B84C4400CF1369 /* User.m */,
+				6E1F7E4618B84D6700CF1369 /* Client.h */,
+				6E1F7E4718B84D6700CF1369 /* Client.m */,
+				6E1F7E4818B84D6700CF1369 /* Session.h */,
+				6E1F7E4918B84D6700CF1369 /* Session.m */,
+				6E1F7E4A18B84D6700CF1369 /* Post.h */,
+				6E1F7E4B18B84D6700CF1369 /* Post.m */,
+				6E1F7E4C18B84D6700CF1369 /* User.h */,
+				6E1F7E4D18B84D6700CF1369 /* User.m */,
 			);
 			name = NSManagedObject;
-			path = ../../NetworkObjectsClient/NetworkObjectsClient;
-			sourceTree = "<group>";
-		};
-		6E1F7E0E18B84C4400CF1369 /* Categories */ = {
-			isa = PBXGroup;
-			children = (
-				6E1F7E0618B84C4400CF1369 /* Client+NOClientKeysProtocol.h */,
-				6E1F7E0718B84C4400CF1369 /* Client+NOClientKeysProtocol.m */,
-				6E1F7E0818B84C4400CF1369 /* Post+NOResourceKeysProtocol.h */,
-				6E1F7E0918B84C4400CF1369 /* Post+NOResourceKeysProtocol.m */,
-				6E1F7E0A18B84C4400CF1369 /* Session+NOSessionKeysProtocol.h */,
-				6E1F7E0B18B84C4400CF1369 /* Session+NOSessionKeysProtocol.m */,
-				6E1F7E0C18B84C4400CF1369 /* User+NOUserKeysProtocol.h */,
-				6E1F7E0D18B84C4400CF1369 /* User+NOUserKeysProtocol.m */,
-			);
-			name = Categories;
 			path = ../../NetworkObjectsClient/NetworkObjectsClient;
 			sourceTree = "<group>";
 		};
 		6E1F7E4518B84C4900CF1369 /* Categories */ = {
 			isa = PBXGroup;
 			children = (
-				6E1F7DF218B84C4400CF1369 /* NSError+presentError.h */,
-				6E1F7DF318B84C4400CF1369 /* NSError+presentError.m */,
 			);
 			name = Categories;
 			sourceTree = "<group>";
@@ -471,34 +438,16 @@
 			buildActionMask = 2147483647;
 			files = (
 				6E1F7E2618B84C4400CF1369 /* Session+NOSessionKeysProtocol.m in Resources */,
-				6E1F7E3718B84C4400CF1369 /* User+NOUserKeysProtocol.h in Resources */,
 				6E1F7E2518B84C4400CF1369 /* Session+NOSessionKeysProtocol.h in Resources */,
-				6E1F7E3418B84C4400CF1369 /* Post+NOResourceKeysProtocol.m in Resources */,
-				6E1F7E2A18B84C4400CF1369 /* Client.m in Resources */,
-				6E1F7E2018B84C4400CF1369 /* NSError+presentError.m in Resources */,
-				6E1F7E2D18B84C4400CF1369 /* Post.h in Resources */,
 				6E11BD3518AFD1FE00FF75FB /* InfoPlist.strings in Resources */,
-				6E1F7E3018B84C4400CF1369 /* User.m in Resources */,
-				6E1F7E2B18B84C4400CF1369 /* Session.h in Resources */,
-				6E1F7E2918B84C4400CF1369 /* Client.h in Resources */,
 				6E1F7E2418B84C4400CF1369 /* Post+NOResourceKeysProtocol.m in Resources */,
-				6E1F7E2C18B84C4400CF1369 /* Session.m in Resources */,
-				6E1F7E3118B84C4400CF1369 /* Client+NOClientKeysProtocol.h in Resources */,
-				6E1F7E3218B84C4400CF1369 /* Client+NOClientKeysProtocol.m in Resources */,
 				6E1F7E2118B84C4400CF1369 /* Client+NOClientKeysProtocol.h in Resources */,
-				6E1F7E3818B84C4400CF1369 /* User+NOUserKeysProtocol.m in Resources */,
 				6E1F7E2718B84C4400CF1369 /* User+NOUserKeysProtocol.h in Resources */,
-				6E1F7E3618B84C4400CF1369 /* Session+NOSessionKeysProtocol.m in Resources */,
 				6E1F7E2318B84C4400CF1369 /* Post+NOResourceKeysProtocol.h in Resources */,
 				6E1F7DEB18B8447C00CF1369 /* Storyboard.storyboard in Resources */,
 				6E1F7E2218B84C4400CF1369 /* Client+NOClientKeysProtocol.m in Resources */,
-				6E1F7E2E18B84C4400CF1369 /* Post.m in Resources */,
 				6E11BD3D18AFD1FE00FF75FB /* Images.xcassets in Resources */,
-				6E1F7E1F18B84C4400CF1369 /* NSError+presentError.h in Resources */,
 				6E1F7E2818B84C4400CF1369 /* User+NOUserKeysProtocol.m in Resources */,
-				6E1F7E3318B84C4400CF1369 /* Post+NOResourceKeysProtocol.h in Resources */,
-				6E1F7E3518B84C4400CF1369 /* Session+NOSessionKeysProtocol.h in Resources */,
-				6E1F7E2F18B84C4400CF1369 /* User.h in Resources */,
 				6E11BD5F18AFD2C700FF75FB /* Model.xcdatamodeld in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -519,8 +468,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6E1F7E5718B8529F00CF1369 /* SNCLoginViewController.m in Sources */,
 				6E11BD3718AFD1FE00FF75FB /* main.m in Sources */,
+				6E1F7E5118B84D6700CF1369 /* User.m in Sources */,
+				6E1F7E5418B84E4200CF1369 /* SNCKeyboardViewController.m in Sources */,
+				6E1F7E5018B84D6700CF1369 /* Post.m in Sources */,
+				6E1F7E4F18B84D6700CF1369 /* Session.m in Sources */,
 				6E11BD3B18AFD1FE00FF75FB /* SNCAppDelegate.m in Sources */,
+				6E1F7E4E18B84D6700CF1369 /* Client.m in Sources */,
 				6E1F7DEE18B8456800CF1369 /* SNCStore.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -4,58 +4,119 @@
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3747"/>
     </dependencies>
     <scenes>
-        <!--View Controller-->
+        <!--Login View Controller-->
         <scene sceneID="8K4-bk-fx0">
             <objects>
-                <viewController id="Rac-A2-lyF" sceneMemberID="viewController">
+                <viewController id="Rac-A2-lyF" customClass="SNCLoginViewController" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="Ze5-jZ-VGZ"/>
                         <viewControllerLayoutGuide type="bottom" id="Qxa-kg-aPa"/>
                     </layoutGuides>
-                    <view key="view" contentMode="scaleToFill" id="j4l-E1-t0a">
+                    <view key="view" contentMode="scaleToFill" id="j4l-E1-t0a" customClass="UIScrollView">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="480"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
-                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="http://localhost:8080" borderStyle="roundedRect" placeholder="Server URL" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="HWQ-ms-Jdm">
-                                <rect key="frame" x="69" y="82" width="183" height="30"/>
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="http://localhost:8080" borderStyle="roundedRect" placeholder="Server URL" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="HWQ-ms-Jdm">
+                                <rect key="frame" x="70" y="82" width="180" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="180" id="fGG-aO-AKk"/>
+                                </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits"/>
+                                <connections>
+                                    <outlet property="delegate" destination="Rac-A2-lyF" id="dyA-QD-JcV"/>
+                                </connections>
                             </textField>
-                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Client ID" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="sTm-L8-bte">
-                                <rect key="frame" x="69" y="120" width="183" height="30"/>
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Client ID" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="sTm-L8-bte">
+                                <rect key="frame" x="70" y="120" width="180" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="180" id="oQy-aU-deb"/>
+                                </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits"/>
+                                <connections>
+                                    <outlet property="delegate" destination="Rac-A2-lyF" id="KB3-uF-Rcd"/>
+                                </connections>
                             </textField>
-                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Client Secret" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="TUf-66-uuf">
-                                <rect key="frame" x="69" y="158" width="183" height="30"/>
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Client Secret" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="TUf-66-uuf">
+                                <rect key="frame" x="70" y="158" width="180" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="180" id="0KP-dd-UHz"/>
+                                </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits"/>
+                                <connections>
+                                    <outlet property="delegate" destination="Rac-A2-lyF" id="tjJ-QN-wsx"/>
+                                </connections>
                             </textField>
-                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Social Network Client" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="CS4-qM-tEp">
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Social Network Client" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="CS4-qM-tEp">
                                 <rect key="frame" x="20" y="20" width="280" height="54"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="54" id="8m1-v5-Mb5"/>
+                                    <constraint firstAttribute="width" constant="280" id="CLX-a4-f36"/>
+                                </constraints>
                                 <fontDescription key="fontDescription" name="AppleSDGothicNeo-SemiBold" family="Apple SD Gothic Neo" pointSize="21"/>
                                 <color key="textColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
                                 <nil key="highlightedColor"/>
                                 <size key="shadowOffset" width="1" height="1"/>
                             </label>
-                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Client Secret" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="mLy-ub-cwY">
-                                <rect key="frame" x="69" y="202" width="183" height="30"/>
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Username" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="mLy-ub-cwY">
+                                <rect key="frame" x="70" y="196" width="180" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="180" id="TZe-eH-FiJ"/>
+                                </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits"/>
+                                <connections>
+                                    <outlet property="delegate" destination="Rac-A2-lyF" id="T39-DG-csG"/>
+                                </connections>
+                            </textField>
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Password" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="BiN-0R-obz">
+                                <rect key="frame" x="70" y="234" width="180" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="180" id="jN1-t6-gAs"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits"/>
+                                <connections>
+                                    <outlet property="delegate" destination="Rac-A2-lyF" id="zfW-5g-w45"/>
+                                </connections>
                             </textField>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="CS4-qM-tEp" firstAttribute="leading" secondItem="j4l-E1-t0a" secondAttribute="leading" constant="20" id="0WG-j8-dqD"/>
+                            <constraint firstItem="mLy-ub-cwY" firstAttribute="top" secondItem="TUf-66-uuf" secondAttribute="bottom" constant="8" id="2xO-pn-ZzI"/>
+                            <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="CS4-qM-tEp" secondAttribute="trailing" constant="20" id="38q-hn-Y6E"/>
                             <constraint firstAttribute="trailing" secondItem="CS4-qM-tEp" secondAttribute="trailing" constant="20" id="6KN-Mr-DNG"/>
+                            <constraint firstItem="CS4-qM-tEp" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="j4l-E1-t0a" secondAttribute="leading" constant="20" id="6v3-Vr-QjS"/>
+                            <constraint firstItem="HWQ-ms-Jdm" firstAttribute="top" secondItem="CS4-qM-tEp" secondAttribute="bottom" constant="8" id="97N-Vp-6f1"/>
+                            <constraint firstAttribute="centerX" secondItem="CS4-qM-tEp" secondAttribute="centerX" id="9s2-eN-j5X"/>
+                            <constraint firstItem="mLy-ub-cwY" firstAttribute="top" secondItem="TUf-66-uuf" secondAttribute="bottom" constant="8" id="F4i-RH-NBj"/>
+                            <constraint firstItem="HWQ-ms-Jdm" firstAttribute="top" secondItem="CS4-qM-tEp" secondAttribute="bottom" constant="8" id="KLq-xD-SSJ"/>
+                            <constraint firstAttribute="centerX" secondItem="BiN-0R-obz" secondAttribute="centerX" id="Kw2-jf-7mU"/>
+                            <constraint firstItem="BiN-0R-obz" firstAttribute="top" secondItem="mLy-ub-cwY" secondAttribute="bottom" constant="8" id="Kwf-JZ-wbf"/>
+                            <constraint firstItem="CS4-qM-tEp" firstAttribute="top" secondItem="Ze5-jZ-VGZ" secondAttribute="bottom" id="Lea-sq-5DI"/>
+                            <constraint firstAttribute="centerX" secondItem="TUf-66-uuf" secondAttribute="centerX" id="WO9-WM-daU"/>
                             <constraint firstItem="CS4-qM-tEp" firstAttribute="top" secondItem="Ze5-jZ-VGZ" secondAttribute="bottom" id="YnW-eu-jAC"/>
+                            <constraint firstItem="sTm-L8-bte" firstAttribute="top" secondItem="HWQ-ms-Jdm" secondAttribute="bottom" constant="8" id="cTT-eU-QZD"/>
+                            <constraint firstItem="sTm-L8-bte" firstAttribute="top" secondItem="HWQ-ms-Jdm" secondAttribute="bottom" constant="8" id="dPl-iM-Ewg"/>
+                            <constraint firstAttribute="centerX" secondItem="HWQ-ms-Jdm" secondAttribute="centerX" id="era-A8-2Bd"/>
+                            <constraint firstAttribute="centerX" secondItem="sTm-L8-bte" secondAttribute="centerX" id="ioX-5b-VDo"/>
+                            <constraint firstItem="TUf-66-uuf" firstAttribute="top" secondItem="sTm-L8-bte" secondAttribute="bottom" constant="8" id="nmk-LA-jh1"/>
+                            <constraint firstAttribute="centerX" secondItem="mLy-ub-cwY" secondAttribute="centerX" id="pCT-Po-nO2"/>
+                            <constraint firstItem="CS4-qM-tEp" firstAttribute="top" secondItem="Ze5-jZ-VGZ" secondAttribute="bottom" id="uRy-k4-Qtr"/>
+                            <constraint firstItem="BiN-0R-obz" firstAttribute="top" secondItem="mLy-ub-cwY" secondAttribute="bottom" constant="8" id="xNT-e0-zrK"/>
+                            <constraint firstItem="TUf-66-uuf" firstAttribute="top" secondItem="sTm-L8-bte" secondAttribute="bottom" constant="8" id="z4a-X0-V0b"/>
                         </constraints>
                     </view>
+                    <extendedEdge key="edgesForExtendedLayout"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="p0u-di-LGg" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
