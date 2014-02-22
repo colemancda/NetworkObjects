@@ -55,10 +55,6 @@
                                                  name:UIKeyboardDidHideNotification
                                                object:nil];
     
-    // add tap gesture detector
-    [self.view addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self
-                                                                            action:@selector(scrollViewWasTapped:)]];
-    
 }
 
 - (void)didReceiveMemoryWarning
@@ -124,7 +120,7 @@
 
 -(void)scrollViewWasTapped:(UIGestureRecognizer *)gesture
 {
-    // prevents sending -resignFirstResponder to _activeTextField twice
+    // prevents sending -resignFirstResponder to _activeTextField after the keyboard has been dismissed
     if (self.activeTextField) {
         
         [_activeTextField resignFirstResponder];
@@ -137,6 +133,7 @@
 
 -(void)keyboardWillShow:(NSNotification *)notification
 {
+    
     
 }
 
