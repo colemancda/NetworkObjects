@@ -21,7 +21,7 @@ This framework compiles for OS X 10.9 and iOS 7. It cannot be ported to older ve
 3. In **Build Phases -> Target Dependencies** add the iOS framework.
 4. In **Build Settings** add *-all_load* to **Other Linker Flags**.
 
-##Usage
+## Implementation
 
 If you plan on building seperate server and client apps, as opposed to a single app with server and client capabilities, make sure that they both use the same **.xcdatamodel** but different implementations. The entities will be exacly the same but their ```NSManagedObject``` subclass implementations should be different.
 
@@ -77,7 +77,7 @@ Once those two instances are initialized you can start broadcasting by sending `
 
 NetworkObjects provides convenient controller and store client classes so that you don't have to know how NOServer's URLs and authentication work. With these classes you dont have to write code to connect to the server.
 
-```NOAPI`` is a controller that connects to a NetworkObjects server and returns JSON NSDictionaries. You must make sure to the the necesary properties such as the 'model' and 'serverURL' properties are set to a valid value for it to work.
+```NOAPI``` is a controller that connects to a NetworkObjects server and returns JSON NSDictionaries. You must make sure to the the necesary properties such as the 'model' and 'serverURL' properties are set to a valid value for it to work.
 
 NOAPICachedStore is store that takes a NOAPI instance as a property and uses it to connect to the server and cache the remote object graph using Core Data. You must initialize a persistent store coordinator and add a persistent store to the 'context' property so it can function.
 
@@ -103,11 +103,9 @@ To implement client functionality, initialize instances of ```NOAPI``` and ```NO
         
         NSAssert(!error, @"Could not create In-Memory store");
 
-
-
 #Example
 
-
+NetworkObjects includes example client and server apps. The server runs on OS X and the client on iOS. In order to test the functionality compile and run both. Make sure to create a new client entity in the server app since the app is empty upon first launch. On the iOS client, set fill out the session variables in the login screen to login or register a new user.
 
 If you have any questions you can contact me at @colemancda
 
