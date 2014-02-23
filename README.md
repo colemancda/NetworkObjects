@@ -3,23 +3,23 @@ NetworkObjects
 
 NetworkObjects is a distributed object graph inspired by Apple's WebObjects. This framework compiles for OS X and iOS and serves as the foundation for building powerful Objective-C servers as well as serving as a cross-platform alternative to Cocoa's Distributed Objects. Powered by Core Data and Grand Central Dispatch, the framework comes with server and client classes which abstract away advanced networking code so the developer can focus on distributing Core Data entities over a network.
 
-# Installation
+## Installation
 
 ### OS X
 
 1. Drag the NetworkObjects project into your project to add it.
-2. In your project go to 'General -> Linked Frameworks and Libraries' and add the NetworkObjects framework. Make sure it's 'NetworkObjects.framework' and not 'libNetworkObjects.a'
-3. In 'Build Phases -> Target Dependencies' add the OS X framework
-4. Go to 'Build Phases -> Copy Files' add the OS X framework and set 'Destination' to 'Frameworks' 
+2. In your project go to **General -> Linked Frameworks and Libraries** and add the NetworkObjects framework. Make sure it's *NetworkObjects.framework* and not *libNetworkObjects.a*.
+3. In **Build Phases -> Target Dependencies** add the OS X framework.
+4. In **Build Phases -> Copy Files** add the OS X framework and set *Destination* to *Frameworks*.
 
 ### iOS
 
 1. Drag the NetworkObjects project into your project to add it.
-2. In your project go to 'General -> Linked Frameworks and Libraries' and add the NetworkObjects framework. Make sure it's 'libNetworkObjects.a' and not 'NetworkObjects.framework'
-3. In 'Build Phases -> Target Dependencies' add the iOS framework
-4. In 'Build Settings' add '-all_load' to 'Other Linker Flags'
+2. In your project go to **General -> Linked Frameworks and Libraries** and add the NetworkObjects framework. Make sure it's *libNetworkObjects.a* and not *NetworkObjects.framework*.
+3. In **Build Phases -> Target Dependencies** add the iOS framework.
+4. In **Build Settings** add *-all_load* to **Other Linker Flags**.
 
-#Usage
+##Usage
 
 If you plan on building seperate server and client apps, as opposed to a single app with server and client capabilities, make sure that they both use the same .xcdatamodel but different implementations. The entities will be exacly the same but their NSManagedObject subclass implmentations should be different.
 
