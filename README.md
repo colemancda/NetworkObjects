@@ -63,15 +63,7 @@ For example
                                                                   options:nil
                                                                     error:&addPersistentStoreError];
 
-Next, initialize an instance of ```NOServer``` with 
-
-	-(id)initWithStore:(NOStore *)store
-	    userEntityName:(NSString *)userEntityName
-	 sessionEntityName:(NSString *)sessionEntityName
-	  clientEntityName:(NSString *)clientEntityName
-	         loginPath:(NSString *)loginPath;
-
-For example
+Next, initialize an instance of ```NOServer``` 
 
 	_server = [[NOServer alloc] initWithStore:_store
 	                              userEntityName:@"User"
@@ -83,41 +75,39 @@ Once those two instances are initialized you can start broadcasting by sending `
 
 ### Client
 
-To implement client functionality, initalize a ```NOAPI```followed by a ```NOAPICachedStore```.
+NetworkObjects provides convenient controller and store client classes so that you don't have to know how NOServer's URLs and authentication work. With these classes you dont have to write code to connect to the server.
 
-For example
+```NOAPI`` is a controller that connects to a NetworkObjects server and returns JSON NSDictionaries. You must make sure to the the necesary properties such as the 'model' and 'serverURL' properties are set to a valid value for it to work.
+
+NOAPICachedStore is store that takes a NOAPI instance as a property and uses it to connect to the server and cache the remote object graph using Core Data. You must initialize a persistent store coordinator and add a persistent store to the 'context' property so it can function.
+
+To implement client functionality, initialize instances of ```NOAPI``` and ```NOAPICachedStore```.
+
+	// initialize cache store and API configuration
+        _cacheStore = [[NOAPICachedStore alloc] init];
+        _cacheStore.api = [[NOAPI alloc] init];
+        _cacheStore.api.model = [NSManagedObjectModel mergedModelFromBundles:nil];
+        _cacheStore.api.urlSession = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
+        _cacheStore.api.sessionEntityName = @"Session";
+        _cacheStore.api.userEntityName = @"User";
+        _cacheStore.api.clientEntityName = @"Client";
+        _cacheStore.api.prettyPrintJSON = YES;
+        _cacheStore.api.loginPath = @"login";
+        
+        // add persistent store
+        _cacheStore.context.persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:_cacheStore.api.model];
+        
+        NSError *error;
+        
+        [_cacheStore.context.persistentStoreCoordinator addPersistentStoreWithType:NSInMemoryStoreType configuration:nil URL:nil options:nil error:&error];
+        
+        NSAssert(!error, @"Could not create In-Memory store");
 
 
 
 #Example
 
 
-
-Your Core Data entities must be subclasses of NSManagedObject and conform to NOResourceProtocol. You are also required to have exactly one entity for each of the special NOResourceProtocols: NOUserProtocol, NOClientProtocol, and NOSessionProtocol. Your entities must not have transformable or undefined attributes. On the client side, should use the exact same .xcdatamodel file you use in your server, but the NSManagedObject subclasses must adopt to NOResourceKeysProtocol and not to NOResourceProtocol. The reason is becuase NOResourceProtocol defines how a entity behaves on the server side. NOResourceKeys only defines the basic keys needed for the client classes to function properly.
-
-The rest of this framework's classes are sorted in two sections: Server & Client.
-
-To broadcast a Core Data context you must initialize a NOStore first.
-
-By default, the NOStore's Core Data context does not have a persistent store coordinator, so you must initliaze one and add a persistent store to it.
-
-Then initialize NOServer with 
-
-
-	-(id)initWithStore:(NOStore *)store
-	    userEntityName:(NSString *)userEntityName
-	 sessionEntityName:(NSString *)sessionEntityName
-	  clientEntityName:(NSString *)clientEntityName
-	         loginPath:(NSString *)loginPath;
-		 
-
-NetworkObjects provides convenient controller and store client classes so that you don't have to know how NOServer's URLs and authentication work. With these classes you dont have to write code to connect to the server.
-
-NOAPI is a controller that connects to a NetworkObjects server and returns JSON NSDictionaries. You must make sure to the the necesary properties such as the 'model' and 'serverURL' properties are set to a valid value for it to work.
-
-NOAPICachedStore is store that takes a NOAPI instance as a property and uses it to connect to the server and cache the remote object graph using Core Data. You must initialize a persistent store coordinator and add a persistent store to the 'context' property so it can function.
-
-This framework requires OS X 10.9 and iOS 7
 
 If you have any questions you can contact me at @colemancda
 
