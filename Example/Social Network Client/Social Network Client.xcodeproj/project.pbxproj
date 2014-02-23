@@ -21,14 +21,14 @@
 		6E11BD5018AFD1FE00FF75FB /* Social_Network_ClientTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E11BD4F18AFD1FE00FF75FB /* Social_Network_ClientTests.m */; };
 		6E1F7DEB18B8447C00CF1369 /* Storyboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6E1F7DEA18B8447C00CF1369 /* Storyboard.storyboard */; };
 		6E1F7DEE18B8456800CF1369 /* SNCStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E1F7DED18B8456800CF1369 /* SNCStore.m */; };
-		6E1F7E2118B84C4400CF1369 /* Client+NOClientKeysProtocol.h in Resources */ = {isa = PBXBuildFile; fileRef = 6E1F7DF418B84C4400CF1369 /* Client+NOClientKeysProtocol.h */; };
-		6E1F7E2218B84C4400CF1369 /* Client+NOClientKeysProtocol.m in Resources */ = {isa = PBXBuildFile; fileRef = 6E1F7DF518B84C4400CF1369 /* Client+NOClientKeysProtocol.m */; };
-		6E1F7E2318B84C4400CF1369 /* Post+NOResourceKeysProtocol.h in Resources */ = {isa = PBXBuildFile; fileRef = 6E1F7DF618B84C4400CF1369 /* Post+NOResourceKeysProtocol.h */; };
-		6E1F7E2418B84C4400CF1369 /* Post+NOResourceKeysProtocol.m in Resources */ = {isa = PBXBuildFile; fileRef = 6E1F7DF718B84C4400CF1369 /* Post+NOResourceKeysProtocol.m */; };
-		6E1F7E2518B84C4400CF1369 /* Session+NOSessionKeysProtocol.h in Resources */ = {isa = PBXBuildFile; fileRef = 6E1F7DF818B84C4400CF1369 /* Session+NOSessionKeysProtocol.h */; };
-		6E1F7E2618B84C4400CF1369 /* Session+NOSessionKeysProtocol.m in Resources */ = {isa = PBXBuildFile; fileRef = 6E1F7DF918B84C4400CF1369 /* Session+NOSessionKeysProtocol.m */; };
-		6E1F7E2718B84C4400CF1369 /* User+NOUserKeysProtocol.h in Resources */ = {isa = PBXBuildFile; fileRef = 6E1F7DFA18B84C4400CF1369 /* User+NOUserKeysProtocol.h */; };
-		6E1F7E2818B84C4400CF1369 /* User+NOUserKeysProtocol.m in Resources */ = {isa = PBXBuildFile; fileRef = 6E1F7DFB18B84C4400CF1369 /* User+NOUserKeysProtocol.m */; };
+		6E1F7E2118B84C4400CF1369 /* Client+NOClientKeysProtocol.h in Sources */ = {isa = PBXBuildFile; fileRef = 6E1F7DF418B84C4400CF1369 /* Client+NOClientKeysProtocol.h */; };
+		6E1F7E2218B84C4400CF1369 /* Client+NOClientKeysProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E1F7DF518B84C4400CF1369 /* Client+NOClientKeysProtocol.m */; };
+		6E1F7E2318B84C4400CF1369 /* Post+NOResourceKeysProtocol.h in Sources */ = {isa = PBXBuildFile; fileRef = 6E1F7DF618B84C4400CF1369 /* Post+NOResourceKeysProtocol.h */; };
+		6E1F7E2418B84C4400CF1369 /* Post+NOResourceKeysProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E1F7DF718B84C4400CF1369 /* Post+NOResourceKeysProtocol.m */; };
+		6E1F7E2518B84C4400CF1369 /* Session+NOSessionKeysProtocol.h in Sources */ = {isa = PBXBuildFile; fileRef = 6E1F7DF818B84C4400CF1369 /* Session+NOSessionKeysProtocol.h */; };
+		6E1F7E2618B84C4400CF1369 /* Session+NOSessionKeysProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E1F7DF918B84C4400CF1369 /* Session+NOSessionKeysProtocol.m */; };
+		6E1F7E2718B84C4400CF1369 /* User+NOUserKeysProtocol.h in Sources */ = {isa = PBXBuildFile; fileRef = 6E1F7DFA18B84C4400CF1369 /* User+NOUserKeysProtocol.h */; };
+		6E1F7E2818B84C4400CF1369 /* User+NOUserKeysProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E1F7DFB18B84C4400CF1369 /* User+NOUserKeysProtocol.m */; };
 		6E1F7E4E18B84D6700CF1369 /* Client.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E1F7E4718B84D6700CF1369 /* Client.m */; };
 		6E1F7E4F18B84D6700CF1369 /* Session.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E1F7E4918B84D6700CF1369 /* Session.m */; };
 		6E1F7E5018B84D6700CF1369 /* Post.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E1F7E4B18B84D6700CF1369 /* Post.m */; };
@@ -441,17 +441,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6E1F7E2618B84C4400CF1369 /* Session+NOSessionKeysProtocol.m in Resources */,
-				6E1F7E2518B84C4400CF1369 /* Session+NOSessionKeysProtocol.h in Resources */,
 				6E11BD3518AFD1FE00FF75FB /* InfoPlist.strings in Resources */,
-				6E1F7E2418B84C4400CF1369 /* Post+NOResourceKeysProtocol.m in Resources */,
-				6E1F7E2118B84C4400CF1369 /* Client+NOClientKeysProtocol.h in Resources */,
-				6E1F7E2718B84C4400CF1369 /* User+NOUserKeysProtocol.h in Resources */,
-				6E1F7E2318B84C4400CF1369 /* Post+NOResourceKeysProtocol.h in Resources */,
 				6E1F7DEB18B8447C00CF1369 /* Storyboard.storyboard in Resources */,
-				6E1F7E2218B84C4400CF1369 /* Client+NOClientKeysProtocol.m in Resources */,
 				6E11BD3D18AFD1FE00FF75FB /* Images.xcassets in Resources */,
-				6E1F7E2818B84C4400CF1369 /* User+NOUserKeysProtocol.m in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -481,6 +473,14 @@
 				6E671F0618B9652900BABA73 /* NSError+presentError.m in Sources */,
 				6E671F0D18B9784800BABA73 /* Model.xcdatamodeld in Sources */,
 				6E1F7DEE18B8456800CF1369 /* SNCStore.m in Sources */,
+				6E1F7E2618B84C4400CF1369 /* Session+NOSessionKeysProtocol.m in Sources */,
+				6E1F7E2518B84C4400CF1369 /* Session+NOSessionKeysProtocol.h in Sources */,
+				6E1F7E2418B84C4400CF1369 /* Post+NOResourceKeysProtocol.m in Sources */,
+				6E1F7E2118B84C4400CF1369 /* Client+NOClientKeysProtocol.h in Sources */,
+				6E1F7E2718B84C4400CF1369 /* User+NOUserKeysProtocol.h in Sources */,
+				6E1F7E2318B84C4400CF1369 /* Post+NOResourceKeysProtocol.h in Sources */,
+				6E1F7E2218B84C4400CF1369 /* Client+NOClientKeysProtocol.m in Sources */,
+				6E1F7E2818B84C4400CF1369 /* User+NOUserKeysProtocol.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -609,6 +609,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Social Network Client/Social Network Client-Prefix.pch";
 				INFOPLIST_FILE = "Social Network Client/Social Network Client-Info.plist";
+				OTHER_LDFLAGS = "-all_load";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;
@@ -625,6 +626,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Social Network Client/Social Network Client-Prefix.pch";
 				INFOPLIST_FILE = "Social Network Client/Social Network Client-Info.plist";
+				OTHER_LDFLAGS = "-all_load";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;

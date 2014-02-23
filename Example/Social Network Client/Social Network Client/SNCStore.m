@@ -70,6 +70,7 @@
 
 
 #pragma mark - Authentication
+
 -(void)loginWithUsername:(NSString *)username
                 password:(NSString *)password
                serverURL:(NSURL *)serverURL
@@ -131,6 +132,8 @@
     _cacheStore.api.serverURL = serverURL;
     _cacheStore.api.clientSecret = secret;
     _cacheStore.api.clientResourceID = [NSNumber numberWithInteger:clientID];
+    _cacheStore.api.username = nil;
+    _cacheStore.api.userPassword = nil;
     
     NSLog(@"Registering as %@", username);
     
