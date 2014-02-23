@@ -3,6 +3,30 @@ NetworkObjects
 
 NetworkObjects is a distributed object graph inspired by Apple's WebObjects. This framework compiles for OS X and iOS and serves as the foundation for building powerful Objective-C servers as well as serving as a cross-platform alternative to Cocoa's Distributed Objects. Powered by Core Data and Grand Central Dispatch, the framework comes with server and client classes which abstract away advanced networking code so the developer can focus on distributing Core Data entities over a network.
 
+# Installation
+
+## OS X
+
+1. Drag the NetworkObjects project into your project to add it.
+2. In your project go to 'General -> Linked Frameworks and Libraries' and add the NetworkObjects framework. Make sure it's 'NetworkObjects.framework' and not 'libNetworkObjects.a'
+3. In 'Build Phases -> Target Dependencies' add the OS X framework
+4. Go to 'Build Phases -> Copy Files' add the OS X framework and set 'Destination' to 'Frameworks' 
+
+## iOS
+
+1. Drag the NetworkObjects project into your project to add it.
+2. In your project go to 'General -> Linked Frameworks and Libraries' and add the NetworkObjects framework. Make sure it's 'libNetworkObjects.a' and not 'NetworkObjects.framework'
+3. In 'Build Phases -> Target Dependencies' add the iOS framework
+4. In 'Build Settings' add '-all_load' to 'Other Linker Flags'
+
+#Usage
+
+If you plan on building seperate server and client apps, as opposed to a single app with server and client capabilities, make sure that they both use the same .xcdatamodel but different implementations. The entities will be exacly the same but their NSManagedObject subclass implmentations should be different.
+
+## Server
+
+To broadcast a Core Data context over the network with NetworkObjects a NOStore instance must first be initialized. 
+
 Your Core Data entities must be subclasses of NSManagedObject and conform to NOResourceProtocol. You are also required to have exactly one entity for each of the special NOResourceProtocols: NOUserProtocol, NOClientProtocol, and NOSessionProtocol. Your entities must not have transformable or undefined attributes. On the client side, should use the exact same .xcdatamodel file you use in your server, but the NSManagedObject subclasses must adopt to NOResourceKeysProtocol and not to NOResourceProtocol. The reason is becuase NOResourceProtocol defines how a entity behaves on the server side. NOResourceKeys only defines the basic keys needed for the client classes to function properly.
 
 The rest of this framework's classes are sorted in two sections: Server & Client.
