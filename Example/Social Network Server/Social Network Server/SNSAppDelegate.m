@@ -266,9 +266,8 @@
                                               lastIDsURL:lastIDsURL];
     
     
-    // get URL for store persistance...
-    
     // add persistance
+    
     NSError *addPersistentStoreError;
     [_store.context.persistentStoreCoordinator addPersistentStoreWithType:NSSQLiteStoreType
                                                             configuration:nil
