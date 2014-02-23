@@ -86,7 +86,7 @@
     _cacheStore.api.clientSecret = secret;
     _cacheStore.api.clientResourceID = [NSNumber numberWithInteger:clientID];
     
-    NSLog(@"Logging in as %@", username);
+    NSLog(@"Logging in as '%@'...", username);
     
     [_cacheStore.api loginWithCompletion:^(NSError *error) {
         
@@ -114,6 +114,8 @@
             self.clientID = clientID;
             self.user = (User *)resource;
             
+            completionBlock(nil);
+            
             NSLog(@"Successfully logged in");
             
         }];
@@ -135,7 +137,7 @@
     _cacheStore.api.username = nil;
     _cacheStore.api.userPassword = nil;
     
-    NSLog(@"Registering as %@", username);
+    NSLog(@"Registering as '%@'...", username);
     
     // login as app
     
@@ -162,6 +164,8 @@
             self.clientSecret = secret;
             self.clientID = clientID;
             self.user = (User *)resource;
+            
+            completionBlock(nil);
             
             NSLog(@"Successfully registered");
             

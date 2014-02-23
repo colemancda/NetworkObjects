@@ -55,8 +55,11 @@
             return;
         }
         
-        
-        
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            
+            [self performSegueWithIdentifier:@"loginSegue" sender:self];
+
+        }];
     }];
 }
 
@@ -71,8 +74,11 @@
             return;
         }
         
-        
-        
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            
+            [self performSegueWithIdentifier:@"loginSegue" sender:self];
+            
+        }];
     }];
     
 }
