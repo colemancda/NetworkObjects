@@ -5,6 +5,8 @@ NetworkObjects is a distributed object graph inspired by Apple's WebObjects. Thi
 
 ## Installation
 
+This framework compiles for OS X 10.9 and iOS 7. It cannot be ported to older versions since it uses NSURLSession and the new Base64 categories.
+
 ### OS X
 
 1. Drag the NetworkObjects project into your project to add it.
@@ -21,11 +23,32 @@ NetworkObjects is a distributed object graph inspired by Apple's WebObjects. Thi
 
 ##Usage
 
-If you plan on building seperate server and client apps, as opposed to a single app with server and client capabilities, make sure that they both use the same .xcdatamodel but different implementations. The entities will be exacly the same but their NSManagedObject subclass implmentations should be different.
+If you plan on building seperate server and client apps, as opposed to a single app with server and client capabilities, make sure that they both use the same *.xcdatamodel* but different implementations. The entities will be exacly the same but their ```NSManagedObject``` subclass implementations should be different.
 
 ### Server
 
-To broadcast a Core Data context over the network with NetworkObjects a NOStore instance must first be initialized. 
+To broadcast a Core Data context over the network with NetworkObjects, a *NOStore* instance must first be initialized.
+
+For initialization of ```NOStore```, the default ```-init``` method should only be used if the *NOStore* will be in-memory only. Else, use ```-(id)initWithManagedObjectModel:(NSManagedObjectModel *)model lastIDsURL:(NSURL *)lastIDsURL```. The *lastIDsURL* parameter specifies where a PLIST should be saved. This parameter must be set to a valid value for the store to work.
+
+Next, initialize an instance of ```NOServer``` with 
+
+	-(id)initWithStore:(NOStore *)store
+	    userEntityName:(NSString *)userEntityName
+	 sessionEntityName:(NSString *)sessionEntityName
+	  clientEntityName:(NSString *)clientEntityName
+	         loginPath:(NSString *)loginPath;
+
+
+		 
+
+### Client
+
+
+
+#Example
+
+
 
 Your Core Data entities must be subclasses of NSManagedObject and conform to NOResourceProtocol. You are also required to have exactly one entity for each of the special NOResourceProtocols: NOUserProtocol, NOClientProtocol, and NOSessionProtocol. Your entities must not have transformable or undefined attributes. On the client side, should use the exact same .xcdatamodel file you use in your server, but the NSManagedObject subclasses must adopt to NOResourceKeysProtocol and not to NOResourceProtocol. The reason is becuase NOResourceProtocol defines how a entity behaves on the server side. NOResourceKeys only defines the basic keys needed for the client classes to function properly.
 
