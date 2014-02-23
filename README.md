@@ -5,14 +5,14 @@ NetworkObjects is a distributed object graph inspired by Apple's WebObjects. Thi
 
 # Installation
 
-## OS X
+### OS X
 
 1. Drag the NetworkObjects project into your project to add it.
 2. In your project go to 'General -> Linked Frameworks and Libraries' and add the NetworkObjects framework. Make sure it's 'NetworkObjects.framework' and not 'libNetworkObjects.a'
 3. In 'Build Phases -> Target Dependencies' add the OS X framework
 4. Go to 'Build Phases -> Copy Files' add the OS X framework and set 'Destination' to 'Frameworks' 
 
-## iOS
+### iOS
 
 1. Drag the NetworkObjects project into your project to add it.
 2. In your project go to 'General -> Linked Frameworks and Libraries' and add the NetworkObjects framework. Make sure it's 'libNetworkObjects.a' and not 'NetworkObjects.framework'
@@ -23,7 +23,7 @@ NetworkObjects is a distributed object graph inspired by Apple's WebObjects. Thi
 
 If you plan on building seperate server and client apps, as opposed to a single app with server and client capabilities, make sure that they both use the same .xcdatamodel but different implementations. The entities will be exacly the same but their NSManagedObject subclass implmentations should be different.
 
-## Server
+### Server
 
 To broadcast a Core Data context over the network with NetworkObjects a NOStore instance must first be initialized. 
 
