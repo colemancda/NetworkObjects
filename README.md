@@ -23,13 +23,45 @@ This framework compiles for OS X 10.9 and iOS 7. It cannot be ported to older ve
 
 ##Usage
 
-If you plan on building seperate server and client apps, as opposed to a single app with server and client capabilities, make sure that they both use the same *.xcdatamodel* but different implementations. The entities will be exacly the same but their ```NSManagedObject``` subclass implementations should be different.
+If you plan on building seperate server and client apps, as opposed to a single app with server and client capabilities, make sure that they both use the same **.xcdatamodel** but different implementations. The entities will be exacly the same but their ```NSManagedObject``` subclass implementations should be different.
 
 ### Server
 
-To broadcast a Core Data context over the network with NetworkObjects, a *NOStore* instance must first be initialized.
+To broadcast a Core Data context over the network with NetworkObjects, a ```NOStore``` instance must first be initialized.
 
-For initialization of ```NOStore```, the default ```-init``` method should only be used if the *NOStore* will be in-memory only. Else, use ```-(id)initWithManagedObjectModel:(NSManagedObjectModel *)model lastIDsURL:(NSURL *)lastIDsURL```. The *lastIDsURL* parameter specifies where a PLIST should be saved. This parameter must be set to a valid value for the store to work.
+For initialization of ```NOStore```, the default ```-init``` method should only be used if the ```NOStore``` will be in-memory only. Else, use 
+
+	-(id)initWithManagedObjectModel:(NSManagedObjectModel *)model
+		             lastIDsURL:(NSURL *)lastIDsURL
+		             
+The *lastIDsURL* argument specifies where a PLIST should be saved. This parameter must be set to a valid value for the store to work. Make sure to add a ```NSPersistentStore``` to ```NOStore```'s ```self.context.persistentStoreCoordinator``` property.
+
+For example
+
+    // get paths
+    
+    NSString *sqliteFilePath = [self.appSupportFolderPath stringByAppendingPathComponent:@"NOExample.sqlite"];
+    
+    NSURL *sqlURL = [NSURL fileURLWithPath:sqliteFilePath];
+    
+    NSString *lastIDsPath = [self.appSupportFolderPath stringByAppendingPathComponent:@"lastIDs.plist"];
+    
+    NSURL *lastIDsURL = [NSURL fileURLWithPath:lastIDsPath];
+    
+    // setup store
+    
+    _store = [[NOStore alloc] initWithManagedObjectModel:nil
+                                              lastIDsURL:lastIDsURL];
+    
+    
+    // add persistance
+    
+    NSError *addPersistentStoreError;
+    [_store.context.persistentStoreCoordinator addPersistentStoreWithType:NSSQLiteStoreType
+                                                            configuration:nil
+                                                                      URL:sqlURL
+                                                                  options:nil
+                                                                    error:&addPersistentStoreError];
 
 Next, initialize an instance of ```NOServer``` with 
 
@@ -39,10 +71,21 @@ Next, initialize an instance of ```NOServer``` with
 	  clientEntityName:(NSString *)clientEntityName
 	         loginPath:(NSString *)loginPath;
 
+For example
 
-		 
+	_server = [[NOServer alloc] initWithStore:_store
+	                              userEntityName:@"User"
+	                            sessionEntityName:@"Session"
+	                            clientEntityName:@"Client"
+	                                   loginPath:@"login"];
+                                    
+Once those two instances are initialized you can start broadcasting by sending ```-(NSError *)startOnPort:(NSUInteger)port``` to the ```NOStore``` instance.
 
 ### Client
+
+To implement client functionality, initalize a ```NOAPI```followed by a ```NOAPICachedStore```.
+
+For example
 
 
 
