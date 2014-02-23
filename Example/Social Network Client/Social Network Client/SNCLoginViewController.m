@@ -7,6 +7,8 @@
 //
 
 #import "SNCLoginViewController.h"
+#import "SNCStore.h"
+#import "NSError+presentError.h"
 
 @interface SNCLoginViewController ()
 
@@ -33,6 +35,46 @@
 {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+#pragma mark
+
+-(void)didFinishForm
+{
+    [self login:nil];
+}
+
+- (IBAction)login:(id)sender {
+    
+    [[SNCStore sharedStore] loginWithUsername:self.usernameTextField.text password:self.passwordTextField.text serverURL:[NSURL URLWithString:self.serverURLTextField.text] clientID:self.clientIDTextField.text.integerValue clientSecret:self.clientSecretTextField.text completion:^(NSError *error) {
+        
+        if (error) {
+            
+            [error presentError];
+            
+            return;
+        }
+        
+        
+        
+    }];
+}
+
+- (IBAction)register:(id)sender {
+    
+    [[SNCStore sharedStore] registerWithUsername:self.usernameTextField.text password:self.passwordTextField.text serverURL:[NSURL URLWithString:self.serverURLTextField.text] clientID:self.clientIDTextField.text.integerValue clientSecret:self.clientSecretTextField.text completion:^(NSError *error) {
+        
+        if (error) {
+            
+            [error presentError];
+            
+            return;
+        }
+        
+        
+        
+    }];
+    
 }
 
 @end

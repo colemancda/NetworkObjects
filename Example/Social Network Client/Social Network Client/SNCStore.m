@@ -160,6 +160,8 @@
             self.clientID = clientID;
             self.user = (User *)resource;
             
+            NSLog(@"Successfully registered");
+            
         }];
     }];
 }

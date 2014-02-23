@@ -19,8 +19,6 @@
 		6E11BD4618AFD1FE00FF75FB /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E11BD2E18AFD1FE00FF75FB /* UIKit.framework */; };
 		6E11BD4E18AFD1FE00FF75FB /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6E11BD4C18AFD1FE00FF75FB /* InfoPlist.strings */; };
 		6E11BD5018AFD1FE00FF75FB /* Social_Network_ClientTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E11BD4F18AFD1FE00FF75FB /* Social_Network_ClientTests.m */; };
-		6E11BD5F18AFD2C700FF75FB /* Model.xcdatamodeld in Resources */ = {isa = PBXBuildFile; fileRef = 6E11BD5E18AFD2C700FF75FB /* Model.xcdatamodeld */; };
-		6E11BD6018AFD2C700FF75FB /* Model.xcdatamodeld in Resources */ = {isa = PBXBuildFile; fileRef = 6E11BD5E18AFD2C700FF75FB /* Model.xcdatamodeld */; };
 		6E1F7DEB18B8447C00CF1369 /* Storyboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6E1F7DEA18B8447C00CF1369 /* Storyboard.storyboard */; };
 		6E1F7DEE18B8456800CF1369 /* SNCStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E1F7DED18B8456800CF1369 /* SNCStore.m */; };
 		6E1F7E2118B84C4400CF1369 /* Client+NOClientKeysProtocol.h in Resources */ = {isa = PBXBuildFile; fileRef = 6E1F7DF418B84C4400CF1369 /* Client+NOClientKeysProtocol.h */; };
@@ -38,6 +36,8 @@
 		6E1F7E5418B84E4200CF1369 /* SNCKeyboardViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E1F7E5318B84E4200CF1369 /* SNCKeyboardViewController.m */; };
 		6E1F7E5718B8529F00CF1369 /* SNCLoginViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E1F7E5618B8529F00CF1369 /* SNCLoginViewController.m */; };
 		6E46F06818B6E5BF0065D5D0 /* libNetworkObjects.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E11BD7E18AFD47700FF75FB /* libNetworkObjects.a */; };
+		6E671F0618B9652900BABA73 /* NSError+presentError.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E671F0518B9652900BABA73 /* NSError+presentError.m */; };
+		6E671F0D18B9784800BABA73 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 6E671F0B18B9784800BABA73 /* Model.xcdatamodeld */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -102,19 +102,18 @@
 		6E11BD4B18AFD1FE00FF75FB /* Social Network ClientTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Social Network ClientTests-Info.plist"; sourceTree = "<group>"; };
 		6E11BD4D18AFD1FE00FF75FB /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		6E11BD4F18AFD1FE00FF75FB /* Social_Network_ClientTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Social_Network_ClientTests.m; sourceTree = "<group>"; };
-		6E11BD5D18AFD2C700FF75FB /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
 		6E11BD7118AFD47500FF75FB /* NetworkObjects.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = NetworkObjects.xcodeproj; path = "/Users/Coleman/Programming/My Apps/NetworkObjects/Example/NetworkObjectsServer/../../Framework/NetworkObjects/NetworkObjects.xcodeproj"; sourceTree = "<absolute>"; };
 		6E1F7DEA18B8447C00CF1369 /* Storyboard.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Storyboard.storyboard; sourceTree = "<group>"; };
 		6E1F7DEC18B8456800CF1369 /* SNCStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SNCStore.h; sourceTree = "<group>"; };
 		6E1F7DED18B8456800CF1369 /* SNCStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SNCStore.m; sourceTree = "<group>"; };
-		6E1F7DF418B84C4400CF1369 /* Client+NOClientKeysProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file; name = "Client+NOClientKeysProtocol.h"; path = "../../Shared Model/Client+NOClientKeysProtocol.h"; sourceTree = "<group>"; };
-		6E1F7DF518B84C4400CF1369 /* Client+NOClientKeysProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file; name = "Client+NOClientKeysProtocol.m"; path = "../../Shared Model/Client+NOClientKeysProtocol.m"; sourceTree = "<group>"; };
-		6E1F7DF618B84C4400CF1369 /* Post+NOResourceKeysProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file; name = "Post+NOResourceKeysProtocol.h"; path = "../../Shared Model/Post+NOResourceKeysProtocol.h"; sourceTree = "<group>"; };
-		6E1F7DF718B84C4400CF1369 /* Post+NOResourceKeysProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file; name = "Post+NOResourceKeysProtocol.m"; path = "../../Shared Model/Post+NOResourceKeysProtocol.m"; sourceTree = "<group>"; };
-		6E1F7DF818B84C4400CF1369 /* Session+NOSessionKeysProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file; name = "Session+NOSessionKeysProtocol.h"; path = "../../Shared Model/Session+NOSessionKeysProtocol.h"; sourceTree = "<group>"; };
-		6E1F7DF918B84C4400CF1369 /* Session+NOSessionKeysProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file; name = "Session+NOSessionKeysProtocol.m"; path = "../../Shared Model/Session+NOSessionKeysProtocol.m"; sourceTree = "<group>"; };
-		6E1F7DFA18B84C4400CF1369 /* User+NOUserKeysProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file; name = "User+NOUserKeysProtocol.h"; path = "../../Shared Model/User+NOUserKeysProtocol.h"; sourceTree = "<group>"; };
-		6E1F7DFB18B84C4400CF1369 /* User+NOUserKeysProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file; name = "User+NOUserKeysProtocol.m"; path = "../../Shared Model/User+NOUserKeysProtocol.m"; sourceTree = "<group>"; };
+		6E1F7DF418B84C4400CF1369 /* Client+NOClientKeysProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "Client+NOClientKeysProtocol.h"; path = "../../Shared Model/Client+NOClientKeysProtocol.h"; sourceTree = "<group>"; };
+		6E1F7DF518B84C4400CF1369 /* Client+NOClientKeysProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "Client+NOClientKeysProtocol.m"; path = "../../Shared Model/Client+NOClientKeysProtocol.m"; sourceTree = "<group>"; };
+		6E1F7DF618B84C4400CF1369 /* Post+NOResourceKeysProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "Post+NOResourceKeysProtocol.h"; path = "../../Shared Model/Post+NOResourceKeysProtocol.h"; sourceTree = "<group>"; };
+		6E1F7DF718B84C4400CF1369 /* Post+NOResourceKeysProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "Post+NOResourceKeysProtocol.m"; path = "../../Shared Model/Post+NOResourceKeysProtocol.m"; sourceTree = "<group>"; };
+		6E1F7DF818B84C4400CF1369 /* Session+NOSessionKeysProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "Session+NOSessionKeysProtocol.h"; path = "../../Shared Model/Session+NOSessionKeysProtocol.h"; sourceTree = "<group>"; };
+		6E1F7DF918B84C4400CF1369 /* Session+NOSessionKeysProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "Session+NOSessionKeysProtocol.m"; path = "../../Shared Model/Session+NOSessionKeysProtocol.m"; sourceTree = "<group>"; };
+		6E1F7DFA18B84C4400CF1369 /* User+NOUserKeysProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "User+NOUserKeysProtocol.h"; path = "../../Shared Model/User+NOUserKeysProtocol.h"; sourceTree = "<group>"; };
+		6E1F7DFB18B84C4400CF1369 /* User+NOUserKeysProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "User+NOUserKeysProtocol.m"; path = "../../Shared Model/User+NOUserKeysProtocol.m"; sourceTree = "<group>"; };
 		6E1F7E4618B84D6700CF1369 /* Client.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Client.h; sourceTree = "<group>"; };
 		6E1F7E4718B84D6700CF1369 /* Client.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Client.m; sourceTree = "<group>"; };
 		6E1F7E4818B84D6700CF1369 /* Session.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Session.h; sourceTree = "<group>"; };
@@ -127,6 +126,9 @@
 		6E1F7E5318B84E4200CF1369 /* SNCKeyboardViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SNCKeyboardViewController.m; sourceTree = "<group>"; };
 		6E1F7E5518B8529F00CF1369 /* SNCLoginViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SNCLoginViewController.h; sourceTree = "<group>"; };
 		6E1F7E5618B8529F00CF1369 /* SNCLoginViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SNCLoginViewController.m; sourceTree = "<group>"; };
+		6E671F0418B9652900BABA73 /* NSError+presentError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSError+presentError.h"; sourceTree = "<group>"; };
+		6E671F0518B9652900BABA73 /* NSError+presentError.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSError+presentError.m"; sourceTree = "<group>"; };
+		6E671F0C18B9784800BABA73 /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -190,9 +192,9 @@
 			children = (
 				6E11BD3918AFD1FE00FF75FB /* SNCAppDelegate.h */,
 				6E11BD3A18AFD1FE00FF75FB /* SNCAppDelegate.m */,
+				6E671F0B18B9784800BABA73 /* Model.xcdatamodeld */,
 				6E1F7DEA18B8447C00CF1369 /* Storyboard.storyboard */,
 				6E11BD3C18AFD1FE00FF75FB /* Images.xcassets */,
-				6E11BD5E18AFD2C700FF75FB /* Model.xcdatamodeld */,
 				6E1F7DF118B84C2000CF1369 /* Controller */,
 				6E1F7DEF18B8456C00CF1369 /* Store */,
 				6E1F7DF018B8461E00CF1369 /* Model */,
@@ -305,6 +307,8 @@
 		6E1F7E4518B84C4900CF1369 /* Categories */ = {
 			isa = PBXGroup;
 			children = (
+				6E671F0418B9652900BABA73 /* NSError+presentError.h */,
+				6E671F0518B9652900BABA73 /* NSError+presentError.m */,
 			);
 			name = Categories;
 			sourceTree = "<group>";
@@ -448,7 +452,6 @@
 				6E1F7E2218B84C4400CF1369 /* Client+NOClientKeysProtocol.m in Resources */,
 				6E11BD3D18AFD1FE00FF75FB /* Images.xcassets in Resources */,
 				6E1F7E2818B84C4400CF1369 /* User+NOUserKeysProtocol.m in Resources */,
-				6E11BD5F18AFD2C700FF75FB /* Model.xcdatamodeld in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -457,7 +460,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				6E11BD4E18AFD1FE00FF75FB /* InfoPlist.strings in Resources */,
-				6E11BD6018AFD2C700FF75FB /* Model.xcdatamodeld in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -476,6 +478,8 @@
 				6E1F7E4F18B84D6700CF1369 /* Session.m in Sources */,
 				6E11BD3B18AFD1FE00FF75FB /* SNCAppDelegate.m in Sources */,
 				6E1F7E4E18B84D6700CF1369 /* Client.m in Sources */,
+				6E671F0618B9652900BABA73 /* NSError+presentError.m in Sources */,
+				6E671F0D18B9784800BABA73 /* Model.xcdatamodeld in Sources */,
 				6E1F7DEE18B8456800CF1369 /* SNCStore.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -702,15 +706,15 @@
 /* End XCConfigurationList section */
 
 /* Begin XCVersionGroup section */
-		6E11BD5E18AFD2C700FF75FB /* Model.xcdatamodeld */ = {
+		6E671F0B18B9784800BABA73 /* Model.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
-				6E11BD5D18AFD2C700FF75FB /* Model.xcdatamodel */,
+				6E671F0C18B9784800BABA73 /* Model.xcdatamodel */,
 			);
-			currentVersion = 6E11BD5D18AFD2C700FF75FB /* Model.xcdatamodel */;
-			name = Model.xcdatamodeld;
-			path = "/Users/Coleman/Programming/My Apps/NetworkObjects/Example/NetworkObjectsServer/NetworkObjectsServer/../../Shared Model/Model.xcdatamodeld";
-			sourceTree = "<absolute>";
+			currentVersion = 6E671F0C18B9784800BABA73 /* Model.xcdatamodel */;
+			path = Model.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
 		};
 /* End XCVersionGroup section */
 	};

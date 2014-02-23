@@ -141,17 +141,41 @@
                                             <constraint firstItem="HWQ-ms-Jdm" firstAttribute="leading" secondItem="JDr-iU-YxR" secondAttribute="leading" constant="50" id="yDP-n8-XEd"/>
                                         </constraints>
                                     </view>
+                                    <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="shr-bi-IGd">
+                                        <rect key="frame" x="137" y="403" width="38" height="30"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <state key="normal" title="Login">
+                                            <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="login:" destination="Rac-A2-lyF" eventType="touchUpInside" id="8jL-WN-OD1"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="DFD-bd-tJF">
+                                        <rect key="frame" x="128" y="441" width="57" height="30"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <state key="normal" title="Register">
+                                            <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="register:" destination="Rac-A2-lyF" eventType="touchUpInside" id="toj-2A-fUS"/>
+                                        </connections>
+                                    </button>
                                 </subviews>
                                 <constraints>
                                     <constraint firstAttribute="centerY" secondItem="JDr-iU-YxR" secondAttribute="centerY" id="Dp9-8G-Ubl"/>
+                                    <constraint firstItem="DFD-bd-tJF" firstAttribute="top" secondItem="shr-bi-IGd" secondAttribute="bottom" constant="8" id="MO0-Ul-POz"/>
                                     <constraint firstAttribute="trailing" secondItem="JDr-iU-YxR" secondAttribute="trailing" constant="20" symbolic="YES" id="NhL-HE-f4v"/>
                                     <constraint firstAttribute="centerY" secondItem="JDr-iU-YxR" secondAttribute="centerY" id="Qml-ns-mjf"/>
                                     <constraint firstItem="JDr-iU-YxR" firstAttribute="leading" secondItem="CS4-qM-tEp" secondAttribute="leading" id="TdS-af-maW"/>
                                     <constraint firstAttribute="bottom" secondItem="JDr-iU-YxR" secondAttribute="bottom" constant="129" id="XVp-ks-zbA"/>
                                     <constraint firstAttribute="centerX" secondItem="JDr-iU-YxR" secondAttribute="centerX" id="ZlH-uv-gYW"/>
                                     <constraint firstItem="JDr-iU-YxR" firstAttribute="leading" secondItem="RrL-Oh-Qvu" secondAttribute="leading" constant="20" symbolic="YES" id="bKg-1D-kX7"/>
+                                    <constraint firstAttribute="centerX" secondItem="shr-bi-IGd" secondAttribute="centerX" id="bdl-UQ-yyk"/>
                                     <constraint firstItem="JDr-iU-YxR" firstAttribute="top" secondItem="CS4-qM-tEp" secondAttribute="bottom" constant="55" id="bnb-np-FUQ"/>
+                                    <constraint firstItem="shr-bi-IGd" firstAttribute="top" secondItem="JDr-iU-YxR" secondAttribute="bottom" constant="8" id="eg1-Bu-pmq"/>
                                     <constraint firstItem="JDr-iU-YxR" firstAttribute="trailing" secondItem="CS4-qM-tEp" secondAttribute="trailing" id="hvi-Ua-7bL"/>
+                                    <constraint firstAttribute="centerX" secondItem="DFD-bd-tJF" secondAttribute="centerX" id="m6e-Qi-g3c"/>
                                     <constraint firstItem="JDr-iU-YxR" firstAttribute="centerY" secondItem="RrL-Oh-Qvu" secondAttribute="centerY" id="pgo-wB-ueF"/>
                                     <constraint firstAttribute="centerX" secondItem="JDr-iU-YxR" secondAttribute="centerX" id="vfh-jI-4dI"/>
                                 </constraints>
@@ -166,7 +190,12 @@
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="clientIDTextField" destination="sTm-L8-bte" id="Usa-9h-N2b"/>
+                        <outlet property="clientSecretTextField" destination="TUf-66-uuf" id="mxF-Fl-vrw"/>
+                        <outlet property="passwordTextField" destination="BiN-0R-obz" id="KE3-Ly-by0"/>
                         <outlet property="scrollView" destination="RrL-Oh-Qvu" id="4ei-Zz-vke"/>
+                        <outlet property="serverURLTextField" destination="HWQ-ms-Jdm" id="43S-bx-xTV"/>
+                        <outlet property="usernameTextField" destination="mLy-ub-cwY" id="GDc-nk-ROy"/>
                         <outletCollection property="textFields" destination="HWQ-ms-Jdm" id="DXS-s8-Fbr"/>
                         <outletCollection property="textFields" destination="sTm-L8-bte" id="59h-4U-510"/>
                         <outletCollection property="textFields" destination="TUf-66-uuf" id="fRC-bQ-gkS"/>
