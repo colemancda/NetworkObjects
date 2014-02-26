@@ -8,6 +8,7 @@
 
 #import "SNCStore.h"
 #import <NetworkObjects/NetworkObjects.h>
+#import "User.h"
 
 @interface SNCStore ()
 
@@ -71,7 +72,7 @@
 
 #pragma mark - Authentication
 
--(void)loginWithUsername:(NSString *)username
+-(NSArray *)loginWithUsername:(NSString *)username
                 password:(NSString *)password
                serverURL:(NSURL *)serverURL
                 clientID:(NSUInteger)clientID
@@ -88,7 +89,9 @@
     
     NSLog(@"Logging in as '%@'...", username);
     
-    [_cacheStore.api loginWithCompletion:^(NSError *error) {
+    NSMutableArray *tasks = [[NSMutableArray alloc] init];
+    
+    NSURLSessionDataTask *dataTask = [_cacheStore.api loginWithCompletion:^(NSError *error) {
         
         if (error) {
             
@@ -98,7 +101,7 @@
         }
         
         // get the user for this session
-        [_cacheStore getResource:@"User" resourceID:_cacheStore.api.userResourceID.integerValue completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
+        NSURLSessionDataTask *dataTask = [_cacheStore getResource:@"User" resourceID:_cacheStore.api.userResourceID.integerValue completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
             
             if (error) {
                 
@@ -114,15 +117,22 @@
             self.clientID = clientID;
             self.user = (User *)resource;
             
-            completionBlock(nil);
-            
             NSLog(@"Successfully logged in");
             
+            completionBlock(nil);
+            
         }];
+        
+        [tasks addObject:dataTask];
+        
     }];
+    
+    [tasks addObject:dataTask];
+    
+    return tasks;
 }
 
--(void)registerWithUsername:(NSString *)username
+-(NSArray *)registerWithUsername:(NSString *)username
                    password:(NSString *)password
                   serverURL:(NSURL *)serverURL
                    clientID:(NSUInteger)clientID
@@ -139,9 +149,11 @@
     
     NSLog(@"Registering as '%@'...", username);
     
+    NSMutableArray *tasks = [[NSMutableArray alloc] init];
+    
     // login as app
     
-    [_cacheStore.api loginWithCompletion:^(NSError *error) {
+    NSURLSessionDataTask *dataTask = [_cacheStore.api loginWithCompletion:^(NSError *error) {
         
         if (error) {
             
@@ -150,7 +162,7 @@
             return;
         }
         
-        [_cacheStore createResource:@"User" initialValues:@{@"username": username, @"password" : password} completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
+        NSURLSessionDataTask *dataTask = [_cacheStore createResource:@"User" initialValues:@{@"username": username, @"password" : password} completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
             
             if (error) {
                 
@@ -165,11 +177,40 @@
             self.clientID = clientID;
             self.user = (User *)resource;
             
-            completionBlock(nil);
-            
             NSLog(@"Successfully registered");
             
+            completionBlock(nil);
+            
         }];
+        
+        [tasks addObject:dataTask];
+        
+    }];
+    
+    [tasks addObject:dataTask];
+    
+    return tasks;
+}
+
+#pragma mark - Complex Requests
+
+-(NSURLSessionDataTask *)fetchUserWithCompletion:(void (^)(NSError *error))completionBlock
+{
+    NSAssert(self.user, @"Must already be authenticated to fetch user");
+    
+    return [_cacheStore getResource:self.user.entity.name resourceID:self.user.resourceID.integerValue completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
+        
+        if (error) {
+            
+            completionBlock(error);
+            
+            return;
+        }
+        
+        self.user = (User *)resource;
+        
+        completionBlock(nil);
+        
     }];
 }
 

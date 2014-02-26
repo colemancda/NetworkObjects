@@ -31,14 +31,14 @@
 
 #pragma mark - Authentication
 
--(void)loginWithUsername:(NSString *)username
+-(NSArray *)loginWithUsername:(NSString *)username
                 password:(NSString *)password
                serverURL:(NSURL *)serverURL
                 clientID:(NSUInteger)clientID
             clientSecret:(NSString *)secret
               completion:(void (^)(NSError *error))completionBlock;
 
--(void)registerWithUsername:(NSString *)username
+-(NSArray *)registerWithUsername:(NSString *)username
                    password:(NSString *)password
                   serverURL:(NSURL *)serverURL
                    clientID:(NSUInteger)clientID
@@ -47,7 +47,6 @@
 
 #pragma mark - Complex Requests
 
-
-
+-(NSURLSessionDataTask *)fetchUserWithCompletion:(void (^)(NSError *error))completionBlock;
 
 @end

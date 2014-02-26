@@ -38,6 +38,8 @@
 		6E46F06818B6E5BF0065D5D0 /* libNetworkObjects.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E11BD7E18AFD47700FF75FB /* libNetworkObjects.a */; };
 		6E671F0618B9652900BABA73 /* NSError+presentError.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E671F0518B9652900BABA73 /* NSError+presentError.m */; };
 		6E671F0D18B9784800BABA73 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 6E671F0B18B9784800BABA73 /* Model.xcdatamodeld */; };
+		6EAC100018BD939600B7603F /* SNCPostsTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EAC0FFF18BD939600B7603F /* SNCPostsTableViewController.m */; };
+		6EAC100318BD93AA00B7603F /* SNCUserViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EAC100218BD93AA00B7603F /* SNCUserViewController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -129,6 +131,10 @@
 		6E671F0418B9652900BABA73 /* NSError+presentError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSError+presentError.h"; sourceTree = "<group>"; };
 		6E671F0518B9652900BABA73 /* NSError+presentError.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSError+presentError.m"; sourceTree = "<group>"; };
 		6E671F0C18B9784800BABA73 /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
+		6EAC0FFE18BD939600B7603F /* SNCPostsTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SNCPostsTableViewController.h; sourceTree = "<group>"; };
+		6EAC0FFF18BD939600B7603F /* SNCPostsTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SNCPostsTableViewController.m; sourceTree = "<group>"; };
+		6EAC100118BD93AA00B7603F /* SNCUserViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SNCUserViewController.h; sourceTree = "<group>"; };
+		6EAC100218BD93AA00B7603F /* SNCUserViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SNCUserViewController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -268,6 +274,10 @@
 				6E1F7E5318B84E4200CF1369 /* SNCKeyboardViewController.m */,
 				6E1F7E5518B8529F00CF1369 /* SNCLoginViewController.h */,
 				6E1F7E5618B8529F00CF1369 /* SNCLoginViewController.m */,
+				6EAC100118BD93AA00B7603F /* SNCUserViewController.h */,
+				6EAC100218BD93AA00B7603F /* SNCUserViewController.m */,
+				6EAC0FFE18BD939600B7603F /* SNCPostsTableViewController.h */,
+				6EAC0FFF18BD939600B7603F /* SNCPostsTableViewController.m */,
 			);
 			name = Controller;
 			sourceTree = "<group>";
@@ -470,6 +480,7 @@
 				6E1F7E4F18B84D6700CF1369 /* Session.m in Sources */,
 				6E11BD3B18AFD1FE00FF75FB /* SNCAppDelegate.m in Sources */,
 				6E1F7E4E18B84D6700CF1369 /* Client.m in Sources */,
+				6EAC100018BD939600B7603F /* SNCPostsTableViewController.m in Sources */,
 				6E671F0618B9652900BABA73 /* NSError+presentError.m in Sources */,
 				6E671F0D18B9784800BABA73 /* Model.xcdatamodeld in Sources */,
 				6E1F7DEE18B8456800CF1369 /* SNCStore.m in Sources */,
@@ -480,6 +491,7 @@
 				6E1F7E2718B84C4400CF1369 /* User+NOUserKeysProtocol.h in Sources */,
 				6E1F7E2318B84C4400CF1369 /* Post+NOResourceKeysProtocol.h in Sources */,
 				6E1F7E2218B84C4400CF1369 /* Client+NOClientKeysProtocol.m in Sources */,
+				6EAC100318BD93AA00B7603F /* SNCUserViewController.m in Sources */,
 				6E1F7E2818B84C4400CF1369 /* User+NOUserKeysProtocol.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
