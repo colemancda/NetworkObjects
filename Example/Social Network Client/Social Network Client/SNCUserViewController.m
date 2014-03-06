@@ -13,10 +13,6 @@
 
 @interface SNCUserViewController ()
 
-@property SNCPostsTableViewController *postsTableVC;
-
-@property User *user;
-
 @end
 
 @implementation SNCUserViewController
@@ -41,7 +37,7 @@
     [self addObserver:self forKeyPath:@"user" options:NSKeyValueObservingOptionNew context:nil];
     [self addObserver:self forKeyPath:@"user.posts.count" options:NSKeyValueObservingOptionNew context:nil];
     
-    // by defualt load the user profile
+    // by defualt load the current user
     self.user = [SNCStore sharedStore].user;
     
 }
@@ -73,7 +69,6 @@
             
             self.dateCreatedLabel.text = [_dateFormatter stringFromDate:self.user.created];
             
-            self.postsTableVC.predicate = [NSPredicate predicateWithFormat:@"resourceID == %@", self.user.resourceID];
         }
     }
     
@@ -85,16 +80,14 @@
     }
 }
 
-#pragma mark - Segue
+#pragma mark - Actions
 
--(void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
-{
-    if ([segue.identifier isEqualToString:@"embedPostsTableVC"]) {
-        
-        self.postsTableVC = segue.destinationViewController;
-    }
+- (IBAction)logout:(id)sender {
+    
+    [[SNCStore sharedStore] logout];
     
     
 }
+
 
 @end

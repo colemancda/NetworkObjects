@@ -23,11 +23,14 @@
 
 @property (weak, nonatomic) IBOutlet UITextField *passwordTextField;
 
-#pragma mark
+#pragma mark - Actions
 
 - (IBAction)login:(id)sender;
 
 - (IBAction)register:(id)sender;
 
+#pragma mark - Segue
+
+-(IBAction)logout:(UIStoryboardSegue *)segue;
 
 @end

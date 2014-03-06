@@ -10,11 +10,28 @@
 #import "SNCStore.h"
 #import "Post.h"
 #import <NetworkObjects/NetworkObjects.h>
+#import "User.h"
 
 @interface SNCPostsTableViewController ()
 
 @property NSFetchedResultsController *fetchedResultsController;
 
+@property NSURLSession *urlSession;
+
+@end
+
+@implementation SNCPostsTableViewController (FetchCompletion)
+
+-(void)didFinishFetching
+{
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        
+        [self.refreshControl endRefreshing];
+        
+        [self.tableView reloadData];
+        
+    }];
+}
 
 @end
 
@@ -101,14 +118,14 @@
         fetchRequest.predicate = predicate;
         
         // make nsfetchedresultscontroller
-        self.fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest managedObjectContext:[SNCStore sharedStore].cacheStore.context sectionNameKeyPath:@"created" cacheName:nil];
+        self.fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest managedObjectContext:[SNCStore sharedStore].context sectionNameKeyPath:@"created" cacheName:nil];
         
         self.fetchedResultsController.delegate = self;
         
         NSError *fetchError;
         
         // fetch
-        [self.fetchedResultsController performFetch:&fetchError];
+        [self fetchData:nil];
         
         if (fetchError) {
             
@@ -125,15 +142,37 @@
 
 #pragma mark - Fetch data
 
--(void)fetchData
+-(void)fetchData:(id)sender
 {
-    // fetch all posts belonging to users
+    // fetch user
+    
+    __block NSUInteger remaingingUsersToFetch = self.users.count;
+    
+    __block BOOL errorOccurred;
+    
+    // success block
     
     for (User *user in self.users) {
         
-        [SNCStore sharedStore] 
+        if (errorOccurred) {
+            
+            return;
+        }
+        
+        [[SNCStore sharedStore] getCachedResource:@"User" resourceID:user.resourceID.integerValue URLSession:nil completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
+            
+            if (errorOccurred) {
+                
+                return;
+            }
+            
+            if (error) {
+                
+                
+            }
+            
+        }];
     }
-    
 }
 
 #pragma mark - Table view data source

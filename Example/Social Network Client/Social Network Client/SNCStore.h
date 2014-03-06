@@ -20,6 +20,10 @@
 
 @property (readonly) User *user;
 
+#pragma mark - Logout
+
+-(void)logout;
+
 #pragma mark - Authentication
 
 -(NSArray *)loginWithUsername:(NSString *)username
@@ -38,7 +42,7 @@
                       URLSession:(NSURLSession *)urlSession
                       completion:(void (^)(NSError *error))completionBlock;
 
-#pragma mark - Complex Requests
+#pragma mark - Specialized Requests
 
 /** Fetches current user */
 -(NSURLSessionDataTask *)fetchUserWithURLSession:(NSURLSession *)urlSession

@@ -16,9 +16,7 @@
 
 @property NSUInteger *userResourceID;
 
-@property (readonly) User *user;
-
-@property (readonly) SNCPostsTableViewController *postsTableVC;
+@property User *user;
 
 #pragma mark - IB UI Outlets
 
@@ -27,5 +25,9 @@
 @property (weak, nonatomic) IBOutlet UILabel *dateCreatedLabel;
 
 @property (weak, nonatomic) IBOutlet UILabel *numberOfPostsLabel;
+
+#pragma mark - Actions
+
+- (IBAction)logout:(id)sender;
 
 @end

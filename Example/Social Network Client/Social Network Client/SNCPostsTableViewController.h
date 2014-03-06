@@ -17,6 +17,8 @@
 
 @property NSArray *users;
 
--(void)fetchData;
+@property (readonly) NSURLSession *urlSession;
+
+-(IBAction)fetchData:(id)sender;
 
 @end

@@ -13,12 +13,6 @@
 
 @interface SNCStore ()
 
-@property NSURL *serverURL;
-
-@property NSUInteger clientID;
-
-@property NSString *clientSecret;
-
 @property User *user;
 
 @end
@@ -123,7 +117,7 @@
             // save session values
             self.serverURL = serverURL;
             self.clientSecret = secret;
-            self.clientID = clientID;
+            self.clientResourceID = [NSNumber numberWithInteger:clientID];
             self.user = (User *)resource;
             
             NSLog(@"Successfully logged in");
@@ -184,7 +178,7 @@
             // save session values
             self.serverURL = serverURL;
             self.clientSecret = secret;
-            self.clientID = clientID;
+            self.clientResourceID = [NSNumber numberWithInteger:clientID];
             self.user = (User *)resource;
             
             NSLog(@"Successfully registered");
@@ -223,6 +217,28 @@
         completionBlock(nil);
         
     }];
+}
+
+#pragma mark - Logout
+
+-(void)logout
+{
+    self.user = nil;
+    self.userPassword = nil;
+    self.username = nil;
+    self.userResourceID = nil;
+    self.clientResourceID = nil;
+    self.clientSecret = nil;
+    self.serverURL = nil;
+    self.sessionToken = nil;
+    
+    // reset context
+    [self.context performBlock:^{
+        
+        [self.context reset];
+        
+    }];
+    
 }
 
 @end
