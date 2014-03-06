@@ -9,6 +9,7 @@
 #import "SNCStore.h"
 #import <NetworkObjects/NetworkObjects.h>
 #import "User.h"
+#import "Post.h"
 
 @interface SNCStore ()
 
@@ -222,14 +223,6 @@
         completionBlock(nil);
         
     }];
-}
-
--(NSArray *)fetchPostsOfUser:(User *)user
-                  URLSession:(NSURLSession *)urlSession
-                  completion:(void (^)(NSError *))completionBlock
-{
-    
-    
 }
 
 @end

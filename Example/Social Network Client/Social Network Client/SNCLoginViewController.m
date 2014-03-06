@@ -46,7 +46,8 @@
 
 - (IBAction)login:(id)sender {
     
-    [[SNCStore sharedStore] loginWithUsername:self.usernameTextField.text password:self.passwordTextField.text serverURL:[NSURL URLWithString:self.serverURLTextField.text] clientID:self.clientIDTextField.text.integerValue clientSecret:self.clientSecretTextField.text completion:^(NSError *error) {
+    [[SNCStore sharedStore] loginWithUsername:self.usernameTextField.text password:self.passwordTextField.text serverURL:[NSURL URLWithString:self.serverURLTextField.text] clientID:self.clientIDTextField.text.integerValue clientSecret:self.clientSecretTextField.text URLSession:nil
+                                   completion:^(NSError *error) {
         
         if (error) {
             
@@ -65,7 +66,7 @@
 
 - (IBAction)register:(id)sender {
     
-    [[SNCStore sharedStore] registerWithUsername:self.usernameTextField.text password:self.passwordTextField.text serverURL:[NSURL URLWithString:self.serverURLTextField.text] clientID:self.clientIDTextField.text.integerValue clientSecret:self.clientSecretTextField.text completion:^(NSError *error) {
+    [[SNCStore sharedStore] registerWithUsername:self.usernameTextField.text password:self.passwordTextField.text serverURL:[NSURL URLWithString:self.serverURLTextField.text] clientID:self.clientIDTextField.text.integerValue clientSecret:self.clientSecretTextField.text URLSession:nil completion:^(NSError *error) {
         
         if (error) {
             

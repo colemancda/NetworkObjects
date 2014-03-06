@@ -111,7 +111,7 @@
     }];
 }
 
--(NSURLSessionDataTask *)createResource:(NSString *)resourceName
+-(NSURLSessionDataTask *)createCachedResource:(NSString *)resourceName
                           initialValues:(NSDictionary *)initialValues
                              URLSession:(NSURLSession *)urlSession
                              completion:(void (^)(NSError *, NSManagedObject<NOResourceKeysProtocol> *))completionBlock
@@ -158,7 +158,7 @@
     }];
 }
 
--(NSURLSessionDataTask *)editResource:(NSManagedObject<NOResourceKeysProtocol> *)resource
+-(NSURLSessionDataTask *)editCachedResource:(NSManagedObject<NOResourceKeysProtocol> *)resource
                               changes:(NSDictionary *)values
                            URLSession:(NSURLSession *)urlSession
                            completion:(void (^)(NSError *))completionBlock
@@ -204,7 +204,7 @@
     }];
 }
 
--(NSURLSessionDataTask *)deleteResource:(NSManagedObject<NOResourceKeysProtocol> *)resource
+-(NSURLSessionDataTask *)deleteCachedResource:(NSManagedObject<NOResourceKeysProtocol> *)resource
                              URLSession:(NSURLSession *)urlSession
            completion:(void (^)(NSError *))completionBlock
 {
@@ -236,7 +236,7 @@
 }
 
 -(NSURLSessionDataTask *)performFunction:(NSString *)functionName
-                              onResource:(NSManagedObject<NOResourceKeysProtocol> *)resource
+                        onCachedResource:(NSManagedObject<NOResourceKeysProtocol> *)resource
                           withJSONObject:(NSDictionary *)jsonObject
                               URLSession:(NSURLSession *)urlSession
                               completion:(void (^)(NSError *, NSNumber *, NSDictionary *))completionBlock

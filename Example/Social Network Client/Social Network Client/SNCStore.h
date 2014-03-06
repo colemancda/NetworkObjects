@@ -27,6 +27,7 @@
                     serverURL:(NSURL *)serverURL
                      clientID:(NSUInteger)clientID
                  clientSecret:(NSString *)secret
+                   URLSession:(NSURLSession *)urlSession
                    completion:(void (^)(NSError *error))completionBlock;
 
 -(NSArray *)registerWithUsername:(NSString *)username
@@ -39,11 +40,9 @@
 
 #pragma mark - Complex Requests
 
+/** Fetches current user */
 -(NSURLSessionDataTask *)fetchUserWithURLSession:(NSURLSession *)urlSession
                                       completion:(void (^)(NSError *error))completionBlock;
 
--(NSArray *)fetchPostsOfUser:(User *)user
-                  URLSession:(NSURLSession *)urlSession
-                  completion:(void (^)(NSError *error))completionBlock;
 
 @end
