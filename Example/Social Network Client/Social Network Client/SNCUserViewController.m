@@ -84,9 +84,10 @@
 
 - (IBAction)logout:(id)sender {
     
+    [self performSegueWithIdentifier:@"logout"
+                              sender:self];
+    
     [[SNCStore sharedStore] logout];
-    
-    
 }
 
 

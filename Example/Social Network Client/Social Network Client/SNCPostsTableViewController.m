@@ -146,7 +146,7 @@
 {
     // fetch user
     
-    __block NSUInteger remaingingUsersToFetch = self.users.count;
+    __block NSUInteger remainingUsersToFetch = self.users.count;
     
     __block BOOL errorOccurred;
     
@@ -168,7 +168,19 @@
             
             if (error) {
                 
+                errorOccurred = YES;
                 
+                [self didFinishFetching];
+                
+                return;
+            }
+            
+            remainingUsersToFetch--;
+            
+            // last user fetched
+            if (!remainingUsersToFetch) {
+                
+                [self didFinishFetching];
             }
             
         }];
@@ -179,16 +191,14 @@
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-#warning Potentially incomplete method implementation.
     // Return the number of sections.
-    return 0;
+    return _fetchedResultsController.sections.count;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-#warning Incomplete method implementation.
     // Return the number of rows in the section.
-    return 0;
+    return _fetchedResultsController ;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
