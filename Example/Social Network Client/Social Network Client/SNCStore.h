@@ -7,46 +7,43 @@
 //
 
 #import <Foundation/Foundation.h>
-@class NOAPICachedStore, User;
+#import <NetworkObjects/NetworkObjects.h>
+@class User;
 
-@interface SNCStore : NSObject
+@interface SNCStore : NOAPICachedStore
 
-+ (instancetype)sharedStore;
-
-#pragma mark
-
-@property (readonly) NOAPICachedStore *cacheStore;
++(instancetype)sharedStore;
 
 #pragma mark - Session Properties
 
 // properties set after successful authentication
-
-@property (readonly) NSURL *serverURL;
-
-@property (readonly) NSUInteger clientID;
-
-@property (readonly) NSString *clientSecret;
 
 @property (readonly) User *user;
 
 #pragma mark - Authentication
 
 -(NSArray *)loginWithUsername:(NSString *)username
-                password:(NSString *)password
-               serverURL:(NSURL *)serverURL
-                clientID:(NSUInteger)clientID
-            clientSecret:(NSString *)secret
-              completion:(void (^)(NSError *error))completionBlock;
+                     password:(NSString *)password
+                    serverURL:(NSURL *)serverURL
+                     clientID:(NSUInteger)clientID
+                 clientSecret:(NSString *)secret
+                   completion:(void (^)(NSError *error))completionBlock;
 
 -(NSArray *)registerWithUsername:(NSString *)username
-                   password:(NSString *)password
-                  serverURL:(NSURL *)serverURL
-                   clientID:(NSUInteger)clientID
-               clientSecret:(NSString *)secret
-                 completion:(void (^)(NSError *error))completionBlock;
+                        password:(NSString *)password
+                       serverURL:(NSURL *)serverURL
+                        clientID:(NSUInteger)clientID
+                    clientSecret:(NSString *)secret
+                      URLSession:(NSURLSession *)urlSession
+                      completion:(void (^)(NSError *error))completionBlock;
 
 #pragma mark - Complex Requests
 
--(NSURLSessionDataTask *)fetchUserWithCompletion:(void (^)(NSError *error))completionBlock;
+-(NSURLSessionDataTask *)fetchUserWithURLSession:(NSURLSession *)urlSession
+                                      completion:(void (^)(NSError *error))completionBlock;
+
+-(NSArray *)fetchPostsOfUser:(User *)user
+                  URLSession:(NSURLSession *)urlSession
+                  completion:(void (^)(NSError *error))completionBlock;
 
 @end

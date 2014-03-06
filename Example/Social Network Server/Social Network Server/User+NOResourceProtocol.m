@@ -46,18 +46,17 @@
             NSString *newUsername = (NSString *)newValue;
             
             // validate that another user doesnt have the same username
-            SNSAppDelegate *appDelegate = [NSApp delegate];
             
             __block NSArray *result;
             
-            [appDelegate.store.context performBlockAndWait:^{
+            [self.managedObjectContext performBlockAndWait:^{
                
                 NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"User"];
                 
                 fetch.predicate = [NSPredicate predicateWithFormat:@"%K ==[c] %@", @"username", newUsername];
                 
                 NSError *fetchError;
-                result = [appDelegate.store.context executeFetchRequest:fetch
+                result = [self.managedObjectContext executeFetchRequest:fetch
                                                                   error:&fetchError];
                 
                 if (!result) {

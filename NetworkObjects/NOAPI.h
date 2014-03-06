@@ -33,39 +33,49 @@ typedef NS_ENUM(NSUInteger, NOAPIErrorCode) {
 
 @interface NOAPI : NSObject
 
+#pragma mark - Initialization
+
+/** Default initializer to use. Do not use -init. */
+
+- (id)initWithModel:(NSManagedObjectModel *)model
+  sessionEntityName:(NSString *)sessionEntityName
+     userEntityName:(NSString *)userEntityName
+   clientEntityName:(NSString *)clientEntityName
+          loginPath:(NSString *)loginPath;
+
 #pragma mark - Properties
 
 /**
  This is the Core Data Managed Object Model that the server uses. The server and client MUST use the same Managed Object Model but different subclasses of NSManagedObject model. Server entities conform to NOResourceProtocol wile Client entities only conform to NOResourceKeysProtocol.
  */
 
-@property NSManagedObjectModel *model;
-
-/**
- The NSURLSession that will be used to establish connections to the server. Must be non-nil.
- */
-
-@property NSURLSession *urlSession;
+@property (readonly) NSManagedObjectModel *model;
 
 /**
  The name of the entity in the Managed Object Model that conforms to NOSessionProtocol. There should only be only entity that conforms to NOSessionProtocol in the Managed Object Model.
  */
 
-@property NSString *sessionEntityName;
+@property (readonly) NSString *sessionEntityName;
 
 /**
  The name of the entity in the Managed Object Model that conforms to NOUserProtocol. There should only be only entity that conforms to NOUserProtocol in the Managed Object Model.
  */
 
-@property NSString *userEntityName;
+@property (readonly) NSString *userEntityName;
 
 /**
  The name of the entity in the Managed Object Model that conforms to NOClientProtocol. There should only be only entity that conforms to NOClientProtocol in the Managed Object Model.
  */
 
-@property NSString *clientEntityName;
+@property (readonly) NSString *clientEntityName;
 
 #pragma mark - Connection Info
+
+/**
+ The URL path that NetworkObjects server uses for authentication.
+ */
+
+@property (readonly) NSString *loginPath;
 
 /**
  This setting determines whether JSON requests made to the server will contain whitespace or not.
@@ -80,12 +90,6 @@ typedef NS_ENUM(NSUInteger, NOAPIErrorCode) {
  */
 
 @property NSURL *serverURL;
-
-/**
- The URL path that NetworkObjects server uses for authentication.
- */
-
-@property NSString *loginPath;
 
 /**
  The resource ID of the client that this store will authenticate as. Can be @c nil. If set, @c clientSecret must be set to a valid value too.
@@ -125,35 +129,43 @@ typedef NS_ENUM(NSUInteger, NOAPIErrorCode) {
 
 #pragma mark - Requests
 
+// These requests use JSON compatible values
+
 /**
  Used to authenticate. Upon successful authentication this method will set to a valid value.
  
  @param completionBlock This completion block must be non-nil.
  */
 
--(NSURLSessionDataTask *)loginWithCompletion:(void (^)(NSError *error))completionBlock;
+-(NSURLSessionDataTask *)loginWithURLSession:(NSURLSession *)urlSession
+                                  completion:(void (^)(NSError *error))completionBlock;
 
 -(NSURLSessionDataTask *)getResource:(NSString *)resourceName
                               withID:(NSUInteger)resourceID
+                          URLSession:(NSURLSession *)urlSession
                           completion:(void (^)(NSError *error, NSDictionary *resource))completionBlock;
 
 -(NSURLSessionDataTask *)editResource:(NSString *)resourceName
                                withID:(NSUInteger)resourceID
                               changes:(NSDictionary *)changes
+                           URLSession:(NSURLSession *)urlSession
                            completion:(void (^)(NSError *error))completionBlock;
 
 -(NSURLSessionDataTask *)deleteResource:(NSString *)resourceName
                                  withID:(NSUInteger)resourceID
+                             URLSession:(NSURLSession *)urlSession
                              completion:(void (^)(NSError *error))completionBlock;
 
 -(NSURLSessionDataTask *)createResource:(NSString *)resourceName
                       withInitialValues:(NSDictionary *)initialValues
+                             URLSession:(NSURLSession *)urlSession
                              completion:(void (^)(NSError *error, NSNumber *resourceID))completionBlock;
 
 -(NSURLSessionDataTask *)performFunction:(NSString *)functionName
                               onResource:(NSString *)resourceName
                                   withID:(NSUInteger)resourceID
                           withJSONObject:(NSDictionary *)jsonObject
+                              URLSession:(NSURLSession *)urlSession
                               completion:(void (^)(NSError *error, NSNumber *statusCode, NSDictionary *response))completionBlock;
 
 

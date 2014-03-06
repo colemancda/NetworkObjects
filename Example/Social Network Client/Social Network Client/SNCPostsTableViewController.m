@@ -7,8 +7,14 @@
 //
 
 #import "SNCPostsTableViewController.h"
+#import "SNCStore.h"
+#import "Post.h"
+#import <NetworkObjects/NetworkObjects.h>
 
 @interface SNCPostsTableViewController ()
+
+@property NSFetchedResultsController *fetchedResultsController;
+
 
 @end
 
@@ -31,13 +37,103 @@
     // self.clearsSelectionOnViewWillAppear = NO;
  
     // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
+    
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
+    
+    // KVO
+    
+    [self addObserver:self forKeyPath:@"users" options:NSKeyValueObservingOptionNew context:nil];
+    
 }
 
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+-(void)dealloc
+{
+    [self removeObserver:self forKeyPath:@"users"];
+    
+}
+
+#pragma mark - KVO
+
+-(void)observeValueForKeyPath:(NSString *)keyPath
+                     ofObject:(id)object
+                       change:(NSDictionary *)change
+                      context:(void *)context
+{
+    if ([keyPath isEqualToString:@"users"]) {
+        
+        NSPredicate *predicate;
+        
+        if (self.users.count) {
+            
+            // build predicate string
+            NSString *predicateString = @"";
+            
+            for (User *user in self.users) {
+                
+                predicateString = [predicateString stringByAppendingFormat:@"creator == %@", user];
+                
+                // multiple user posts
+                if (self.users.count > 1) {
+                    
+                    if (user != self.users.lastObject) {
+                        
+                        predicateString = [predicateString stringByAppendingString:@" OR "];
+                    }
+                }
+            }
+            
+            predicate = [NSPredicate predicateWithFormat:predicateString
+                                           argumentArray:self.users];
+            
+            NSAssert(predicate, @"Predicate must be created");
+            
+        }
+        
+        NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"Post"];
+        
+        // may be nil if the self.users array is nil or empty
+        fetchRequest.predicate = predicate;
+        
+        // make nsfetchedresultscontroller
+        self.fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest managedObjectContext:[SNCStore sharedStore].cacheStore.context sectionNameKeyPath:@"created" cacheName:nil];
+        
+        self.fetchedResultsController.delegate = self;
+        
+        NSError *fetchError;
+        
+        // fetch
+        [self.fetchedResultsController performFetch:&fetchError];
+        
+        if (fetchError) {
+            
+            [NSException raise:NSInternalInconsistencyException
+                        format:@"Error executing fetch request. %@", fetchError.localizedDescription];
+        }
+        
+        
+        
+    }
+    
+    
+}
+
+#pragma mark - Fetch data
+
+-(void)fetchData
+{
+    // fetch all posts belonging to users
+    
+    for (User *user in self.users) {
+        
+        [SNCStore sharedStore] 
+    }
+    
 }
 
 #pragma mark - Table view data source

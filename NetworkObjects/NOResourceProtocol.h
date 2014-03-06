@@ -38,7 +38,7 @@
 /**
  This returns the URL that will be used to access instances of this Resource.
  
- @return Returns a string that will be used to generate a REST URL scheme for this Resource.
+ @return Returns a string that will be used to generate a URL scheme for this Resource.
  */
 
 +(NSString *)resourcePath;

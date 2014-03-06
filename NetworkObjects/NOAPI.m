@@ -137,11 +137,56 @@
 
 @end
 
+@interface NOAPI ()
+
+@property NSManagedObjectModel *model;
+
+@property NSString *sessionEntityName;
+
+@property NSString *userEntityName;
+
+@property NSString *clientEntityName;
+
+@property NSString *loginPath;
+
+@end
+
 @implementation NOAPI
+
+- (id)initWithModel:(NSManagedObjectModel *)model
+  sessionEntityName:(NSString *)sessionEntityName
+     userEntityName:(NSString *)userEntityName
+   clientEntityName:(NSString *)clientEntityName
+          loginPath:(NSString *)loginPath
+{
+    self = [super init];
+    if (self) {
+        
+        // set immutable values
+        self.model = model;
+        self.sessionEntityName = sessionEntityName;
+        self.userEntityName = userEntityName;
+        self.clientEntityName = clientEntityName;
+        self.loginPath = loginPath;
+        
+    }
+    return self;
+}
+
+- (id)init
+{
+    [NSException raise:@"Wrong initialization method"
+                format:@"You cannot use %@ with '-%@', you have to use '-%@'",
+     self,
+     NSStringFromSelector(_cmd),
+     NSStringFromSelector(@selector(initWithModel:sessionEntityName:userEntityName:clientEntityName:loginPath:))];
+    return nil;
+}
 
 #pragma mark - Requests
 
--(NSURLSessionDataTask *)loginWithCompletion:(void (^)(NSError *))completionBlock
+-(NSURLSessionDataTask *)loginWithURLSession:(NSURLSession *)urlSession
+                                  completion:(void (^)(NSError *))completionBlock
 {
     if (!self.clientResourceID ||
         !self.clientSecret) {
@@ -150,6 +195,12 @@
                     format:@"clientResourceID and clientSecret are required for authentication"];
         
         return nil;
+    }
+    
+    // determine URL session
+    if (!urlSession) {
+        
+        urlSession = [NSURLSession sharedSession];
     }
     
     // build login URL
@@ -206,7 +257,7 @@
     
     request.HTTPMethod = @"POST";
     
-    NSURLSessionDataTask *task = [_urlSession dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+    NSURLSessionDataTask *task = [urlSession dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         
         if (error) {
             
@@ -294,9 +345,16 @@
 }
 
 -(NSURLSessionDataTask *)getResource:(NSString *)resourceName
-            withID:(NSUInteger)resourceID
-        completion:(void (^)(NSError *, NSDictionary *))completionBlock
+                              withID:(NSUInteger)resourceID
+                          URLSession:(NSURLSession *)urlSession
+                          completion:(void (^)(NSError *, NSDictionary *))completionBlock
 {
+    // determine URL session
+    if (!urlSession) {
+        
+        urlSession = [NSURLSession sharedSession];
+    }
+    
     // build URL
     
     Class entityClass = [self entityWithResourceName:resourceName];
@@ -318,7 +376,7 @@
         [request addValue:self.sessionToken forHTTPHeaderField:@"Authorization"];
     }
     
-    NSURLSessionDataTask *dataTask = [_urlSession dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+    NSURLSessionDataTask *dataTask = [urlSession dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         
         if (error) {
             
@@ -405,9 +463,16 @@
 }
 
 -(NSURLSessionDataTask *)createResource:(NSString *)resourceName
-    withInitialValues:(NSDictionary *)initialValues
-           completion:(void (^)(NSError *, NSNumber *))completionBlock
+                      withInitialValues:(NSDictionary *)initialValues
+                             URLSession:(NSURLSession *)urlSession
+                             completion:(void (^)(NSError *, NSNumber *))completionBlock
 {
+    // determine URL session
+    if (!urlSession) {
+        
+        urlSession = [NSURLSession sharedSession];
+    }
+    
     // build URL...
     
     Class entityClass = [self entityWithResourceName:resourceName];
@@ -444,7 +509,7 @@
     
     request.HTTPMethod = @"POST";
     
-    NSURLSessionDataTask *dataTask = [_urlSession dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+    NSURLSessionDataTask *dataTask = [urlSession dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         
         if (error) {
             
@@ -544,8 +609,15 @@
 -(NSURLSessionDataTask *)editResource:(NSString *)resourceName
                                withID:(NSUInteger)resourceID
                               changes:(NSDictionary *)changes
+                           URLSession:(NSURLSession *)urlSession
                            completion:(void (^)(NSError *))completionBlock
 {
+    // determine URL session
+    if (!urlSession) {
+        
+        urlSession = [NSURLSession sharedSession];
+    }
+    
     // build URL
     
     Class entityClass = [self entityWithResourceName:resourceName];
@@ -585,7 +657,7 @@
         [request addValue:self.sessionToken forHTTPHeaderField:@"Authorization"];
     }
     
-    NSURLSessionDataTask *dataTask = [_urlSession dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+    NSURLSessionDataTask *dataTask = [urlSession dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         
         if (error) {
             
@@ -652,6 +724,7 @@
 
 -(NSURLSessionDataTask *)deleteResource:(NSString *)resourceName
                                  withID:(NSUInteger)resourceID
+                             URLSession:(NSURLSession *)urlSession
                              completion:(void (^)(NSError *))completionBlock
 {
     // build URL
@@ -677,7 +750,7 @@
         [request addValue:self.sessionToken forHTTPHeaderField:@"Authorization"];
     }
     
-    NSURLSessionDataTask *dataTask = [_urlSession dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+    NSURLSessionDataTask *dataTask = [urlSession dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         
         if (error) {
             
@@ -746,8 +819,15 @@
                               onResource:(NSString *)resourceName
                                   withID:(NSUInteger)resourceID
                           withJSONObject:(NSDictionary *)jsonObject
+                              URLSession:(NSURLSession *)urlSession
                               completion:(void (^)(NSError *, NSNumber *, NSDictionary *))completionBlock
 {
+    // determine URL session
+    if (!urlSession) {
+        
+        urlSession = [NSURLSession sharedSession];
+    }
+    
     // build URL
     
     Class entityClass = [self entityWithResourceName:resourceName];
@@ -789,7 +869,7 @@
         request.HTTPBody = jsonData;
     }
     
-    NSURLSessionDataTask *dataTask = [_urlSession dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+    NSURLSessionDataTask *dataTask = [urlSession dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         
         if (error) {
             

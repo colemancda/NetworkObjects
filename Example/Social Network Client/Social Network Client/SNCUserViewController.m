@@ -9,10 +9,13 @@
 #import "SNCUserViewController.h"
 #import "User.h"
 #import "SNCStore.h"
+#import "SNCPostsTableViewController.h"
 
 @interface SNCUserViewController ()
 
 @property SNCPostsTableViewController *postsTableVC;
+
+@property User *user;
 
 @end
 
@@ -36,6 +39,7 @@
     
     // KVO
     [self addObserver:self forKeyPath:@"user" options:NSKeyValueObservingOptionNew context:nil];
+    [self addObserver:self forKeyPath:@"user.posts.count" options:NSKeyValueObservingOptionNew context:nil];
     
     // by defualt load the user profile
     self.user = [SNCStore sharedStore].user;
@@ -51,6 +55,7 @@
 -(void)dealloc
 {
     [self removeObserver:self forKeyPath:@"user"];
+    [self removeObserver:self forKeyPath:@"user.posts.count"];
 }
 
 #pragma mark - KVO
@@ -68,10 +73,15 @@
             
             self.dateCreatedLabel.text = [_dateFormatter stringFromDate:self.user.created];
             
-            self.numberOfPostsLabel.text = [NSString stringWithFormat:@"%ld", (unsigned long)self.user.posts.count];
-            
-            self.postsTableVC;
+            self.postsTableVC.predicate = [NSPredicate predicateWithFormat:@"resourceID == %@", self.user.resourceID];
         }
+    }
+    
+    if ([keyPath isEqualToString:@"user.posts.count"]) {
+        
+        // update count label
+        self.numberOfPostsLabel.text = [NSString stringWithFormat:@"%ld", (unsigned long)self.user.posts.count];
+        
     }
 }
 
@@ -83,6 +93,7 @@
         
         self.postsTableVC = segue.destinationViewController;
     }
+    
     
 }
 

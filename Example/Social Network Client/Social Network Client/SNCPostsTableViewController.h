@@ -8,11 +8,15 @@
 
 #import <UIKit/UIKit.h>
 @import CoreData;
+@class User;
 
-@interface SNCPostsTableViewController : UITableViewController
-
-@property NSFetchedResultsController *fetchedResultsControllers;
+@interface SNCPostsTableViewController : UITableViewController <NSFetchedResultsControllerDelegate>
+{
+    NSFetchedResultsController *_fetchedResultsController;
+}
 
 @property NSArray *users;
+
+-(void)fetchData;
 
 @end

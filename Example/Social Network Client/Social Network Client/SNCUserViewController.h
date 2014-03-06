@@ -14,7 +14,9 @@
     NSDateFormatter *_dateFormatter;
 }
 
-@property User *user;
+@property NSUInteger *userResourceID;
+
+@property (readonly) User *user;
 
 @property (readonly) SNCPostsTableViewController *postsTableVC;
 

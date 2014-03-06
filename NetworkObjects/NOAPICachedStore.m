@@ -20,6 +20,15 @@
 
 @end
 
+@interface NOAPICachedStore (DateCached)
+
+-(void)cachedResource:(NSString *)resourceName
+       withResourceID:(NSUInteger)resourceID;
+
+-(void)setupDateCached;
+
+@end
+
 @interface NSEntityDescription (Convert)
 
 -(NSDictionary *)jsonObjectFromCoreDataValues:(NSDictionary *)values;
@@ -28,26 +37,61 @@
 
 @implementation NOAPICachedStore
 
-- (id)init
+-(id)initWithModel:(NSManagedObjectModel *)model
+ sessionEntityName:(NSString *)sessionEntityName
+    userEntityName:(NSString *)userEntityName
+  clientEntityName:(NSString *)clientEntityName
+         loginPath:(NSString *)loginPath
 {
-    self = [super init];
+    self = [super initWithModel:model
+              sessionEntityName:sessionEntityName
+                 userEntityName:userEntityName
+               clientEntityName:clientEntityName
+                      loginPath:loginPath];
+    
     if (self) {
         
         _context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
         
         _context.undoManager = nil;
         
+        // initalize _dateCached & _dateCachedOperationQueues based on self.model
+        [self setupDateCached];
+        
     }
     return self;
 }
 
+#pragma mark - Date Cached
+
+-(NSDate *)dateCachedForResource:(NSString *)resourceName
+                      resourceID:(NSUInteger)resourceID
+{
+    // get the operation queue editing for the entity's mutable dicitonary of dates
+    NSOperationQueue *operationQueue = _dateCachedOperationQueues[resourceName];
+    
+    // get the mutable dictionary
+    NSMutableDictionary *resourceDatesCached = _dateCached[resourceName];
+    
+    __block NSDate *date;
+    
+    [operationQueue addOperations:@[[NSBlockOperation blockOperationWithBlock:^{
+        
+        date = resourceDatesCached[[NSNumber numberWithInteger:resourceID]];
+        
+    }]] waitUntilFinished:YES];
+    
+    return date;
+}
+
 #pragma mark - Requests
 
--(NSURLSessionDataTask *)getResource:(NSString *)resourceName
-        resourceID:(NSUInteger)resourceID
-        completion:(void (^)(NSError *, NSManagedObject<NOResourceKeysProtocol> *))completionBlock
+-(NSURLSessionDataTask *)getCachedResource:(NSString *)resourceName
+                                resourceID:(NSUInteger)resourceID
+                                URLSession:(NSURLSession *)urlSession
+                                completion:(void (^)(NSError *, NSManagedObject<NOResourceKeysProtocol> *))completionBlock
 {
-    return [self.api getResource:resourceName withID:resourceID completion:^(NSError *error, NSDictionary *resourceDict) {
+    return [self getResource:resourceName withID:resourceID URLSession:urlSession completion:^(NSError *error, NSDictionary *resourceDict) {
         
         if (error) {
             
@@ -60,22 +104,26 @@
                                                                     forResource:resourceName
                                                                          withID:resourceID];
         
+        [self cachedResource:resourceName
+              withResourceID:resourceID];
+        
         completionBlock(nil, resource);
     }];
 }
 
 -(NSURLSessionDataTask *)createResource:(NSString *)resourceName
-        initialValues:(NSDictionary *)initialValues
-           completion:(void (^)(NSError *, NSManagedObject<NOResourceKeysProtocol> *))completionBlock
+                          initialValues:(NSDictionary *)initialValues
+                             URLSession:(NSURLSession *)urlSession
+                             completion:(void (^)(NSError *, NSManagedObject<NOResourceKeysProtocol> *))completionBlock
 {
-    NSEntityDescription *entity = self.api.model.entitiesByName[resourceName];
+    NSEntityDescription *entity = self.model.entitiesByName[resourceName];
     
     assert(entity);
     
     // convert those Core Data values to JSON
     NSDictionary *jsonValues = [entity jsonObjectFromCoreDataValues:initialValues];
     
-    return [self.api createResource:resourceName withInitialValues:jsonValues completion:^(NSError *error, NSNumber *resourceID) {
+    return [self createResource:resourceName withInitialValues:jsonValues URLSession:urlSession completion:^(NSError *error, NSNumber *resourceID) {
        
         if (error) {
             
@@ -103,13 +151,17 @@
                         forKey:key];
         }
         
+        [self cachedResource:resourceName
+              withResourceID:resourceID.integerValue];
+        
         completionBlock(nil, resource);
     }];
 }
 
 -(NSURLSessionDataTask *)editResource:(NSManagedObject<NOResourceKeysProtocol> *)resource
-            changes:(NSDictionary *)values
-         completion:(void (^)(NSError *))completionBlock
+                              changes:(NSDictionary *)values
+                           URLSession:(NSURLSession *)urlSession
+                           completion:(void (^)(NSError *))completionBlock
 {
     // convert those Core Data values to JSON
     NSDictionary *jsonValues = [resource.entity jsonObjectFromCoreDataValues:values];
@@ -122,7 +174,7 @@
     
     NSNumber *resourceID = [resource valueForKey:resourceIDKey];
     
-    return [self.api editResource:resource.entity.name withID:resourceID.integerValue changes:jsonValues completion:^(NSError *error) {
+    return [self editResource:resource.entity.name withID:resourceID.integerValue changes:jsonValues URLSession:urlSession completion:^(NSError *error) {
        
         if (error) {
             
@@ -153,6 +205,7 @@
 }
 
 -(NSURLSessionDataTask *)deleteResource:(NSManagedObject<NOResourceKeysProtocol> *)resource
+                             URLSession:(NSURLSession *)urlSession
            completion:(void (^)(NSError *))completionBlock
 {
     // get resourceID
@@ -163,7 +216,7 @@
     
     NSNumber *resourceID = [resource valueForKey:resourceIDKey];
     
-    return [self.api deleteResource:resource.entity.name withID:resourceID.integerValue completion:^(NSError *error) {
+    return [self deleteResource:resource.entity.name withID:resourceID.integerValue URLSession:urlSession completion:^(NSError *error) {
         
         if (error) {
             
@@ -183,9 +236,10 @@
 }
 
 -(NSURLSessionDataTask *)performFunction:(NSString *)functionName
-            onResource:(NSManagedObject<NOResourceKeysProtocol> *)resource
-        withJSONObject:(NSDictionary *)jsonObject
-            completion:(void (^)(NSError *, NSNumber *, NSDictionary *))completionBlock
+                              onResource:(NSManagedObject<NOResourceKeysProtocol> *)resource
+                          withJSONObject:(NSDictionary *)jsonObject
+                              URLSession:(NSURLSession *)urlSession
+                              completion:(void (^)(NSError *, NSNumber *, NSDictionary *))completionBlock
 {
     // get resourceID
     
@@ -195,11 +249,12 @@
     
     NSNumber *resourceID = [resource valueForKey:resourceIDKey];
     
-    return [self.api performFunction:functionName
-                          onResource:resource.entity.name
-                              withID:resourceID.integerValue
-                      withJSONObject:jsonObject
-                          completion:completionBlock];
+    return [self performFunction:functionName
+                      onResource:resource.entity.name
+                          withID:resourceID.integerValue
+                  withJSONObject:jsonObject
+                      URLSession:urlSession
+                      completion:completionBlock];
 }
 
 @end
@@ -218,7 +273,7 @@
         NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:resourceName];
         
         // get entity
-        NSEntityDescription *entity = self.api.model.entitiesByName[resourceName];
+        NSEntityDescription *entity = self.model.entitiesByName[resourceName];
         
         Class entityClass = NSClassFromString(entity.managedObjectClassName);
         
@@ -270,7 +325,7 @@
     
     // set values...
     
-    NSEntityDescription *entity = self.api.model.entitiesByName[resourceName];
+    NSEntityDescription *entity = self.model.entitiesByName[resourceName];
     
     for (NSString *attributeName in entity.attributesByName) {
         
@@ -427,3 +482,49 @@
 }
 
 @end
+
+@implementation NOAPICachedStore (DateCached)
+
+-(void)setupDateCached
+{
+    // a mutable dictionary per entity
+    NSMutableDictionary *dateCached = [[NSMutableDictionary alloc] init];
+    
+    for (NSString *entityName in self.model.entitiesByName) {
+        
+        [dateCached addEntriesFromDictionary:@{entityName: [[NSMutableDictionary alloc] init]}];
+    }
+    
+    _dateCached = [NSDictionary dictionaryWithDictionary:dateCached];
+    
+    // a NSOperationQueue per entity
+    NSMutableDictionary *dateCachedOperationQueues = [[NSMutableDictionary alloc] init];
+    
+    for (NSString *entityName in self.model.entitiesByName) {
+        
+        [dateCachedOperationQueues addEntriesFromDictionary:@{entityName: [[NSOperationQueue alloc] init]}];
+    }
+    
+    _dateCachedOperationQueues = [NSDictionary dictionaryWithDictionary:dateCachedOperationQueues];
+    
+}
+
+-(void)cachedResource:(NSString *)resourceName
+       withResourceID:(NSUInteger)resourceID
+{
+    // get the operation queue editing for the entity's mutable dicitonary of dates
+    NSOperationQueue *operationQueue = _dateCachedOperationQueues[resourceName];
+    
+    // get the mutable dictionary
+    NSMutableDictionary *resourceDatesCached = _dateCached[resourceName];
+    
+    [operationQueue addOperations:@[[NSBlockOperation blockOperationWithBlock:^{
+        
+        [resourceDatesCached setObject:[NSDate date]
+                                forKey:[NSNumber numberWithInteger:resourceID]];
+        
+    }]] waitUntilFinished:YES];
+}
+
+@end
+
