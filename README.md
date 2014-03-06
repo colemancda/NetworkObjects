@@ -79,29 +79,9 @@ NetworkObjects provides convenient controller and store client classes so that y
 
 ```NOAPI``` is a controller that connects to a NetworkObjects server and returns JSON NSDictionaries. You must make sure to the the necesary properties such as the 'model' and 'serverURL' properties are set to a valid value for it to work.
 
-NOAPICachedStore is store that takes a NOAPI instance as a property and uses it to connect to the server and cache the remote object graph using Core Data. You must initialize a persistent store coordinator and add a persistent store to the 'context' property so it can function.
+```NOAPICachedStore``` is a subclass of ```NOAPI``` thats additionally caches the remote object graph using Core Data. You must initialize a persistent store coordinator and add a persistent store to the ```self.context``` property so it can function properly.
 
-To implement client functionality, initialize instances of ```NOAPI``` and ```NOAPICachedStore```.
-
-	// initialize cache store and API configuration
-        _cacheStore = [[NOAPICachedStore alloc] init];
-        _cacheStore.api = [[NOAPI alloc] init];
-        _cacheStore.api.model = [NSManagedObjectModel mergedModelFromBundles:nil];
-        _cacheStore.api.urlSession = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
-        _cacheStore.api.sessionEntityName = @"Session";
-        _cacheStore.api.userEntityName = @"User";
-        _cacheStore.api.clientEntityName = @"Client";
-        _cacheStore.api.prettyPrintJSON = YES;
-        _cacheStore.api.loginPath = @"login";
-        
-        // add persistent store
-        _cacheStore.context.persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:_cacheStore.api.model];
-        
-        NSError *error;
-        
-        [_cacheStore.context.persistentStoreCoordinator addPersistentStoreWithType:NSInMemoryStoreType configuration:nil URL:nil options:nil error:&error];
-        
-        NSAssert(!error, @"Could not create In-Memory store");
+To implement client functionality, initialize an instance of ```NOAPICachedStore```.
 
 #Example
 
