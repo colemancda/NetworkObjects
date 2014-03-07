@@ -42,6 +42,8 @@
             
             [self.refreshControl endRefreshing];
             
+            [self.tableView reloadData];
+            
         }];
     }];
 }
@@ -78,7 +80,6 @@
     [self addObserver:self forKeyPath:@"user" options:NSKeyValueObservingOptionNew context:nil];
     
     self.user = [SNCStore sharedStore].user;
-    
 }
 
 - (void)didReceiveMemoryWarning
@@ -341,6 +342,8 @@
                 
                 return;
             }
+            
+            [self fetchData:nil];
             
         }];
         
