@@ -22,6 +22,11 @@
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
         // Custom initialization
+        
+        _dateFormatter = [[NSDateFormatter alloc] init];
+        _dateFormatter.dateStyle = NSDateFormatterShortStyle;
+        _dateFormatter.timeStyle = NSDateFormatterShortStyle;
+        
     }
     return self;
 }
@@ -33,61 +38,20 @@
     
     _dateFormatter = [[NSDateFormatter alloc] init];
     
-    // KVO
-    [self addObserver:self forKeyPath:@"user" options:NSKeyValueObservingOptionNew context:nil];
-    [self addObserver:self forKeyPath:@"user.posts.count" options:NSKeyValueObservingOptionNew context:nil];
-    
     // by defualt load the current user
-    self.user = [SNCStore sharedStore].user;
     
+    self.usernameLabel.text = [SNCStore sharedStore].user.username;
+    
+    self.dateCreatedLabel.text = [_dateFormatter stringFromDate:[SNCStore sharedStore].user.created];
+    
+    // update count label
+    self.numberOfPostsLabel.text = [NSString stringWithFormat:@"%ld", (unsigned long)[SNCStore sharedStore].user.posts.count];
 }
 
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
-}
-
--(void)dealloc
-{
-    [self removeObserver:self forKeyPath:@"user"];
-    [self removeObserver:self forKeyPath:@"user.posts.count"];
-}
-
-#pragma mark - KVO
-
--(void)observeValueForKeyPath:(NSString *)keyPath
-                     ofObject:(id)object
-                       change:(NSDictionary *)change
-                      context:(void *)context
-{
-    if ([keyPath isEqualToString:@"user"]) {
-        
-        if (self.user) {
-            
-            self.usernameLabel.text = self.user.username;
-            
-            self.dateCreatedLabel.text = [_dateFormatter stringFromDate:self.user.created];
-            
-        }
-    }
-    
-    if ([keyPath isEqualToString:@"user.posts.count"]) {
-        
-        // update count label
-        self.numberOfPostsLabel.text = [NSString stringWithFormat:@"%ld", (unsigned long)self.user.posts.count];
-        
-    }
-}
-
-#pragma mark - Actions
-
-- (IBAction)logout:(id)sender {
-    
-    [self performSegueWithIdentifier:@"logout"
-                              sender:self];
-    
-    [[SNCStore sharedStore] logout];
 }
 
 

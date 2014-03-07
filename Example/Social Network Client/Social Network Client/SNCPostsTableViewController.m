@@ -11,12 +11,14 @@
 #import "Post.h"
 #import <NetworkObjects/NetworkObjects.h>
 #import "User.h"
+#import "NSError+presentError.h"
+#import "SNCPostViewController.h"
 
 @interface SNCPostsTableViewController ()
 
-@property NSFetchedResultsController *fetchedResultsController;
-
 @property NSURLSession *urlSession;
+
+@property NSDate *dateLastFetched;
 
 @end
 
@@ -24,12 +26,23 @@
 
 -(void)didFinishFetching
 {
-    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+    [[SNCStore sharedStore].context performBlock:^{
         
-        [self.refreshControl endRefreshing];
+        NSError *fetchError;
         
-        [self.tableView reloadData];
+        [_fetchedResultsController performFetch:&fetchError];
         
+        if (fetchError) {
+            
+            [NSException raise:NSInternalInconsistencyException
+                format:@"Error executing fetch request. (%@)", fetchError.localizedDescription];
+        }
+        
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            
+            [self.refreshControl endRefreshing];
+            
+        }];
     }];
 }
 
@@ -42,6 +55,9 @@
     self = [super initWithStyle:style];
     if (self) {
         // Custom initialization
+        
+        self.urlSession = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
+        
     }
     return self;
 }
@@ -59,7 +75,9 @@
     
     // KVO
     
-    [self addObserver:self forKeyPath:@"users" options:NSKeyValueObservingOptionNew context:nil];
+    [self addObserver:self forKeyPath:@"user" options:NSKeyValueObservingOptionNew context:nil];
+    
+    self.user = [SNCStore sharedStore].user;
     
 }
 
@@ -71,7 +89,7 @@
 
 -(void)dealloc
 {
-    [self removeObserver:self forKeyPath:@"users"];
+    [self removeObserver:self forKeyPath:@"user"];
     
 }
 
@@ -82,62 +100,23 @@
                        change:(NSDictionary *)change
                       context:(void *)context
 {
-    if ([keyPath isEqualToString:@"users"]) {
-        
-        NSPredicate *predicate;
-        
-        if (self.users.count) {
-            
-            // build predicate string
-            NSString *predicateString = @"";
-            
-            for (User *user in self.users) {
-                
-                predicateString = [predicateString stringByAppendingFormat:@"creator == %@", user];
-                
-                // multiple user posts
-                if (self.users.count > 1) {
-                    
-                    if (user != self.users.lastObject) {
-                        
-                        predicateString = [predicateString stringByAppendingString:@" OR "];
-                    }
-                }
-            }
-            
-            predicate = [NSPredicate predicateWithFormat:predicateString
-                                           argumentArray:self.users];
-            
-            NSAssert(predicate, @"Predicate must be created");
-            
-        }
+    if ([keyPath isEqualToString:@"user"]) {
         
         NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"Post"];
         
-        // may be nil if the self.users array is nil or empty
-        fetchRequest.predicate = predicate;
+        fetchRequest.predicate = [NSPredicate predicateWithFormat:@"creator == %@", self.user];
+        
+        fetchRequest.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"resourceID"
+                                                                       ascending:NO]];
         
         // make nsfetchedresultscontroller
-        self.fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest managedObjectContext:[SNCStore sharedStore].context sectionNameKeyPath:@"created" cacheName:nil];
+        _fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest managedObjectContext:[SNCStore sharedStore].context sectionNameKeyPath:nil cacheName:nil];
         
-        self.fetchedResultsController.delegate = self;
-        
-        NSError *fetchError;
+        _fetchedResultsController.delegate = self;
         
         // fetch
         [self fetchData:nil];
-        
-        if (fetchError) {
-            
-            [NSException raise:NSInternalInconsistencyException
-                        format:@"Error executing fetch request. %@", fetchError.localizedDescription];
-        }
-        
-        
-        
     }
-    
-    
 }
 
 #pragma mark - Fetch data
@@ -146,45 +125,24 @@
 {
     // fetch user
     
-    __block NSUInteger remainingUsersToFetch = self.users.count;
+    self.dateLastFetched = [NSDate date];
     
-    __block BOOL errorOccurred;
+    _errorDownloadingPost = nil;
     
-    // success block
-    
-    for (User *user in self.users) {
+    [[SNCStore sharedStore] getCachedResource:@"User" resourceID:self.user.resourceID.integerValue URLSession:nil completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
         
-        if (errorOccurred) {
+        if (error) {
+            
+            [self didFinishFetching];
+            
+            [error presentError];
             
             return;
         }
         
-        [[SNCStore sharedStore] getCachedResource:@"User" resourceID:user.resourceID.integerValue URLSession:nil completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
-            
-            if (errorOccurred) {
-                
-                return;
-            }
-            
-            if (error) {
-                
-                errorOccurred = YES;
-                
-                [self didFinishFetching];
-                
-                return;
-            }
-            
-            remainingUsersToFetch--;
-            
-            // last user fetched
-            if (!remainingUsersToFetch) {
-                
-                [self didFinishFetching];
-            }
-            
-        }];
-    }
+        [self didFinishFetching];
+        
+    }];
 }
 
 #pragma mark - Table view data source
@@ -192,21 +150,125 @@
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
     // Return the number of sections.
-    return _fetchedResultsController.sections.count;
+    return 1;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     // Return the number of rows in the section.
-    return _fetchedResultsController ;
+    
+    return _fetchedResultsController.fetchedObjects.count;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    static NSString *CellIdentifier = @"Cell";
+    static NSString *CellIdentifier = @"SNCPostCell";
+    
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
     
-    // Configure the cell...
+    // get model object
+    Post *post = [_fetchedResultsController objectAtIndexPath:indexPath];
+    
+    // blocks
+    
+    void (^configureCell)() = ^void() {
+        
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            
+            // Configure the cell...
+            cell.textLabel.text = post.text;
+            
+            if (!_dateFormatter) {
+                
+                _dateFormatter = [[NSDateFormatter alloc] init];
+                _dateFormatter.dateStyle = NSDateFormatterShortStyle;
+            }
+            
+            cell.detailTextLabel.text = [_dateFormatter stringFromDate:post.created];
+            
+        }];
+    };
+    
+    void (^configurePlaceholderCell)() = ^void() {
+        
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            
+            // Configure the cell...
+            cell.textLabel.text = NSLocalizedString(@"Loading...",
+                                                    @"Loading...");
+            
+            cell.detailTextLabel.text = @"";
+            
+        }];
+    };
+    
+    // download if not in cache...
+    
+    NSDate *dateCached = [[SNCStore sharedStore] dateCachedForResource:@"Post"
+                                                            resourceID:post.resourceID.integerValue];
+    
+    // never downloaded / not in cache
+    if (!dateCached) {
+        
+        [[SNCStore sharedStore] getCachedResource:@"Post" resourceID:post.resourceID.integerValue URLSession:self.urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
+            
+            if (_errorDownloadingPost) {
+                
+                // load empty cell
+                configurePlaceholderCell();
+                
+                return;
+            }
+            
+            if (error) {
+                
+                _errorDownloadingPost = error;
+                
+                // load empty cell
+                configurePlaceholderCell();
+                
+                return;
+            }
+            
+            configureCell();
+            
+        }];
+    }
+    
+    // cached object was fetched before we started loading this table view
+    if ([dateCached compare:_dateLastFetched] == NSOrderedAscending) {
+        
+        [[SNCStore sharedStore] getCachedResource:@"Post" resourceID:post.resourceID.integerValue URLSession:self.urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
+            
+            if (_errorDownloadingPost) {
+                
+                // load the cache
+                configureCell();
+                
+                return;
+            }
+            
+            if (error) {
+                
+                _errorDownloadingPost = error;
+                
+                // load the cache
+                configureCell();
+                
+                return;
+            }
+            
+            configureCell();
+        }];
+        
+    }
+    
+    // cached object was downloaded after we started loading this tableview
+    else {
+        
+        configureCell();
+        
+    }
     
     return cell;
 }
@@ -261,5 +323,122 @@
 }
 
  */
+
+#pragma mark - Segue
+
+-(void)savedPost:(UIStoryboardSegue *)segue
+{
+    SNCPostViewController *postVC = segue.sourceViewController;
+    
+    // create new post
+    if (!postVC.post) {
+        
+        [[SNCStore sharedStore] createCachedResource:@"Post" initialValues:@{@"text": postVC.textView.text} URLSession:postVC.urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
+            
+            if (error) {
+                
+                [error presentError];
+                
+                return;
+            }
+            
+        }];
+        
+    }
+    
+    // edit existing post
+    else {
+        
+        [[SNCStore sharedStore] editCachedResource:(id)postVC.post changes:@{@"text": postVC.textView.text} URLSession:postVC.urlSession completion:^(NSError *error) {
+            
+            if (error) {
+                
+                [error presentError];
+                
+                return;
+            }
+            
+        }];
+    }
+}
+
+#pragma mark - Fetched Results Controller Delegate
+
+- (void)controllerWillChangeContent:(NSFetchedResultsController *)controller {
+    // The fetch controller is about to start sending change notifications, so prepare the table view for updates.
+    
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        
+        [self.tableView beginUpdates];
+    }];
+}
+
+
+- (void)controller:(NSFetchedResultsController *)controller
+   didChangeObject:(id)anObject
+       atIndexPath:(NSIndexPath *)indexPath
+     forChangeType:(NSFetchedResultsChangeType)type
+      newIndexPath:(NSIndexPath *)newIndexPath {
+    
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        
+        UITableView *tableView = self.tableView;
+        
+        switch(type) {
+                
+            case NSFetchedResultsChangeInsert:
+                [tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:newIndexPath] withRowAnimation:UITableViewRowAnimationFade];
+                break;
+                
+            case NSFetchedResultsChangeDelete:
+                [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
+                break;
+                
+            case NSFetchedResultsChangeUpdate:
+                [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
+                break;
+                
+            case NSFetchedResultsChangeMove:
+                [tableView deleteRowsAtIndexPaths:[NSArray
+                                                   arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
+                [tableView insertRowsAtIndexPaths:[NSArray
+                                                   arrayWithObject:newIndexPath] withRowAnimation:UITableViewRowAnimationFade];
+                break;
+        }
+    }];
+}
+
+
+- (void)controller:(NSFetchedResultsController *)controller
+  didChangeSection:(id )sectionInfo
+           atIndex:(NSUInteger)sectionIndex
+     forChangeType:(NSFetchedResultsChangeType)type {
+    
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        
+        switch(type) {
+                
+            case NSFetchedResultsChangeInsert:
+                [self.tableView insertSections:[NSIndexSet indexSetWithIndex:sectionIndex] withRowAnimation:UITableViewRowAnimationFade];
+                break;
+                
+            case NSFetchedResultsChangeDelete:
+                [self.tableView deleteSections:[NSIndexSet indexSetWithIndex:sectionIndex] withRowAnimation:UITableViewRowAnimationFade];
+                break;
+        }
+        
+    }];
+}
+
+
+- (void)controllerDidChangeContent:(NSFetchedResultsController *)controller {
+    // The fetch controller has sent all current change notifications, so tell the table view to process all updates.
+    
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        
+        [self.tableView endUpdates];
+        
+    }];
+}
 
 @end

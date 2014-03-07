@@ -14,10 +14,6 @@
     NSDateFormatter *_dateFormatter;
 }
 
-@property NSUInteger *userResourceID;
-
-@property User *user;
-
 #pragma mark - IB UI Outlets
 
 @property (weak, nonatomic) IBOutlet UILabel *usernameLabel;
@@ -26,8 +22,5 @@
 
 @property (weak, nonatomic) IBOutlet UILabel *numberOfPostsLabel;
 
-#pragma mark - Actions
-
-- (IBAction)logout:(id)sender;
 
 @end

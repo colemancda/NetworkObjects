@@ -84,4 +84,14 @@
     
 }
 
+
+#pragma mark - Segue
+
+-(IBAction)logout:(UIStoryboardSegue *)segue
+{
+    
+    [[SNCStore sharedStore] logout];
+    
+}
+
 @end

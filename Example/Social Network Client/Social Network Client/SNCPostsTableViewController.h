@@ -13,12 +13,22 @@
 @interface SNCPostsTableViewController : UITableViewController <NSFetchedResultsControllerDelegate>
 {
     NSFetchedResultsController *_fetchedResultsController;
+    
+    NSDateFormatter *_dateFormatter;
+    
+    NSError *_errorDownloadingPost;
 }
 
-@property NSArray *users;
+@property User *user;
+
+@property (readonly) NSDate *dateLastFetched;
 
 @property (readonly) NSURLSession *urlSession;
 
 -(IBAction)fetchData:(id)sender;
+
+#pragma mark - Segue
+
+-(IBAction)savedPost:(UIStoryboardSegue *)segue;
 
 @end

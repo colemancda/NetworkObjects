@@ -38,6 +38,7 @@
 		6E46F06818B6E5BF0065D5D0 /* libNetworkObjects.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E11BD7E18AFD47700FF75FB /* libNetworkObjects.a */; };
 		6E671F0618B9652900BABA73 /* NSError+presentError.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E671F0518B9652900BABA73 /* NSError+presentError.m */; };
 		6E671F0D18B9784800BABA73 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 6E671F0B18B9784800BABA73 /* Model.xcdatamodeld */; };
+		6E98312818C947F80063129E /* SNCPostViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E98312718C947F80063129E /* SNCPostViewController.m */; };
 		6EAC100018BD939600B7603F /* SNCPostsTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EAC0FFF18BD939600B7603F /* SNCPostsTableViewController.m */; };
 		6EAC100318BD93AA00B7603F /* SNCUserViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EAC100218BD93AA00B7603F /* SNCUserViewController.m */; };
 /* End PBXBuildFile section */
@@ -131,6 +132,8 @@
 		6E671F0418B9652900BABA73 /* NSError+presentError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSError+presentError.h"; sourceTree = "<group>"; };
 		6E671F0518B9652900BABA73 /* NSError+presentError.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSError+presentError.m"; sourceTree = "<group>"; };
 		6E671F0C18B9784800BABA73 /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
+		6E98312618C947F80063129E /* SNCPostViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SNCPostViewController.h; sourceTree = "<group>"; };
+		6E98312718C947F80063129E /* SNCPostViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SNCPostViewController.m; sourceTree = "<group>"; };
 		6EAC0FFE18BD939600B7603F /* SNCPostsTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SNCPostsTableViewController.h; sourceTree = "<group>"; };
 		6EAC0FFF18BD939600B7603F /* SNCPostsTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SNCPostsTableViewController.m; sourceTree = "<group>"; };
 		6EAC100118BD93AA00B7603F /* SNCUserViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SNCUserViewController.h; sourceTree = "<group>"; };
@@ -278,6 +281,8 @@
 				6EAC100218BD93AA00B7603F /* SNCUserViewController.m */,
 				6EAC0FFE18BD939600B7603F /* SNCPostsTableViewController.h */,
 				6EAC0FFF18BD939600B7603F /* SNCPostsTableViewController.m */,
+				6E98312618C947F80063129E /* SNCPostViewController.h */,
+				6E98312718C947F80063129E /* SNCPostViewController.m */,
 			);
 			name = Controller;
 			sourceTree = "<group>";
@@ -493,6 +498,7 @@
 				6E1F7E2218B84C4400CF1369 /* Client+NOClientKeysProtocol.m in Sources */,
 				6EAC100318BD93AA00B7603F /* SNCUserViewController.m in Sources */,
 				6E1F7E2818B84C4400CF1369 /* User+NOUserKeysProtocol.m in Sources */,
+				6E98312818C947F80063129E /* SNCPostViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
