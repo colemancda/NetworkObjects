@@ -17,26 +17,14 @@
 
 @implementation SNCUserViewController
 
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
-{
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-    if (self) {
-        // Custom initialization
-        
-        _dateFormatter = [[NSDateFormatter alloc] init];
-        _dateFormatter.dateStyle = NSDateFormatterShortStyle;
-        _dateFormatter.timeStyle = NSDateFormatterShortStyle;
-        
-    }
-    return self;
-}
-
 - (void)viewDidLoad
 {
     [super viewDidLoad];
 	// Do any additional setup after loading the view.
     
     _dateFormatter = [[NSDateFormatter alloc] init];
+    _dateFormatter.dateStyle = NSDateFormatterShortStyle;
+    _dateFormatter.timeStyle = NSDateFormatterShortStyle;
     
     // by defualt load the current user
     

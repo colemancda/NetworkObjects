@@ -44,7 +44,7 @@ static void *KVOContext;
     
     // KVO
     [self addObserver:self
-           forKeyPath:@"representedObject"
+           forKeyPath:@"representedObject.text"
               options:NSKeyValueObservingOptionNew
               context:KVOContext];
 }
@@ -52,22 +52,31 @@ static void *KVOContext;
 -(void)dealloc
 {
     [self removeObserver:self
-              forKeyPath:@"representedObject"];
+              forKeyPath:@"representedObject.text"];
 }
 
 #pragma mark - KVO
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
-    if (context == KVOContext) {
+    if (context == &KVOContext) {
         
-        if ([keyPath isEqualToString:@"representedObject"]) {
+        if ([keyPath isEqualToString:@"representedObject.text"]) {
             
             // update UI
             
             Post *post = (Post *)self.representedObject;
             
-            self.textView.string = post.text;
+            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                
+                if (![self.textView.string isEqualToString:post.text]) {
+                    
+                    self.textView.string = post.text;
+                    
+                    [self.textView setNeedsDisplay:YES];
+                }
+                
+            }];
             
         }
         

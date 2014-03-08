@@ -121,7 +121,7 @@
         // make nsfetchedresultscontroller
         _fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest managedObjectContext:[SNCStore sharedStore].context sectionNameKeyPath:nil cacheName:nil];
         
-        _fetchedResultsController.delegate = self;
+        // _fetchedResultsController.delegate = self;
         
         // fetch
         [self fetchData:nil];
@@ -477,8 +477,12 @@
 {
     NSLog(@"%@: Context Changed", NSStringFromClass([self class]));
     
-    NSLog(@"Fetched objects: %lu", (unsigned long)_fetchedResultsController.fetchedObjects.count);
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
         
+        [self.tableView reloadData];
+        
+    }];
+    
 }
 
 @end

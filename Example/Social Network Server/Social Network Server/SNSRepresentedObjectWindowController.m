@@ -45,8 +45,8 @@ static void *SNSRepresentedObjectWindowControllerKVOContext;
     
     [self addObserver:self
            forKeyPath:@"representedObject"
-              options:NSKeyValueObservingOptionInitial
-              context:SNSRepresentedObjectWindowControllerContext];
+              options:NSKeyValueObservingOptionNew
+              context:SNSRepresentedObjectWindowControllerKVOContext];
 }
 
 -(void)dealloc
@@ -59,7 +59,7 @@ static void *SNSRepresentedObjectWindowControllerKVOContext;
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
-    if (context == SNSRepresentedObjectWindowControllerKVOContext) {
+    if (context == &SNSRepresentedObjectWindowControllerKVOContext) {
         
         // self.representedObject changed
         if ([keyPath isEqualToString:@"representedObject"]) {
@@ -67,7 +67,11 @@ static void *SNSRepresentedObjectWindowControllerKVOContext;
             // update window title
             NSNumber *resourceID = [self.representedObject valueForKey:[self.representedObject.class resourceIDKey]];
             
-            self.window.title = [NSString stringWithFormat:@"%@ - %@", self.representedObject.entity.name, resourceID];
+            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                
+                self.window.title = [NSString stringWithFormat:@"%@ - %@", self.representedObject.entity.name, resourceID];
+                
+            }];
             
         }
         

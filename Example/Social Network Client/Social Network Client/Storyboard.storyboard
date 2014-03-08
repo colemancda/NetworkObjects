@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="4514" systemVersion="13C64" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="Rac-A2-lyF">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="5051" systemVersion="13C64" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="Rac-A2-lyF">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3747"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3733"/>
     </dependencies>
     <scenes>
         <!--Login View Controller-->
@@ -333,7 +333,7 @@
                         <viewControllerLayoutGuide type="bottom" id="3Cz-bm-iN9"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="pi1-gE-LCF">
-                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="519"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
                             <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Username" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="LdJ-C6-ghM">
@@ -379,6 +379,8 @@
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
+                            <constraint firstItem="Ceb-0f-o2j" firstAttribute="leading" secondItem="8ZL-5t-Vrx" secondAttribute="trailing" constant="8" id="FUB-6V-t60"/>
+                            <constraint firstItem="Ceb-0f-o2j" firstAttribute="top" secondItem="LdJ-C6-ghM" secondAttribute="bottom" constant="8" id="G14-C0-aiD"/>
                             <constraint firstItem="Ceb-0f-o2j" firstAttribute="leading" secondItem="8ZL-5t-Vrx" secondAttribute="trailing" constant="8" id="L6f-Aq-Mcd"/>
                             <constraint firstItem="ne5-t1-aLw" firstAttribute="top" secondItem="8ZL-5t-Vrx" secondAttribute="bottom" constant="8" id="O7O-bB-eSX"/>
                             <constraint firstItem="3Cz-bm-iN9" firstAttribute="top" secondItem="DMd-B4-iZK" secondAttribute="bottom" constant="20" id="Urn-NK-hz0"/>
@@ -393,6 +395,7 @@
                             <constraint firstAttribute="centerX" secondItem="LdJ-C6-ghM" secondAttribute="centerX" id="zlo-tB-GxO"/>
                         </constraints>
                     </view>
+                    <extendedEdge key="edgesForExtendedLayout"/>
                     <tabBarItem key="tabBarItem" title="Profile" id="txh-O3-TLf"/>
                     <navigationItem key="navigationItem" id="xLF-T0-p4t"/>
                     <connections>
