@@ -886,7 +886,7 @@
         
         NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
         
-        NSNumber *statusCode = [NSNumber numberWithInteger:httpResponse.statusCode];
+        NSNumber *statusCode = @(httpResponse.statusCode);
         
         // get response body
         

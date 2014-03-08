@@ -184,7 +184,7 @@ forResourceWithEntityDescription:entityDescription
             
             NSString *capturedResourceID = captures[0];
             
-            NSNumber *resourceID = [NSNumber numberWithInteger:capturedResourceID.integerValue];
+            NSNumber *resourceID = @(capturedResourceID.integerValue);
             
             [self handleRequest:request
 forResourceWithEntityDescription:entityDescription
@@ -217,7 +217,7 @@ forResourceWithEntityDescription:entityDescription
                 
                 NSString *capturedResourceID = captures[0];
                 
-                NSNumber *resourceID = [NSNumber numberWithInteger:capturedResourceID.integerValue];
+                NSNumber *resourceID = @(capturedResourceID.integerValue);
                 
                 [self handleRequest:request
    forResourceWithEntityDescription:entityDescription
@@ -801,8 +801,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                 attribute.attributeType != NSUndefinedAttributeType) {
                 
                 // add to JSON representation
-                [jsonObject setObject:[resource JSONCompatibleValueForAttribute:attributeName]
-                               forKey:attributeName];
+                jsonObject[attributeName] = [resource JSONCompatibleValueForAttribute:attributeName];
                 
                 // notify
                 [resource attribute:attributeName

@@ -227,6 +227,8 @@
         
         [self.context reset];
         
+        NSLog(@"User logged out");
+        
     }];
     
 }

@@ -330,7 +330,7 @@
                         <viewControllerLayoutGuide type="bottom" id="3Cz-bm-iN9"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="pi1-gE-LCF">
-                        <rect key="frame" x="0.0" y="0.0" width="320" height="519"/>
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
                             <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Username" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="LdJ-C6-ghM">
@@ -390,7 +390,6 @@
                             <constraint firstAttribute="centerX" secondItem="LdJ-C6-ghM" secondAttribute="centerX" id="zlo-tB-GxO"/>
                         </constraints>
                     </view>
-                    <extendedEdge key="edgesForExtendedLayout"/>
                     <tabBarItem key="tabBarItem" title="Profile" id="txh-O3-TLf"/>
                     <navigationItem key="navigationItem" id="xLF-T0-p4t"/>
                     <connections>

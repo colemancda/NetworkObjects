@@ -41,8 +41,7 @@
                 operationQueue.maxConcurrentOperationCount = 1;
                 
                 // add to mutable dict
-                [creationQueuesDict setObject:operationQueue
-                                       forKey:entityDescription.name];
+                creationQueuesDict[entityDescription.name] = operationQueue;
             }
         }
         
@@ -244,15 +243,14 @@
                 resourceID = @0;
             }
             else {
-                resourceID = [NSNumber numberWithInteger:lastID.integerValue + 1];
+                resourceID = @(lastID.integerValue + 1);
             }
             
             [newResource setValue:resourceID
                            forKey:resourceIDKey];
             
             // set as last ID
-            [_lastResourceIDs setObject:resourceID
-                                 forKey:entityDescription.name];
+            _lastResourceIDs[entityDescription.name] = resourceID;
             
         }];
     }];

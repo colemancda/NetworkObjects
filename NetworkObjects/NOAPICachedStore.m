@@ -416,8 +416,7 @@
                 id jsonValue = [self JSONCompatibleValueForAttributeValue:value
                                                              forAttribute:key];
                 
-                [jsonObject setObject:jsonValue
-                               forKey:key];
+                jsonObject[key] = jsonValue;
                 
                 break;
             }
@@ -445,12 +444,11 @@
                     
                     // get resource ID of object
                     
-                    NSManagedObject<NOResourceKeysProtocol> *destinationResource = [values objectForKey:key];
+                    NSManagedObject<NOResourceKeysProtocol> *destinationResource = values[key];
                     
                     NSNumber *destinationResourceID = [destinationResource valueForKey:destinationResourceIDKey];
                     
-                    [jsonObject setObject:destinationResourceID
-                                   forKey:key];
+                    jsonObject[key] = destinationResourceID;
                     
                 }
                 
@@ -468,8 +466,7 @@
                         [destinationResourceIDs addObject:destinationResourceID];
                     }
                     
-                    [jsonObject setObject:destinationResourceIDs
-                                   forKey:key];
+                    jsonObject[key] = destinationResourceIDs;
                     
                 }
                 
@@ -520,8 +517,7 @@
     
     [operationQueue addOperations:@[[NSBlockOperation blockOperationWithBlock:^{
         
-        [resourceDatesCached setObject:[NSDate date]
-                                forKey:[NSNumber numberWithInteger:resourceID]];
+        resourceDatesCached[[NSNumber numberWithInteger:resourceID]] = [NSDate date];
         
     }]] waitUntilFinished:YES];
 }
