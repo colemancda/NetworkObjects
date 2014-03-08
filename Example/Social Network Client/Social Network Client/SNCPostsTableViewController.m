@@ -42,8 +42,6 @@
             
             [self.refreshControl endRefreshing];
             
-            [self.tableView reloadData];
-            
         }];
     }];
 }
@@ -274,28 +272,38 @@
     return cell;
 }
 
-/*
+
 // Override to support conditional editing of the table view.
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
 {
     // Return NO if you do not want the specified item to be editable.
     return YES;
 }
-*/
 
-/*
 // Override to support editing the table view.
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
 {
+    // get model object
+    Post *post = [_fetchedResultsController objectAtIndexPath:indexPath];
+    
     if (editingStyle == UITableViewCellEditingStyleDelete) {
-        // Delete the row from the data source
-        [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
+        
+        [[SNCStore sharedStore] deleteCachedResource:(id)post URLSession:self.urlSession completion:^(NSError *error) {
+            
+            if (error) {
+                
+                [error presentError];
+                
+                return;
+            }
+            
+        }];
     }   
     else if (editingStyle == UITableViewCellEditingStyleInsert) {
         // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
     }   
 }
-*/
+
 
 /*
 // Override to support rearranging the table view.
@@ -313,7 +321,6 @@
 }
 */
 
-/*
 #pragma mark - Navigation
 
 // In a story board-based application, you will often want to do a little preparation before navigation
@@ -321,11 +328,10 @@
 {
     // Get the new view controller using [segue destinationViewController].
     // Pass the selected object to the new view controller.
+    
+    
+    
 }
-
- */
-
-#pragma mark - Segue
 
 -(void)savedPost:(UIStoryboardSegue *)segue
 {
@@ -343,8 +349,6 @@
                 return;
             }
             
-            [self fetchData:nil];
-            
         }];
         
     }
@@ -360,6 +364,16 @@
                 
                 return;
             }
+            
+            // update cell
+            
+            NSIndexPath *indexPath = [_fetchedResultsController indexPathForObject:postVC.post];
+            
+            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                
+                [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationNone];
+                
+            }];
             
         }];
     }
@@ -398,7 +412,7 @@
                 break;
                 
             case NSFetchedResultsChangeUpdate:
-                [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
+                [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
                 break;
                 
             case NSFetchedResultsChangeMove:

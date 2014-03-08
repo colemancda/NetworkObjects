@@ -11,6 +11,14 @@
 
 @interface SNSBrowserViewController : NSViewController <NSComboBoxDelegate, NSComboBoxDataSource, NSTableViewDataSource, NSTableViewDelegate>
 
+{
+    NSArray *_sortedComboBox;
+    
+    NSMutableDictionary *_loadedWC;
+    
+    NSMutableArray *_arrangedfetchedObjects;
+}
+
 #pragma mark - IB UI
 
 @property (weak) IBOutlet NSComboBox *comboBox;

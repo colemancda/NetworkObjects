@@ -75,7 +75,7 @@
 
 #pragma mark - Authentication
 
--(NSArray *)loginWithUsername:(NSString *)username
+-(void)loginWithUsername:(NSString *)username
                      password:(NSString *)password
                     serverURL:(NSURL *)serverURL
                      clientID:(NSUInteger)clientID
@@ -93,9 +93,7 @@
     
     NSLog(@"Logging in as '%@'...", username);
     
-    NSMutableArray *tasks = [[NSMutableArray alloc] init];
-    
-    NSURLSessionDataTask *dataTask = [self loginWithURLSession:urlSession completion:^(NSError *error) {
+    [self loginWithURLSession:urlSession completion:^(NSError *error) {
         
         if (error) {
             
@@ -105,7 +103,7 @@
         }
         
         // get the user for this session
-        NSURLSessionDataTask *dataTask = [self getCachedResource:@"User" resourceID:self.userResourceID.integerValue URLSession:urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
+        [self getCachedResource:@"User" resourceID:self.userResourceID.integerValue URLSession:urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
             
             if (error) {
                 
@@ -125,17 +123,10 @@
             completionBlock(nil);
             
         }];
-        
-        [tasks addObject:dataTask];
-        
     }];
-    
-    [tasks addObject:dataTask];
-    
-    return tasks;
 }
 
--(NSArray *)registerWithUsername:(NSString *)username
+-(void)registerWithUsername:(NSString *)username
                         password:(NSString *)password
                        serverURL:(NSURL *)serverURL
                         clientID:(NSUInteger)clientID
@@ -153,11 +144,9 @@
     
     NSLog(@"Registering as '%@'...", username);
     
-    NSMutableArray *tasks = [[NSMutableArray alloc] init];
-    
     // login as app
     
-    NSURLSessionDataTask *dataTask = [self loginWithURLSession:urlSession completion:^(NSError *error) {
+    [self loginWithURLSession:urlSession completion:^(NSError *error) {
         
         if (error) {
             
@@ -166,7 +155,7 @@
             return;
         }
         
-        NSURLSessionDataTask *dataTask = [self createCachedResource:@"User" initialValues:@{@"username": username, @"password" : password} URLSession:urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
+        [self createCachedResource:@"User" initialValues:@{@"username": username, @"password" : password} URLSession:urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
             
             if (error) {
                 
@@ -175,25 +164,26 @@
                 return;
             }
             
-            // save session values
-            self.serverURL = serverURL;
-            self.clientSecret = secret;
-            self.clientResourceID = [NSNumber numberWithInteger:clientID];
-            self.user = (User *)resource;
+            User *newUser = (User *)resource;
             
-            NSLog(@"Successfully registered");
-            
-            completionBlock(nil);
-            
+            // login as newly created user
+            [self loginWithUsername:newUser.username password:password serverURL:serverURL clientID:clientID clientSecret:secret URLSession:urlSession completion:^(NSError *error) {
+                
+                if (error) {
+                    
+                    completionBlock(error);
+                    
+                    return;
+                }
+                
+                
+                NSLog(@"Successfully registered");
+                
+                completionBlock(nil);
+                
+            }];
         }];
-        
-        [tasks addObject:dataTask];
-        
     }];
-    
-    [tasks addObject:dataTask];
-    
-    return tasks;
 }
 
 #pragma mark - Complex Requests

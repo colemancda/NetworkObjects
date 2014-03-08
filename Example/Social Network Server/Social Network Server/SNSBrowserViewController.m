@@ -11,15 +11,9 @@
 #import "SNSClientWindowController.h"
 #import "SNSRepresentedObjectWindowController.h"
 
-@interface SNSBrowserViewController ()
+static void *KVOContext;
 
-{
-    NSArray *_sortedComboBox;
-    
-    NSMutableDictionary *_loadedWC;
-    
-    NSMutableArray *_arrangedfetchedObjects;
-}
+@interface SNSBrowserViewController ()
 
 @property NSEntityDescription *selectedEntity;
 
@@ -155,9 +149,9 @@
     
     // get selected resource
     
-    id selectedItem = _arrangedfetchedObjects[self.tableView.selectedRow];
+    NSManagedObject *selectedItem = _arrangedfetchedObjects[self.tableView.selectedRow];
     
-    [appDelegate.store deleteResource:selectedItem];
+    [appDelegate.store deleteResource:(id)selectedItem];
     
     [self fetchAll:self.selectedEntity];
     
@@ -167,7 +161,7 @@
     
     NSNumber *selectedItemResourceID = [selectedItem valueForKey:[[selectedItem class] resourceIDKey]];
     
-    NSString *wcKey = [NSString stringWithFormat:@"%@.%@", selectedItem, selectedItemResourceID];
+    NSString *wcKey = [NSString stringWithFormat:@"%@.%@", selectedItem.entity.name, selectedItemResourceID];
     
     SNSRepresentedObjectWindowController *wc = _loadedWC[wcKey];
     
@@ -176,6 +170,8 @@
         // remove from dictonary
         
         [_loadedWC removeObjectForKey:wcKey];
+        
+        [wc close];
         
     }
     
@@ -245,13 +241,13 @@
     
     // get selected item
     
-    id selectedItem = _arrangedfetchedObjects[self.tableView.clickedRow];
+    NSManagedObject *selectedItem = _arrangedfetchedObjects[self.tableView.clickedRow];
     
     // attempt to get already open WC for the selected object
     
     NSNumber *selectedItemResourceID = [selectedItem valueForKey:[[selectedItem class] resourceIDKey]];
     
-    NSString *wcKey = [NSString stringWithFormat:@"%@.%@", selectedItem, selectedItemResourceID];
+    NSString *wcKey = [NSString stringWithFormat:@"%@.%@", selectedItem.entity.name, selectedItemResourceID];
     
     SNSRepresentedObjectWindowController *wc = _loadedWC[wcKey];
     
@@ -273,11 +269,58 @@
         
         [_loadedWC setValue:wc
                      forKey:wcKey];
+        
+        // KVO
+        [selectedItem addObserver:self
+                       forKeyPath:@"isDeleted"
+                          options:NSKeyValueObservingOptionNew
+                          context:KVOContext];
+        
     }
     
     // show window
     [wc.window makeKeyAndOrderFront:nil];
     
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath
+                      ofObject:(id)object
+                        change:(NSDictionary *)change
+                       context:(void *)context
+{
+    if (context == KVOContext) {
+        
+        if ([keyPath isEqualToString:@"isDeleted"]) {
+            
+            NSManagedObject *selectedItem = (NSManagedObject *)object;
+            
+            // try to get WC...
+            
+            NSNumber *selectedItemResourceID = [selectedItem valueForKey:[[selectedItem class] resourceIDKey]];
+            
+            NSString *wcKey = [NSString stringWithFormat:@"%@.%@", selectedItem.entity.name, selectedItemResourceID];
+            
+            SNSRepresentedObjectWindowController *wc = _loadedWC[wcKey];
+            
+            if (wc) {
+                
+                // remove from dictonary
+                
+                [_loadedWC removeObjectForKey:wcKey];
+                
+                [wc close];
+                
+            }
+            
+            // stop observing
+            
+            [selectedItem removeObserver:self forKeyPath:@"isDeleted"];
+            
+        }
+        
+    } else {
+        [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
+    }
 }
 
 #pragma mark - Table View Data Source

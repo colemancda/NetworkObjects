@@ -26,7 +26,7 @@
 
 #pragma mark - Authentication
 
--(NSArray *)loginWithUsername:(NSString *)username
+-(void)loginWithUsername:(NSString *)username
                      password:(NSString *)password
                     serverURL:(NSURL *)serverURL
                      clientID:(NSUInteger)clientID
@@ -34,7 +34,7 @@
                    URLSession:(NSURLSession *)urlSession
                    completion:(void (^)(NSError *error))completionBlock;
 
--(NSArray *)registerWithUsername:(NSString *)username
+-(void)registerWithUsername:(NSString *)username
                         password:(NSString *)password
                        serverURL:(NSURL *)serverURL
                         clientID:(NSUInteger)clientID

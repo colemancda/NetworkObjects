@@ -727,6 +727,12 @@
                              URLSession:(NSURLSession *)urlSession
                              completion:(void (^)(NSError *))completionBlock
 {
+    // determine URL session
+    if (!urlSession) {
+        
+        urlSession = [NSURLSession sharedSession];
+    }
+    
     // build URL
     
     Class entityClass = [self entityWithResourceName:resourceName];
