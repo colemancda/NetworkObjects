@@ -31,8 +31,5 @@
 
 -(IBAction)savedPost:(UIStoryboardSegue *)segue;
 
-#pragma mark - Notifications
-
--(void)contextDidChange:(NSNotification *)notification;
 
 @end

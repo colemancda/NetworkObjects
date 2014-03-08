@@ -22,32 +22,6 @@
 
 @end
 
-@implementation SNCPostsTableViewController (FetchCompletion)
-
--(void)didFinishFetching
-{
-    [[SNCStore sharedStore].context performBlock:^{
-        
-        NSError *fetchError;
-        
-        [_fetchedResultsController performFetch:&fetchError];
-        
-        if (fetchError) {
-            
-            [NSException raise:NSInternalInconsistencyException
-                format:@"Error executing fetch request. (%@)", fetchError.localizedDescription];
-        }
-        
-        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-            
-            [self.refreshControl endRefreshing];
-            
-        }];
-    }];
-}
-
-@end
-
 @implementation SNCPostsTableViewController
 
 - (id)initWithCoder:(NSCoder *)aDecoder
@@ -73,18 +47,9 @@
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
     
     // KVO
-    
     [self addObserver:self forKeyPath:@"user" options:NSKeyValueObservingOptionNew context:nil];
     
-    // Context notifications
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(contextDidChange:)
-                                                 name:NSManagedObjectContextObjectsDidChangeNotification
-                                               object:[SNCStore sharedStore].context];
-    
     // defualt user
-    
     self.user = [SNCStore sharedStore].user;
 }
 
@@ -110,7 +75,8 @@
                       context:(void *)context
 {
     if ([keyPath isEqualToString:@"user"]) {
-        
+                
+        // fetch request
         NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"Post"];
         
         fetchRequest.predicate = [NSPredicate predicateWithFormat:@"creator == %@", self.user];
@@ -121,7 +87,21 @@
         // make nsfetchedresultscontroller
         _fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest managedObjectContext:[SNCStore sharedStore].context sectionNameKeyPath:nil cacheName:nil];
         
-        // _fetchedResultsController.delegate = self;
+        _fetchedResultsController.delegate = self;
+        
+        [[SNCStore sharedStore].context performBlockAndWait:^{
+            
+            NSError *fetchError;
+            
+            [_fetchedResultsController performFetch:&fetchError];
+            
+            if (fetchError) {
+                
+                [NSException raise:NSInternalInconsistencyException
+                            format:@"Error executing fetch request. (%@)", fetchError.localizedDescription];
+            }
+            
+        }];
         
         // fetch
         [self fetchData:nil];
@@ -134,6 +114,8 @@
 {
     // fetch user
     
+    NSLog(@"Fetching posts of user '%@'", self.user.username);
+    
     self.dateLastFetched = [NSDate date];
     
     _errorDownloadingPost = nil;
@@ -142,14 +124,23 @@
         
         if (error) {
             
-            [self didFinishFetching];
+            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                
+                [self.refreshControl endRefreshing];
+                
+            }];
             
             [error presentError];
             
             return;
         }
         
-        [self didFinishFetching];
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            
+            
+            [self.refreshControl endRefreshing];
+            
+        }];
         
     }];
 }
@@ -396,7 +387,9 @@
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
         
         [self.tableView beginUpdates];
+
     }];
+    
 }
 
 
@@ -435,7 +428,9 @@
                                  withRowAnimation:UITableViewRowAnimationFade];
                 break;
         }
+        
     }];
+    
 }
 
 
@@ -458,31 +453,18 @@
         }
         
     }];
+    
 }
 
 
 - (void)controllerDidChangeContent:(NSFetchedResultsController *)controller {
     // The fetch controller has sent all current change notifications, so tell the table view to process all updates.
-    
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
         
         [self.tableView endUpdates];
-        
+
     }];
 }
 
-#pragma mark - Notifications
-
--(void)contextDidChange:(NSNotification *)notification
-{
-    NSLog(@"%@: Context Changed", NSStringFromClass([self class]));
-    
-    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-        
-        [self.tableView reloadData];
-        
-    }];
-    
-}
 
 @end

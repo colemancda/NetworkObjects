@@ -236,25 +236,23 @@
 
 #pragma mark - Fetch
 
-/*
 
 -(NSURLSessionDataTask *)getCachedResource:(NSString *)resourceName resourceID:(NSUInteger)resourceID URLSession:(NSURLSession *)urlSession completion:(void (^)(NSError *, NSManagedObject<NOResourceKeysProtocol> *))completionBlock
 {
     return [super getCachedResource:resourceName resourceID:resourceID URLSession:urlSession completion:^void(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
         
-        if (!error) {
+        [self.context performBlock:^{
             
-            [self.context performBlock:^{
-                
-                [self.context save:nil];
-                
-            }];
-        }
+            [self.context processPendingChanges];
+            
+        }];
         
         completionBlock(error, resource);
         
     }];
 }
+
+/*
 
 -(NSURLSessionDataTask *)deleteCachedResource:(NSManagedObject<NOResourceKeysProtocol> *)resource URLSession:(NSURLSession *)urlSession completion:(void (^)(NSError *))completionBlock
 {
@@ -315,6 +313,5 @@
 }
 
 */
- 
 
 @end
