@@ -26,6 +26,10 @@
 		6E46F06818B6E5BF0065D5D0 /* libNetworkObjects.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E11BD7E18AFD47700FF75FB /* libNetworkObjects.a */; };
 		6E671F0618B9652900BABA73 /* NSError+presentError.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E671F0518B9652900BABA73 /* NSError+presentError.m */; };
 		6E671F0D18B9784800BABA73 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 6E671F0B18B9784800BABA73 /* Model.xcdatamodeld */; };
+		6E6EFF3E18CADE2900A0898D /* Client+NOClientKeysProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E6EFF3718CADE2900A0898D /* Client+NOClientKeysProtocol.m */; };
+		6E6EFF3F18CADE2900A0898D /* Post+NOResourceKeysProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E6EFF3918CADE2900A0898D /* Post+NOResourceKeysProtocol.m */; };
+		6E6EFF4018CADE2900A0898D /* Session+NOSessionKeysProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E6EFF3B18CADE2900A0898D /* Session+NOSessionKeysProtocol.m */; };
+		6E6EFF4118CADE2900A0898D /* User+NOUserKeysProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E6EFF3D18CADE2900A0898D /* User+NOUserKeysProtocol.m */; };
 		6E98312818C947F80063129E /* SNCPostViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E98312718C947F80063129E /* SNCPostViewController.m */; };
 		6E999C7018CADC2100583901 /* Client.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E999C6918CADC2100583901 /* Client.m */; };
 		6E999C7118CADC2100583901 /* Post.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E999C6B18CADC2100583901 /* Post.m */; };
@@ -108,6 +112,14 @@
 		6E671F0418B9652900BABA73 /* NSError+presentError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSError+presentError.h"; sourceTree = "<group>"; };
 		6E671F0518B9652900BABA73 /* NSError+presentError.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSError+presentError.m"; sourceTree = "<group>"; };
 		6E671F0C18B9784800BABA73 /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
+		6E6EFF3618CADE2900A0898D /* Client+NOClientKeysProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "Client+NOClientKeysProtocol.h"; path = "../Shared Model/Client+NOClientKeysProtocol.h"; sourceTree = "<group>"; };
+		6E6EFF3718CADE2900A0898D /* Client+NOClientKeysProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "Client+NOClientKeysProtocol.m"; path = "../Shared Model/Client+NOClientKeysProtocol.m"; sourceTree = "<group>"; };
+		6E6EFF3818CADE2900A0898D /* Post+NOResourceKeysProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "Post+NOResourceKeysProtocol.h"; path = "../Shared Model/Post+NOResourceKeysProtocol.h"; sourceTree = "<group>"; };
+		6E6EFF3918CADE2900A0898D /* Post+NOResourceKeysProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "Post+NOResourceKeysProtocol.m"; path = "../Shared Model/Post+NOResourceKeysProtocol.m"; sourceTree = "<group>"; };
+		6E6EFF3B18CADE2900A0898D /* Session+NOSessionKeysProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "Session+NOSessionKeysProtocol.m"; path = "../Shared Model/Session+NOSessionKeysProtocol.m"; sourceTree = "<group>"; };
+		6E6EFF3C18CADE2900A0898D /* User+NOUserKeysProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "User+NOUserKeysProtocol.h"; path = "../Shared Model/User+NOUserKeysProtocol.h"; sourceTree = "<group>"; };
+		6E6EFF3D18CADE2900A0898D /* User+NOUserKeysProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "User+NOUserKeysProtocol.m"; path = "../Shared Model/User+NOUserKeysProtocol.m"; sourceTree = "<group>"; };
+		6E6EFF4818CAE01400A0898D /* Session+NOSessionKeysProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "Session+NOSessionKeysProtocol.h"; path = "../Shared Model/Session+NOSessionKeysProtocol.h"; sourceTree = "<group>"; };
 		6E98312618C947F80063129E /* SNCPostViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SNCPostViewController.h; sourceTree = "<group>"; };
 		6E98312718C947F80063129E /* SNCPostViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SNCPostViewController.m; sourceTree = "<group>"; };
 		6E999C6818CADC2100583901 /* Client.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Client.h; path = "Social Network Client/Client.h"; sourceTree = SOURCE_ROOT; };
@@ -274,6 +286,14 @@
 		6E1F7DFC18B84C4400CF1369 /* Categories */ = {
 			isa = PBXGroup;
 			children = (
+				6E6EFF3618CADE2900A0898D /* Client+NOClientKeysProtocol.h */,
+				6E6EFF3718CADE2900A0898D /* Client+NOClientKeysProtocol.m */,
+				6E6EFF3818CADE2900A0898D /* Post+NOResourceKeysProtocol.h */,
+				6E6EFF3918CADE2900A0898D /* Post+NOResourceKeysProtocol.m */,
+				6E6EFF4818CAE01400A0898D /* Session+NOSessionKeysProtocol.h */,
+				6E6EFF3B18CADE2900A0898D /* Session+NOSessionKeysProtocol.m */,
+				6E6EFF3C18CADE2900A0898D /* User+NOUserKeysProtocol.h */,
+				6E6EFF3D18CADE2900A0898D /* User+NOUserKeysProtocol.m */,
 			);
 			name = Categories;
 			sourceTree = "<group>";
@@ -281,6 +301,7 @@
 		6E1F7E0518B84C4400CF1369 /* NSManagedObject */ = {
 			isa = PBXGroup;
 			children = (
+				6E1F7DFC18B84C4400CF1369 /* Categories */,
 				6E999C6818CADC2100583901 /* Client.h */,
 				6E999C6918CADC2100583901 /* Client.m */,
 				6E999C6A18CADC2100583901 /* Post.h */,
@@ -289,7 +310,6 @@
 				6E999C6D18CADC2100583901 /* Session.m */,
 				6E999C6E18CADC2100583901 /* User.h */,
 				6E999C6F18CADC2100583901 /* User.m */,
-				6E1F7DFC18B84C4400CF1369 /* Categories */,
 			);
 			name = NSManagedObject;
 			path = ../../NetworkObjectsClient/NetworkObjectsClient;
@@ -462,8 +482,12 @@
 				6E1F7DEE18B8456800CF1369 /* SNCStore.m in Sources */,
 				6EAC100018BD939600B7603F /* SNCPostsTableViewController.m in Sources */,
 				6E999C7318CADC2100583901 /* User.m in Sources */,
+				6E6EFF3E18CADE2900A0898D /* Client+NOClientKeysProtocol.m in Sources */,
+				6E6EFF4118CADE2900A0898D /* User+NOUserKeysProtocol.m in Sources */,
+				6E6EFF4018CADE2900A0898D /* Session+NOSessionKeysProtocol.m in Sources */,
 				6E999C7118CADC2100583901 /* Post.m in Sources */,
 				6EAC100318BD93AA00B7603F /* SNCUserViewController.m in Sources */,
+				6E6EFF3F18CADE2900A0898D /* Post+NOResourceKeysProtocol.m in Sources */,
 				6E98312818C947F80063129E /* SNCPostViewController.m in Sources */,
 				6E999C7018CADC2100583901 /* Client.m in Sources */,
 				6E671F0618B9652900BABA73 /* NSError+presentError.m in Sources */,
