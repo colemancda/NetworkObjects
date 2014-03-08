@@ -241,18 +241,20 @@
 {
     return [super getCachedResource:resourceName resourceID:resourceID URLSession:urlSession completion:^void(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
         
-        [self.context performBlock:^{
+        if (!error) {
             
-            [self.context processPendingChanges];
-            
-        }];
+            [self.context performBlock:^{
+                
+                [self.context processPendingChanges];
+                
+            }];
+        }
         
         completionBlock(error, resource);
         
     }];
 }
 
-/*
 
 -(NSURLSessionDataTask *)deleteCachedResource:(NSManagedObject<NOResourceKeysProtocol> *)resource URLSession:(NSURLSession *)urlSession completion:(void (^)(NSError *))completionBlock
 {
@@ -262,7 +264,7 @@
             
             [self.context performBlock:^{
                 
-                [self.context save:nil];
+                [self.context processPendingChanges];
                 
             }];
         }
@@ -283,7 +285,7 @@
             
             [self.context performBlock:^{
                 
-                [self.context save:nil];
+                [self.context processPendingChanges];
                 
             }];
         }
@@ -301,7 +303,7 @@
             
             [self.context performBlock:^{
                 
-                [self.context save:nil];
+                [self.context processPendingChanges];
                 
             }];
         }
@@ -311,7 +313,5 @@
     }];
     
 }
-
-*/
 
 @end
