@@ -9,7 +9,7 @@
 #import "SNSRepresentedObjectWindowController.h"
 #import <NetworkObjects/NOResourceProtocol.h>
 
-static void *SNSRepresentedObjectWindowControllerContext;
+static void *SNSRepresentedObjectWindowControllerKVOContext;
 
 @interface SNSRepresentedObjectWindowController ()
 
@@ -57,21 +57,22 @@ static void *SNSRepresentedObjectWindowControllerContext;
 
 #pragma mark - KVO
 
--(void)observeValueForKeyPath:(NSString *)keyPath
-                     ofObject:(id)object
-                       change:(NSDictionary *)change
-                      context:(void *)context
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
-    // self.representedObject changed
-    if ([keyPath isEqualToString:@"representedObject"] &&
-        context == SNSRepresentedObjectWindowControllerContext) {
+    if (context == SNSRepresentedObjectWindowControllerKVOContext) {
         
-        // update window title
+        // self.representedObject changed
+        if ([keyPath isEqualToString:@"representedObject"]) {
+            
+            // update window title
+            NSNumber *resourceID = [self.representedObject valueForKey:[self.representedObject.class resourceIDKey]];
+            
+            self.window.title = [NSString stringWithFormat:@"%@ - %@", self.representedObject.entity.name, resourceID];
+            
+        }
         
-        NSNumber *resourceID = [self.representedObject valueForKey:[self.representedObject.class resourceIDKey]];
-        
-        self.window.title = [NSString stringWithFormat:@"%@ - %@", self.representedObject.entity.name, resourceID];
-        
+    } else {
+        [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
     }
 }
 

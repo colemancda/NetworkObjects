@@ -121,7 +121,7 @@
         // make nsfetchedresultscontroller
         _fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest managedObjectContext:[SNCStore sharedStore].context sectionNameKeyPath:nil cacheName:nil];
         
-        // _fetchedResultsController.delegate = self;
+        _fetchedResultsController.delegate = self;
         
         // fetch
         [self fetchData:nil];
@@ -391,6 +391,8 @@
 - (void)controllerWillChangeContent:(NSFetchedResultsController *)controller {
     // The fetch controller is about to start sending change notifications, so prepare the table view for updates.
     
+    NSLog(@"%@", NSStringFromSelector(_cmd));
+    
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
         
         [self.tableView beginUpdates];
@@ -411,20 +413,26 @@
         switch(type) {
                 
             case NSFetchedResultsChangeInsert:
-                [tableView insertRowsAtIndexPaths:@[newIndexPath] withRowAnimation:UITableViewRowAnimationFade];
+                [tableView insertRowsAtIndexPaths:@[newIndexPath]
+                                 withRowAnimation:UITableViewRowAnimationFade];
                 break;
                 
             case NSFetchedResultsChangeDelete:
-                [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
+                [tableView deleteRowsAtIndexPaths:@[indexPath]
+                                 withRowAnimation:UITableViewRowAnimationFade];
                 break;
                 
             case NSFetchedResultsChangeUpdate:
-                [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+                [self.tableView reloadRowsAtIndexPaths:@[indexPath]
+                                      withRowAnimation:UITableViewRowAnimationAutomatic];
                 break;
                 
             case NSFetchedResultsChangeMove:
-                [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
-                [tableView insertRowsAtIndexPaths:@[newIndexPath] withRowAnimation:UITableViewRowAnimationFade];
+                [tableView deleteRowsAtIndexPaths:@[indexPath]
+                                 withRowAnimation:UITableViewRowAnimationFade];
+                
+                [tableView insertRowsAtIndexPaths:@[newIndexPath]
+                                 withRowAnimation:UITableViewRowAnimationFade];
                 break;
         }
     }];
@@ -467,65 +475,10 @@
 
 -(void)contextDidChange:(NSNotification *)notification
 {
-    // doing what nsfetchedresultscontroller does for us
-    
     NSLog(@"%@: Context Changed", NSStringFromClass([self class]));
     
-    [[SNCStore sharedStore].context performBlock:^{
+    NSLog(@"Fetched objects: %lu", (unsigned long)_fetchedResultsController.fetchedObjects.count);
         
-        [_fetchedResultsController performFetch:nil];
-        
-        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-            
-            [self.tableView beginUpdates];
-            
-            NSSet *updatedObjects = notification.userInfo[NSUpdatedObjectsKey];
-            
-            for (NSManagedObject *managedObject in updatedObjects) {
-                
-                NSIndexPath *indexPath = [_fetchedResultsController indexPathForObject:managedObject];
-                
-                if (indexPath) {
-                    
-                    [self.tableView reloadRowsAtIndexPaths:@[indexPath]
-                                          withRowAnimation:UITableViewRowAnimationAutomatic];
-                }
-                
-            }
-            
-            NSSet *deletedObjects = notification.userInfo[NSDeletedObjectsKey];
-            
-            for (NSManagedObject *managedObject in deletedObjects) {
-                
-                NSIndexPath *indexPath = [_fetchedResultsController indexPathForObject:managedObject];
-                
-                if (indexPath) {
-                    
-                    [self.tableView deleteRowsAtIndexPaths:@[indexPath]
-                                          withRowAnimation:UITableViewRowAnimationAutomatic];
-                }
-                
-            }
-            
-            NSSet *insertedObjects = notification.userInfo[NSInsertedObjectsKey];
-            
-            for (NSManagedObject *managedObject in insertedObjects) {
-                
-                NSIndexPath *indexPath = [_fetchedResultsController indexPathForObject:managedObject];
-                
-                if (indexPath) {
-                    
-                    [self.tableView insertRowsAtIndexPaths:@[indexPath]
-                                          withRowAnimation:UITableViewRowAnimationAutomatic];
-                }
-                
-            }
-            
-            [self.tableView endUpdates];
-            
-        }];
-        
-    }];
 }
 
 @end

@@ -9,6 +9,8 @@
 #import "SNSPostWindowController.h"
 #import "Post.h"
 
+static void *KVOContext;
+
 @interface SNSPostWindowController ()
 
 @end
@@ -39,6 +41,39 @@
     // text view changes
     
     self.textView.textStorage.delegate = self;
+    
+    // KVO
+    [self addObserver:self
+           forKeyPath:@"representedObject"
+              options:NSKeyValueObservingOptionNew
+              context:KVOContext];
+}
+
+-(void)dealloc
+{
+    [self removeObserver:self
+              forKeyPath:@"representedObject"];
+}
+
+#pragma mark - KVO
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
+{
+    if (context == KVOContext) {
+        
+        if ([keyPath isEqualToString:@"representedObject"]) {
+            
+            // update UI
+            
+            Post *post = (Post *)self.representedObject;
+            
+            self.textView.string = post.text;
+            
+        }
+        
+    } else {
+        [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
+    }
 }
 
 #pragma mark - Text Storage Delegate
