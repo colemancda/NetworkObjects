@@ -89,7 +89,7 @@
     self.userPassword = password;
     self.serverURL = serverURL;
     self.clientSecret = secret;
-    self.clientResourceID = [NSNumber numberWithInteger:clientID];
+    self.clientResourceID = @(clientID);
     
     NSLog(@"Logging in as '%@'...", username);
     
@@ -115,7 +115,7 @@
             // save session values
             self.serverURL = serverURL;
             self.clientSecret = secret;
-            self.clientResourceID = [NSNumber numberWithInteger:clientID];
+            self.clientResourceID = @(clientID);
             self.user = (User *)resource;
             
             NSLog(@"Successfully logged in");
@@ -138,7 +138,7 @@
     // setup session properties
     self.serverURL = serverURL;
     self.clientSecret = secret;
-    self.clientResourceID = [NSNumber numberWithInteger:clientID];
+    self.clientResourceID = @(clientID);
     self.username = nil;
     self.userPassword = nil;
     
