@@ -365,16 +365,6 @@
                 return;
             }
             
-            // update cell
-            
-            NSIndexPath *indexPath = [_fetchedResultsController indexPathForObject:postVC.post];
-            
-            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-                
-                [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationNone];
-                
-            }];
-            
         }];
     }
 }

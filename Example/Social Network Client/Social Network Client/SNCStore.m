@@ -233,11 +233,15 @@
     
 }
 
+/*
+
 #pragma mark - Fetch
 
 -(NSURLSessionDataTask *)getCachedResource:(NSString *)resourceName resourceID:(NSUInteger)resourceID URLSession:(NSURLSession *)urlSession completion:(void (^)(NSError *, NSManagedObject<NOResourceKeysProtocol> *))completionBlock
 {
     return [super getCachedResource:resourceName resourceID:resourceID URLSession:urlSession completion:^void(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
+        
+        completionBlock(error, resource);
         
         if (!error) {
             
@@ -247,8 +251,6 @@
                 
             }];
         }
-        
-        completionBlock(error, resource);
         
     }];
 }
@@ -310,5 +312,7 @@
     }];
     
 }
+ 
+ */
 
 @end
