@@ -45,7 +45,7 @@ static void *SNSRepresentedObjectWindowControllerKVOContext;
     
     [self addObserver:self
            forKeyPath:@"representedObject"
-              options:NSKeyValueObservingOptionNew
+              options:NSKeyValueObservingOptionInitial
               context:SNSRepresentedObjectWindowControllerKVOContext];
 }
 
@@ -59,7 +59,7 @@ static void *SNSRepresentedObjectWindowControllerKVOContext;
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
-    if (context == &SNSRepresentedObjectWindowControllerKVOContext) {
+    if (context == SNSRepresentedObjectWindowControllerKVOContext) {
         
         // self.representedObject changed
         if ([keyPath isEqualToString:@"representedObject"]) {
