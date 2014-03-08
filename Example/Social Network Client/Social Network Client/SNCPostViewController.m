@@ -21,13 +21,18 @@ static void *KVOContext;
 
 @implementation SNCPostViewController
 
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+-(id)initWithCoder:(NSCoder *)aDecoder
 {
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    self = [super initWithCoder:aDecoder];
     if (self) {
-        // Custom initialization
         
         self.urlSession = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration ephemeralSessionConfiguration]];
+        
+        // KVO
+        [self addObserver:self
+               forKeyPath:@"post"
+                  options:NSKeyValueObservingOptionNew
+                  context:KVOContext];
         
     }
     return self;
@@ -38,11 +43,6 @@ static void *KVOContext;
     [super viewDidLoad];
 	// Do any additional setup after loading the view.
     
-    // KVO
-    [self addObserver:self
-           forKeyPath:@"post"
-              options:NSKeyValueObservingOptionNew
-              context:KVOContext];
 }
 
 - (void)didReceiveMemoryWarning
@@ -68,8 +68,11 @@ static void *KVOContext;
         
         if ([keyPath isEqualToString:@"post"]) {
             
-            // update UI
-            self.textView.text = self.post.text;
+            if (self.view) {
+                
+                // update UI
+                self.textView.text = self.post.text;
+            }
             
         }
         

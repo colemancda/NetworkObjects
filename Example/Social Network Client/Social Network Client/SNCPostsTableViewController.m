@@ -50,11 +50,10 @@
 
 @implementation SNCPostsTableViewController
 
-- (id)initWithStyle:(UITableViewStyle)style
+- (id)initWithCoder:(NSCoder *)aDecoder
 {
-    self = [super initWithStyle:style];
+    self = [super initWithCoder:aDecoder];
     if (self) {
-        // Custom initialization
         
         self.urlSession = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
         
@@ -77,6 +76,15 @@
     
     [self addObserver:self forKeyPath:@"user" options:NSKeyValueObservingOptionNew context:nil];
     
+    // Context notifications
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(contextDidChange:)
+                                                 name:NSManagedObjectContextObjectsDidChangeNotification
+                                               object:[SNCStore sharedStore].context];
+    
+    // defualt user
+    
     self.user = [SNCStore sharedStore].user;
 }
 
@@ -89,6 +97,8 @@
 -(void)dealloc
 {
     [self removeObserver:self forKeyPath:@"user"];
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
     
 }
 
@@ -111,7 +121,7 @@
         // make nsfetchedresultscontroller
         _fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest managedObjectContext:[SNCStore sharedStore].context sectionNameKeyPath:nil cacheName:nil];
         
-        _fetchedResultsController.delegate = self;
+        // _fetchedResultsController.delegate = self;
         
         // fetch
         [self fetchData:nil];
@@ -329,7 +339,14 @@
     // Get the new view controller using [segue destinationViewController].
     // Pass the selected object to the new view controller.
     
-    
+    if ([segue.identifier isEqualToString:@"selectedPost"]) {
+        
+        // set post object
+        SNCPostViewController *postVC = segue.destinationViewController;
+        
+        postVC.post = _fetchedResultsController.fetchedObjects[self.tableView.indexPathForSelectedRow.row];
+        
+    }
     
 }
 
@@ -442,6 +459,25 @@
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
         
         [self.tableView endUpdates];
+        
+    }];
+}
+
+#pragma mark - Notifications
+
+-(void)contextDidChange:(NSNotification *)notification
+{
+    NSLog(@"%@: Context Changed", NSStringFromClass([self class]));
+    
+    [[SNCStore sharedStore].context performBlock:^{
+        
+        [_fetchedResultsController performFetch:nil];
+        
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            
+            [self.tableView reloadData];
+            
+        }];
         
     }];
 }

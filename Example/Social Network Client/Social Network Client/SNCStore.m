@@ -233,7 +233,6 @@
     
 }
 
-/*
 
 #pragma mark - Fetch
 
@@ -241,16 +240,16 @@
 {
     return [super getCachedResource:resourceName resourceID:resourceID URLSession:urlSession completion:^void(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
         
-        completionBlock(error, resource);
-        
         if (!error) {
             
             [self.context performBlock:^{
                 
-                [self.context processPendingChanges];
+                [self.context save:nil];
                 
             }];
         }
+        
+        completionBlock(error, resource);
         
     }];
 }
@@ -263,7 +262,7 @@
             
             [self.context performBlock:^{
                 
-                [self.context processPendingChanges];
+                [self.context save:nil];
                 
             }];
         }
@@ -284,7 +283,7 @@
             
             [self.context performBlock:^{
                 
-                [self.context processPendingChanges];
+                [self.context save:nil];
                 
             }];
         }
@@ -302,7 +301,7 @@
             
             [self.context performBlock:^{
                 
-                [self.context processPendingChanges];
+                [self.context save:nil];
                 
             }];
         }
@@ -313,6 +312,5 @@
     
 }
  
- */
 
 @end
