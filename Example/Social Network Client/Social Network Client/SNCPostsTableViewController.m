@@ -51,6 +51,13 @@
     
     // defualt user
     self.user = [SNCStore sharedStore].user;
+    
+    // register for changes
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(contextDidChange:)
+                                                 name:NSManagedObjectContextObjectsDidChangeNotification
+                                               object:[SNCStore sharedStore].context];
+    
 }
 
 - (void)didReceiveMemoryWarning
@@ -89,26 +96,32 @@
         
         _fetchedResultsController.delegate = self;
         
-        [[SNCStore sharedStore].context performBlockAndWait:^{
-            
-            NSError *fetchError;
-            
-            [_fetchedResultsController performFetch:&fetchError];
-            
-            if (fetchError) {
-                
-                [NSException raise:NSInternalInconsistencyException
-                            format:@"Error executing fetch request. (%@)", fetchError.localizedDescription];
-            }
-            
-        }];
+        // execute fetch request
+        [self executeFetchRequest];
         
-        // fetch
+        // fetch user
         [self fetchData:nil];
     }
 }
 
 #pragma mark - Fetch data
+
+-(void)executeFetchRequest
+{
+    [[SNCStore sharedStore].context performBlock:^{
+        
+        NSError *fetchError;
+        
+        [_fetchedResultsController performFetch:&fetchError];
+        
+        if (fetchError) {
+            
+            [NSException raise:NSInternalInconsistencyException
+                        format:@"Error executing fetch request. (%@)", fetchError.localizedDescription];
+        }
+        
+    }];
+}
 
 -(void)fetchData:(id)sender
 {
@@ -464,6 +477,34 @@
         [self.tableView endUpdates];
 
     }];
+}
+
+#pragma mark - Notifications
+
+-(void)contextDidChange:(NSNotification *)notification
+{
+    // fetched results controller cant detect when new post is created (limitation?)
+    
+    NSSet *insertedObjects = notification.userInfo[NSInsertedObjectsKey];
+    
+    for (NSManagedObject *managedObject in insertedObjects) {
+        
+        // inserted object that satisfy the fetch request predicate
+        if ([managedObject.entity.name isEqualToString:@"Post"]) {
+            
+            Post *post = (Post *)managedObject;
+            
+            // if it would had been added to fetchedObjects had the fetch request been fetched
+            if (post.creator == self.user) {
+                
+                [self executeFetchRequest];
+                
+                return;
+            }
+            
+        }
+        
+    }
 }
 
 

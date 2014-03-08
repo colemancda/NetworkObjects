@@ -25,11 +25,20 @@
 
 @property (readonly) NSURLSession *urlSession;
 
+#pragma mark - Fetch Data
+
+// downloads user and stops refresh control
 -(IBAction)fetchData:(id)sender;
+
+// executes fetch request
+-(void)executeFetchRequest;
 
 #pragma mark - Segue
 
 -(IBAction)savedPost:(UIStoryboardSegue *)segue;
 
+#pragma mark - Notifications
+
+-(void)contextDidChange:(NSNotification *)notification;
 
 @end
