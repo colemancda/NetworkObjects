@@ -357,6 +357,14 @@
                 return;
             }
             
+            // configure new post
+            
+            Post *post = (Post *)resource;
+            
+            post.creator = self.user;
+            
+            post.created = [NSDate date];
+            
         }];
         
     }
