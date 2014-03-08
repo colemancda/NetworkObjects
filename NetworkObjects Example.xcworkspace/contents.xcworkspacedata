@@ -2,9 +2,9 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:Example/Social Network Client/Social Network Client.xcodeproj">
+      location = "group:Example/Social Network Server/Social Network Server.xcodeproj">
    </FileRef>
    <FileRef
-      location = "group:Example/Social Network Server/Social Network Server.xcodeproj">
+      location = "group:Example/Social Network Client/Social Network Client.xcodeproj">
    </FileRef>
 </Workspace>

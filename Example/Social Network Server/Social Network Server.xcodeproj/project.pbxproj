@@ -38,14 +38,6 @@
 		6E11BDFD18AFDF8F00FF75FB /* Session+NOSessionProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E11BDF518AFDF8F00FF75FB /* Session+NOSessionProtocol.m */; };
 		6E11BDFE18AFDF8F00FF75FB /* Client+NOClientProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E11BDF718AFDF8F00FF75FB /* Client+NOClientProtocol.m */; };
 		6E11BDFF18AFDF8F00FF75FB /* Client+NOClientProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E11BDF718AFDF8F00FF75FB /* Client+NOClientProtocol.m */; };
-		6E11BE0918AFDFCB00FF75FB /* Client+NOClientKeysProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E11BE0218AFDFCB00FF75FB /* Client+NOClientKeysProtocol.m */; };
-		6E11BE0A18AFDFCB00FF75FB /* Client+NOClientKeysProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E11BE0218AFDFCB00FF75FB /* Client+NOClientKeysProtocol.m */; };
-		6E11BE0B18AFDFCB00FF75FB /* Post+NOResourceKeysProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E11BE0418AFDFCB00FF75FB /* Post+NOResourceKeysProtocol.m */; };
-		6E11BE0C18AFDFCB00FF75FB /* Post+NOResourceKeysProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E11BE0418AFDFCB00FF75FB /* Post+NOResourceKeysProtocol.m */; };
-		6E11BE0D18AFDFCB00FF75FB /* Session+NOSessionKeysProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E11BE0618AFDFCB00FF75FB /* Session+NOSessionKeysProtocol.m */; };
-		6E11BE0E18AFDFCB00FF75FB /* Session+NOSessionKeysProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E11BE0618AFDFCB00FF75FB /* Session+NOSessionKeysProtocol.m */; };
-		6E11BE0F18AFDFCB00FF75FB /* User+NOUserKeysProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E11BE0818AFDFCB00FF75FB /* User+NOUserKeysProtocol.m */; };
-		6E11BE1018AFDFCB00FF75FB /* User+NOUserKeysProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E11BE0818AFDFCB00FF75FB /* User+NOUserKeysProtocol.m */; };
 		6E11BE1E18B02EB300FF75FB /* SNSBrowserViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E11BE1D18B02EB300FF75FB /* SNSBrowserViewController.m */; };
 		6E11BE1F18B02EB300FF75FB /* SNSBrowserViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E11BE1D18B02EB300FF75FB /* SNSBrowserViewController.m */; };
 		6E11BE2218B030A000FF75FB /* SNSLogViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E11BE2118B030A000FF75FB /* SNSLogViewController.m */; };
@@ -62,6 +54,10 @@
 		6E46EF7A18B179190065D5D0 /* SNSSessionWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6E46EF7818B179190065D5D0 /* SNSSessionWindowController.xib */; };
 		6E46EF8218B17F200065D5D0 /* SNSUserWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E46EF8018B17F200065D5D0 /* SNSUserWindowController.m */; };
 		6E46EF8318B17F200065D5D0 /* SNSUserWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6E46EF8118B17F200065D5D0 /* SNSUserWindowController.xib */; };
+		6E62513F18CAEA2300A30CA0 /* Client+NOClientKeysProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E62513818CAEA2300A30CA0 /* Client+NOClientKeysProtocol.m */; };
+		6E62514018CAEA2300A30CA0 /* Post+NOResourceKeysProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E62513A18CAEA2300A30CA0 /* Post+NOResourceKeysProtocol.m */; };
+		6E62514118CAEA2300A30CA0 /* Session+NOSessionKeysProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E62513C18CAEA2300A30CA0 /* Session+NOSessionKeysProtocol.m */; };
+		6E62514218CAEA2300A30CA0 /* User+NOUserKeysProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E62513E18CAEA2300A30CA0 /* User+NOUserKeysProtocol.m */; };
 		6E7F4B4718B071C300508181 /* SNSRepresentedObjectWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E7F4B4518B071C300508181 /* SNSRepresentedObjectWindowController.m */; };
 		6E7F4B4818B071C300508181 /* SNSRepresentedObjectWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6E7F4B4618B071C300508181 /* SNSRepresentedObjectWindowController.xib */; };
 		6E7F4B5018B08DF500508181 /* SNSPostWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E7F4B4E18B08DF500508181 /* SNSPostWindowController.m */; };
@@ -169,14 +165,6 @@
 		6E11BDF518AFDF8F00FF75FB /* Session+NOSessionProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "Session+NOSessionProtocol.m"; sourceTree = "<group>"; };
 		6E11BDF618AFDF8F00FF75FB /* Client+NOClientProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Client+NOClientProtocol.h"; sourceTree = "<group>"; };
 		6E11BDF718AFDF8F00FF75FB /* Client+NOClientProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "Client+NOClientProtocol.m"; sourceTree = "<group>"; };
-		6E11BE0118AFDFCB00FF75FB /* Client+NOClientKeysProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Client+NOClientKeysProtocol.h"; sourceTree = "<group>"; };
-		6E11BE0218AFDFCB00FF75FB /* Client+NOClientKeysProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "Client+NOClientKeysProtocol.m"; sourceTree = "<group>"; };
-		6E11BE0318AFDFCB00FF75FB /* Post+NOResourceKeysProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Post+NOResourceKeysProtocol.h"; sourceTree = "<group>"; };
-		6E11BE0418AFDFCB00FF75FB /* Post+NOResourceKeysProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "Post+NOResourceKeysProtocol.m"; sourceTree = "<group>"; };
-		6E11BE0518AFDFCB00FF75FB /* Session+NOSessionKeysProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Session+NOSessionKeysProtocol.h"; sourceTree = "<group>"; };
-		6E11BE0618AFDFCB00FF75FB /* Session+NOSessionKeysProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "Session+NOSessionKeysProtocol.m"; sourceTree = "<group>"; };
-		6E11BE0718AFDFCB00FF75FB /* User+NOUserKeysProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "User+NOUserKeysProtocol.h"; sourceTree = "<group>"; };
-		6E11BE0818AFDFCB00FF75FB /* User+NOUserKeysProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "User+NOUserKeysProtocol.m"; sourceTree = "<group>"; };
 		6E11BE1C18B02EB300FF75FB /* SNSBrowserViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SNSBrowserViewController.h; sourceTree = "<group>"; };
 		6E11BE1D18B02EB300FF75FB /* SNSBrowserViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SNSBrowserViewController.m; sourceTree = "<group>"; };
 		6E11BE2018B030A000FF75FB /* SNSLogViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SNSLogViewController.h; sourceTree = "<group>"; };
@@ -190,6 +178,14 @@
 		6E46EF7F18B17F200065D5D0 /* SNSUserWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SNSUserWindowController.h; sourceTree = "<group>"; };
 		6E46EF8018B17F200065D5D0 /* SNSUserWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SNSUserWindowController.m; sourceTree = "<group>"; };
 		6E46EF8118B17F200065D5D0 /* SNSUserWindowController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SNSUserWindowController.xib; sourceTree = "<group>"; };
+		6E62513718CAEA2300A30CA0 /* Client+NOClientKeysProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "Client+NOClientKeysProtocol.h"; path = "../../Shared Model/Client+NOClientKeysProtocol.h"; sourceTree = "<group>"; };
+		6E62513818CAEA2300A30CA0 /* Client+NOClientKeysProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "Client+NOClientKeysProtocol.m"; path = "../../Shared Model/Client+NOClientKeysProtocol.m"; sourceTree = "<group>"; };
+		6E62513918CAEA2300A30CA0 /* Post+NOResourceKeysProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "Post+NOResourceKeysProtocol.h"; path = "../../Shared Model/Post+NOResourceKeysProtocol.h"; sourceTree = "<group>"; };
+		6E62513A18CAEA2300A30CA0 /* Post+NOResourceKeysProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "Post+NOResourceKeysProtocol.m"; path = "../../Shared Model/Post+NOResourceKeysProtocol.m"; sourceTree = "<group>"; };
+		6E62513B18CAEA2300A30CA0 /* Session+NOSessionKeysProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "Session+NOSessionKeysProtocol.h"; path = "../../Shared Model/Session+NOSessionKeysProtocol.h"; sourceTree = "<group>"; };
+		6E62513C18CAEA2300A30CA0 /* Session+NOSessionKeysProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "Session+NOSessionKeysProtocol.m"; path = "../../Shared Model/Session+NOSessionKeysProtocol.m"; sourceTree = "<group>"; };
+		6E62513D18CAEA2300A30CA0 /* User+NOUserKeysProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "User+NOUserKeysProtocol.h"; path = "../../Shared Model/User+NOUserKeysProtocol.h"; sourceTree = "<group>"; };
+		6E62513E18CAEA2300A30CA0 /* User+NOUserKeysProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "User+NOUserKeysProtocol.m"; path = "../../Shared Model/User+NOUserKeysProtocol.m"; sourceTree = "<group>"; };
 		6E7F4B4418B071C300508181 /* SNSRepresentedObjectWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SNSRepresentedObjectWindowController.h; sourceTree = "<group>"; };
 		6E7F4B4518B071C300508181 /* SNSRepresentedObjectWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SNSRepresentedObjectWindowController.m; sourceTree = "<group>"; };
 		6E7F4B4618B071C300508181 /* SNSRepresentedObjectWindowController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SNSRepresentedObjectWindowController.xib; sourceTree = "<group>"; };
@@ -405,14 +401,14 @@
 		6E11BE0018AFDFA200FF75FB /* Keys Protocol */ = {
 			isa = PBXGroup;
 			children = (
-				6E11BE0118AFDFCB00FF75FB /* Client+NOClientKeysProtocol.h */,
-				6E11BE0218AFDFCB00FF75FB /* Client+NOClientKeysProtocol.m */,
-				6E11BE0318AFDFCB00FF75FB /* Post+NOResourceKeysProtocol.h */,
-				6E11BE0418AFDFCB00FF75FB /* Post+NOResourceKeysProtocol.m */,
-				6E11BE0518AFDFCB00FF75FB /* Session+NOSessionKeysProtocol.h */,
-				6E11BE0618AFDFCB00FF75FB /* Session+NOSessionKeysProtocol.m */,
-				6E11BE0718AFDFCB00FF75FB /* User+NOUserKeysProtocol.h */,
-				6E11BE0818AFDFCB00FF75FB /* User+NOUserKeysProtocol.m */,
+				6E62513718CAEA2300A30CA0 /* Client+NOClientKeysProtocol.h */,
+				6E62513818CAEA2300A30CA0 /* Client+NOClientKeysProtocol.m */,
+				6E62513918CAEA2300A30CA0 /* Post+NOResourceKeysProtocol.h */,
+				6E62513A18CAEA2300A30CA0 /* Post+NOResourceKeysProtocol.m */,
+				6E62513B18CAEA2300A30CA0 /* Session+NOSessionKeysProtocol.h */,
+				6E62513C18CAEA2300A30CA0 /* Session+NOSessionKeysProtocol.m */,
+				6E62513D18CAEA2300A30CA0 /* User+NOUserKeysProtocol.h */,
+				6E62513E18CAEA2300A30CA0 /* User+NOUserKeysProtocol.m */,
 			);
 			name = "Keys Protocol";
 			sourceTree = "<group>";
@@ -573,15 +569,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6E11BE0918AFDFCB00FF75FB /* Client+NOClientKeysProtocol.m in Sources */,
-				6E11BE0F18AFDFCB00FF75FB /* User+NOUserKeysProtocol.m in Sources */,
 				6E46EF8218B17F200065D5D0 /* SNSUserWindowController.m in Sources */,
 				6E11BCF318AFD13900FF75FB /* main.m in Sources */,
 				6E11BE2218B030A000FF75FB /* SNSLogViewController.m in Sources */,
-				6E11BE0D18AFDFCB00FF75FB /* Session+NOSessionKeysProtocol.m in Sources */,
 				6E7F4B4718B071C300508181 /* SNSRepresentedObjectWindowController.m in Sources */,
+				6E62514118CAEA2300A30CA0 /* Session+NOSessionKeysProtocol.m in Sources */,
+				6E62513F18CAEA2300A30CA0 /* Client+NOClientKeysProtocol.m in Sources */,
 				6E11BE3318B0453100FF75FB /* Model.xcdatamodeld in Sources */,
-				6E11BE0B18AFDFCB00FF75FB /* Post+NOResourceKeysProtocol.m in Sources */,
 				6E11BDFE18AFDF8F00FF75FB /* Client+NOClientProtocol.m in Sources */,
 				6E11BDDA18AFDF1800FF75FB /* NSString+RandomString.m in Sources */,
 				6E11BDFC18AFDF8F00FF75FB /* Session+NOSessionProtocol.m in Sources */,
@@ -594,6 +588,8 @@
 				6E11BDF818AFDF8F00FF75FB /* Post+NOResourceProtocol.m in Sources */,
 				6E11BE1E18B02EB300FF75FB /* SNSBrowserViewController.m in Sources */,
 				6E11BDE618AFDF4A00FF75FB /* Post.m in Sources */,
+				6E62514018CAEA2300A30CA0 /* Post+NOResourceKeysProtocol.m in Sources */,
+				6E62514218CAEA2300A30CA0 /* User+NOUserKeysProtocol.m in Sources */,
 				6E11BDE818AFDF4A00FF75FB /* Client.m in Sources */,
 				6E11BDEC18AFDF4A00FF75FB /* Session.m in Sources */,
 			);
@@ -603,23 +599,19 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6E11BE0C18AFDFCB00FF75FB /* Post+NOResourceKeysProtocol.m in Sources */,
 				6E11BDFF18AFDF8F00FF75FB /* Client+NOClientProtocol.m in Sources */,
 				6E11BDEB18AFDF4A00FF75FB /* User.m in Sources */,
 				6E11BDF918AFDF8F00FF75FB /* Post+NOResourceProtocol.m in Sources */,
 				6E11BD1118AFD13A00FF75FB /* Social_Network_ServerTests.m in Sources */,
 				6E11BDED18AFDF4A00FF75FB /* Session.m in Sources */,
 				6E11BE2318B030A000FF75FB /* SNSLogViewController.m in Sources */,
-				6E11BE0E18AFDFCB00FF75FB /* Session+NOSessionKeysProtocol.m in Sources */,
 				6E11BE3418B0453100FF75FB /* Model.xcdatamodeld in Sources */,
 				6E11BDE718AFDF4A00FF75FB /* Post.m in Sources */,
 				6E11BDFB18AFDF8F00FF75FB /* User+NOResourceProtocol.m in Sources */,
 				6E11BDFD18AFDF8F00FF75FB /* Session+NOSessionProtocol.m in Sources */,
 				6E11BDE918AFDF4A00FF75FB /* Client.m in Sources */,
 				6E11BDDB18AFDF1800FF75FB /* NSString+RandomString.m in Sources */,
-				6E11BE1018AFDFCB00FF75FB /* User+NOUserKeysProtocol.m in Sources */,
 				6E11BE1F18B02EB300FF75FB /* SNSBrowserViewController.m in Sources */,
-				6E11BE0A18AFDFCB00FF75FB /* Client+NOClientKeysProtocol.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
