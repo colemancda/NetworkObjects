@@ -467,6 +467,8 @@
 
 -(void)contextDidChange:(NSNotification *)notification
 {
+    // doing what nsfetchedresultscontroller does for us
+    
     NSLog(@"%@: Context Changed", NSStringFromClass([self class]));
     
     [[SNCStore sharedStore].context performBlock:^{
@@ -475,7 +477,51 @@
         
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             
-            [self.tableView reloadData];
+            [self.tableView beginUpdates];
+            
+            NSSet *updatedObjects = notification.userInfo[NSUpdatedObjectsKey];
+            
+            for (NSManagedObject *managedObject in updatedObjects) {
+                
+                NSIndexPath *indexPath = [_fetchedResultsController indexPathForObject:managedObject];
+                
+                if (indexPath) {
+                    
+                    [self.tableView reloadRowsAtIndexPaths:@[indexPath]
+                                          withRowAnimation:UITableViewRowAnimationAutomatic];
+                }
+                
+            }
+            
+            NSSet *deletedObjects = notification.userInfo[NSDeletedObjectsKey];
+            
+            for (NSManagedObject *managedObject in deletedObjects) {
+                
+                NSIndexPath *indexPath = [_fetchedResultsController indexPathForObject:managedObject];
+                
+                if (indexPath) {
+                    
+                    [self.tableView deleteRowsAtIndexPaths:@[indexPath]
+                                          withRowAnimation:UITableViewRowAnimationAutomatic];
+                }
+                
+            }
+            
+            NSSet *insertedObjects = notification.userInfo[NSInsertedObjectsKey];
+            
+            for (NSManagedObject *managedObject in insertedObjects) {
+                
+                NSIndexPath *indexPath = [_fetchedResultsController indexPathForObject:managedObject];
+                
+                if (indexPath) {
+                    
+                    [self.tableView insertRowsAtIndexPaths:@[indexPath]
+                                          withRowAnimation:UITableViewRowAnimationAutomatic];
+                }
+                
+            }
+            
+            [self.tableView endUpdates];
             
         }];
         
