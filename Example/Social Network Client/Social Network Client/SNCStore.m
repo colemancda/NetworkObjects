@@ -231,4 +231,82 @@
     
 }
 
+#pragma mark - Fetch
+
+-(NSURLSessionDataTask *)getCachedResource:(NSString *)resourceName resourceID:(NSUInteger)resourceID URLSession:(NSURLSession *)urlSession completion:(void (^)(NSError *, NSManagedObject<NOResourceKeysProtocol> *))completionBlock
+{
+    return [super getCachedResource:resourceName resourceID:resourceID URLSession:urlSession completion:^void(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
+        
+        if (!error) {
+            
+            [self.context performBlock:^{
+                
+                [self.context processPendingChanges];
+                
+            }];
+        }
+        
+        completionBlock(error, resource);
+        
+    }];
+}
+
+-(NSURLSessionDataTask *)deleteCachedResource:(NSManagedObject<NOResourceKeysProtocol> *)resource URLSession:(NSURLSession *)urlSession completion:(void (^)(NSError *))completionBlock
+{
+    return [super deleteCachedResource:resource URLSession:urlSession completion:^void(NSError *error){
+       
+        if (!error) {
+            
+            [self.context performBlock:^{
+                
+                [self.context processPendingChanges];
+                
+            }];
+        }
+        
+        completionBlock(error);
+        
+    }];
+}
+
+-(NSURLSessionDataTask *)editCachedResource:(NSManagedObject<NOResourceKeysProtocol> *)resource
+                                    changes:(NSDictionary *)values
+                                 URLSession:(NSURLSession *)urlSession
+                                 completion:(void (^)(NSError *))completionBlock
+{
+    return [super editCachedResource:resource changes:values URLSession:urlSession completion:^void(NSError *error) {
+        
+        if (!error) {
+            
+            [self.context performBlock:^{
+                
+                [self.context processPendingChanges];
+                
+            }];
+        }
+        
+        completionBlock(error);
+        
+    }];
+}
+
+-(NSURLSessionDataTask *)createCachedResource:(NSString *)resourceName initialValues:(NSDictionary *)initialValues URLSession:(NSURLSession *)urlSession completion:(void (^)(NSError *, NSManagedObject<NOResourceKeysProtocol> *))completionBlock
+{
+    return [super createCachedResource:resourceName initialValues:initialValues URLSession:urlSession completion:^void(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
+        
+        if (!error) {
+            
+            [self.context performBlock:^{
+                
+                [self.context processPendingChanges];
+                
+            }];
+        }
+        
+        completionBlock(error, resource);
+        
+    }];
+    
+}
+
 @end
