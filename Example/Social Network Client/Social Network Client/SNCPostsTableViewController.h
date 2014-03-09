@@ -21,10 +21,6 @@
     NSMutableDictionary *_postsDownloadTasks;
     
     NSOperationQueue *_postsDownloadTasksOperationQueue;
-    
-    NSMutableDictionary *_previousPostsDataCache;
-    
-    NSOperationQueue *_previousPostsDataCacheOperationQueue;
 }
 
 @property User *user;

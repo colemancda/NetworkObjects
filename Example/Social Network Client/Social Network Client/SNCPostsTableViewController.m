@@ -80,11 +80,6 @@
         _postsDownloadTasksOperationQueue.maxConcurrentOperationCount = 1;
         _postsDownloadTasksOperationQueue.name = [NSString stringWithFormat: @"%@ _postsDownloadTasks Operation Queue", self];
         
-        _previousPostsDataCache = [[NSMutableDictionary alloc] init];
-        _previousPostsDataCacheOperationQueue = [[NSOperationQueue alloc] init];
-        _previousPostsDataCacheOperationQueue.maxConcurrentOperationCount = 1;
-        _previousPostsDataCacheOperationQueue.name = [NSString stringWithFormat:@"%@ _previousPostsDataCache Operation Queue", self];
-        
     }
     return self;
 }
@@ -241,10 +236,6 @@
     
     // get model object
     Post *post = [_fetchedResultsController objectAtIndexPath:indexPath];
-    
-    // cache values (in background thread)
-    
-    NSDictionary *dataCache = post.
     
     // blocks
     
@@ -509,10 +500,6 @@
                 break;
                 
             case NSFetchedResultsChangeUpdate:
-                
-                // check if it was the values really changed or if it was just redownloaded...
-                
-                
                 
                 [self.tableView reloadRowsAtIndexPaths:@[indexPath]
                                       withRowAnimation:UITableViewRowAnimationAutomatic];
