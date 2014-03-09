@@ -283,6 +283,8 @@ static void *KVOContext;
     
 }
 
+#pragma mark - KVO
+
 - (void)observeValueForKeyPath:(NSString *)keyPath
                       ofObject:(id)object
                         change:(NSDictionary *)change
