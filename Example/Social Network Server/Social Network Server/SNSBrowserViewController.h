@@ -15,9 +15,9 @@
     NSArray *_sortedComboBox;
     
     NSMutableDictionary *_loadedWC;
-    
-    NSMutableArray *_arrangedfetchedObjects;
 }
+
+@property IBOutlet NSArrayController *arrayController;
 
 #pragma mark - IB UI
 
@@ -45,6 +45,8 @@
 
 -(IBAction)delete:(id)sender;
 
+#pragma mark - Notifications
 
+-(void)contextDidChange:(NSNotification *)notification;
 
 @end

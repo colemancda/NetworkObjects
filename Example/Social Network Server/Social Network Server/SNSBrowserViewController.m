@@ -23,41 +23,6 @@ static void *KVOContext;
 
 @end
 
-@implementation SNSBrowserViewController (Load)
-
--(void)fetchAll:(NSEntityDescription *)entity
-{
-    assert(entity);
-    
-    NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:entity.name];
-    
-    Class entityClass = NSClassFromString(entity.managedObjectClassName);
-    
-    NSString *resourceIDKey = [entityClass resourceIDKey];
-    
-    NSSortDescriptor *sortByID = [NSSortDescriptor sortDescriptorWithKey:resourceIDKey
-                                                               ascending:YES];
-    
-    fetchRequest.sortDescriptors = @[sortByID];
-    
-    SNSAppDelegate *appDelegate = [NSApp delegate];
-    
-    NSManagedObjectContext *context = appDelegate.store.context;
-    
-    [context performBlockAndWait:^{
-       
-        NSArray *results = [context executeFetchRequest:fetchRequest
-                                                  error:nil];
-        
-        assert(results);
-        
-        _arrangedfetchedObjects = [[NSMutableArray alloc] initWithArray:results];
-        
-    }];
-}
-
-@end
-
 @implementation SNSBrowserViewController
 
 - (id)init
@@ -80,6 +45,24 @@ static void *KVOContext;
     
     [self.tableView setTarget:self];
     
+    // sorting
+    self.arrayController.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"resourceID"
+                                                                           ascending:YES]];
+    
+    // register for context changes
+    
+    SNSAppDelegate *appDelegate = [NSApp delegate];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(contextDidChange:)
+                                                 name:NSManagedObjectContextObjectsDidChangeNotification
+                                               object:appDelegate.store.context];
+    
+}
+
+-(void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 #pragma mark - First Responder
@@ -138,9 +121,7 @@ static void *KVOContext;
     
     [appDelegate.store newResourceWithEntityDescription:self.selectedEntity];
     
-    [self fetchAll:self.selectedEntity];
-    
-    [self.tableView reloadData];
+    [self.arrayController fetch:nil];
 }
 
 -(void)delete:(id)sender
@@ -149,31 +130,11 @@ static void *KVOContext;
     
     // get selected resource
     
-    NSManagedObject *selectedItem = _arrangedfetchedObjects[self.tableView.selectedRow];
+    NSManagedObject *selectedItem = self.arrayController.arrangedObjects[self.tableView.selectedRow];
     
     [appDelegate.store deleteResource:(id)selectedItem];
     
-    [self fetchAll:self.selectedEntity];
-    
-    [self.tableView reloadData];
-    
-    // try to get WC...
-    
-    NSNumber *selectedItemResourceID = [selectedItem valueForKey:[[selectedItem class] resourceIDKey]];
-    
-    NSString *wcKey = [NSString stringWithFormat:@"%@.%@", selectedItem.entity.name, selectedItemResourceID];
-    
-    SNSRepresentedObjectWindowController *wc = _loadedWC[wcKey];
-    
-    if (wc) {
-        
-        // remove from dictonary
-        
-        [_loadedWC removeObjectForKey:wcKey];
-        
-        [wc close];
-        
-    }
+    [self.arrayController fetch:nil];
     
 }
 
@@ -183,6 +144,7 @@ static void *KVOContext;
 {
     SNSAppDelegate *appDelegate = [NSApp delegate];
     
+    // populate with names of entities
     _sortedComboBox = [appDelegate.store.context.persistentStoreCoordinator.managedObjectModel.entitiesByName.allKeys sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)];
     
     return _sortedComboBox.count;
@@ -205,17 +167,15 @@ static void *KVOContext;
     
     self.selectedEntity = appDelegate.store.context.persistentStoreCoordinator.managedObjectModel.entitiesByName[selectedEntityName];
     
-    // fetch
+    self.arrayController.entityName = self.selectedEntity.name;
     
-    [self fetchAll:self.selectedEntity];
+    [self.arrayController fetch:nil];
     
     // update UI
     
     self.tableViewScrollView.hidden = NO;
     
     self.noSelectionLabel.hidden = YES;
-    
-    [self.tableView reloadData];
     
     // enable new button for client
     if ([self.selectedEntity.name isEqualToString:@"Client"]) {
@@ -234,14 +194,16 @@ static void *KVOContext;
 
 -(void)doubleClickedTableViewRow:(id)sender
 {
-    if (self.tableView.clickedRow == -1 || !_arrangedfetchedObjects.count) {
+    NSArray *arrangedObjects = self.arrayController.arrangedObjects;
+    
+    if (self.tableView.clickedRow == -1 || !arrangedObjects.count) {
         
         return;
     }
     
     // get selected item
     
-    NSManagedObject *selectedItem = _arrangedfetchedObjects[self.tableView.clickedRow];
+    NSManagedObject *selectedItem = arrangedObjects[self.tableView.clickedRow];
     
     // attempt to get already open WC for the selected object
     
@@ -270,78 +232,11 @@ static void *KVOContext;
         [_loadedWC setValue:wc
                      forKey:wcKey];
         
-        // KVO
-        [selectedItem addObserver:self
-                       forKeyPath:@"isDeleted"
-                          options:NSKeyValueObservingOptionNew
-                          context:KVOContext];
-        
     }
     
     // show window
     [wc.window makeKeyAndOrderFront:nil];
     
-}
-
-#pragma mark - KVO
-
-- (void)observeValueForKeyPath:(NSString *)keyPath
-                      ofObject:(id)object
-                        change:(NSDictionary *)change
-                       context:(void *)context
-{
-    if (context == KVOContext) {
-        
-        if ([keyPath isEqualToString:@"isDeleted"]) {
-            
-            NSManagedObject *selectedItem = (NSManagedObject *)object;
-            
-            // try to get WC...
-            
-            NSNumber *selectedItemResourceID = [selectedItem valueForKey:[[selectedItem class] resourceIDKey]];
-            
-            NSString *wcKey = [NSString stringWithFormat:@"%@.%@", selectedItem.entity.name, selectedItemResourceID];
-            
-            SNSRepresentedObjectWindowController *wc = _loadedWC[wcKey];
-            
-            if (wc) {
-                
-                // remove from dictonary
-                
-                [_loadedWC removeObjectForKey:wcKey];
-                
-                [wc close];
-                
-            }
-            
-            // stop observing
-            
-            [selectedItem removeObserver:self forKeyPath:@"isDeleted"];
-            
-        }
-        
-    } else {
-        [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
-    }
-}
-
-#pragma mark - Table View Data Source
-
--(NSInteger)numberOfRowsInTableView:(NSTableView *)tableView
-{
-    return _arrangedfetchedObjects.count;
-}
-
--(id)tableView:(NSTableView *)tableView objectValueForTableColumn:(NSTableColumn *)tableColumn
-           row:(NSInteger)row
-{
-    // get object for row
-    
-    NSManagedObject<NOResourceProtocol> *resource = _arrangedfetchedObjects[row];
-    
-    NSNumber *resourceID = [resource valueForKey:[[resource class] resourceIDKey]];
-    
-    return resourceID;
 }
 
 #pragma mark - Table View Delegate
@@ -359,6 +254,46 @@ static void *KVOContext;
         self.canDelete = YES;
     }
     
+}
+
+#pragma mark - Notifications
+
+-(void)contextDidChange:(NSNotification *)notification
+{
+    // deleted WC of deleted object
+    NSSet *deletedObjects = notification.userInfo[NSDeletedObjectsKey];
+    
+    for (NSManagedObject *managedObject in deletedObjects) {
+        
+        // try to get WC...
+        
+        NSNumber *selectedItemResourceID = [managedObject valueForKey:[[managedObject class] resourceIDKey]];
+        
+        NSString *wcKey = [NSString stringWithFormat:@"%@.%@", managedObject.entity.name, selectedItemResourceID];
+        
+        SNSRepresentedObjectWindowController *wc = _loadedWC[wcKey];
+        
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            
+            if (wc) {
+                
+                // remove from dictionary
+                
+                [_loadedWC removeObjectForKey:wcKey];
+                
+                [wc close];
+                
+            }
+            
+            // check if visible
+            if (managedObject.entity == self.selectedEntity) {
+                
+                [self.arrayController fetch:nil];
+            }
+            
+        }];
+        
+    }
 }
 
 

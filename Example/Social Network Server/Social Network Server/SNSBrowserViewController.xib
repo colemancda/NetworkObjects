@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="4514" systemVersion="13B42" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="4514" systemVersion="13C64" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="4514"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="SNSBrowserViewController">
             <connections>
+                <outlet property="arrayController" destination="2CK-Zu-wXT" id="z5R-VB-ygU"/>
                 <outlet property="comboBox" destination="iWl-dl-ocf" id="4Tt-gm-FgA"/>
                 <outlet property="noSelectionLabel" destination="weY-3I-jgc" id="pHy-7g-9Zw"/>
                 <outlet property="tableView" destination="vBo-JZ-Pqn" id="Kar-hf-Obn"/>
@@ -68,11 +69,18 @@
                                             <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
                                         <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
+                                        <connections>
+                                            <binding destination="2CK-Zu-wXT" name="value" keyPath="arrangedObjects.resourceID" id="YeR-Zy-HDs">
+                                                <dictionary key="options">
+                                                    <bool key="NSConditionallySetsEditable" value="NO"/>
+                                                </dictionary>
+                                            </binding>
+                                        </connections>
                                     </tableColumn>
                                 </tableColumns>
                                 <connections>
-                                    <outlet property="dataSource" destination="-2" id="1XQ-Yh-o5m"/>
-                                    <outlet property="delegate" destination="-2" id="FkQ-lW-M1P"/>
+                                    <binding destination="2CK-Zu-wXT" name="content" keyPath="arrangedObjects" id="L8g-sc-8cd"/>
+                                    <outlet property="delegate" destination="-2" id="oNc-3k-JWa"/>
                                     <outlet property="nextKeyView" destination="iWl-dl-ocf" id="sQi-sP-Jak"/>
                                 </connections>
                             </tableView>
@@ -142,5 +150,10 @@
                 <outlet property="nextKeyView" destination="iWl-dl-ocf" id="PvU-sm-iGJ"/>
             </connections>
         </view>
+        <arrayController mode="entity" entityName="Client" automaticallyPreparesContent="YES" id="2CK-Zu-wXT">
+            <connections>
+                <binding destination="-3" name="managedObjectContext" keyPath="delegate.store.context" id="8FP-z9-vgW"/>
+            </connections>
+        </arrayController>
     </objects>
 </document>
