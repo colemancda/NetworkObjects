@@ -75,7 +75,7 @@
 			remoteGlobalIDString = 6EED73F01818648F00F911BC;
 			remoteInfo = NetworkObjectsiOSTests;
 		};
-		6E1F7DE318B8444000CF1369 /* PBXContainerItemProxy */ = {
+		6E47651818CC14B60085C25A /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 6E11BD7118AFD47500FF75FB /* NetworkObjects.xcodeproj */;
 			proxyType = 1;
@@ -337,7 +337,7 @@
 			buildRules = (
 			);
 			dependencies = (
-				6E1F7DE418B8444000CF1369 /* PBXTargetDependency */,
+				6E47651918CC14B60085C25A /* PBXTargetDependency */,
 			);
 			name = "Social Network Client";
 			productName = "Social Network Client";
@@ -369,7 +369,7 @@
 			isa = PBXProject;
 			attributes = {
 				CLASSPREFIX = SNC;
-				LastUpgradeCheck = 0500;
+				LastUpgradeCheck = 0510;
 				ORGANIZATIONNAME = ColemanCDA;
 				TargetAttributes = {
 					6E11BD2618AFD1FE00FF75FB = {
@@ -509,10 +509,10 @@
 			target = 6E11BD2618AFD1FE00FF75FB /* Social Network Client */;
 			targetProxy = 6E11BD4718AFD1FE00FF75FB /* PBXContainerItemProxy */;
 		};
-		6E1F7DE418B8444000CF1369 /* PBXTargetDependency */ = {
+		6E47651918CC14B60085C25A /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = NetworkObjectsiOS;
-			targetProxy = 6E1F7DE318B8444000CF1369 /* PBXContainerItemProxy */;
+			targetProxy = 6E47651818CC14B60085C25A /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -540,7 +540,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
@@ -579,7 +578,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
@@ -645,7 +643,6 @@
 		6E11BD5718AFD1FE00FF75FB /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/Social Network Client.app/Social Network Client";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
@@ -668,7 +665,6 @@
 		6E11BD5818AFD1FE00FF75FB /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/Social Network Client.app/Social Network Client";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
