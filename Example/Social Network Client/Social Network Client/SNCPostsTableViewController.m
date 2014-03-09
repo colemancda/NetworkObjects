@@ -186,7 +186,10 @@
         
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             
-            for (Post *post in _fetchedResultsController.fetchedObjects) {
+            // make copy of fetchedObjects array becuase the values can change any time
+            NSArray *posts = [NSArray arrayWithArray:_fetchedResultsController.fetchedObjects];
+            
+            for (Post *post in posts) {
                 
                 // download posts that are not being downloaded (lazily fetched)
                 
@@ -501,8 +504,10 @@
                 
             case NSFetchedResultsChangeUpdate:
                 
+                // no animation becuase the number of views is being constantly updated
+                
                 [self.tableView reloadRowsAtIndexPaths:@[indexPath]
-                                      withRowAnimation:UITableViewRowAnimationAutomatic];
+                                      withRowAnimation:UITableViewRowAnimationNone];
                 break;
                 
             case NSFetchedResultsChangeMove:

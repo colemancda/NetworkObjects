@@ -334,10 +334,73 @@
             // found matching key (will only run once because dictionaries dont have duplicates)
             if ([key isEqualToString:attributeName]) {
                 
-                id value = [resourceDict valueForKey:key];
+                id jsonValue = [resourceDict valueForKey:key];
                 
-                [resource setJSONCompatibleValue:value
-                                    forAttribute:attributeName];
+                id newValue = [resource attributeValueForJSONCompatibleValue:jsonValue
+                                                                forAttribute:attributeName];
+                
+                id value = [resource valueForKey:key];
+                
+                NSAttributeDescription *attribute = entity.attributesByName[attributeName];
+                
+                // check if new values are different from current values...
+                
+                BOOL isNewValue = YES;
+                
+                // if both are nil
+                if (!value && !newValue) {
+                    
+                    isNewValue = NO;
+                }
+                
+                else {
+                    
+                    if (attribute.attributeType == NSStringAttributeType) {
+                        
+                        if ([value isEqualToString:newValue]) {
+                            
+                            isNewValue = NO;
+                        }
+                    }
+                    
+                    if (attribute.attributeType == NSDecimalAttributeType ||
+                        attribute.attributeType == NSInteger16AttributeType ||
+                        attribute.attributeType == NSInteger32AttributeType ||
+                        attribute.attributeType == NSInteger64AttributeType ||
+                        attribute.attributeType == NSDoubleAttributeType ||
+                        attribute.attributeType == NSBooleanAttributeType ||
+                        attribute.attributeType == NSFloatAttributeType) {
+                        
+                        if ([value isEqualToNumber:newValue]) {
+                            
+                            isNewValue = NO;
+                        }
+                    }
+                    
+                    if (attribute.attributeType == NSDateAttributeType) {
+                        
+                        if ([value isEqualToDate:newValue]) {
+                            
+                            isNewValue = NO;
+                        }
+                    }
+                    
+                    if (attribute.attributeType == NSBinaryDataAttributeType) {
+                        
+                        if ([value isEqualToData:newValue]) {
+                            
+                            isNewValue = NO;
+                        }
+                    }
+                }
+                
+                // only set newValue if its different from the current value
+                
+                if (isNewValue) {
+                    
+                    [resource setValue:newValue
+                                forKey:attributeName];
+                }
                 
                 break;
             }
@@ -364,8 +427,13 @@
                     
                     NSManagedObject<NOResourceKeysProtocol> *destinationResource = [self resource:destinationEntity.name withID:destinationResourceID.integerValue];
                     
-                    [resource setValue:destinationResource
-                                forKey:key];
+                    // dont set value if its the same as current value
+                    
+                    if (destinationResource != [resource valueForKey:relationshipName]) {
+                        
+                        [resource setValue:destinationResource
+                                    forKey:key];
+                    }
                 }
                 
                 // to-many relationship
@@ -373,6 +441,8 @@
                     
                     // get the resourceIDs
                     NSArray *destinationResourceIDs = [resourceDict valueForKey:relationshipName];
+                    
+                    NSSet *currentValues = [resource valueForKey:relationshipName];
                     
                     NSMutableSet *destinationResources = [[NSMutableSet alloc] init];
                     
@@ -383,9 +453,16 @@
                         [destinationResources addObject:destinationResource];
                     }
                     
-                    [resource setValue:destinationResources
-                                forKey:key];
+                    // set new relationships if they are different from current values
+                    if (![currentValues isEqualToSet:destinationResources]) {
+                        
+                        [resource setValue:destinationResources
+                                    forKey:key];
+                    }
+                    
                 }
+                
+                break;
                 
             }
         }
