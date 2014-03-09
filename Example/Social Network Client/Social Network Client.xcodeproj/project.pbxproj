@@ -23,6 +23,7 @@
 		6E1F7DEE18B8456800CF1369 /* SNCStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E1F7DED18B8456800CF1369 /* SNCStore.m */; };
 		6E1F7E5418B84E4200CF1369 /* SNCKeyboardViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E1F7E5318B84E4200CF1369 /* SNCKeyboardViewController.m */; };
 		6E1F7E5718B8529F00CF1369 /* SNCLoginViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E1F7E5618B8529F00CF1369 /* SNCLoginViewController.m */; };
+		6E47651C18CC28970085C25A /* NSManagedObject+DictionaryRepresentation.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E47651B18CC28960085C25A /* NSManagedObject+DictionaryRepresentation.m */; };
 		6E62514F18CAEA7D00A30CA0 /* libNetworkObjects.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E11BD7E18AFD47700FF75FB /* libNetworkObjects.a */; };
 		6E62515818CAEA9C00A30CA0 /* Client+NOClientKeysProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E62515118CAEA9C00A30CA0 /* Client+NOClientKeysProtocol.m */; };
 		6E62515918CAEA9C00A30CA0 /* Post+NOResourceKeysProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E62515318CAEA9C00A30CA0 /* Post+NOResourceKeysProtocol.m */; };
@@ -109,6 +110,8 @@
 		6E1F7E5318B84E4200CF1369 /* SNCKeyboardViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SNCKeyboardViewController.m; sourceTree = "<group>"; };
 		6E1F7E5518B8529F00CF1369 /* SNCLoginViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SNCLoginViewController.h; sourceTree = "<group>"; };
 		6E1F7E5618B8529F00CF1369 /* SNCLoginViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SNCLoginViewController.m; sourceTree = "<group>"; };
+		6E47651A18CC28960085C25A /* NSManagedObject+DictionaryRepresentation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSManagedObject+DictionaryRepresentation.h"; sourceTree = "<group>"; };
+		6E47651B18CC28960085C25A /* NSManagedObject+DictionaryRepresentation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSManagedObject+DictionaryRepresentation.m"; sourceTree = "<group>"; };
 		6E62515018CAEA9C00A30CA0 /* Client+NOClientKeysProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "Client+NOClientKeysProtocol.h"; path = "/Users/Coleman/Programming/My Apps/NetworkObjects/Example/Social Network Server/Social Network Server/../../Shared Model/Client+NOClientKeysProtocol.h"; sourceTree = "<absolute>"; };
 		6E62515118CAEA9C00A30CA0 /* Client+NOClientKeysProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "Client+NOClientKeysProtocol.m"; path = "/Users/Coleman/Programming/My Apps/NetworkObjects/Example/Social Network Server/Social Network Server/../../Shared Model/Client+NOClientKeysProtocol.m"; sourceTree = "<absolute>"; };
 		6E62515218CAEA9C00A30CA0 /* Post+NOResourceKeysProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "Post+NOResourceKeysProtocol.h"; path = "/Users/Coleman/Programming/My Apps/NetworkObjects/Example/Social Network Server/Social Network Server/../../Shared Model/Post+NOResourceKeysProtocol.h"; sourceTree = "<absolute>"; };
@@ -286,6 +289,8 @@
 		6E1F7E4518B84C4900CF1369 /* Categories */ = {
 			isa = PBXGroup;
 			children = (
+				6E47651A18CC28960085C25A /* NSManagedObject+DictionaryRepresentation.h */,
+				6E47651B18CC28960085C25A /* NSManagedObject+DictionaryRepresentation.m */,
 				6E671F0418B9652900BABA73 /* NSError+presentError.h */,
 				6E671F0518B9652900BABA73 /* NSError+presentError.m */,
 			);
@@ -485,6 +490,7 @@
 				6E62515B18CAEA9C00A30CA0 /* User+NOUserKeysProtocol.m in Sources */,
 				6E62515A18CAEA9C00A30CA0 /* Session+NOSessionKeysProtocol.m in Sources */,
 				6E999C7118CADC2100583901 /* Post.m in Sources */,
+				6E47651C18CC28970085C25A /* NSManagedObject+DictionaryRepresentation.m in Sources */,
 				6EAC100318BD93AA00B7603F /* SNCUserViewController.m in Sources */,
 				6E62515918CAEA9C00A30CA0 /* Post+NOResourceKeysProtocol.m in Sources */,
 				6E98312818C947F80063129E /* SNCPostViewController.m in Sources */,

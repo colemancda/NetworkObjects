@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 @import CoreData;
-@class User;
+@class User, Post;
 
 @interface SNCPostsTableViewController : UITableViewController <NSFetchedResultsControllerDelegate>
 {
@@ -17,6 +17,14 @@
     NSDateFormatter *_dateFormatter;
     
     NSError *_errorDownloadingPost;
+    
+    NSMutableDictionary *_postsDownloadTasks;
+    
+    NSOperationQueue *_postsDownloadTasksOperationQueue;
+    
+    NSMutableDictionary *_previousPostsDataCache;
+    
+    NSOperationQueue *_previousPostsDataCacheOperationQueue;
 }
 
 @property User *user;
@@ -30,6 +38,7 @@
 #pragma mark - Segue
 
 -(IBAction)savedPost:(UIStoryboardSegue *)segue;
+
 
 
 @end

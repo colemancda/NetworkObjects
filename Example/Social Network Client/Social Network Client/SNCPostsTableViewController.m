@@ -22,6 +22,48 @@
 
 @end
 
+@implementation SNCPostsTableViewController (DataTasks)
+
+-(void)setDataTask:(NSURLSessionDataTask *)task forPost:(Post *)post
+{
+    [_postsDownloadTasksOperationQueue addOperations:@[[NSBlockOperation blockOperationWithBlock:^{
+        
+        NSString *key = [NSString stringWithFormat:@"%@", post.resourceID];
+        
+        _postsDownloadTasks[key] = task;
+        
+        
+    }]] waitUntilFinished:NO];
+}
+
+-(NSURLSessionDataTask *)dataTaskForPost:(Post *)post
+{
+    __block NSURLSessionDataTask *dataTask;
+    
+    [_postsDownloadTasksOperationQueue addOperations:@[[NSBlockOperation blockOperationWithBlock:^{
+        
+        NSString *key = [NSString stringWithFormat:@"%@", post.resourceID];
+        
+        dataTask = _postsDownloadTasks[key];
+        
+    }]] waitUntilFinished:YES];
+    
+    return dataTask;
+}
+
+-(void)removeDataTaskForPost:(Post *)post
+{
+    [_postsDownloadTasksOperationQueue addOperations:@[[NSBlockOperation blockOperationWithBlock:^{
+        
+        NSString *key = [NSString stringWithFormat:@"%@", post.resourceID];
+        
+        [_postsDownloadTasks removeObjectForKey:key];
+        
+    }]] waitUntilFinished:NO];
+}
+
+@end
+
 @implementation SNCPostsTableViewController
 
 - (id)initWithCoder:(NSCoder *)aDecoder
@@ -30,6 +72,18 @@
     if (self) {
         
         self.urlSession = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
+        
+        // serial Queues for mutable collections access
+        
+        _postsDownloadTasks = [[NSMutableDictionary alloc] init];
+        _postsDownloadTasksOperationQueue = [[NSOperationQueue alloc] init];
+        _postsDownloadTasksOperationQueue.maxConcurrentOperationCount = 1;
+        _postsDownloadTasksOperationQueue.name = [NSString stringWithFormat: @"%@ _postsDownloadTasks Operation Queue", self];
+        
+        _previousPostsDataCache = [[NSMutableDictionary alloc] init];
+        _previousPostsDataCacheOperationQueue = [[NSOperationQueue alloc] init];
+        _previousPostsDataCacheOperationQueue.maxConcurrentOperationCount = 1;
+        _previousPostsDataCacheOperationQueue.name = [NSString stringWithFormat:@"%@ _previousPostsDataCache Operation Queue", self];
         
     }
     return self;
@@ -137,6 +191,24 @@
         
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             
+            for (Post *post in _fetchedResultsController.fetchedObjects) {
+                
+                // download posts that are not being downloaded (lazily fetched)
+                
+                NSURLSessionDataTask *dataTask = [self dataTaskForPost:post];
+                
+                if (!dataTask) {
+                    
+                    dataTask = [[SNCStore sharedStore] getCachedResource:@"Post" resourceID:post.resourceID.integerValue URLSession:self.urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
+                       
+                        // do nothing, NSFetchedResultsController will detect the changes
+                        
+                        // remove data task
+                        [self removeDataTaskForPost:post];
+                        
+                    }];
+                }
+            }
             
             [self.refreshControl endRefreshing];
             
@@ -144,6 +216,7 @@
         
     }];
 }
+
 
 #pragma mark - Table view data source
 
@@ -168,6 +241,10 @@
     
     // get model object
     Post *post = [_fetchedResultsController objectAtIndexPath:indexPath];
+    
+    // cache values (in background thread)
+    
+    NSDictionary *dataCache = post.
     
     // blocks
     
@@ -210,7 +287,9 @@
     // never downloaded / not in cache
     if (!dateCached) {
         
-        [[SNCStore sharedStore] getCachedResource:@"Post" resourceID:post.resourceID.integerValue URLSession:self.urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
+        NSURLSessionDataTask *dataTask = [[SNCStore sharedStore] getCachedResource:@"Post" resourceID:post.resourceID.integerValue URLSession:self.urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
+            
+            [self removeDataTaskForPost:post];
             
             if (_errorDownloadingPost) {
                 
@@ -233,12 +312,16 @@
             configureCell();
             
         }];
+        
+        [self setDataTask:dataTask forPost:post];
     }
     
     // cached object was fetched before we started loading this table view
     if ([dateCached compare:_dateLastFetched] == NSOrderedAscending) {
         
-        [[SNCStore sharedStore] getCachedResource:@"Post" resourceID:post.resourceID.integerValue URLSession:self.urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
+        NSURLSessionDataTask *dataTask = [[SNCStore sharedStore] getCachedResource:@"Post" resourceID:post.resourceID.integerValue URLSession:self.urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
+            
+            [self removeDataTaskForPost:post];
             
             if (_errorDownloadingPost) {
                 
@@ -260,6 +343,8 @@
             
             configureCell();
         }];
+        
+        [self setDataTask:dataTask forPost:post];
         
     }
     
@@ -424,6 +509,11 @@
                 break;
                 
             case NSFetchedResultsChangeUpdate:
+                
+                // check if it was the values really changed or if it was just redownloaded...
+                
+                
+                
                 [self.tableView reloadRowsAtIndexPaths:@[indexPath]
                                       withRowAnimation:UITableViewRowAnimationAutomatic];
                 break;
