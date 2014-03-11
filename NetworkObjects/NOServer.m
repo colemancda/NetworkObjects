@@ -30,6 +30,10 @@
 
 @end
 
+@interface NOServer ()
+
+@end
+
 @implementation NOServer
 
 @synthesize resourcePaths = _resourcePaths;
@@ -39,12 +43,11 @@
  sessionEntityName:(NSString *)sessionEntityName
   clientEntityName:(NSString *)clientEntityName
          loginPath:(NSString *)loginPath
+        searchPath:(NSString *)searchPath
 
 {
     self = [super init];
     if (self) {
-        
-        NSAssert(store, @"NOStore cannot be nil");
         
         _store = store;
         
@@ -56,6 +59,9 @@
         
         _loginPath = loginPath;
         
+        _searchPath = searchPath;
+        
+        // HTTP Server
         _httpServer = [[NOHTTPServer alloc] init];
         
         _httpServer.server = self;
@@ -74,7 +80,7 @@
                 format:@"You cannot use %@ with '-%@', you have to use '-%@'",
      self,
      NSStringFromSelector(_cmd),
-     NSStringFromSelector(@selector(initWithStore:userEntityName:sessionEntityName:clientEntityName:loginPath:))];
+     NSStringFromSelector(@selector(initWithStore:userEntityName:sessionEntityName:clientEntityName:loginPath:searchPath:))];
     return nil;
 }
 
@@ -104,7 +110,7 @@
 
 -(NSDictionary *)resourcePaths
 {
-    // build a cache of NOResources and URLs
+    // build a cache of NOResources and URLs (once)
     if (!_resourcePaths) {
         
         // scan through entity descriptions and get urls of NOResources
@@ -157,6 +163,24 @@
         
         Class entityClass = NSClassFromString(entityDescription.managedObjectClassName);
         
+        // add search route
+        
+        NSString *searchPathExpression = [NSString stringWithFormat:@"/%@/%@", _searchPath, path];
+        
+        void (^searchRequestHandler) (RouteRequest *, RouteResponse *) = ^(RouteRequest *request, RouteResponse *response) {
+            
+            [self handleRequest:request
+forResourceWithEntityDescription:entityDescription
+                     resourceID:nil
+                       function:nil
+                       isSearch:YES
+                       response:response];
+            
+        };
+        
+        [_httpServer get:searchPathExpression
+               withBlock:searchRequestHandler];
+        
         // setup routes for resources
         
         NSString *allInstancesPathExpression = [NSString stringWithFormat:@"/%@", path];
@@ -167,6 +191,7 @@
 forResourceWithEntityDescription:entityDescription
                      resourceID:nil
                        function:nil
+                       isSearch:NO
                        response:response];
         };
         
@@ -190,6 +215,7 @@ forResourceWithEntityDescription:entityDescription
 forResourceWithEntityDescription:entityDescription
                      resourceID:resourceID
                        function:nil
+                       isSearch:NO
                        response:response];
         };
         
@@ -223,6 +249,7 @@ forResourceWithEntityDescription:entityDescription
    forResourceWithEntityDescription:entityDescription
                          resourceID:resourceID
                            function:functionName
+                           isSearch:NO
                            response:response];
 
             };
@@ -241,6 +268,7 @@ forResourceWithEntityDescription:entityDescription
 forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
           resourceID:(NSNumber *)resourceID
             function:(NSString *)functionName
+            isSearch:(BOOL)isSearch
             response:(RouteResponse *)response
 {
     // get session from request
@@ -285,6 +313,8 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         jsonObject = nil;
     }
     
+    // handlers that do not specify an instance...
+    
     // create new instance
     if (!resourceID && [request.method isEqualToString:@"POST"]) {
         
@@ -296,7 +326,19 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         
     }
     
-    // methods that manipulate a instance
+    // search
+    if (!resourceID && [request.method isEqualToString:@"GET"]) {
+        
+        [self handleSearchForResourceWithEntityDescription:entityDescription
+                                                   session:session
+                                          searchParameters:jsonObject
+                                                  response:response];
+        
+        return;
+    }
+    
+    // methods that manipulate a instance...
+    
     if (resourceID) {
         
         // get the resource
@@ -324,8 +366,8 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         // requires a body
         if ([request.method isEqualToString:@"PUT"]) {
             
-            // bad request if body data is not JSON
-            if (!jsonObject || ![jsonObject isKindOfClass:[NSDictionary class]]) {
+            // bad request if no JSON body is attached to request
+            if (!jsonObject) {
                 
                 response.statusCode = BadRequestStatusCode;
                 
@@ -348,7 +390,6 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
             
             return;
         }
-        
         
         if ([request.method isEqualToString:@"DELETE"]) {
             

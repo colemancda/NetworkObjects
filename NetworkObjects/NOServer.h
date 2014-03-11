@@ -44,7 +44,8 @@
     userEntityName:(NSString *)userEntityName
  sessionEntityName:(NSString *)sessionEntityName
   clientEntityName:(NSString *)clientEntityName
-         loginPath:(NSString *)loginPath;
+         loginPath:(NSString *)loginPath
+        searchPath:(NSString *)searchPath;
 
 /**
  The NOStore that NOServer will broadcast.
@@ -82,10 +83,15 @@
 @property (readonly) NSString *clientEntityName;
 
 /**
- This will be the URL that clients will use to authenticate. This string must be different from the values that NOStore's Resources return in +(NSString *)resourcePath.
+ This will be the URL that clients will use to authenticate. This string must be different from the values that NOStore's Resources return in @c +(NSString *)resourcePath.
  */
 
 @property (readonly) NSString *loginPath;
+
+/** The URL that clients will use to perform a remote fetch request. This string must be different from the values that NOStore's Resources return in @c +(NSString *)resourcePath
+ */
+
+@property (readonly) NSString *searchPath;
 
 /**
  This dictionary is lazily initialized and maps NSEntityDescriptions to resourcePaths for REST URL generation.
@@ -148,6 +154,7 @@
 forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
           resourceID:(NSNumber *)resourceID
             function:(NSString *)functionName
+            isSearch:(BOOL)isSearch
             response:(RouteResponse *)response;
 
 /**
@@ -200,6 +207,13 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
  */
 -(void)handleLoginWithRequest:(RouteRequest *)request
                      response:(RouteResponse *)response;
+
+/** Request handler for search requests **/
+
+-(void)handleSearchForResourceWithEntityDescription:(NSEntityDescription *)entityDescription
+                                            session:(NSManagedObject<NOSessionProtocol> *)session
+                                   searchParameters:(NSDictionary *)searchParameters
+                                           response:(RouteResponse *)response;
 
 #pragma mark - Common methods for handlers
 
