@@ -809,11 +809,13 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         predicateArray = nil;
     }
     
+    // e.g. [{==, {resourceID, 23}}, AND, {==, {text, "some string"}]
+    
     if (predicateArray) {
         
         NSMutableArray *keysQueried = [[NSMutableArray alloc] init];
         
-        NSMutableArray *coreDataPredicateArray = [[NSMutableArray alloc] init];
+        NSMutableArray *convertedPredicateArray = [[NSMutableArray alloc] init];
         
         for (id object in predicateArray) {
             
@@ -841,17 +843,34 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                 
                 NSString *key = keyValueDictionary.allKeys.firstObject;
                 
+                if (![key isKindOfClass:[NSString class]]) {
+                    
+                    response.statusCode = BadRequestStatusCode;
+                    
+                    return;
+                }
+                
                 id jsonValue = keyValueDictionary.allValues.firstObject;
                 
                 // convert to Core Data value
-                id value = [
+                id value = [entityDescription attributeValueForJSONCompatibleValue:jsonValue
+                                                                      forAttribute:key];
+                
+                // add to back into converted array
+                NSDictionary *convertedKeyValueDictionary = @{key: value};
+                
+                NSDictionary *convertedComparisonDictionary = @{comparisonDictionary.allKeys.firstObject: convertedKeyValueDictionary};
+                
+                [convertedPredicateArray addObject:convertedComparisonDictionary];
+                
+                [keysQueried addObject:key];
                 
             }
             
             // aggregate operator or compound predicate
             if ([object isKindOfClass:[NSString class]]) {
                 
-                [coreDataPredicateArray addObject:object];
+                [convertedPredicateArray addObject:object];
             }
             
             // the JSON array contained an invalid class
@@ -862,6 +881,40 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                 
                 return;
             }
+        }
+        
+        // build predicate
+        
+        NSString *predicateFormat = @"";
+        
+        for (id object in convertedPredicateArray) {
+            
+            if ([object isKindOfClass:[NSString class]]) {
+                
+                predicateFormat = [predicateFormat stringByAppendingString:object];
+            }
+            
+            else {
+                
+                NSDictionary *comparisionDictionary = object;
+                
+                // e.g. ==
+                NSString *comparator = comparisionDictionary.allKeys.firstObject;
+                
+                NSDictionary *keyValueDictionary = comparisionDictionary.allValues.firstObject;
+                
+                NSString *key = keyValueDictionary.allKeys.firstObject;
+                
+                predicateFormat = [predicateFormat stringByAppendingFormat:@"%K %@ %@", key, comparator,keyValueDictionary.allValues.firstObject];
+                
+            }
+            
+            // add space
+            if (object != convertedPredicateArray.lastObject) {
+                
+                predicateFormat = [predicateFormat stringByAppendingString:@" "];
+            }
+            
         }
         
     }
