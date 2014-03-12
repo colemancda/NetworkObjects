@@ -146,14 +146,17 @@
 
 -(void)setupServerRoutes
 {
-    // add login server route
-    NSString *loginPath = [NSString stringWithFormat:@"/%@", self.loginPath];
-    
-    [_httpServer post:loginPath withBlock:^(RouteRequest *request, RouteResponse *response) {
+    if (self.loginPath) {
         
-        [self handleLoginWithRequest:request
-                            response:response];
-    }];
+        // add login server route
+        NSString *loginPath = [NSString stringWithFormat:@"/%@", self.loginPath];
+        
+        [_httpServer post:loginPath withBlock:^(RouteRequest *request, RouteResponse *response) {
+            
+            [self handleLoginWithRequest:request
+                                response:response];
+        }];
+    }
     
     // configure internal HTTP server routes for resources
     for (NSString *path in self.resourcePaths) {
@@ -166,21 +169,24 @@
         
         // add search route
         
-        NSString *searchPathExpression = [NSString stringWithFormat:@"/%@/%@", _searchPath, path];
-        
-        void (^searchRequestHandler) (RouteRequest *, RouteResponse *) = ^(RouteRequest *request, RouteResponse *response) {
+        if (self.searchPath) {
             
-            [self handleRequest:request
-forResourceWithEntityDescription:entityDescription
-                     resourceID:nil
-                       function:nil
-                       isSearch:YES
-                       response:response];
+            NSString *searchPathExpression = [NSString stringWithFormat:@"/%@/%@", _searchPath, path];
             
-        };
-        
-        [_httpServer get:searchPathExpression
-               withBlock:searchRequestHandler];
+            void (^searchRequestHandler) (RouteRequest *, RouteResponse *) = ^(RouteRequest *request, RouteResponse *response) {
+                
+                [self handleRequest:request
+   forResourceWithEntityDescription:entityDescription
+                         resourceID:nil
+                           function:nil
+                           isSearch:YES
+                           response:response];
+                
+            };
+            
+            [_httpServer get:searchPathExpression
+                   withBlock:searchRequestHandler];
+        }
         
         // setup routes for resources...
         
@@ -796,41 +802,71 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     // add search parameters...
     
     // predicate
-    NSString *predicate = searchParameters[@(NOSearchPredicateParameter)];
+    NSArray *predicateArray = searchParameters[@(NOSearchPredicateParameter)];
     
-    if (![predicate isKindOfClass:[NSString class]]) {
+    if (![predicateArray isKindOfClass:[NSArray class]]) {
         
-        predicate = nil;
+        predicateArray = nil;
     }
     
-    // predicate arguments
-    NSArray *predicateArguments = searchParameters[@(NOSearchPredicateArgumentsParameter)];
-    
-    if (![predicateArguments isKindOfClass:[NSArray class]]) {
+    if (predicateArray) {
         
-        // validate that the JSON values are NSStrings
+        NSMutableArray *keysQueried = [[NSMutableArray alloc] init];
         
-        BOOL invalidArgument;
+        NSMutableArray *coreDataPredicateArray = [[NSMutableArray alloc] init];
         
-        for (NSString *argument in predicateArguments) {
+        for (id object in predicateArray) {
             
-            if ([argument isKindOfClass:[NSString class]]) {
+            // comparator dictionary (==, <, >, etc)
+            if ([object isKindOfClass:[NSDictionary class]]) {
                 
-                invalidArgument = YES;
+                NSDictionary *comparisonDictionary = object;
                 
-                break;
+                if (comparisonDictionary.allKeys.count != 1) {
+                    
+                    response.statusCode = BadRequestStatusCode;
+                    
+                    return;
+                }
+                
+                // key value dictionary
+                NSDictionary *keyValueDictionary = comparisonDictionary[comparisonDictionary.allKeys.firstObject];
+                
+                if (keyValueDictionary.allKeys.count != 1) {
+                    
+                    response.statusCode = BadRequestStatusCode;
+                    
+                    return;
+                }
+                
+                NSString *key = keyValueDictionary.allKeys.firstObject;
+                
+                id jsonValue = keyValueDictionary.allValues.firstObject;
+                
+                // convert to Core Data value
+                id value = [
+                
+            }
+            
+            // aggregate operator or compound predicate
+            if ([object isKindOfClass:[NSString class]]) {
+                
+                [coreDataPredicateArray addObject:object];
+            }
+            
+            // the JSON array contained an invalid class
+            if (![object isKindOfClass:[NSString class]] &&
+                ![object isKindOfClass:[NSDictionary class]]) {
+                
+                response.statusCode = BadRequestStatusCode;
+                
+                return;
             }
         }
         
-        
     }
     
-    // enough data to add predicate to
-    if (predicate && predicateArguments) {
-        
-        
-        
-    }
+    
     
     // execute fetch request
     
@@ -861,6 +897,8 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     for (NSManagedObject<NOResourceProtocol> *resource in result) {
         
         if ([resource permissionForSession:session]) {
+            
+            // must have permission to key-values accessed
             
             
             
