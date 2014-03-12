@@ -16,6 +16,7 @@
 #import "RouteResponse+IPAddress.h"
 #import "NOHTTPConnection.h"
 #import "NOHTTPServer.h"
+#import "NetworkObjectsConstants.h"
 
 @implementation NOServer (NSJSONWritingOption)
 
@@ -181,7 +182,7 @@ forResourceWithEntityDescription:entityDescription
         [_httpServer get:searchPathExpression
                withBlock:searchRequestHandler];
         
-        // setup routes for resources
+        // setup routes for resources...
         
         NSString *allInstancesPathExpression = [NSString stringWithFormat:@"/%@", path];
         
@@ -773,6 +774,99 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                                                          error:nil];
     
     [response respondWithData:jsonData];
+}
+
+-(void)handleSearchForResourceWithEntityDescription:(NSEntityDescription *)entityDescription
+                                            session:(NSManagedObject<NOSessionProtocol> *)session
+                                   searchParameters:(NSDictionary *)searchParameters
+                                           response:(RouteResponse *)response
+{
+    // Put togeather fetch request
+    NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:entityDescription.name];
+    
+    // get resourceID key
+    
+    NSString *resourceIDKey = [NSClassFromString(entityDescription.managedObjectClassName) resourceIDKey];
+    
+    NSSortDescriptor *defaultSortDescriptor = [NSSortDescriptor sortDescriptorWithKey:resourceIDKey
+                                                                            ascending:YES];
+    
+    fetchRequest.sortDescriptors = @[defaultSortDescriptor];
+    
+    // add search parameters...
+    
+    // predicate
+    NSString *predicate = searchParameters[@(NOSearchPredicateParameter)];
+    
+    if (![predicate isKindOfClass:[NSString class]]) {
+        
+        predicate = nil;
+    }
+    
+    // predicate arguments
+    NSArray *predicateArguments = searchParameters[@(NOSearchPredicateArgumentsParameter)];
+    
+    if (![predicateArguments isKindOfClass:[NSArray class]]) {
+        
+        // validate that the JSON values are NSStrings
+        
+        BOOL invalidArgument;
+        
+        for (NSString *argument in predicateArguments) {
+            
+            if ([argument isKindOfClass:[NSString class]]) {
+                
+                invalidArgument = YES;
+                
+                break;
+            }
+        }
+        
+        
+    }
+    
+    // enough data to add predicate to
+    if (predicate && predicateArguments) {
+        
+        
+        
+    }
+    
+    // execute fetch request
+    
+    __block NSError *fetchError;
+    
+    __block NSArray *result;
+    
+    [self.store.context performBlockAndWait:^{
+        
+        result = [self.store.context executeFetchRequest:fetchRequest
+                                                   error:&fetchError];
+        
+    }];
+    
+    // invalid fetch
+    
+    if (fetchError) {
+        
+        response.statusCode = BadRequestStatusCode;
+        
+        return;
+    }
+    
+    // filter results (session must have read permissions)
+    
+    NSMutableArray *filteredResults = [[NSMutableArray alloc] init];
+    
+    for (NSManagedObject<NOResourceProtocol> *resource in result) {
+        
+        if ([resource permissionForSession:session]) {
+            
+            
+            
+        }
+    }
+    
 }
 
 #pragma mark - Common methods for handlers
