@@ -117,7 +117,7 @@
 
 @property NSArray *sslIdentityAndCertificates;
 
-/** Set of strings that are valid comparators for the server's search capabilities */
+/** Set of NSNumbers containing the value of a NSPredicateOperatorType that are valid comparators for the server's search capabilities. This can be used to disable conputationally intensive tasks, like string comparators. */
 
 @property NSSet *allowedComparatorsForSearch;
 

@@ -23,10 +23,5 @@ typedef NS_ENUM(NSUInteger, NOSearchParameter) {
     
 };
 
-// Compound
-#define kNOSearchAndPredicate @"&&"
-#define kNOSearchOrPredicate @"||"
-#define kNOSearchNotPredicate @"!"
-
 
 #endif

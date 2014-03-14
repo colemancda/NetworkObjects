@@ -74,7 +74,8 @@
         // search enabled
         if (self.searchPath) {
             
-            self.allowedComparatorsForSearch = [NSSet setWithArray:@[kNOSearchIsEqualComparator, kNOSearchGreaterThanOrEqualComparator, kNOSearchGreaterThanComparator, kNOSearchLessThanOrEqualComparator, kNOSearchLessThanComparator, kNOSearchNotEqualComparator]];
+            // default value
+            self.allowedComparatorsForSearch = [NSSet setWithArray:@[@(NSEqualToPredicateOperatorType)]];
         }
         
     }
@@ -918,13 +919,13 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
             }
             
             // aggregate operator or compound predicate
-            if ([object isKindOfClass:[NSString class]]) {
+            if ([object isKindOfClass:[NSNumber class]]) {
                 
                 [convertedPredicateArray addObject:object];
             }
             
             // the JSON array contained an invalid class
-            if (![object isKindOfClass:[NSString class]] &&
+            if (![object isKindOfClass:[NSNumber class]] &&
                 ![object isKindOfClass:[NSDictionary class]]) {
                 
                 response.statusCode = BadRequestStatusCode;
@@ -937,13 +938,19 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         
         NSString *predicateFormat = @"";
         
+        // single predicate
+        
+        NSCompoundPredicate *predicate =
+        
         for (id object in convertedPredicateArray) {
             
+            // compound operator
             if ([object isKindOfClass:[NSString class]]) {
                 
                 predicateFormat = [predicateFormat stringByAppendingString:object];
             }
             
+            // comparison predicate
             else {
                 
                 NSDictionary *comparisionDictionary = object;
