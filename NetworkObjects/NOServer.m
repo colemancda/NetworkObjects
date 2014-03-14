@@ -71,6 +71,12 @@
         
         [self setupServerRoutes];
         
+        // search enabled
+        if (self.searchPath) {
+            
+            self.allowedComparatorsForSearch = [NSSet setWithArray:@[kNOSearchIsEqualComparator, kNOSearchGreaterThanOrEqualComparator, kNOSearchGreaterThanComparator, kNOSearchLessThanOrEqualComparator, kNOSearchLessThanComparator, kNOSearchNotEqualComparator]];
+        }
+        
     }
     return self;
 }
@@ -809,7 +815,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         predicateArray = nil;
     }
     
-    // e.g. [{==, {resourceID, 23}}, AND, {==, {text, "some string"}]
+    // e.g. [{==, {resourceID, 23}}, AND, {Matches, {text, "some string"}]
     
     if (predicateArray) {
         
@@ -852,9 +858,53 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                 
                 id jsonValue = keyValueDictionary.allValues.firstObject;
                 
-                // convert to Core Data value
-                id value = [entityDescription attributeValueForJSONCompatibleValue:jsonValue
+                // convert to Core Data value...
+                
+                id value;
+                
+                // attribute value
+                
+                if ([entityDescription.attributesByName.allKeys containsObject:key]) {
+                    
+                    if (![jsonValue isKindOfClass:[NSString class]] ||
+                        ![jsonValue isKindOfClass:[NSNumber class]]) {
+                        
+                        response.statusCode = BadRequestStatusCode;
+                        
+                        return;
+                    }
+                    
+                   value = [entityDescription attributeValueForJSONCompatibleValue:jsonValue
                                                                       forAttribute:key];
+                }
+                
+                // relationship value
+                
+                if ([entityDescription.relationshipsByName.allKeys containsObject:key]) {
+                    
+                    if (![jsonValue isKindOfClass:[NSArray class]]) {
+                        
+                        response.statusCode = BadRequestStatusCode;
+                        
+                        return;
+                    }
+                    
+                    value = [[NSMutableArray alloc] init];
+                    
+                    for (NSNumber *resourceID in jsonValue) {
+                        
+                        NSManagedObject<NOResourceProtocol> *resource = [self.store resourceWithEntityDescription:entityDescription resourceID:resourceID.integerValue];
+                        
+                        if (!resource) {
+                            
+                            response.statusCode = BadRequestStatusCode;
+                            
+                            return;
+                        }
+                        
+                        [value addObject:resource];
+                    }
+                }
                 
                 // add to back into converted array
                 NSDictionary *convertedKeyValueDictionary = @{key: value};

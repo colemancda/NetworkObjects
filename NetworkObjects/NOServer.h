@@ -117,6 +117,10 @@
 
 @property NSArray *sslIdentityAndCertificates;
 
+/** Set of strings that are valid comparators for the server's search capabilities */
+
+@property NSSet *allowedComparatorsForSearch;
+
 /**
  Start the HTTP REST server on the specified port.
  
