@@ -809,14 +809,100 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     // add search parameters...
     
     // predicate
-    NSArray *predicateArray = searchParameters[@(NOSearchPredicateParameter)];
+    NSDictionary *predicateDictionary = searchParameters[@(NOSearchPredicateParameter)];
     
-    if (![predicateArray isKindOfClass:[NSArray class]]) {
+    NSString *keyQueried;
+    
+    // e.g. {==, {resourceID, 23}} or {==, {creator, 12}}
+
+    if (predicateDictionary) {
         
-        predicateArray = nil;
+        if (![predicateDictionary isKindOfClass:[NSDictionary class]] ||
+            predicateDictionary.allKeys.count != 1) {
+            
+            response.statusCode = BadRequestStatusCode;
+            
+            return;
+        }
+        
+        NSNumber *comparator = predicateDictionary.allKeys.firstObject;
+        
+        NSPredicateOperatorType operator = comparator.integerValue;
+        
+        NSDictionary *keyValueDictionary = predicateDictionary.allValues.firstObject;
+        
+        if (![keyValueDictionary isKindOfClass:[NSDictionary class]] ||
+            keyValueDictionary.allKeys.count != 1) {
+            
+            response.statusCode = BadRequestStatusCode;
+            
+            return;
+        }
+        
+        keyQueried = keyValueDictionary.allKeys.firstObject;
+        
+        id jsonValue = keyValueDictionary.allValues.firstObject;
+        
+        // convert to Core Data value...
+        
+        id value;
+        
+        // attribute value
+        
+        if ([entityDescription.attributesByName.allKeys containsObject:keyQueried]) {
+            
+            if (![jsonValue isKindOfClass:[NSString class]] ||
+                ![jsonValue isKindOfClass:[NSNumber class]]) {
+                
+                response.statusCode = BadRequestStatusCode;
+                
+                return;
+            }
+            
+            value = [entityDescription attributeValueForJSONCompatibleValue:jsonValue
+                                                               forAttribute:keyQueried];
+        }
+        
+        // relationship value
+        
+        if ([entityDescription.relationshipsByName.allKeys containsObject:keyQueried]) {
+            
+            NSRelationshipDescription *relationship = 
+            
+            // to-one
+            
+            if (entityDescription.relationshipsByName) {
+                <#statements#>
+            }
+            
+            if (![jsonValue isKindOfClass:[NSArray class]]) {
+                
+                response.statusCode = BadRequestStatusCode;
+                
+                return;
+            }
+            
+            value = [[NSMutableArray alloc] init];
+            
+            for (NSNumber *resourceID in jsonValue) {
+                
+                NSManagedObject<NOResourceProtocol> *resource = [self.store resourceWithEntityDescription:entityDescription resourceID:resourceID.integerValue];
+                
+                if (!resource) {
+                    
+                    response.statusCode = BadRequestStatusCode;
+                    
+                    return;
+                }
+                
+                [value addObject:resource];
+            }
+        }
+        
     }
     
-    // e.g. [{==, {resourceID, 23}}, AND, {Matches, {text, "some string"}]
+   
+    
     
     if (predicateArray) {
         
@@ -859,53 +945,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                 
                 id jsonValue = keyValueDictionary.allValues.firstObject;
                 
-                // convert to Core Data value...
                 
-                id value;
-                
-                // attribute value
-                
-                if ([entityDescription.attributesByName.allKeys containsObject:key]) {
-                    
-                    if (![jsonValue isKindOfClass:[NSString class]] ||
-                        ![jsonValue isKindOfClass:[NSNumber class]]) {
-                        
-                        response.statusCode = BadRequestStatusCode;
-                        
-                        return;
-                    }
-                    
-                   value = [entityDescription attributeValueForJSONCompatibleValue:jsonValue
-                                                                      forAttribute:key];
-                }
-                
-                // relationship value
-                
-                if ([entityDescription.relationshipsByName.allKeys containsObject:key]) {
-                    
-                    if (![jsonValue isKindOfClass:[NSArray class]]) {
-                        
-                        response.statusCode = BadRequestStatusCode;
-                        
-                        return;
-                    }
-                    
-                    value = [[NSMutableArray alloc] init];
-                    
-                    for (NSNumber *resourceID in jsonValue) {
-                        
-                        NSManagedObject<NOResourceProtocol> *resource = [self.store resourceWithEntityDescription:entityDescription resourceID:resourceID.integerValue];
-                        
-                        if (!resource) {
-                            
-                            response.statusCode = BadRequestStatusCode;
-                            
-                            return;
-                        }
-                        
-                        [value addObject:resource];
-                    }
-                }
                 
                 // add to back into converted array
                 NSDictionary *convertedKeyValueDictionary = @{key: value};
@@ -936,16 +976,16 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         
         // build predicate
         
-        NSString *predicateFormat = @"";
+        NSCompoundPredicate *predicate;
         
-        // single predicate
-        
-        NSCompoundPredicate *predicate =
+        NSComparisonPredicate *comparisonPredicate;
         
         for (id object in convertedPredicateArray) {
             
             // compound operator
             if ([object isKindOfClass:[NSString class]]) {
+                
+                
                 
                 predicateFormat = [predicateFormat stringByAppendingString:object];
             }
