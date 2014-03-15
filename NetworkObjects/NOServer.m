@@ -813,7 +813,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     NSString *keyQueried;
     
-    // e.g. {==, {resourceID, 23}} or {==, {creator, 12}}
+    // e.g. {==, {resourceID, 23}} or {==, {creator, 12}} or {== , {likes, [1,23,105,55]}}
 
     if (predicateDictionary) {
         
@@ -847,9 +847,13 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         
         id value;
         
-        // attribute value
+        // one of these will be nil
+        NSRelationshipDescription *relationshipDescription = entityDescription.relationshipsByName[keyQueried];
+        NSAttributeDescription *attributeDescription = entityDescription.attributesByName[keyQueried];
         
-        if ([entityDescription.attributesByName.allKeys containsObject:keyQueried]) {
+        // attribute value
+
+        if (attributeDescription) {
             
             if (![jsonValue isKindOfClass:[NSString class]] ||
                 ![jsonValue isKindOfClass:[NSNumber class]]) {
@@ -865,156 +869,116 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         
         // relationship value
         
-        if ([entityDescription.relationshipsByName.allKeys containsObject:keyQueried]) {
-            
-            NSRelationshipDescription *relationship = 
+        if (relationshipDescription) {
             
             // to-one
             
-            if (entityDescription.relationshipsByName) {
-                <#statements#>
-            }
-            
-            if (![jsonValue isKindOfClass:[NSArray class]]) {
+            if (!relationshipDescription.isToMany) {
                 
-                response.statusCode = BadRequestStatusCode;
-                
-                return;
-            }
-            
-            value = [[NSMutableArray alloc] init];
-            
-            for (NSNumber *resourceID in jsonValue) {
-                
-                NSManagedObject<NOResourceProtocol> *resource = [self.store resourceWithEntityDescription:entityDescription resourceID:resourceID.integerValue];
-                
-                if (!resource) {
+                // verify
+                if (![jsonValue isKindOfClass:[NSNumber class]]) {
                     
                     response.statusCode = BadRequestStatusCode;
                     
                     return;
                 }
                 
-                [value addObject:resource];
-            }
-        }
-        
-    }
-    
-   
-    
-    
-    if (predicateArray) {
-        
-        NSMutableArray *keysQueried = [[NSMutableArray alloc] init];
-        
-        NSMutableArray *convertedPredicateArray = [[NSMutableArray alloc] init];
-        
-        for (id object in predicateArray) {
-            
-            // comparator dictionary (==, <, >, etc)
-            if ([object isKindOfClass:[NSDictionary class]]) {
+                NSNumber *resourceID = jsonValue;
                 
-                NSDictionary *comparisonDictionary = object;
-                
-                if (comparisonDictionary.allKeys.count != 1) {
-                    
-                    response.statusCode = BadRequestStatusCode;
-                    
-                    return;
-                }
-                
-                // key value dictionary
-                NSDictionary *keyValueDictionary = comparisonDictionary[comparisonDictionary.allKeys.firstObject];
-                
-                if (keyValueDictionary.allKeys.count != 1) {
-                    
-                    response.statusCode = BadRequestStatusCode;
-                    
-                    return;
-                }
-                
-                NSString *key = keyValueDictionary.allKeys.firstObject;
-                
-                if (![key isKindOfClass:[NSString class]]) {
-                    
-                    response.statusCode = BadRequestStatusCode;
-                    
-                    return;
-                }
-                
-                id jsonValue = keyValueDictionary.allValues.firstObject;
-                
-                
-                
-                // add to back into converted array
-                NSDictionary *convertedKeyValueDictionary = @{key: value};
-                
-                NSDictionary *convertedComparisonDictionary = @{comparisonDictionary.allKeys.firstObject: convertedKeyValueDictionary};
-                
-                [convertedPredicateArray addObject:convertedComparisonDictionary];
-                
-                [keysQueried addObject:key];
+                value = [self.store resourceWithEntityDescription:entityDescription resourceID:resourceID.integerValue];
                 
             }
             
-            // aggregate operator or compound predicate
-            if ([object isKindOfClass:[NSNumber class]]) {
-                
-                [convertedPredicateArray addObject:object];
-            }
+            // to-many
             
-            // the JSON array contained an invalid class
-            if (![object isKindOfClass:[NSNumber class]] &&
-                ![object isKindOfClass:[NSDictionary class]]) {
-                
-                response.statusCode = BadRequestStatusCode;
-                
-                return;
-            }
-        }
-        
-        // build predicate
-        
-        NSCompoundPredicate *predicate;
-        
-        NSComparisonPredicate *comparisonPredicate;
-        
-        for (id object in convertedPredicateArray) {
-            
-            // compound operator
-            if ([object isKindOfClass:[NSString class]]) {
-                
-                
-                
-                predicateFormat = [predicateFormat stringByAppendingString:object];
-            }
-            
-            // comparison predicate
             else {
                 
-                NSDictionary *comparisionDictionary = object;
+                // verify
+                if (![jsonValue isKindOfClass:[NSArray class]]) {
+                    
+                    response.statusCode = BadRequestStatusCode;
+                    
+                    return;
+                }
                 
-                // e.g. ==
-                NSString *comparator = comparisionDictionary.allKeys.firstObject;
+                value = [[NSMutableArray alloc] init];
                 
-                NSDictionary *keyValueDictionary = comparisionDictionary.allValues.firstObject;
-                
-                NSString *key = keyValueDictionary.allKeys.firstObject;
-                
-                predicateFormat = [predicateFormat stringByAppendingFormat:@"%K %@ %@", key, comparator,keyValueDictionary.allValues.firstObject];
-                
+                for (NSNumber *resourceID in jsonValue) {
+                    
+                    if (![resourceID isKindOfClass:[NSNumber class]]) {
+                        
+                        response.statusCode = BadRequestStatusCode;
+                        
+                        return;
+                    }
+                    
+                    NSManagedObject<NOResourceProtocol> *resource = [self.store resourceWithEntityDescription:entityDescription resourceID:resourceID.integerValue];
+                    
+                    if (!resource) {
+                        
+                        response.statusCode = BadRequestStatusCode;
+                        
+                        return;
+                    }
+                    
+                    [value addObject:resource];
+                }
             }
-            
-            // add space
-            if (object != convertedPredicateArray.lastObject) {
-                
-                predicateFormat = [predicateFormat stringByAppendingString:@" "];
-            }
-            
         }
         
+        // create predicate
+        
+        NSExpression *leftExp = [NSExpression expressionForKeyPath:keyQueried];
+        
+        NSExpression *rightExp = [NSExpression expressionForConstantValue:value];
+        
+        NSNumber *optionNumber = searchParameters[@(NOSearchPredicateOptionParameter)];
+        
+        NSComparisonPredicateOptions options;
+        
+        if (optionNumber) {
+            
+            options = optionNumber.integerValue;
+            
+        }
+        else {
+            
+            options = NSNormalizedPredicateOption;
+        }
+        
+        NSNumber *modifierNumber = searchParameters[@(NOSearchPredicateModifierParameter)];
+        
+        NSComparisonPredicateModifier modifier;
+        
+        if (modifierNumber) {
+            
+            modifier = modifierNumber.integerValue;
+        }
+        
+        else {
+            
+            modifier = NSDirectPredicateModifier;
+        }
+        
+        NSComparisonPredicate *predicate = [[NSComparisonPredicate alloc] initWithLeftExpression:leftExp
+                                                                                 rightExpression:rightExp
+                                                                                        modifier:modifier
+                                                                                            type:operator
+                                                                                         options:options];
+        
+        if (!predicate) {
+            
+            response.statusCode = BadRequestStatusCode;
+            
+            return;
+        }
+        
+        fetchRequest.predicate = predicate;
+        
     }
+    
+    // fetch limit
+    
     
     
     

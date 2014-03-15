@@ -16,6 +16,8 @@
 typedef NS_ENUM(NSUInteger, NOSearchParameter) {
     
     NOSearchPredicateParameter,
+    NOSearchPredicateOptionParameter,
+    NOSearchPredicateModifierParameter,
     NOSearchFetchLimitParameter,
     NOSearchFetchOffsetParameter,
     NOSearchIncludesSubentitiesParameter,
