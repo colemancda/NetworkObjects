@@ -794,6 +794,15 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                                    searchParameters:(NSDictionary *)searchParameters
                                            response:(RouteResponse *)response
 {
+    // check permission
+    
+    if (![NSClassFromString(entityDescription.managedObjectClassName) canSearchFromSession:session]) {
+        
+        response.statusCode = ForbiddenStatusCode;
+        
+        return;
+    }
+    
     // Put togeather fetch request
     NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:entityDescription.name];
     
