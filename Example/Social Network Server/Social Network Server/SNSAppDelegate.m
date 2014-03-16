@@ -286,7 +286,8 @@
                                userEntityName:@"User"
                             sessionEntityName:@"Session"
                              clientEntityName:@"Client"
-                                    loginPath:@"login"];
+                                    loginPath:@"login"
+                                   searchPath:@"search"];
     
     // Set a default Server header in the form of YourApp/1.0
 	NSDictionary *bundleInfo = [[NSBundle mainBundle] infoDictionary];

@@ -1040,6 +1040,8 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
             
         }
         
+        fetchRequest.sortDescriptors = sortDescriptors;
+        
     }
     
     // fetch limit
@@ -1090,7 +1092,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     }
     
     
-    // execute fetch request
+    // execute fetch request...
     
     __block NSError *fetchError;
     
@@ -1114,19 +1116,90 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     // filter results (session must have read permissions)
     
-    NSMutableArray *filteredResults = [[NSMutableArray alloc] init];
+    NSMutableArray *filteredResultsResourceIDs = [[NSMutableArray alloc] init];
     
     for (NSManagedObject<NOResourceProtocol> *resource in result) {
         
-        if ([resource permissionForSession:session]) {
+        NSNumber *resourceID = [resource valueForKey:[NSClassFromString(resource.entity.managedObjectClassName) resourceIDKey]];
+        
+        // permission to view resource
+        
+        if ([resource permissionForSession:session] >= ReadOnlyPermission) {
             
-            // must have permission to key-values accessed
+            // must have permission for keys accessed
+            
+            if (keyQueried) {
+                
+                NSRelationshipDescription *relationship = resource.entity.relationshipsByName[keyQueried];
+                
+                NSAttributeDescription *attribute = resource.entity.attributesByName[keyQueried];
+                
+                if (attribute) {
+                    
+                    if ([resource permissionForAttribute:keyQueried session:session] < ReadOnlyPermission) {
+                        
+                        break;
+                    }
+                }
+                
+                if (relationship) {
+                    
+                    if ([resource permissionForRelationship:keyQueried session:session] < ReadOnlyPermission) {
+                        
+                        break;
+                    }
+                }
+                
+            }
             
             
+            if (sortDescriptors) {
+                
+                for (NSSortDescriptor *sort in sortDescriptors) {
+                    
+                    NSRelationshipDescription *relationship = resource.entity.relationshipsByName[keyQueried];
+                    
+                    NSAttributeDescription *attribute = resource.entity.attributesByName[keyQueried];
+                    
+                    if (attribute) {
+                        
+                        if ([resource permissionForAttribute:sort.key session:session] >= ReadOnlyPermission) {
+                            
+                            [filteredResultsResourceIDs addObject:resourceID];
+                        }
+                    }
+                    
+                    if (relationship) {
+                        
+                        if (![resource permissionForRelationship:sort.key session:session] >= ReadOnlyPermission) {
+                            
+                            [filteredResultsResourceIDs addObject:resourceID];
+                        }
+                    }
+                }
+            }
             
+            else {
+                
+                [filteredResultsResourceIDs addObject:resourceID];
+            }
         }
     }
     
+    // return the resource IDs of filtered objects
+    
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:filteredResultsResourceIDs
+                                                       options:self.jsonWritingOption
+                                                         error:nil];
+    
+    if (!jsonData) {
+        
+        response.statusCode = InternalServerErrorStatusCode;
+        
+        return;
+    }
+    
+    [response respondWithData:jsonData];
 }
 
 #pragma mark - Common methods for handlers

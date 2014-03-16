@@ -79,6 +79,8 @@
 
 #pragma mark - Access
 
++(BOOL)canSearchFromSession:(NSManagedObject<NOSessionProtocol> *)session;
+
 /**
  Determines whether a session can create new instances of this resource.
  
