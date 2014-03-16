@@ -977,9 +977,117 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         
     }
     
+    // sort descriptors
+    
+    NSArray *sortDescriptorsJSONArray = searchParameters[@(NOSearchSortDescriptorsParameter)];
+    
+    NSMutableArray *sortDescriptors;
+    
+    if (sortDescriptorsJSONArray) {
+        
+        if (![sortDescriptorsJSONArray isKindOfClass:[NSArray class]]) {
+            
+            response.statusCode = BadRequestStatusCode;
+            
+            return;
+        }
+        
+        if (!sortDescriptorsJSONArray.count) {
+            
+            response.statusCode = BadRequestStatusCode;
+            
+            return;
+        }
+        
+        sortDescriptors = [[NSMutableArray alloc] init];
+        
+        for (NSDictionary *sortDescriptorJSON in sortDescriptorsJSONArray) {
+            
+            // validate JSON
+            
+            if (![sortDescriptorJSON isKindOfClass:[NSDictionary class]]) {
+                
+                response.statusCode = BadRequestStatusCode;
+                
+                return;
+            }
+            
+            if (sortDescriptorJSON.allKeys.count != 1) {
+                
+                response.statusCode = BadRequestStatusCode;
+                
+                return;
+            }
+            
+            NSString *key = sortDescriptorJSON.allKeys.firstObject;
+            
+            NSNumber *ascending = sortDescriptorJSON.allValues.firstObject;
+            
+            // more validation
+            
+            if (![key isKindOfClass:[NSString class]] ||
+                ![ascending isKindOfClass:[NSNumber class]]) {
+                
+                response.statusCode = BadRequestStatusCode;
+                
+                return;
+            }
+            
+            NSSortDescriptor *sort = [NSSortDescriptor sortDescriptorWithKey:key
+                                                                   ascending:ascending];
+            
+            [sortDescriptors addObject:sort];
+            
+        }
+        
+    }
+    
     // fetch limit
     
+    NSNumber *fetchLimitNumber = searchParameters[@(NOSearchFetchLimitParameter)];
     
+    if (fetchLimitNumber) {
+        
+        if (![fetchLimitNumber isKindOfClass:[NSNumber class]]) {
+            
+            response.statusCode = BadRequestStatusCode;
+            
+            return;
+        }
+        
+        fetchRequest.fetchLimit = fetchLimitNumber.integerValue;
+    }
+    
+    // fetch offset
+    
+    NSNumber *fetchOffsetNumber = searchParameters[@(NOSearchFetchOffsetParameter)];
+    
+    if (fetchOffsetNumber) {
+        
+        if (![fetchOffsetNumber isKindOfClass:[NSNumber class]]) {
+            
+            response.statusCode = BadRequestStatusCode;
+            
+            return;
+        }
+        
+        
+        fetchRequest.fetchOffset = fetchOffsetNumber.integerValue;
+    }
+    
+    NSNumber *includeSubEntitites = searchParameters[@(NOSearchIncludesSubentitiesParameter)];
+    
+    if (includeSubEntitites) {
+        
+        if (![includeSubEntitites isKindOfClass:[NSNumber class]]) {
+            
+            response.statusCode = BadRequestStatusCode;
+            
+            return;
+        }
+        
+        fetchRequest.includesSubentities = includeSubEntitites.boolValue;
+    }
     
     
     // execute fetch request
