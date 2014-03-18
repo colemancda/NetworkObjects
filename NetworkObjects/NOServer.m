@@ -848,6 +848,27 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
             return;
         }
         
+        // validate comparator
+        
+        BOOL validComparator;
+        
+        for (NSNumber *comparatorNumber in self.allowedComparatorsForSearch) {
+            
+            if (comparatorNumber.integerValue == operator) {
+                
+                validComparator = YES;
+                
+                break;
+            }
+        }
+        
+        if (!validComparator) {
+            
+            response.statusCode = BadRequestStatusCode;
+            
+            return;
+        }
+        
         keyQueried = keyValueDictionary.allKeys.firstObject;
         
         id jsonValue = keyValueDictionary.allValues.firstObject;

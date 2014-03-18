@@ -48,6 +48,8 @@
 		6E11BE3718B04EDD00FF75FB /* SNSBrowserViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6E11BE3518B04EDD00FF75FB /* SNSBrowserViewController.xib */; };
 		6E11BE3918B04F4400FF75FB /* SNSLogViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6E11BE3818B04F4400FF75FB /* SNSLogViewController.xib */; };
 		6E11BE3A18B04F4400FF75FB /* SNSLogViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6E11BE3818B04F4400FF75FB /* SNSLogViewController.xib */; };
+		6E22C40D18D8CC5200D72842 /* NetworkObjects.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E78580118D2794E006142EC /* NetworkObjects.framework */; };
+		6E22C40E18D8CC5900D72842 /* NetworkObjects.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 6E78580118D2794E006142EC /* NetworkObjects.framework */; };
 		6E46EF7918B179190065D5D0 /* SNSSessionWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E46EF7718B179190065D5D0 /* SNSSessionWindowController.m */; };
 		6E46EF7A18B179190065D5D0 /* SNSSessionWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6E46EF7818B179190065D5D0 /* SNSSessionWindowController.xib */; };
 		6E46EF8218B17F200065D5D0 /* SNSUserWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E46EF8018B17F200065D5D0 /* SNSUserWindowController.m */; };
@@ -69,6 +71,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 6E11BCE218AFD13900FF75FB;
 			remoteInfo = "Social Network Server";
+		};
+		6E22C40618D8CC4B00D72842 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6E11BD6118AFD46000FF75FB /* NetworkObjects.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 6E2BD7BD1817309E00E9D04C;
+			remoteInfo = NetworkObjects;
 		};
 		6E78580018D2794E006142EC /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -107,6 +116,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				6E22C40E18D8CC5900D72842 /* NetworkObjects.framework in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -189,6 +199,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6E22C40D18D8CC5200D72842 /* NetworkObjects.framework in Frameworks */,
 				6E11BCE718AFD13900FF75FB /* Cocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -426,6 +437,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				6E22C40718D8CC4B00D72842 /* PBXTargetDependency */,
 			);
 			name = "Social Network Server";
 			productName = "Social Network Server";
@@ -610,6 +622,11 @@
 			isa = PBXTargetDependency;
 			target = 6E11BCE218AFD13900FF75FB /* Social Network Server */;
 			targetProxy = 6E11BD0818AFD13A00FF75FB /* PBXContainerItemProxy */;
+		};
+		6E22C40718D8CC4B00D72842 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = NetworkObjects;
+			targetProxy = 6E22C40618D8CC4B00D72842 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
