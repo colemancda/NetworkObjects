@@ -14,6 +14,8 @@
 #import "NetworkObjectsConstants.h"
 #import <NetworkObjects/NOServerConstants.h>
 
+#define NOAPICheckForServerURL if (!self.serverURL) [NSException raise:NSInternalInconsistencyException format:@"serverURL property must be set to a valid value"];
+
 @implementation NOAPI (NSJSONWritingOption)
 
 -(NSJSONWritingOptions)jsonWritingOption
@@ -149,6 +151,8 @@
 
 @property NSString *loginPath;
 
+@property NSString *searchPath;
+
 @end
 
 @implementation NOAPI
@@ -158,6 +162,7 @@
      userEntityName:(NSString *)userEntityName
    clientEntityName:(NSString *)clientEntityName
           loginPath:(NSString *)loginPath
+         searchPath:(NSString *)searchPath
 {
     self = [super init];
     if (self) {
@@ -168,6 +173,7 @@
         self.userEntityName = userEntityName;
         self.clientEntityName = clientEntityName;
         self.loginPath = loginPath;
+        self.searchPath = searchPath;
         
     }
     return self;
@@ -179,7 +185,7 @@
                 format:@"You cannot use %@ with '-%@', you have to use '-%@'",
      self,
      NSStringFromSelector(_cmd),
-     NSStringFromSelector(@selector(initWithModel:sessionEntityName:userEntityName:clientEntityName:loginPath:))];
+     NSStringFromSelector(@selector(initWithModel:sessionEntityName:userEntityName:clientEntityName:loginPath:searchPath:))];
     return nil;
 }
 
@@ -188,6 +194,8 @@
 -(NSURLSessionDataTask *)loginWithURLSession:(NSURLSession *)urlSession
                                   completion:(void (^)(NSError *))completionBlock
 {
+    NOAPICheckForServerURL
+    
     if (!self.clientResourceID ||
         !self.clientSecret) {
         
@@ -344,11 +352,161 @@
     return task;
 }
 
+-(NSURLSessionDataTask *)searchForResource:(NSString *)resourceName
+                            withParameters:(NSDictionary *)parameters
+                                URLSession:(NSURLSession *)urlSession
+                                completion:(void (^)(NSError *, NSArray *))completionBlock
+{
+    NOAPICheckForServerURL
+    
+    if (!self.searchPath) {
+        
+        [NSException raise:NSInternalInconsistencyException
+                    format:@"searchPath must be set to a valid value"];
+    }
+    
+    // determine URL session
+    if (!urlSession) {
+        
+        urlSession = [NSURLSession sharedSession];
+    }
+    
+    // Build URL
+    
+    Class entityClass = [self entityWithResourceName:resourceName];
+    
+    NSString *resourcePath = [entityClass resourcePath];
+    
+    NSURL *searchURL = [self.serverURL URLByAppendingPathComponent:self.searchPath];
+    
+    searchURL = [searchURL URLByAppendingPathComponent:resourcePath];
+    
+    NSMutableURLRequest *urlRequest = [[NSMutableURLRequest alloc] initWithURL:searchURL];
+    
+    // add authentication header if availible
+    
+    if (self.sessionToken) {
+        
+        [urlRequest addValue:self.sessionToken forHTTPHeaderField:@"Authorization"];
+    }
+    
+    // add JSON data
+    
+    if (parameters) {
+        
+        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:parameters
+                                                           options:self.jsonWritingOption
+                                                             error:nil];
+        if (!jsonData) {
+            
+            [NSException raise:NSInvalidArgumentException
+                        format:@"Invalid parameters NSDictionary argument. Not valid JSON."];
+            
+            return nil;
+        }
+        
+        urlRequest.HTTPBody = jsonData;
+        
+    }
+    
+    NSURLSessionDataTask *dataTask = [urlSession dataTaskWithRequest:urlRequest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+        
+        if (error) {
+            
+            completionBlock(error, nil);
+            
+            return;
+        }
+        
+        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+        
+        // error codes
+        
+        if (httpResponse.statusCode != OKStatusCode) {
+            
+            if (httpResponse.statusCode == UnauthorizedStatusCode) {
+                
+                completionBlock(self.unauthorizedError, nil);
+                return;
+            }
+            
+            if (httpResponse.statusCode == ForbiddenStatusCode) {
+                
+                NSString *errorDescription = NSLocalizedString(@"Permission to perform search is denied",
+                                                               @"Permission to perform search is denied");
+                
+                NSError *forbiddenError = [NSError errorWithDomain:NetworkObjectsErrorDomain
+                                                              code:NOAPIForbiddenErrorCode
+                                                          userInfo:@{NSLocalizedDescriptionKey: errorDescription}];
+                
+                completionBlock(forbiddenError, nil);
+                
+                return;
+            }
+            
+            if (httpResponse.statusCode == InternalServerErrorStatusCode) {
+                
+                completionBlock(self.serverError, nil);
+                
+                return;
+            }
+            
+            if (httpResponse.statusCode == BadRequestStatusCode) {
+                
+                completionBlock(self.badRequestError, nil);
+                
+                return;
+            }
+            
+            // else
+            
+            completionBlock(self.invalidServerResponse, nil);
+            
+            return;
+        }
+        
+        // parse response
+        
+        NSArray *jsonResponse = [NSJSONSerialization JSONObjectWithData:data
+                                                                options:NSJSONReadingAllowFragments
+                                                                  error:nil];
+        
+        if (!jsonResponse ||
+            ![jsonResponse isKindOfClass:[NSArray class]]) {
+            
+            completionBlock(self.invalidServerResponse, nil);
+            
+            return;
+        }
+        
+        // verify that values are numbers
+        
+        for (NSNumber *resultResourceID in jsonResponse) {
+            
+            if (![resultResourceID isKindOfClass:[NSNumber class]]) {
+                
+                completionBlock(self.invalidServerResponse, nil);
+                
+                return;
+            }
+        }
+        
+        completionBlock(nil, jsonResponse);
+        
+    }];
+    
+    [dataTask resume];
+    
+    return dataTask;
+}
+
 -(NSURLSessionDataTask *)getResource:(NSString *)resourceName
                               withID:(NSUInteger)resourceID
                           URLSession:(NSURLSession *)urlSession
                           completion:(void (^)(NSError *, NSDictionary *))completionBlock
 {
+    NOAPICheckForServerURL
+    
     // determine URL session
     if (!urlSession) {
         
@@ -467,6 +625,8 @@
                              URLSession:(NSURLSession *)urlSession
                              completion:(void (^)(NSError *, NSNumber *))completionBlock
 {
+    NOAPICheckForServerURL
+    
     // determine URL session
     if (!urlSession) {
         
@@ -612,6 +772,8 @@
                            URLSession:(NSURLSession *)urlSession
                            completion:(void (^)(NSError *))completionBlock
 {
+    NOAPICheckForServerURL
+    
     // determine URL session
     if (!urlSession) {
         
@@ -727,6 +889,8 @@
                              URLSession:(NSURLSession *)urlSession
                              completion:(void (^)(NSError *))completionBlock
 {
+    NOAPICheckForServerURL
+    
     // determine URL session
     if (!urlSession) {
         
@@ -828,6 +992,8 @@
                               URLSession:(NSURLSession *)urlSession
                               completion:(void (^)(NSError *, NSNumber *, NSDictionary *))completionBlock
 {
+    NOAPICheckForServerURL
+    
     // determine URL session
     if (!urlSession) {
         
@@ -867,7 +1033,7 @@
         if (!jsonData) {
             
             [NSException raise:NSInvalidArgumentException
-                        format:@"Invalid JSON NSDicitionary"];
+                        format:@"Invalid jsonObject NSDictionary argument. Not valid JSON."];
             
             return nil;
         }

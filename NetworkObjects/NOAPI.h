@@ -41,7 +41,8 @@ typedef NS_ENUM(NSUInteger, NOAPIErrorCode) {
   sessionEntityName:(NSString *)sessionEntityName
      userEntityName:(NSString *)userEntityName
    clientEntityName:(NSString *)clientEntityName
-          loginPath:(NSString *)loginPath;
+          loginPath:(NSString *)loginPath
+         searchPath:(NSString *)searchPath;
 
 #pragma mark - Properties
 
@@ -71,11 +72,13 @@ typedef NS_ENUM(NSUInteger, NOAPIErrorCode) {
 
 #pragma mark - Connection Info
 
-/**
- The URL path that NetworkObjects server uses for authentication.
- */
+/** The URL path that the NetworkObjects server uses for authentication. */
 
 @property (readonly) NSString *loginPath;
+
+/** The URL path that the NetworkObjects server uses for search requests. */
+
+@property (readonly) NSString *searchPath;
 
 /**
  This setting determines whether JSON requests made to the server will contain whitespace or not.
@@ -140,6 +143,11 @@ typedef NS_ENUM(NSUInteger, NOAPIErrorCode) {
 -(NSURLSessionDataTask *)loginWithURLSession:(NSURLSession *)urlSession
                                   completion:(void (^)(NSError *error))completionBlock;
 
+-(NSURLSessionDataTask *)searchForResource:(NSString *)resourceName
+                            withParameters:(NSDictionary *)parameters
+                                URLSession:(NSURLSession *)urlSession
+                                completion:(void (^)(NSError *error, NSArray *results))completionBlock;
+
 -(NSURLSessionDataTask *)getResource:(NSString *)resourceName
                               withID:(NSUInteger)resourceID
                           URLSession:(NSURLSession *)urlSession
@@ -167,6 +175,5 @@ typedef NS_ENUM(NSUInteger, NOAPIErrorCode) {
                           withJSONObject:(NSDictionary *)jsonObject
                               URLSession:(NSURLSession *)urlSession
                               completion:(void (^)(NSError *error, NSNumber *statusCode, NSDictionary *response))completionBlock;
-
 
 @end
