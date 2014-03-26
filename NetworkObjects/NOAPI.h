@@ -137,11 +137,32 @@ typedef NS_ENUM(NSUInteger, NOAPIErrorCode) {
 /**
  Used to authenticate. Upon successful authentication this method will set to a valid value.
  
+ @param urlSession The URL session that will be used to create the data task.
+ 
  @param completionBlock This completion block must be non-nil.
+ 
+ @return The data task that is communicating with the server. The data task returned is already resumed.
+ 
  */
 
 -(NSURLSessionDataTask *)loginWithURLSession:(NSURLSession *)urlSession
                                   completion:(void (^)(NSError *error))completionBlock;
+
+/** Performs a fetch request on the server and returns the results in the completion block. The fetch request results are filtered by the permissions the session has.
+ 
+ @param resourceName Name of the entity that will be searched.
+ 
+ @param parameters Dictionary with JSON compatible values. This dictionary should use @c NOSearchParameter values (encapsulated in strings) as valid keys.
+ 
+ @param urlSession The URL session that will be used to create the data task.
+ 
+ @param completionBlock The completion block that will be called when a response is recieved from the server. If an error occurred then the completion block's @c error argument will be set to a @c NSError instance. If there is no error then the completion block's @c results argument will be set to an array of number reflecting the resource IDs of resource instances that fit the search criteria.
+ 
+ @return The data task that is communicating with the server. The data task returned is already resumed.
+ 
+ @see NOSearchParameter
+ 
+ */
 
 -(NSURLSessionDataTask *)searchForResource:(NSString *)resourceName
                             withParameters:(NSDictionary *)parameters

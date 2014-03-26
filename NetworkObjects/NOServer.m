@@ -818,7 +818,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     // add search parameters...
     
     // predicate
-    NSDictionary *predicateDictionary = searchParameters[@(NOSearchPredicateParameter)];
+    NSDictionary *predicateDictionary = searchParameters[[NSString stringWithFormat:@"%lu", NOSearchPredicateParameter]];
     
     NSString *keyQueried;
     
@@ -880,6 +880,14 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         // one of these will be nil
         NSRelationshipDescription *relationshipDescription = entityDescription.relationshipsByName[keyQueried];
         NSAttributeDescription *attributeDescription = entityDescription.attributesByName[keyQueried];
+        
+        // validate that key is attribute or relationship
+        if (!relationshipDescription && !attributeDescription) {
+            
+            response.statusCode = BadRequestStatusCode;
+            
+            return;
+        }
         
         // attribute value
 

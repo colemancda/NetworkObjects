@@ -42,7 +42,6 @@
 		6E83838218308E73003AE302 /* NetworkObjectsConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E83838018308E73003AE302 /* NetworkObjectsConstants.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6EA79B9918189324005F0866 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E2BD7C41817309E00E9D04C /* Foundation.framework */; };
 		6EA79B9B18189339005F0866 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6EA79B9A18189339005F0866 /* Foundation.framework */; };
-		6EBAE37D18711E91004F172A /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E2BD7C11817309E00E9D04C /* Cocoa.framework */; };
 		6EED73F11818648F00F911BC /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E2BD7D61817309E00E9D04C /* XCTest.framework */; };
 		6EED73F41818648F00F911BC /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6EED73F31818648F00F911BC /* UIKit.framework */; };
 		6EED73F71818648F00F911BC /* libNetworkObjects.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6EED73E21818648F00F911BC /* libNetworkObjects.a */; };
@@ -375,7 +374,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6EBAE37D18711E91004F172A /* Cocoa.framework in Frameworks */,
 				6EA79B9918189324005F0866 /* Foundation.framework in Frameworks */,
 				6E2BDA921817341900E9D04C /* Security.framework in Frameworks */,
 				6E2BDA901817341300E9D04C /* CoreData.framework in Frameworks */,
@@ -776,14 +774,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				6EED74D81818852200F911BC /* NetworkObjects.h in Headers */,
-				6EED753C1818852200F911BC /* MultipartMessageHeader.h in Headers */,
 				6EED74DC1818852200F911BC /* NOResourceProtocol.h in Headers */,
 				6E838378183083B0003AE302 /* NOServerConstants.h in Headers */,
-				6EED75441818852200F911BC /* HTTPAsyncFileResponse.h in Headers */,
+				6EED74E01818852200F911BC /* NOServer.h in Headers */,
 				6EED74E61818852200F911BC /* NOStore.h in Headers */,
+				6EED753C1818852200F911BC /* MultipartMessageHeader.h in Headers */,
+				6EED75441818852200F911BC /* HTTPAsyncFileResponse.h in Headers */,
 				6EED75701818852200F911BC /* RoutingHTTPServer.h in Headers */,
 				6EED74D01818852200F911BC /* NOHTTPServer.h in Headers */,
-				6EED74E01818852200F911BC /* NOServer.h in Headers */,
 				6EED75641818852200F911BC /* RouteRequest.h in Headers */,
 				6EED74F01818852200F911BC /* NSManagedObject+CoreDataJSONCompatibility.h in Headers */,
 				6EED74F41818852200F911BC /* RouteResponse+IPAddress.h in Headers */,

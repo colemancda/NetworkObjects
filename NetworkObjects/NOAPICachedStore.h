@@ -44,6 +44,19 @@
 
 #pragma mark - Requests
 
+/** Performs a fetch request on the server and caches the results.
+ 
+ @param resourceName Name of the entity that will be searched.
+ 
+ @param parameters Dictionary with
+ 
+ */
+
+-(NSURLSessionDataTask *)searchForCachedResource:(NSString *)resourceName
+                                  withParameters:(NSDictionary *)parameters
+                                      URLSession:(NSURLSession *)urlSession
+                                      completion:(void (^)(NSError *, NSArray *))completionBlock;
+
 -(NSURLSessionDataTask *)getCachedResource:(NSString *)resourceName
                                 resourceID:(NSUInteger)resourceID
                                 URLSession:(NSURLSession *)urlSession
