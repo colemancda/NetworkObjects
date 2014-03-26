@@ -44,18 +44,26 @@
 
 #pragma mark - Requests
 
-/** Performs a fetch request on the server and caches the results.
+/** Performs a fetch request on the server and returns the results in the completion block. The fetch request results are filtered by the permissions the session has.
  
  @param resourceName Name of the entity that will be searched.
  
- @param parameters Dictionary with
+ @param parameters Dictionary with Core Data compatible values. This dictionary should use @c NOSearchParameter values for valid keys.
+ 
+ @param urlSession The URL session that will be used to create the data task. If this parameter is nil than the default URL session is used.
+ 
+ @param completionBlock The completion block that will be called when a response is recieved from the server. If an error occurred then the completion block's @c error argument will be set to an @c NSError instance. If there is no error then the completion block's @c results argument will be set to an array of cached resource instances. Note that performing a search does not update the cached results' data which must be retrieved separately.
+ 
+ @return The data task that is communicating with the server. The data task returned is already resumed.
+ 
+ @see NOSearchParameter
  
  */
 
 -(NSURLSessionDataTask *)searchForCachedResource:(NSString *)resourceName
                                   withParameters:(NSDictionary *)parameters
                                       URLSession:(NSURLSession *)urlSession
-                                      completion:(void (^)(NSError *, NSArray *))completionBlock;
+                                      completion:(void (^)(NSError *error, NSArray *results))completionBlock;
 
 -(NSURLSessionDataTask *)getCachedResource:(NSString *)resourceName
                                 resourceID:(NSUInteger)resourceID

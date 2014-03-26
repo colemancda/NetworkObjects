@@ -26,7 +26,7 @@ typedef NS_ENUM(NSUInteger, NOAPIErrorCode) {
 };
 
 /**
- This is a store that clients can use to communicate with a NetworkObjects server. This returns JSON objects for requests.
+ This is a store that clients can use to communicate with a NetworkObjects server. This returns JSON objects for requests. This object represents a server's schema and holds authentication parameters.
  
  @see NOAPICachedStore
  */
@@ -37,17 +37,26 @@ typedef NS_ENUM(NSUInteger, NOAPIErrorCode) {
 
 /** Default initializer to use. Do not use -init. */
 
-- (id)initWithModel:(NSManagedObjectModel *)model
-  sessionEntityName:(NSString *)sessionEntityName
-     userEntityName:(NSString *)userEntityName
-   clientEntityName:(NSString *)clientEntityName
-          loginPath:(NSString *)loginPath
-         searchPath:(NSString *)searchPath;
++ (instancetype)apiWithModel:(NSManagedObjectModel *)model
+           sessionEntityName:(NSString *)sessionEntityName
+              userEntityName:(NSString *)userEntityName
+            clientEntityName:(NSString *)clientEntityName
+                   loginPath:(NSString *)loginPath
+                  searchPath:(NSString *)searchPath;
+
+/** Default initializer to use. Do not use -init. */
+
+- (instancetype)initWithModel:(NSManagedObjectModel *)model
+            sessionEntityName:(NSString *)sessionEntityName
+               userEntityName:(NSString *)userEntityName
+             clientEntityName:(NSString *)clientEntityName
+                    loginPath:(NSString *)loginPath
+                   searchPath:(NSString *)searchPath;
 
 #pragma mark - Properties
 
 /**
- This is the Core Data Managed Object Model that the server uses. The server and client MUST use the same Managed Object Model but different subclasses of NSManagedObject model. Server entities conform to NOResourceProtocol wile Client entities only conform to NOResourceKeysProtocol.
+ This is the @c NSManagedObjectModel that the server and client share. While this property can be initialized from the the same @c .xcdatamodel file that the server uses, the client's @c NSManagedObject subclasses must conform to @c NOResourceKeysProtocol while server's entities conform to @c NOResourceProtocol.
  */
 
 @property (readonly) NSManagedObjectModel *model;
@@ -152,11 +161,11 @@ typedef NS_ENUM(NSUInteger, NOAPIErrorCode) {
  
  @param resourceName Name of the entity that will be searched.
  
- @param parameters Dictionary with JSON compatible values. This dictionary should use @c NOSearchParameter values (encapsulated in strings) as valid keys.
+ @param parameters Dictionary with JSON compatible values. This dictionary should use @c NOSearchParameter values for valid keys.
  
- @param urlSession The URL session that will be used to create the data task.
+ @param urlSession The URL session that will be used to create the data task. If this parameter is nil than the default URL session is used.
  
- @param completionBlock The completion block that will be called when a response is recieved from the server. If an error occurred then the completion block's @c error argument will be set to a @c NSError instance. If there is no error then the completion block's @c results argument will be set to an array of number reflecting the resource IDs of resource instances that fit the search criteria.
+ @param completionBlock The completion block that will be called when a response is recieved from the server. If an error occurred then the completion block's @c error argument will be set to an @c NSError instance. If there is no error then the completion block's @c results argument will be set to an array resource IDs (@c NSNumber instances) of resource instances that fit the search criteria.
  
  @return The data task that is communicating with the server. The data task returned is already resumed.
  

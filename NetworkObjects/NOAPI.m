@@ -13,6 +13,9 @@
 #import "NOClientProtocol.h"
 #import "NetworkObjectsConstants.h"
 #import <NetworkObjects/NOServerConstants.h>
+#import "NOAPI+CommonErrors.h"
+
+// Macro for checking if the serverURL property is not nil
 
 #define NOAPICheckForServerURL if (!self.serverURL) [NSException raise:NSInternalInconsistencyException format:@"serverURL property must be set to a valid value"];
 
@@ -29,100 +32,9 @@
 
 @end
 
-@implementation NOAPI (Errors)
-
--(NSError *)invalidServerResponse
-{
-    static NSError *error;
-    
-    if (!error) {
-        
-        NSString *description = NSLocalizedString(@"The server returned a invalid response",
-                                                  @"The server returned a invalid response");
-        
-        error = [NSError errorWithDomain:NetworkObjectsErrorDomain
-                                    code:NOAPIInvalidServerResponseErrorCode
-                                userInfo:@{NSLocalizedDescriptionKey: description}];
-    }
-    
-    return error;
-}
-
--(NSError *)badRequestError
-{
-    static NSError *error;
-    
-    if (!error) {
-        
-        NSString *description = NSLocalizedString(@"Invalid request",
-                                                  @"Invalid request");
-        
-        error = [NSError errorWithDomain:NetworkObjectsErrorDomain
-                                    code:NOAPIBadRequestErrorCode
-                                userInfo:@{NSLocalizedDescriptionKey: description}];
-        
-    }
-    
-    return error;
-}
-
--(NSError *)serverError
-{
-    static NSError *error;
-    
-    if (!error) {
-        
-        NSString *description = NSLocalizedString(@"The server suffered an internal error",
-                                                  @"The server suffered an internal error");
-        
-        error = [NSError errorWithDomain:NetworkObjectsErrorDomain
-                                    code:NOAPIServerInternalErrorCode
-                                userInfo:@{NSLocalizedDescriptionKey: description}];
-        
-    }
-    
-    return error;
-}
-
--(NSError *)unauthorizedError
-{
-    static NSError *error;
-    
-    if (!error) {
-        
-        NSString *description = NSLocalizedString(@"Authentication is required",
-                                                  @"Authentication is required");
-        
-        error = [NSError errorWithDomain:NetworkObjectsErrorDomain
-                                    code:NOAPIUnauthorizedErrorCode
-                                userInfo:@{NSLocalizedDescriptionKey: description}];
-    }
-    
-    return error;
-}
-
--(NSError *)notFoundError
-{
-    static NSError *error;
-    
-    if (!error) {
-        
-        NSString *description = NSLocalizedString(@"Resource was not found",
-                                                  @"Resource was not found");
-        
-        error = [NSError errorWithDomain:NetworkObjectsErrorDomain
-                                    code:NOAPINotFoundErrorCode
-                                userInfo:@{NSLocalizedDescriptionKey: description}];
-    }
-    
-    return error;
-}
-
-@end
-
 @implementation NOAPI (Common)
 
--(Class)entityWithResourceName:(NSString *)resourceName
+-(Class)entityClassWithResourceName:(NSString *)resourceName
 {
     NSEntityDescription *entity = self.model.entitiesByName[resourceName];
     
@@ -157,12 +69,29 @@
 
 @implementation NOAPI
 
-- (id)initWithModel:(NSManagedObjectModel *)model
-  sessionEntityName:(NSString *)sessionEntityName
-     userEntityName:(NSString *)userEntityName
-   clientEntityName:(NSString *)clientEntityName
-          loginPath:(NSString *)loginPath
-         searchPath:(NSString *)searchPath
+#pragma mark - Initialization
+
++(instancetype)apiWithModel:(NSManagedObjectModel *)model
+          sessionEntityName:(NSString *)sessionEntityName
+             userEntityName:(NSString *)userEntityName
+           clientEntityName:(NSString *)clientEntityName
+                  loginPath:(NSString *)loginPath
+                 searchPath:(NSString *)searchPath
+{
+    return [[self alloc] initWithModel:model
+                     sessionEntityName:sessionEntityName
+                        userEntityName:userEntityName
+                      clientEntityName:clientEntityName
+                             loginPath:loginPath
+                            searchPath:searchPath];
+}
+
+- (instancetype)initWithModel:(NSManagedObjectModel *)model
+            sessionEntityName:(NSString *)sessionEntityName
+               userEntityName:(NSString *)userEntityName
+             clientEntityName:(NSString *)clientEntityName
+                    loginPath:(NSString *)loginPath
+                   searchPath:(NSString *)searchPath
 {
     self = [super init];
     if (self) {
@@ -302,7 +231,7 @@
             
             // else
             
-            completionBlock(self.invalidServerResponse);
+            completionBlock(self.invalidServerResponseError);
             
             return;
         }
@@ -316,7 +245,7 @@
         if (!jsonResponse ||
             ![jsonResponse isKindOfClass:[NSDictionary class]]) {
             
-            completionBlock(self.invalidServerResponse);
+            completionBlock(self.invalidServerResponseError);
             
             return;
         }
@@ -327,7 +256,7 @@
         
         if (!token) {
             
-            completionBlock(self.invalidServerResponse);
+            completionBlock(self.invalidServerResponseError);
             
             return;
         }
@@ -373,7 +302,7 @@
     
     // Build URL
     
-    Class entityClass = [self entityWithResourceName:resourceName];
+    Class entityClass = [self entityClassWithResourceName:resourceName];
     
     NSString *resourcePath = [entityClass resourcePath];
     
@@ -460,7 +389,7 @@
             
             // else
             
-            completionBlock(self.invalidServerResponse, nil);
+            completionBlock(self.invalidServerResponseError, nil);
             
             return;
         }
@@ -474,7 +403,7 @@
         if (!jsonResponse ||
             ![jsonResponse isKindOfClass:[NSArray class]]) {
             
-            completionBlock(self.invalidServerResponse, nil);
+            completionBlock(self.invalidServerResponseError, nil);
             
             return;
         }
@@ -485,7 +414,7 @@
             
             if (![resultResourceID isKindOfClass:[NSNumber class]]) {
                 
-                completionBlock(self.invalidServerResponse, nil);
+                completionBlock(self.invalidServerResponseError, nil);
                 
                 return;
             }
@@ -515,7 +444,7 @@
     
     // build URL
     
-    Class entityClass = [self entityWithResourceName:resourceName];
+    Class entityClass = [self entityClassWithResourceName:resourceName];
     
     NSString *resourcePath = [entityClass resourcePath];
     
@@ -592,7 +521,7 @@
             
             // else
             
-            completionBlock(self.invalidServerResponse, nil);
+            completionBlock(self.invalidServerResponseError, nil);
             
             return;
         }
@@ -606,7 +535,7 @@
         if (!jsonResponse ||
             ![jsonResponse isKindOfClass:[NSDictionary class]]) {
             
-            completionBlock(self.invalidServerResponse, nil);
+            completionBlock(self.invalidServerResponseError, nil);
             
             return;
         }
@@ -635,7 +564,7 @@
     
     // build URL...
     
-    Class entityClass = [self entityWithResourceName:resourceName];
+    Class entityClass = [self entityClassWithResourceName:resourceName];
     
     NSString *resourcePath = [entityClass resourcePath];
     
@@ -720,7 +649,7 @@
             
             // else
             
-            completionBlock(self.invalidServerResponse, nil);
+            completionBlock(self.invalidServerResponseError, nil);
             
             return;
         }
@@ -734,7 +663,7 @@
         if (!jsonResponse ||
             ![jsonResponse isKindOfClass:[NSDictionary class]]) {
             
-            completionBlock(self.invalidServerResponse, nil);
+            completionBlock(self.invalidServerResponseError, nil);
             
             return;
         }
@@ -751,7 +680,7 @@
         
         if (!resourceID) {
             
-            completionBlock(self.invalidServerResponse, nil);
+            completionBlock(self.invalidServerResponseError, nil);
             
             return;
         }
@@ -782,7 +711,7 @@
     
     // build URL
     
-    Class entityClass = [self entityWithResourceName:resourceName];
+    Class entityClass = [self entityClassWithResourceName:resourceName];
     
     NSString *resourcePath = [entityClass resourcePath];
     
@@ -870,7 +799,7 @@
             
             // else
             
-            completionBlock(self.invalidServerResponse);
+            completionBlock(self.invalidServerResponseError);
             
             return;
         }
@@ -899,7 +828,7 @@
     
     // build URL
     
-    Class entityClass = [self entityWithResourceName:resourceName];
+    Class entityClass = [self entityClassWithResourceName:resourceName];
     
     NSString *resourcePath = [entityClass resourcePath];
     
@@ -971,7 +900,7 @@
             
             // else
             
-            completionBlock(self.invalidServerResponse);
+            completionBlock(self.invalidServerResponseError);
             
             return;
         }
@@ -1002,7 +931,7 @@
     
     // build URL
     
-    Class entityClass = [self entityWithResourceName:resourceName];
+    Class entityClass = [self entityClassWithResourceName:resourceName];
     
     NSString *resourcePath = [entityClass resourcePath];
     
