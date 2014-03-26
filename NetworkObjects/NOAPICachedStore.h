@@ -17,12 +17,29 @@
 
 @interface NOAPICachedStore : NOAPI
 {
-    /** Hierarchy of dictionaries with dates a resource with a particular resource ID was cached. */
-    NSDictionary *_dateCached;
-    
     /** Dictionary of NSOperationQueue for accessing a sub dictionary in @c _dateCached */
     NSDictionary *_dateCachedOperationQueues;
 }
+
+#pragma mark - Initialization
+
++(instancetype)cachedStoreWithModel:(NSManagedObjectModel *)model
+                  sessionEntityName:(NSString *)sessionEntityName
+                     userEntityName:(NSString *)userEntityName
+                   clientEntityName:(NSString *)clientEntityName
+                          loginPath:(NSString *)loginPath
+                         searchPath:(NSString *)searchPath
+                        datesCached:(NSDictionary *)datesCached;
+
+-(instancetype)initWithModel:(NSManagedObjectModel *)model
+           sessionEntityName:(NSString *)sessionEntityName
+              userEntityName:(NSString *)userEntityName
+            clientEntityName:(NSString *)clientEntityName
+                   loginPath:(NSString *)loginPath
+                  searchPath:(NSString *)searchPath
+                 datesCached:(NSDictionary *)datesCached;
+
+#pragma mark - Cache
 
 // must initialize the persistent store coordinator
 
@@ -33,9 +50,11 @@
  
  */
 
-#pragma mark - Cache
-
 @property (readonly) NSManagedObjectContext *context;
+
+/** Hierarchy of dictionaries with dates a resource with a particular resource ID was cached. */
+
+@property (readonly) NSDictionary *datesCached;
 
 /** Returns the date when this Resource was cached (either downloaded or created) */
 
@@ -80,9 +99,9 @@
                                    completion:(void (^)(NSError *error))completionBlock;
 
 -(NSURLSessionDataTask *)createCachedResource:(NSString *)resourceName
-                          initialValues:(NSDictionary *)initialValues
-                             URLSession:(NSURLSession *)urlSession
-                             completion:(void (^)(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource)) completionBlock;
+                                initialValues:(NSDictionary *)initialValues
+                                   URLSession:(NSURLSession *)urlSession
+                                   completion:(void (^)(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource)) completionBlock;
 
 -(NSURLSessionDataTask *)performFunction:(NSString *)functionName
                         onCachedResource:(NSManagedObject<NOResourceKeysProtocol>*)resource
