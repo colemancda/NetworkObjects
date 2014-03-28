@@ -137,13 +137,44 @@
     
     NSComparisonPredicate *predicate = (NSComparisonPredicate *)fetchRequest.predicate;
     
-    if ([predicate isKindOfClass:[NSComparisonPredicate class]]) {
+    if (![predicate isKindOfClass:[NSComparisonPredicate class]]) {
         
         [NSException raise:NSInvalidArgumentException
                     format:@"The fetch request's predicate must be of type NSComparisonPredicate"];
         
         return nil;
     }
+    
+    if (predicate) {
+        
+        jsonObject[[NSString stringWithFormat:@"%lu", NOSearchPredicateKeyParameter]] = predicate.leftExpression.keyPath;
+        
+        // convert value to from Core Data to JSON
+        
+        id jsonValue = [fetchRequest.entity jsonObjectFromCoreDataValues:@{predicate.leftExpression.keyPath: predicate.rightExpression.constantValue}].allValues.firstObject;
+        
+        jsonObject[[NSString stringWithFormat:@"%lu", NOSearchPredicateValueParameter]] = jsonValue;
+        
+        jsonObject[[NSString stringWithFormat:@"%lu", NOSearchPredicateOperatorParameter]] = @(predicate.predicateOperatorType);
+        
+        jsonObject[[NSString stringWithFormat:@"%lu", NOSearchPredicateOptionParameter]] = @(predicate.options);
+        
+        jsonObject[[NSString stringWithFormat:@"%lu", NOSearchPredicateModifierParameter]] = @(predicate.comparisonPredicateModifier);
+    }
+    
+    // other fetch parameters
+    
+    if (fetchRequest.fetchLimit) {
+        
+        jsonObject[[NSString stringWithFormat:@"%lu", NOSearchFetchLimitParameter]] = @(fetchRequest.fetchLimit);
+    }
+    
+    if (fetchRequest.fetchOffset) {
+        
+        jsonObject[[NSString stringWithFormat:@"%lu", NOSearchFetchOffsetParameter]] = @(fetchRequest.fetchOffset);
+    }
+    
+    
     
     return [self searchForResource:fetchRequest.entityName withParameters:jsonObject URLSession:urlSession completion:^(NSError *error, NSArray *results) {
         

@@ -952,7 +952,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         
         NSComparisonPredicateOptions options;
         
-        if (optionNumber) {
+        if ([optionNumber isKindOfClass:[NSNumber class]]) {
             
             options = optionNumber.integerValue;
             
@@ -966,7 +966,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         
         NSComparisonPredicateModifier modifier;
         
-        if (modifierNumber) {
+        if ([modifierNumber isKindOfClass:[NSNumber class]]) {
             
             modifier = modifierNumber.integerValue;
         }
@@ -1224,7 +1224,8 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
 {
     // determine the attribute name the entity uses for storing tokens
     
-    NSEntityDescription *sessionEntityDescription = [NSEntityDescription entityForName:self.sessionEntityName inManagedObjectContext:_store.context];
+    NSEntityDescription *sessionEntityDescription = [NSEntityDescription entityForName:self.sessionEntityName
+                                                                inManagedObjectContext:_store.context];
     
     Class sessionEntityClass = NSClassFromString(sessionEntityDescription.managedObjectClassName);
     
