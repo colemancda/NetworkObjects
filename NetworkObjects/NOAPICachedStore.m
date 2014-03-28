@@ -129,6 +129,19 @@
         return nil;
     }
     
+    // entity
+    
+    NSEntityDescription *entity = fetchRequest.entity;
+    
+    if (!entity) {
+        
+        NSAssert(fetchRequest.entityName, @"Must specify an entity");
+        
+        entity = self.model.entitiesByName[fetchRequest.entityName];
+        
+        NSAssert(entity, @"Entity specified not found in store's model property");
+    }
+    
     // build JSON request from fetch request
     
     NSMutableDictionary *jsonObject;
@@ -174,13 +187,47 @@
         jsonObject[[NSString stringWithFormat:@"%lu", NOSearchFetchOffsetParameter]] = @(fetchRequest.fetchOffset);
     }
     
+    if (fetchRequest.includesSubentities) {
+        
+        jsonObject[[NSString stringWithFormat:@"%lu", NOSearchIncludesSubentitiesParameter]] = @(fetchRequest.includesSubentities);
+    }
     
+    // sort descriptors
     
-    return [self searchForResource:fetchRequest.entityName withParameters:jsonObject URLSession:urlSession completion:^(NSError *error, NSArray *results) {
+    if (fetchRequest.sortDescriptors.count) {
+        
+        NSMutableArray *jsonSortDescriptors = [[NSMutableArray alloc] init];
+        
+        for (NSSortDescriptor *sort in fetchRequest.sortDescriptors) {
+            
+            [jsonSortDescriptors addObject:@{sort.key: @(sort.ascending)}];
+        }
+        
+        jsonObject[[NSString stringWithFormat:@"%lu", NOSearchSortDescriptorsParameter]] = jsonSortDescriptors;
+    }
+    
+    return [self searchForResource:entity.name withParameters:jsonObject URLSession:urlSession completion:^(NSError *error, NSArray *results) {
+        
+        if (error) {
+            
+            completionBlock(error, nil);
+            
+            return;
+        }
         
         // get results as cached resources
         
+        NSMutableArray *cachedResults = [[NSMutableArray alloc] init];
         
+        for (NSNumber *resourceID in results) {
+            
+            NSManagedObject *resource = [self resource:entity.name
+                                                withID:resourceID.integerValue];
+            
+            [cachedResults addObject:resource];
+        }
+        
+        completionBlock(nil, cachedResults);
         
     }];
 }
