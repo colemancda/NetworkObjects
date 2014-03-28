@@ -65,9 +65,7 @@
 
 /** Performs a fetch request on the server and returns the results in the completion block. The fetch request results are filtered by the permissions the session has.
  
- @param resourceName Name of the entity that will be searched.
- 
- @param parameters Dictionary with Core Data compatible values. This dictionary should use @c NOSearchParameter values for valid keys.
+ @param fetchRequest The fetch request that will be used to perform the search.
  
  @param urlSession The URL session that will be used to create the data task. If this parameter is nil than the default URL session is used.
  
@@ -75,14 +73,12 @@
  
  @return The data task that is communicating with the server. The data task returned is already resumed.
  
- @see NOSearchParameter
- 
+ @warning Some of the properties of the fetch request have to use specific values. The entity specified in the fetch request must match an entity description in the store's @c model property. The only valid predicate class that can be used is @c NSComparisonPredicate and never set the predicate's @c predicateOperatorType to @c NSCustomSelectorPredicateOperatorType.
  */
 
--(NSURLSessionDataTask *)searchForCachedResource:(NSString *)resourceName
-                                   withPredicate:(NSComparisonPredicate *)predicate
-                                      URLSession:(NSURLSession *)urlSession
-                                      completion:(void (^)(NSError *error, NSArray *results))completionBlock;
+-(NSURLSessionDataTask *)searchForCachedResourceWithFetchRequest:(NSFetchRequest *)fetchRequest
+                                                      URLSession:(NSURLSession *)urlSession
+                                                      completion:(void (^)(NSError *error, NSArray *results))completionBlock;
 
 -(NSURLSessionDataTask *)getCachedResource:(NSString *)resourceName
                                 resourceID:(NSUInteger)resourceID

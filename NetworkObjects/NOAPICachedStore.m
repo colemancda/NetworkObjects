@@ -117,19 +117,15 @@
 
 #pragma mark - Requests
 
--(NSURLSessionDataTask *)searchForCachedResource:(NSString *)resourceName
-                                   withPredicate:(NSComparisonPredicate *)predicate
-                                      URLSession:(NSURLSession *)urlSession
-                                      completion:(void (^)(NSError *, NSArray *))completionBlock
+-(NSURLSessionDataTask *)searchForCachedResourceWithFetchRequest:(NSFetchRequest *)fetchRequest
+                                                      URLSession:(NSURLSession *)urlSession
+                                                      completion:(void (^)(NSError *, NSArray *))completionBlock
 {
-    // build JSON request from predicate
-    
-    if (predicate) {
-        
-        
-    }
+    // build JSON request from fetch request
     
     NSMutableDictionary *jsonObject = [[NSMutableDictionary alloc] init];
+    
+    
     
     return [self searchForResource:resourceName withParameters:parameters URLSession:urlSession completion:^(NSError *error, NSArray *results) {
         
