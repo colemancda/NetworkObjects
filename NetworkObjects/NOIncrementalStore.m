@@ -13,15 +13,33 @@ NSString *const NOIncrementalStoreCachedStoreOption = @"NOIncrementalStoreCached
 
 NSString *const NOIncrementalStoreType = @"NOIncrementalStoreType";
 
+@interface NOAPICachedStore (Requests)
+
+-(id)executeSaveRequest:(NSSaveChangesRequest *)request
+            withContext:(NSManagedObjectContext *)context
+                  error:(NSError *__autoreleasing *)error;
+
+-(id)executeFetchRequest:(NSFetchRequest *)request
+             withContext:(NSManagedObjectContext *)context
+                   error:(NSError *__autoreleasing *)error;
+
+@end
+
 @interface NOIncrementalStore ()
 
-
+@property NOAPICachedStore *cachedStore;
 
 @end
 
 @implementation NOIncrementalStore
 
 #pragma mark - Initialization
+
++(void)initialize
+{
+    [NSPersistentStoreCoordinator registerStoreClass:[self class]
+                                        forStoreType:NOIncrementalStoreType];
+}
 
 -(id)initWithPersistentStoreCoordinator:(NSPersistentStoreCoordinator *)root
                       configurationName:(NSString *)name
@@ -33,10 +51,6 @@ NSString *const NOIncrementalStoreType = @"NOIncrementalStoreType";
     if (self) {
         
         self.cachedStore = options[NOIncrementalStoreCachedStoreOption];
-        
-        if (<#condition#>) {
-            <#statements#>
-        }
         
     }
     
@@ -56,6 +70,15 @@ NSString *const NOIncrementalStoreType = @"NOIncrementalStoreType";
         withContext:(NSManagedObjectContext *)context
               error:(NSError *__autoreleasing *)error
 {
+    // check for API cached store
+    if (!self.cachedStore) {
+        
+        [NSException raise:NSInvalidArgumentException
+                    format:@"Must specify a NOAPICachedStore instance for the NOIncrementalStoreCachedStoreOption in the initializer's options dictionary"];
+        
+        return nil;
+    }
+    
     
     
 }
