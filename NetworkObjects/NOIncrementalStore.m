@@ -13,7 +13,7 @@ NSString *const NOIncrementalStoreCachedStoreOption = @"NOIncrementalStoreCached
 
 NSString *const NOIncrementalStoreType = @"NOIncrementalStoreType";
 
-@interface NOAPICachedStore (Requests)
+@interface NOIncrementalStore (Requests)
 
 -(id)executeSaveRequest:(NSSaveChangesRequest *)request
             withContext:(NSManagedObjectContext *)context
@@ -37,8 +37,16 @@ NSString *const NOIncrementalStoreType = @"NOIncrementalStoreType";
 
 +(void)initialize
 {
-    [NSPersistentStoreCoordinator registerStoreClass:[self class]
-                                        forStoreType:NOIncrementalStoreType];
+    if (self == [NOIncrementalStore self]) {
+        
+        [NSPersistentStoreCoordinator registerStoreClass:[NOIncrementalStore self]
+                                            forStoreType:NOIncrementalStoreType];
+    }
+}
+
++(NSString *)storeType
+{
+    return NOIncrementalStoreType;
 }
 
 -(id)initWithPersistentStoreCoordinator:(NSPersistentStoreCoordinator *)root
@@ -59,7 +67,8 @@ NSString *const NOIncrementalStoreType = @"NOIncrementalStoreType";
 
 -(BOOL)loadMetadata:(NSError *__autoreleasing *)error
 {
-    self.metadata = @{NSStoreTypeKey: NOIncrementalStoreType, NSStoreUUIDKey : [[NSUUID UUID] UUIDString]};
+    self.metadata = @{NSStoreTypeKey: NOIncrementalStoreType,
+                      NSStoreUUIDKey : [[NSUUID UUID] UUIDString]};
     
     return YES;
 }
@@ -79,6 +88,94 @@ NSString *const NOIncrementalStoreType = @"NOIncrementalStoreType";
         return nil;
     }
     
+    if (request.requestType == NSSaveRequestType) {
+        
+        NSSaveChangesRequest *saveRequest = (NSSaveChangesRequest *)request;
+        
+        return [self executeSaveRequest:saveRequest
+                            withContext:context
+                                  error:error];
+    }
+    
+    NSFetchRequest *fetchRequest = (NSFetchRequest *)request;
+    
+    return [self executeFetchRequest:fetchRequest
+                         withContext:context
+                               error:error];
+}
+
+-(NSIncrementalStoreNode *)newValuesForObjectWithID:(NSManagedObjectID *)objectID
+                                        withContext:(NSManagedObjectContext *)context
+                                              error:(NSError *__autoreleasing *)error
+{
+    
+    
+}
+
+-(id)newValueForRelationship:(NSRelationshipDescription *)relationship
+             forObjectWithID:(NSManagedObjectID *)objectID
+                 withContext:(NSManagedObjectContext *)context
+                       error:(NSError *__autoreleasing *)error
+{
+    
+    
+}
+
+-(NSArray *)obtainPermanentIDsForObjects:(NSArray *)array
+                                   error:(NSError *__autoreleasing *)error
+{
+    
+    
+}
+
+@end
+
+@implementation NOIncrementalStore (Requests)
+
+-(id)executeFetchRequest:(NSFetchRequest *)request
+             withContext:(NSManagedObjectContext *)context
+                   error:(NSError *__autoreleasing *)error
+{
+    NSFetchRequest *cacheRequest = request.copy;
+    
+    cacheRequest.entity = [NSEntityDescription entityForName:request.entityName
+                                      inManagedObjectContext:self.cachedStore.context];
+    
+    // comparison predicate, use search
+    if ([request.predicate isKindOfClass:[NSComparisonPredicate class]]) {
+        
+        [self.cachedStore searchForCachedResourceWithFetchRequest:cacheRequest URLSession:self.urlSession completion:^(NSError *error, NSArray *results) {
+            
+            // use notification center
+            
+        }];
+    }
+    
+    // other fetch requests
+    else {
+        
+        
+        
+    }
+    
+    // Immediately return cached values
+    
+    __block id results;
+    
+    [self.cachedStore.context performBlockAndWait:^{
+       
+        results = [self.cachedStore.context executeFetchRequest:request
+                                                          error:error];
+        
+    }];
+    
+    return results;
+}
+
+-(id)executeSaveRequest:(NSSaveChangesRequest *)request
+            withContext:(NSManagedObjectContext *)context
+                  error:(NSError *__autoreleasing *)error
+{
     
     
 }
