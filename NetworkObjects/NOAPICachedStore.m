@@ -118,38 +118,18 @@
 #pragma mark - Requests
 
 -(NSURLSessionDataTask *)searchForCachedResource:(NSString *)resourceName
-                                  withParameters:(NSDictionary *)parameters
+                                   withPredicate:(NSComparisonPredicate *)predicate
                                       URLSession:(NSURLSession *)urlSession
                                       completion:(void (^)(NSError *, NSArray *))completionBlock
 {
-    // convert predicate value from Core Data attribute to JSON
+    // build JSON request from predicate
     
-    // predicate
-    NSDictionary *predicateDictionary = parameters[@(NOSearchPredicateParameter)];
-    
-    if (predicateDictionary) {
-        
-        id value = predicateDictionary.allValues.firstObject;
-        
-        id key = predicateDictionary.allKeys.firstObject;
-        
-        if (!key && !value) {
-            
-            [NSException raise:NSInvalidArgumentException
-                        format:@"Invalid parameters dictionary"];
-            
-            return nil;
-        }
-        
-        NSEntityDescription *entity = self.model.entitiesByName[resourceName];
-        
-        NSDictionary *jsonValueDictionary = [entity jsonObjectFromCoreDataValues:@{key: value}];
-        
-        id jsonValue = jsonValueDictionary.allValues.firstObject;
-        
+    if (predicate) {
         
         
     }
+    
+    NSMutableDictionary *jsonObject = [[NSMutableDictionary alloc] init];
     
     return [self searchForResource:resourceName withParameters:parameters URLSession:urlSession completion:^(NSError *error, NSArray *results) {
         

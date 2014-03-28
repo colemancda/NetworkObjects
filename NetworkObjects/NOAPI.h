@@ -10,7 +10,7 @@
 @import CoreData;
 
 /**
- NOAPI Store error codes.
+ NOAPI error codes.
  */
 
 typedef NS_ENUM(NSUInteger, NOAPIErrorCode) {

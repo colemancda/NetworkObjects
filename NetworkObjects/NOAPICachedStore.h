@@ -80,7 +80,7 @@
  */
 
 -(NSURLSessionDataTask *)searchForCachedResource:(NSString *)resourceName
-                                  withParameters:(NSDictionary *)parameters
+                                   withPredicate:(NSComparisonPredicate *)predicate
                                       URLSession:(NSURLSession *)urlSession
                                       completion:(void (^)(NSError *error, NSArray *results))completionBlock;
 
