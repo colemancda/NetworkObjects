@@ -925,7 +925,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                             return;
                         }
                         
-                        NSManagedObject<NOResourceProtocol> *resource = [self.store resourceWithEntityDescription:entityDescription resourceID:resourceID.integerValue];
+                        NSManagedObject<NOResourceProtocol> *resource = [self.store resourceWithEntityDescription:relationshipDescription.destinationEntity resourceID:resourceID.integerValue];
                         
                         if (!resource) {
                             

@@ -121,13 +121,33 @@
                                                       URLSession:(NSURLSession *)urlSession
                                                       completion:(void (^)(NSError *, NSArray *))completionBlock
 {
+    if (!fetchRequest) {
+        
+        [NSException raise:NSInvalidArgumentException
+                    format:@"Must specify a fetch request in order to perform a search"];
+        
+        return nil;
+    }
+    
     // build JSON request from fetch request
     
-    NSMutableDictionary *jsonObject = [[NSMutableDictionary alloc] init];
+    NSMutableDictionary *jsonObject;
     
+    // Optional comparison predicate
     
+    NSComparisonPredicate *predicate = (NSComparisonPredicate *)fetchRequest.predicate;
     
-    return [self searchForResource:resourceName withParameters:parameters URLSession:urlSession completion:^(NSError *error, NSArray *results) {
+    if ([predicate isKindOfClass:[NSComparisonPredicate class]]) {
+        
+        [NSException raise:NSInvalidArgumentException
+                    format:@"The fetch request's predicate must be of type NSComparisonPredicate"];
+        
+        return nil;
+    }
+    
+    return [self searchForResource:fetchRequest.entityName withParameters:jsonObject URLSession:urlSession completion:^(NSError *error, NSArray *results) {
+        
+        // get results as cached resources
         
         
         
