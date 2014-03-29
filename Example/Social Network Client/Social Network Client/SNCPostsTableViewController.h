@@ -18,10 +18,12 @@
     
     NSDateFormatter *_dateFormatter;
     
-    NSError *_errorDownloadingPost;
+    NSDate *_dateLastFetched;
     
     NSMutableDictionary *_postsDownloadTasks;
 }
+
+#pragma mark - Properties
 
 @property NSComparisonPredicate *predicate;
 

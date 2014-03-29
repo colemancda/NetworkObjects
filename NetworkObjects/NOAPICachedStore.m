@@ -160,36 +160,36 @@
     
     if (predicate) {
         
-        jsonObject[[NSString stringWithFormat:@"%lu", NOSearchPredicateKeyParameter]] = predicate.leftExpression.keyPath;
+        jsonObject[[NSString stringWithFormat:@"%lu", (unsigned long)NOSearchPredicateKeyParameter]] = predicate.leftExpression.keyPath;
         
         // convert value to from Core Data to JSON
         
         id jsonValue = [fetchRequest.entity jsonObjectFromCoreDataValues:@{predicate.leftExpression.keyPath: predicate.rightExpression.constantValue}].allValues.firstObject;
         
-        jsonObject[[NSString stringWithFormat:@"%lu", NOSearchPredicateValueParameter]] = jsonValue;
+        jsonObject[[NSString stringWithFormat:@"%lu", (unsigned long)NOSearchPredicateValueParameter]] = jsonValue;
         
-        jsonObject[[NSString stringWithFormat:@"%lu", NOSearchPredicateOperatorParameter]] = @(predicate.predicateOperatorType);
+        jsonObject[[NSString stringWithFormat:@"%lu", (unsigned long)NOSearchPredicateOperatorParameter]] = @(predicate.predicateOperatorType);
         
-        jsonObject[[NSString stringWithFormat:@"%lu", NOSearchPredicateOptionParameter]] = @(predicate.options);
+        jsonObject[[NSString stringWithFormat:@"%lu", (unsigned long)NOSearchPredicateOptionParameter]] = @(predicate.options);
         
-        jsonObject[[NSString stringWithFormat:@"%lu", NOSearchPredicateModifierParameter]] = @(predicate.comparisonPredicateModifier);
+        jsonObject[[NSString stringWithFormat:@"%lu", (unsigned long)NOSearchPredicateModifierParameter]] = @(predicate.comparisonPredicateModifier);
     }
     
     // other fetch parameters
     
     if (fetchRequest.fetchLimit) {
         
-        jsonObject[[NSString stringWithFormat:@"%lu", NOSearchFetchLimitParameter]] = @(fetchRequest.fetchLimit);
+        jsonObject[[NSString stringWithFormat:@"%lu", (unsigned long)NOSearchFetchLimitParameter]] = @(fetchRequest.fetchLimit);
     }
     
     if (fetchRequest.fetchOffset) {
         
-        jsonObject[[NSString stringWithFormat:@"%lu", NOSearchFetchOffsetParameter]] = @(fetchRequest.fetchOffset);
+        jsonObject[[NSString stringWithFormat:@"%lu", (unsigned long)NOSearchFetchOffsetParameter]] = @(fetchRequest.fetchOffset);
     }
     
     if (fetchRequest.includesSubentities) {
         
-        jsonObject[[NSString stringWithFormat:@"%lu", NOSearchIncludesSubentitiesParameter]] = @(fetchRequest.includesSubentities);
+        jsonObject[[NSString stringWithFormat:@"%lu", (unsigned long)NOSearchIncludesSubentitiesParameter]] = @(fetchRequest.includesSubentities);
     }
     
     // sort descriptors
@@ -203,7 +203,7 @@
             [jsonSortDescriptors addObject:@{sort.key: @(sort.ascending)}];
         }
         
-        jsonObject[[NSString stringWithFormat:@"%lu", NOSearchSortDescriptorsParameter]] = jsonSortDescriptors;
+        jsonObject[[NSString stringWithFormat:@"%lu", (unsigned long)NOSearchSortDescriptorsParameter]] = jsonSortDescriptors;
     }
     
     return [self searchForResource:entity.name withParameters:jsonObject URLSession:urlSession completion:^(NSError *error, NSArray *results) {

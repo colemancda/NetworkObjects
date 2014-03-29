@@ -820,11 +820,11 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     // predicate...
     
-    NSString *predicateKey = searchParameters[[NSString stringWithFormat:@"%lu", NOSearchPredicateKeyParameter]];
+    NSString *predicateKey = searchParameters[[NSString stringWithFormat:@"%lu", (unsigned long)NOSearchPredicateKeyParameter]];
     
-    id jsonPredicateValue = searchParameters[[NSString stringWithFormat:@"%lu", NOSearchPredicateValueParameter]];
+    id jsonPredicateValue = searchParameters[[NSString stringWithFormat:@"%lu", (unsigned long)NOSearchPredicateValueParameter]];
     
-    NSNumber *predicateOperator = searchParameters[[NSString stringWithFormat:@"%lu", NOSearchPredicateOperatorParameter]];
+    NSNumber *predicateOperator = searchParameters[[NSString stringWithFormat:@"%lu", (unsigned long)NOSearchPredicateOperatorParameter]];
     
     if ([predicateKey isKindOfClass:[NSString class]] &&
         [predicateOperator isKindOfClass:[NSNumber class]] &&
@@ -948,7 +948,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         
         // add optional parameters...
         
-        NSNumber *optionNumber = searchParameters[[NSString stringWithFormat:@"%lu", NOSearchPredicateOptionParameter]];
+        NSNumber *optionNumber = searchParameters[[NSString stringWithFormat:@"%lu", (unsigned long)NOSearchPredicateOptionParameter]];
         
         NSComparisonPredicateOptions options;
         
@@ -962,7 +962,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
             options = NSNormalizedPredicateOption;
         }
         
-        NSNumber *modifierNumber = searchParameters[[NSString stringWithFormat:@"%lu", NOSearchPredicateModifierParameter]];
+        NSNumber *modifierNumber = searchParameters[[NSString stringWithFormat:@"%lu", (unsigned long)NOSearchPredicateModifierParameter]];
         
         NSComparisonPredicateModifier modifier;
         
@@ -995,7 +995,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     // sort descriptors
     
-    NSArray *sortDescriptorsJSONArray = searchParameters[[NSString stringWithFormat:@"%lu", NOSearchSortDescriptorsParameter]];
+    NSArray *sortDescriptorsJSONArray = searchParameters[[NSString stringWithFormat:@"%lu", (unsigned long)NOSearchSortDescriptorsParameter]];
     
     NSMutableArray *sortDescriptors;
     
@@ -1062,7 +1062,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     // fetch limit
     
-    NSNumber *fetchLimitNumber = searchParameters[[NSString stringWithFormat:@"%lu", NOSearchFetchLimitParameter]];
+    NSNumber *fetchLimitNumber = searchParameters[[NSString stringWithFormat:@"%lu", (unsigned long)NOSearchFetchLimitParameter]];
     
     if (fetchLimitNumber) {
         
@@ -1078,7 +1078,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     // fetch offset
     
-    NSNumber *fetchOffsetNumber = searchParameters[[NSString stringWithFormat:@"%lu", NOSearchFetchOffsetParameter]];
+    NSNumber *fetchOffsetNumber = searchParameters[[NSString stringWithFormat:@"%lu", (unsigned long)NOSearchFetchOffsetParameter]];
     
     if (fetchOffsetNumber) {
         
@@ -1093,7 +1093,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         fetchRequest.fetchOffset = fetchOffsetNumber.integerValue;
     }
     
-    NSNumber *includeSubEntitites = searchParameters[[NSString stringWithFormat:@"%lu", NOSearchIncludesSubentitiesParameter]];
+    NSNumber *includeSubEntitites = searchParameters[[NSString stringWithFormat:@"%lu", (unsigned long)NOSearchIncludesSubentitiesParameter]];
     
     if (includeSubEntitites) {
         

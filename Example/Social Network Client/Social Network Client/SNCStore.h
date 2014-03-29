@@ -14,9 +14,7 @@
 
 +(instancetype)sharedStore;
 
-#pragma mark - Session Properties
-
-// properties set after successful authentication
+#pragma mark - Properties
 
 @property (readonly) User *user;
 
@@ -24,19 +22,19 @@
 
 @property (readonly) NSManagedObjectContext *context;
 
-#pragma mark - Logout
+#pragma mark - Actions
 
 -(void)logout;
 
 #pragma mark - Authentication
 
 -(void)loginWithUsername:(NSString *)username
-                     password:(NSString *)password
-                    serverURL:(NSURL *)serverURL
-                     clientID:(NSUInteger)clientID
-                 clientSecret:(NSString *)secret
-                   URLSession:(NSURLSession *)urlSession
-                   completion:(void (^)(NSError *error))completionBlock;
+                password:(NSString *)password
+               serverURL:(NSURL *)serverURL
+                clientID:(NSUInteger)clientID
+            clientSecret:(NSString *)secret
+              URLSession:(NSURLSession *)urlSession
+              completion:(void (^)(NSError *error))completionBlock;
 
 -(void)registerWithUsername:(NSString *)username
                    password:(NSString *)password
