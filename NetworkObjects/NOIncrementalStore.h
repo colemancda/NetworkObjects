@@ -9,6 +9,8 @@
 #import <CoreData/CoreData.h>
 @class NOAPICachedStore;
 
+// Initializations options
+
 /** Option used upon initializaton that specifies the @c NOAPICachedStore the incremental store will be use.
  
  @warning Make sure to include this option when initializing the incremental store.
@@ -18,6 +20,9 @@
 extern NSString *const NOIncrementalStoreCachedStoreOption;
 
 // Notifications
+
+/** Notificiation posted when a fetch request finishes retrieving data from the server. The @c userInfo included will contain the original fetch request that was executed associated with @c NOIncrementalStoreRequestKey and an error associated with the @c NOIncrementalStoreErrorKey or the results with @c NOIncrementalStoreResultsKey.
+ */
 
 extern NSString *const NOIncrementalStoreFinishedFetchRequestNotification;
 

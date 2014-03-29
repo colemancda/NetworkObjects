@@ -37,10 +37,14 @@ NSString *const NOIncrementalStoreResultsKey = @"NOIncrementalStoreResultsKey";
              withContext:(NSManagedObjectContext *)context
                    error:(NSError *__autoreleasing *)error;
 
+@end
+
+@interface NOIncrementalStore (Cache)
+
+
 -(NSArray *)cachedResultsForFetchRequest:(NSFetchRequest *)fetchRequest
                                  context:(NSManagedObjectContext *)context
                                    error:(NSError **)error;
-
 
 @end
 
@@ -144,6 +148,8 @@ NSString *const NOIncrementalStoreResultsKey = @"NOIncrementalStoreResultsKey";
                                         withContext:(NSManagedObjectContext *)context
                                               error:(NSError *__autoreleasing *)error
 {
+    NSIncrementalStoreNode *storeNode;
+    
     // get reference object
     
     NSNumber *resourceID = [self referenceObjectForObjectID:objectID];
@@ -152,6 +158,12 @@ NSString *const NOIncrementalStoreResultsKey = @"NOIncrementalStoreResultsKey";
         
         return nil;
     }
+    
+    // find resource with resource ID...
+    
+    NSFetchRequest *cachedRequest = [NSFetchRequest fetchRequestWithEntityName:objectID.entity.name];
+    
+    cachedRequest.predicate = [NSPredicate predicateWithFormat:@"%K == %@", resourceID];
     
     // download from server
     
@@ -163,19 +175,27 @@ NSString *const NOIncrementalStoreResultsKey = @"NOIncrementalStoreResultsKey";
             
             // forward error
             
-            userInfo = @{NOIncrementalStoreErrorKey: error, }
+            userInfo = @{NOIncrementalStoreErrorKey: error, };
             
         }
         
     }];
     
+    NSArray *results = [self cachedResultsForFetchRequest:cachedRequest
+                                                  context:context
+                                                    error:error];
+    
+    NSManagedObject *cachedResource = results.firstObject;
+    
+    NSMutableDictionary *values
+    
     // immediately return cached values
     
-    NSIncrementalStoreNode *storeNode = [[NSIncrementalStoreNode alloc] initWithObjectID:objectID
-                                                                              withValues:
-                                                                                 version:0];
+    storeNode = [[NSIncrementalStoreNode alloc] initWithObjectID:objectID
+                                                      withValues:
+                                                         version:0];
     
-    return nil;
+    return storeNode;
 }
 
 -(id)newValueForRelationship:(NSRelationshipDescription *)relationship
@@ -203,9 +223,6 @@ NSString *const NOIncrementalStoreResultsKey = @"NOIncrementalStoreResultsKey";
                    error:(NSError *__autoreleasing *)error
 {
     NSFetchRequest *cacheRequest = request.copy;
-    
-    cacheRequest.entity = [NSEntityDescription entityForName:request.entityName
-                                      inManagedObjectContext:self.cachedStore.context];
     
     // comparison predicate, use search
     
@@ -263,6 +280,52 @@ NSString *const NOIncrementalStoreResultsKey = @"NOIncrementalStoreResultsKey";
                                       context:context
                                         error:error];
 }
+
+-(id)executeSaveRequest:(NSSaveChangesRequest *)request
+            withContext:(NSManagedObjectContext *)context
+                  error:(NSError *__autoreleasing *)error
+{
+    
+    return nil;
+}
+
+@end
+
+@implementation NOIncrementalStore (ManagedObjectID)
+
+-(NSManagedObjectID *)objectIDForEntity:(NSEntityDescription *)entity
+                        referenceObject:(id)data
+{
+    // lazily initialize dictionary
+    
+    if (!self.objectIDs) {
+        
+        self.objectIDs = [[NSMutableDictionary alloc] init];
+    }
+    
+    // key for object ID
+    
+    NSString *objectIDKey = [NSString stringWithFormat:@"%@.%@", entity.name, data];
+    
+    // try to get already created object ID
+    
+    NSManagedObjectID *objectID = self.objectIDs[objectIDKey];
+    
+    // create new and add to dictionary if it doesnt exist
+    
+    if (!objectID) {
+        
+        objectID = [self newObjectIDForEntity:entity referenceObject:data];
+        
+        self.objectIDs[objectIDKey] = objectID;
+    }
+    
+    return objectID;
+}
+
+@end
+
+@implementation NOIncrementalStore (Cache)
 
 -(NSArray *)cachedResultsForFetchRequest:(NSFetchRequest *)fetchRequest
                                  context:(NSManagedObjectContext *)context
@@ -357,48 +420,6 @@ NSString *const NOIncrementalStoreResultsKey = @"NOIncrementalStoreResultsKey";
     }
     
     return results;
-}
-
--(id)executeSaveRequest:(NSSaveChangesRequest *)request
-            withContext:(NSManagedObjectContext *)context
-                  error:(NSError *__autoreleasing *)error
-{
-    
-    return nil;
-}
-
-@end
-
-@implementation NOIncrementalStore (ManagedObjectID)
-
--(NSManagedObjectID *)objectIDForEntity:(NSEntityDescription *)entity
-                        referenceObject:(id)data
-{
-    // lazily initialize dictionary
-    
-    if (!self.objectIDs) {
-        
-        self.objectIDs = [[NSMutableDictionary alloc] init];
-    }
-    
-    // key for object ID
-    
-    NSString *objectIDKey = [NSString stringWithFormat:@"%@.%@", entity.name, data];
-    
-    // try to get already created object ID
-    
-    NSManagedObjectID *objectID = self.objectIDs[objectIDKey];
-    
-    // create new and add to dictionary if it doesnt exist
-    
-    if (!objectID) {
-        
-        objectID = [self newObjectIDForEntity:entity referenceObject:data];
-        
-        self.objectIDs[objectIDKey] = objectID;
-    }
-    
-    return objectID;
 }
 
 @end
