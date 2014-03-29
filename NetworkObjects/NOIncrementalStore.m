@@ -9,10 +9,6 @@
 #import "NOIncrementalStore.h"
 #import "NOAPICachedStore.h"
 
-// Store Type
-
-NSString *const NOIncrementalStoreType = @"NOIncrementalStoreType";
-
 // Options
 
 NSString *const NOIncrementalStoreCachedStoreOption = @"NOIncrementalStoreCachedStoreOption";
@@ -82,13 +78,13 @@ NSString *const NOIncrementalStoreObjectIDKey = @"NOIncrementalStoreObjectIDKey"
     if (self == [NOIncrementalStore self]) {
         
         [NSPersistentStoreCoordinator registerStoreClass:self
-                                            forStoreType:NOIncrementalStoreType];
+                                            forStoreType:NSStringFromClass(self)];
     }
 }
 
 +(NSString *)storeType
 {
-    return NOIncrementalStoreType;
+    return NSStringFromClass(self);
 }
 
 -(id)initWithPersistentStoreCoordinator:(NSPersistentStoreCoordinator *)root
@@ -102,12 +98,6 @@ NSString *const NOIncrementalStoreObjectIDKey = @"NOIncrementalStoreObjectIDKey"
         
         self.cachedStore = options[NOIncrementalStoreCachedStoreOption];
         
-        // notification queue
-        
-        _notificationQueue = [[NSOperationQueue alloc] init];
-        
-        _notificationQueue.name = @"NOIncrementalStore Notification Queue";
-        
     }
     
     return self;
@@ -115,7 +105,7 @@ NSString *const NOIncrementalStoreObjectIDKey = @"NOIncrementalStoreObjectIDKey"
 
 -(BOOL)loadMetadata:(NSError *__autoreleasing *)error
 {
-    self.metadata = @{NSStoreTypeKey: NOIncrementalStoreType,
+    self.metadata = @{NSStoreTypeKey: NSStringFromClass([self class]),
                       NSStoreUUIDKey : [[NSUUID UUID] UUIDString]};
     
     return YES;
@@ -220,13 +210,9 @@ NSString *const NOIncrementalStoreObjectIDKey = @"NOIncrementalStoreObjectIDKey"
         
         // post notification
         
-        [_notificationQueue addOperationWithBlock:^{
-           
-            [[NSNotificationCenter defaultCenter] postNotificationName:NOIncrementalStoreDidGetNewValuesNotification
-                                                                object:self
-                                                              userInfo:userInfo];
-            
-        }];
+        [[NSNotificationCenter defaultCenter] postNotificationName:NOIncrementalStoreDidGetNewValuesNotification
+                                                            object:self
+                                                          userInfo:userInfo];
         
     }];
     
@@ -320,15 +306,10 @@ NSString *const NOIncrementalStoreObjectIDKey = @"NOIncrementalStoreObjectIDKey"
             }
             
             // post notification
-
-            [_notificationQueue addOperationWithBlock:^{
-               
-                [[NSNotificationCenter defaultCenter] postNotificationName:NOIncrementalStoreFinishedFetchRequestNotification
-                                                                    object:self
-                                                                  userInfo:userInfo];
-                
-            }];
             
+            [[NSNotificationCenter defaultCenter] postNotificationName:NOIncrementalStoreFinishedFetchRequestNotification
+                                                                object:self
+                                                              userInfo:userInfo];
         }];
     }
     

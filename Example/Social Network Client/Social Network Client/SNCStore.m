@@ -31,15 +31,12 @@
     static dispatch_once_t onceToken;
     
     dispatch_once(&onceToken, ^{
+        
         sharedStore = [[self alloc] init];
+        
     });
     
     return sharedStore;
-}
-
-+ (id)allocWithZone:(NSZone *)zone
-{
-    return [self sharedStore];
 }
 
 - (id)init

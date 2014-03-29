@@ -327,12 +327,10 @@ static void *KVOContext = &KVOContext;
 {
     SNCPostViewController *postVC = segue.sourceViewController;
     
-    /*
-    
     // create new post
     if (!postVC.post) {
         
-        [[SNCStore sharedStore] createCachedResource:@"Post" initialValues:@{@"text": postVC.textView.text} URLSession:postVC.urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
+        [[SNCStore sharedStore].incrementalStore.cachedStore createCachedResource:@"Post" initialValues:@{@"text": postVC.textView.text} URLSession:postVC.urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
             
             if (error) {
                 
@@ -345,7 +343,7 @@ static void *KVOContext = &KVOContext;
             
             Post *post = (Post *)resource;
             
-            post.creator = self.user;
+            post.creator = [SNCStore sharedStore].user;
             
             post.created = [NSDate date];
             
@@ -356,7 +354,7 @@ static void *KVOContext = &KVOContext;
     // edit existing post
     else {
         
-        [[SNCStore sharedStore] editCachedResource:(id)postVC.post changes:@{@"text": postVC.textView.text} URLSession:postVC.urlSession completion:^(NSError *error) {
+        [[SNCStore sharedStore].incrementalStore.cachedStore editCachedResource:(id)postVC.post changes:@{@"text": postVC.textView.text} URLSession:postVC.urlSession completion:^(NSError *error) {
             
             if (error) {
                 
@@ -368,7 +366,6 @@ static void *KVOContext = &KVOContext;
         }];
     }
      
-     */
 }
 
 #pragma mark - Fetched Results Controller Delegate

@@ -51,9 +51,6 @@ extern NSString *const NOIncrementalStoreObjectIDKey;
 /** Incremental store for communicating with a NetworkObjects server. The URL specified in the initializer is ignored and all server schema and session variables are specified in the @c NOAPICachedStore associated with @c NOIncrementalStoreCachedStoreOption in the initializer's @c options dictionary. All fetch requests made to this store immediately return values from the cached store's context while a background request is made.*/
 
 @interface NOIncrementalStore : NSIncrementalStore
-{
-    NSOperationQueue *_notificationQueue;
-}
 
 +(NSString *)storeType;
 
