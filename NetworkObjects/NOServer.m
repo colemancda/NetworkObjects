@@ -1107,6 +1107,10 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         fetchRequest.includesSubentities = includeSubEntitites.boolValue;
     }
     
+    // prefetch resourceID
+    
+    fetchRequest.propertiesToFetch = @[[NSClassFromString(entityDescription.managedObjectClassName) resourceIDKey]];
+    
     // execute fetch request...
     
     __block NSError *fetchError;

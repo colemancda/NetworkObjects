@@ -150,15 +150,15 @@
     
     NSComparisonPredicate *predicate = (NSComparisonPredicate *)fetchRequest.predicate;
     
-    if (![predicate isKindOfClass:[NSComparisonPredicate class]]) {
-        
-        [NSException raise:NSInvalidArgumentException
-                    format:@"The fetch request's predicate must be of type NSComparisonPredicate"];
-        
-        return nil;
-    }
-    
     if (predicate) {
+        
+        if (![predicate isKindOfClass:[NSComparisonPredicate class]]) {
+            
+            [NSException raise:NSInvalidArgumentException
+                        format:@"The fetch request's predicate must be of type NSComparisonPredicate"];
+            
+            return nil;
+        }
         
         jsonObject[[NSString stringWithFormat:@"%lu", (unsigned long)NOSearchPredicateKeyParameter]] = predicate.leftExpression.keyPath;
         

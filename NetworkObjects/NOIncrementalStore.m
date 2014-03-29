@@ -275,54 +275,40 @@ NSString *const NOIncrementalStoreObjectIDKey = @"NOIncrementalStoreObjectIDKey"
              withContext:(NSManagedObjectContext *)context
                    error:(NSError *__autoreleasing *)error
 {
-    NSFetchRequest *cacheRequest = request.copy;
     
-    // comparison predicate, use search
     
-    if ([request.predicate isKindOfClass:[NSComparisonPredicate class]]) {
+    [self.cachedStore searchForCachedResourceWithFetchRequest:request URLSession:self.urlSession completion:^(NSError *remoteError, NSArray *results) {
         
-        [self.cachedStore searchForCachedResourceWithFetchRequest:cacheRequest URLSession:self.urlSession completion:^(NSError *remoteError, NSArray *results) {
+        // forward error
+        
+        NSDictionary *userInfo;
+        
+        if (remoteError) {
             
-            // forward error
+            userInfo = @{NOIncrementalStoreErrorKey: remoteError,
+                         NOIncrementalStoreRequestKey: request};
             
-            NSDictionary *userInfo;
+        }
+        
+        else {
             
-            if (remoteError) {
-                
-                userInfo = @{NOIncrementalStoreErrorKey: remoteError,
-                             NOIncrementalStoreRequestKey: request};
-                
-            }
+            NSArray *coreDataResults = [self cachedResultsForFetchRequest:request
+                                                                  context:context
+                                                                    error:nil];
             
-            else {
-                
-                NSArray *coreDataResults = [self cachedResultsForFetchRequest:cacheRequest
-                                                                       context:context
-                                                                         error:nil];
-                
-                userInfo = @{NOIncrementalStoreRequestKey: request,
-                             NOIncrementalStoreResultsKey : coreDataResults};
-                
-            }
+            userInfo = @{NOIncrementalStoreRequestKey: request,
+                         NOIncrementalStoreResultsKey : coreDataResults};
             
-            // post notification
-            
-            [[NSNotificationCenter defaultCenter] postNotificationName:NOIncrementalStoreFinishedFetchRequestNotification
-                                                                object:self
-                                                              userInfo:userInfo];
-        }];
-    }
+        }
+        
+        // post notification
+        
+        [[NSNotificationCenter defaultCenter] postNotificationName:NOIncrementalStoreFinishedFetchRequestNotification
+                                                            object:self
+                                                          userInfo:userInfo];
+    }];    
     
-    else {
-        
-        [NSException raise:NSInvalidArgumentException
-                    format:@"NOIncrementalStore only supports NSComparisonPredicate predicates for fetch requests"];
-        
-        return nil;
-        
-    }
-    
-    return [self cachedResultsForFetchRequest:cacheRequest
+    return [self cachedResultsForFetchRequest:request
                                       context:context
                                         error:error];
 }
@@ -368,10 +354,12 @@ NSString *const NOIncrementalStoreObjectIDKey = @"NOIncrementalStoreObjectIDKey"
         return cachedResults;
     }
     
-    // fetch resourceID from cache
+    // ManagedObjectID & faults
     
     if (fetchRequest.resultType == NSManagedObjectResultType ||
         fetchRequest.resultType == NSManagedObjectIDResultType) {
+        
+        // fetch resourceID from cache
         
         cacheFetchRequest.resultType = NSDictionaryResultType;
         

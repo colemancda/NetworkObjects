@@ -15,6 +15,14 @@
 
 static void *KVOContext = &KVOContext;
 
+@interface SNCPostsTableViewController (Notifications)
+
+-(void)setupNotifications;
+
+-(void)didFinishFetchRequest:(NSNotification *)notification;
+
+@end
+
 @interface SNCPostsTableViewController ()
 
 @end
@@ -41,13 +49,17 @@ static void *KVOContext = &KVOContext;
     
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
     
+    [self setupNotifications];
+    
     // KVO
     [self addObserver:self
            forKeyPath:NSStringFromSelector(@selector(predicate))
               options:NSKeyValueObservingOptionNew
               context:KVOContext];
     
+    // default predicate
     
+    self.predicate = nil;
 }
 
 - (void)didReceiveMemoryWarning
@@ -99,6 +111,8 @@ static void *KVOContext = &KVOContext;
 
 -(void)fetchData:(id)sender
 {
+    _dateLastFetched = [NSDate date];
+    
     [[SNCStore sharedStore].context performBlock:^{
         
         NSError *fetchError;
@@ -113,36 +127,7 @@ static void *KVOContext = &KVOContext;
         
     }];
     
-    // wait asyncronously for fetch to really finish
-    
-    [[NSNotificationCenter defaultCenter] addObserverForName:NOIncrementalStoreFinishedFetchRequestNotification object:nil queue:[[NSOperationQueue alloc] init] usingBlock:^(NSNotification *notification) {
-        
-        NSFetchRequest *notificationFetchRequest = notification.userInfo[NOIncrementalStoreRequestKey];
-        
-        // our fetch request
-        
-        if (notificationFetchRequest == _fetchedResultsController.fetchRequest) {
-            
-            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-                
-                [self.refreshControl endRefreshing];
-                
-            }];
-            
-            NSError *error = notification.userInfo[NOIncrementalStoreErrorKey];
-            
-            if (error) {
-                
-                [error presentError];
-                
-                return;
-            }
-            
-            // nothing needed, fetch result controller should detect the new changes from context
-            
-        }
-        
-    }];
+    // notifiation selector will handle error
 }
 
 
@@ -461,4 +446,47 @@ static void *KVOContext = &KVOContext;
 }
 
 
+@end
+
+#pragma mark - Categories
+
+@implementation SNCPostsTableViewController (Notifications)
+
+-(void)setupNotifications
+{
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(didFinishFetchRequest:)
+                                                 name:NOIncrementalStoreFinishedFetchRequestNotification
+                                               object:nil];
+}
+
+-(void)didFinishFetchRequest:(NSNotification *)notification
+{
+    NSFetchRequest *notificationFetchRequest = notification.userInfo[NOIncrementalStoreRequestKey];
+    
+    // make sure its our fetch request
+    
+    if (notificationFetchRequest == _fetchedResultsController.fetchRequest) {
+        
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            
+            [self.refreshControl endRefreshing];
+            
+        }];
+        
+        NSError *error = notification.userInfo[NOIncrementalStoreErrorKey];
+        
+        if (error) {
+            
+            [error presentError];
+            
+            return;
+        }
+        
+        // nothing needed, fetch result controller should detect the new changes from context
+        
+    }
+}
+
+    
 @end
