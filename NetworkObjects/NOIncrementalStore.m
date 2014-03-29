@@ -206,6 +206,16 @@ NSString *const NOIncrementalStoreObjectIDKey = @"NOIncrementalStoreObjectIDKey"
                          NOIncrementalStoreNewValuesKey: newValues};
         }
         
+        // post notification
+        
+        [_notificationQueue addOperationWithBlock:^{
+           
+            [[NSNotificationCenter defaultCenter] postNotificationName:NOIncrementalStoreDidGetNewValuesNotification
+                                                                object:self
+                                                              userInfo:userInfo];
+            
+        }];
+        
     }];
     
     return storeNode;
@@ -216,6 +226,8 @@ NSString *const NOIncrementalStoreObjectIDKey = @"NOIncrementalStoreObjectIDKey"
                  withContext:(NSManagedObjectContext *)context
                        error:(NSError *__autoreleasing *)error
 {
+    [NSException raise:NSInternalInconsistencyException
+                format:@"This method should never get called becuase the relationships are not lazily loaded"];
     
     return nil;
 }
