@@ -19,7 +19,6 @@
 		6E11BD0718AFD13A00FF75FB /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E11BCE618AFD13900FF75FB /* Cocoa.framework */; };
 		6E11BD0F18AFD13A00FF75FB /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6E11BD0D18AFD13A00FF75FB /* InfoPlist.strings */; };
 		6E11BD1118AFD13A00FF75FB /* Social_Network_ServerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E11BD1018AFD13A00FF75FB /* Social_Network_ServerTests.m */; };
-		6E11BD8118AFD4D100FF75FB /* NetworkObjects.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E11BD6A18AFD46000FF75FB /* NetworkObjects.framework */; };
 		6E11BDDA18AFDF1800FF75FB /* NSString+RandomString.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E11BDD918AFDF1800FF75FB /* NSString+RandomString.m */; };
 		6E11BDDB18AFDF1800FF75FB /* NSString+RandomString.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E11BDD918AFDF1800FF75FB /* NSString+RandomString.m */; };
 		6E11BDE618AFDF4A00FF75FB /* Post.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E11BDDF18AFDF4A00FF75FB /* Post.m */; };
@@ -43,13 +42,14 @@
 		6E11BE2218B030A000FF75FB /* SNSLogViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E11BE2118B030A000FF75FB /* SNSLogViewController.m */; };
 		6E11BE2318B030A000FF75FB /* SNSLogViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E11BE2118B030A000FF75FB /* SNSLogViewController.m */; };
 		6E11BE2418B042A700FF75FB /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6E11BCFB18AFD13A00FF75FB /* MainMenu.xib */; };
-		6E11BE2818B0443E00FF75FB /* NetworkObjects.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 6E11BD6A18AFD46000FF75FB /* NetworkObjects.framework */; };
 		6E11BE3318B0453100FF75FB /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 6E11BE3118B0453100FF75FB /* Model.xcdatamodeld */; };
 		6E11BE3418B0453100FF75FB /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 6E11BE3118B0453100FF75FB /* Model.xcdatamodeld */; };
 		6E11BE3618B04EDD00FF75FB /* SNSBrowserViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6E11BE3518B04EDD00FF75FB /* SNSBrowserViewController.xib */; };
 		6E11BE3718B04EDD00FF75FB /* SNSBrowserViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6E11BE3518B04EDD00FF75FB /* SNSBrowserViewController.xib */; };
 		6E11BE3918B04F4400FF75FB /* SNSLogViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6E11BE3818B04F4400FF75FB /* SNSLogViewController.xib */; };
 		6E11BE3A18B04F4400FF75FB /* SNSLogViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6E11BE3818B04F4400FF75FB /* SNSLogViewController.xib */; };
+		6E22C40D18D8CC5200D72842 /* NetworkObjects.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E78580118D2794E006142EC /* NetworkObjects.framework */; };
+		6E22C40E18D8CC5900D72842 /* NetworkObjects.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 6E78580118D2794E006142EC /* NetworkObjects.framework */; };
 		6E46EF7918B179190065D5D0 /* SNSSessionWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E46EF7718B179190065D5D0 /* SNSSessionWindowController.m */; };
 		6E46EF7A18B179190065D5D0 /* SNSSessionWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6E46EF7818B179190065D5D0 /* SNSSessionWindowController.xib */; };
 		6E46EF8218B17F200065D5D0 /* SNSUserWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E46EF8018B17F200065D5D0 /* SNSUserWindowController.m */; };
@@ -72,40 +72,40 @@
 			remoteGlobalIDString = 6E11BCE218AFD13900FF75FB;
 			remoteInfo = "Social Network Server";
 		};
-		6E11BD6918AFD46000FF75FB /* PBXContainerItemProxy */ = {
+		6E22C40618D8CC4B00D72842 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6E11BD6118AFD46000FF75FB /* NetworkObjects.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 6E2BD7BD1817309E00E9D04C;
+			remoteInfo = NetworkObjects;
+		};
+		6E78580018D2794E006142EC /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 6E11BD6118AFD46000FF75FB /* NetworkObjects.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = 6E2BD7BE1817309E00E9D04C;
 			remoteInfo = NetworkObjects;
 		};
-		6E11BD6B18AFD46000FF75FB /* PBXContainerItemProxy */ = {
+		6E78580218D2794E006142EC /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 6E11BD6118AFD46000FF75FB /* NetworkObjects.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = 6E2BD7D51817309E00E9D04C;
 			remoteInfo = NetworkObjectsTests;
 		};
-		6E11BD6D18AFD46000FF75FB /* PBXContainerItemProxy */ = {
+		6E78580418D2794E006142EC /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 6E11BD6118AFD46000FF75FB /* NetworkObjects.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = 6EED73E21818648F00F911BC;
 			remoteInfo = NetworkObjectsiOS;
 		};
-		6E11BD6F18AFD46000FF75FB /* PBXContainerItemProxy */ = {
+		6E78580618D2794E006142EC /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 6E11BD6118AFD46000FF75FB /* NetworkObjects.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = 6EED73F01818648F00F911BC;
 			remoteInfo = NetworkObjectsiOSTests;
-		};
-		6E11BD8218AFD4DD00FF75FB /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 6E11BD6118AFD46000FF75FB /* NetworkObjects.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 6E2BD7BD1817309E00E9D04C;
-			remoteInfo = NetworkObjects;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -116,7 +116,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				6E11BE2818B0443E00FF75FB /* NetworkObjects.framework in CopyFiles */,
+				6E22C40E18D8CC5900D72842 /* NetworkObjects.framework in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -145,7 +145,7 @@
 		6E11BD0C18AFD13A00FF75FB /* Social Network ServerTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Social Network ServerTests-Info.plist"; sourceTree = "<group>"; };
 		6E11BD0E18AFD13A00FF75FB /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		6E11BD1018AFD13A00FF75FB /* Social_Network_ServerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Social_Network_ServerTests.m; sourceTree = "<group>"; };
-		6E11BD6118AFD46000FF75FB /* NetworkObjects.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = NetworkObjects.xcodeproj; path = "/Users/Coleman/Programming/My Apps/NetworkObjects/Example/NetworkObjectsServer/../../Framework/NetworkObjects/NetworkObjects.xcodeproj"; sourceTree = "<absolute>"; };
+		6E11BD6118AFD46000FF75FB /* NetworkObjects.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = NetworkObjects.xcodeproj; path = ../../Framework/NetworkObjects/NetworkObjects.xcodeproj; sourceTree = SOURCE_ROOT; };
 		6E11BD8418AFDD8B00FF75FB /* SNSConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SNSConstants.h; sourceTree = "<group>"; };
 		6E11BDD818AFDF1800FF75FB /* NSString+RandomString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+RandomString.h"; sourceTree = "<group>"; };
 		6E11BDD918AFDF1800FF75FB /* NSString+RandomString.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+RandomString.m"; sourceTree = "<group>"; };
@@ -199,7 +199,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6E11BD8118AFD4D100FF75FB /* NetworkObjects.framework in Frameworks */,
+				6E22C40D18D8CC5200D72842 /* NetworkObjects.framework in Frameworks */,
 				6E11BCE718AFD13900FF75FB /* Cocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -337,17 +337,6 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		6E11BD6218AFD46000FF75FB /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				6E11BD6A18AFD46000FF75FB /* NetworkObjects.framework */,
-				6E11BD6C18AFD46000FF75FB /* NetworkObjectsTests.xctest */,
-				6E11BD6E18AFD46000FF75FB /* libNetworkObjects.a */,
-				6E11BD7018AFD46000FF75FB /* NetworkObjectsiOSTests.xctest */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 		6E11BDDC18AFDF1D00FF75FB /* Model */ = {
 			isa = PBXGroup;
 			children = (
@@ -422,6 +411,17 @@
 			name = Controllers;
 			sourceTree = "<group>";
 		};
+		6E7857F918D2794E006142EC /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				6E78580118D2794E006142EC /* NetworkObjects.framework */,
+				6E78580318D2794E006142EC /* NetworkObjectsTests.xctest */,
+				6E78580518D2794E006142EC /* libNetworkObjects.a */,
+				6E78580718D2794E006142EC /* NetworkObjectsiOSTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -437,7 +437,7 @@
 			buildRules = (
 			);
 			dependencies = (
-				6E11BD8318AFD4DD00FF75FB /* PBXTargetDependency */,
+				6E22C40718D8CC4B00D72842 /* PBXTargetDependency */,
 			);
 			name = "Social Network Server";
 			productName = "Social Network Server";
@@ -490,7 +490,7 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
-					ProductGroup = 6E11BD6218AFD46000FF75FB /* Products */;
+					ProductGroup = 6E7857F918D2794E006142EC /* Products */;
 					ProjectRef = 6E11BD6118AFD46000FF75FB /* NetworkObjects.xcodeproj */;
 				},
 			);
@@ -503,32 +503,32 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		6E11BD6A18AFD46000FF75FB /* NetworkObjects.framework */ = {
+		6E78580118D2794E006142EC /* NetworkObjects.framework */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.framework;
 			path = NetworkObjects.framework;
-			remoteRef = 6E11BD6918AFD46000FF75FB /* PBXContainerItemProxy */;
+			remoteRef = 6E78580018D2794E006142EC /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		6E11BD6C18AFD46000FF75FB /* NetworkObjectsTests.xctest */ = {
+		6E78580318D2794E006142EC /* NetworkObjectsTests.xctest */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.cfbundle;
 			path = NetworkObjectsTests.xctest;
-			remoteRef = 6E11BD6B18AFD46000FF75FB /* PBXContainerItemProxy */;
+			remoteRef = 6E78580218D2794E006142EC /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		6E11BD6E18AFD46000FF75FB /* libNetworkObjects.a */ = {
+		6E78580518D2794E006142EC /* libNetworkObjects.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
 			path = libNetworkObjects.a;
-			remoteRef = 6E11BD6D18AFD46000FF75FB /* PBXContainerItemProxy */;
+			remoteRef = 6E78580418D2794E006142EC /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		6E11BD7018AFD46000FF75FB /* NetworkObjectsiOSTests.xctest */ = {
+		6E78580718D2794E006142EC /* NetworkObjectsiOSTests.xctest */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.cfbundle;
 			path = NetworkObjectsiOSTests.xctest;
-			remoteRef = 6E11BD6F18AFD46000FF75FB /* PBXContainerItemProxy */;
+			remoteRef = 6E78580618D2794E006142EC /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -623,10 +623,10 @@
 			target = 6E11BCE218AFD13900FF75FB /* Social Network Server */;
 			targetProxy = 6E11BD0818AFD13A00FF75FB /* PBXContainerItemProxy */;
 		};
-		6E11BD8318AFD4DD00FF75FB /* PBXTargetDependency */ = {
+		6E22C40718D8CC4B00D72842 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = NetworkObjects;
-			targetProxy = 6E11BD8218AFD4DD00FF75FB /* PBXContainerItemProxy */;
+			targetProxy = 6E22C40618D8CC4B00D72842 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -740,6 +740,11 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					/Users/Coleman/Programming/My,
+					Projects/NetworkObjects/Framework/NetworkObjects/build/Debug,
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Social Network Server/Social Network Server-Prefix.pch";
 				INFOPLIST_FILE = "Social Network Server/Social Network Server-Info.plist";
@@ -754,6 +759,11 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					/Users/Coleman/Programming/My,
+					Projects/NetworkObjects/Framework/NetworkObjects/build/Debug,
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Social Network Server/Social Network Server-Prefix.pch";
 				INFOPLIST_FILE = "Social Network Server/Social Network Server-Info.plist";

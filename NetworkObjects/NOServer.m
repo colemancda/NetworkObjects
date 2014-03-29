@@ -16,6 +16,7 @@
 #import "RouteResponse+IPAddress.h"
 #import "NOHTTPConnection.h"
 #import "NOHTTPServer.h"
+#import "NetworkObjectsConstants.h"
 
 @implementation NOServer (NSJSONWritingOption)
 
@@ -30,6 +31,10 @@
 
 @end
 
+@interface NOServer ()
+
+@end
+
 @implementation NOServer
 
 @synthesize resourcePaths = _resourcePaths;
@@ -39,12 +44,11 @@
  sessionEntityName:(NSString *)sessionEntityName
   clientEntityName:(NSString *)clientEntityName
          loginPath:(NSString *)loginPath
+        searchPath:(NSString *)searchPath
 
 {
     self = [super init];
     if (self) {
-        
-        NSAssert(store, @"NOStore cannot be nil");
         
         _store = store;
         
@@ -56,6 +60,9 @@
         
         _loginPath = loginPath;
         
+        _searchPath = searchPath;
+        
+        // HTTP Server
         _httpServer = [[NOHTTPServer alloc] init];
         
         _httpServer.server = self;
@@ -63,6 +70,13 @@
         _httpServer.connectionClass = [NOHTTPConnection class];
         
         [self setupServerRoutes];
+        
+        // search enabled
+        if (self.searchPath) {
+            
+            // default value
+            self.allowedOperatorsForSearch = [NSSet setWithArray:@[@(NSEqualToPredicateOperatorType)]];
+        }
         
     }
     return self;
@@ -74,7 +88,7 @@
                 format:@"You cannot use %@ with '-%@', you have to use '-%@'",
      self,
      NSStringFromSelector(_cmd),
-     NSStringFromSelector(@selector(initWithStore:userEntityName:sessionEntityName:clientEntityName:loginPath:))];
+     NSStringFromSelector(@selector(initWithStore:userEntityName:sessionEntityName:clientEntityName:loginPath:searchPath:))];
     return nil;
 }
 
@@ -104,7 +118,7 @@
 
 -(NSDictionary *)resourcePaths
 {
-    // build a cache of NOResources and URLs
+    // build a cache of NOResources and URLs (once)
     if (!_resourcePaths) {
         
         // scan through entity descriptions and get urls of NOResources
@@ -139,14 +153,17 @@
 
 -(void)setupServerRoutes
 {
-    // add login server route
-    NSString *loginPath = [NSString stringWithFormat:@"/%@", self.loginPath];
-    
-    [_httpServer post:loginPath withBlock:^(RouteRequest *request, RouteResponse *response) {
+    if (self.loginPath) {
         
-        [self handleLoginWithRequest:request
-                            response:response];
-    }];
+        // add login server route
+        NSString *loginPath = [NSString stringWithFormat:@"/%@", self.loginPath];
+        
+        [_httpServer post:loginPath withBlock:^(RouteRequest *request, RouteResponse *response) {
+            
+            [self handleLoginWithRequest:request
+                                response:response];
+        }];
+    }
     
     // configure internal HTTP server routes for resources
     for (NSString *path in self.resourcePaths) {
@@ -157,7 +174,28 @@
         
         Class entityClass = NSClassFromString(entityDescription.managedObjectClassName);
         
-        // setup routes for resources
+        // add search route
+        
+        if (self.searchPath) {
+            
+            NSString *searchPathExpression = [NSString stringWithFormat:@"/%@/%@", _searchPath, path];
+            
+            void (^searchRequestHandler) (RouteRequest *, RouteResponse *) = ^(RouteRequest *request, RouteResponse *response) {
+                
+                [self handleRequest:request
+   forResourceWithEntityDescription:entityDescription
+                         resourceID:nil
+                           function:nil
+                           isSearch:YES
+                           response:response];
+                
+            };
+            
+            [_httpServer get:searchPathExpression
+                   withBlock:searchRequestHandler];
+        }
+        
+        // setup routes for resources...
         
         NSString *allInstancesPathExpression = [NSString stringWithFormat:@"/%@", path];
         
@@ -167,6 +205,7 @@
 forResourceWithEntityDescription:entityDescription
                      resourceID:nil
                        function:nil
+                       isSearch:NO
                        response:response];
         };
         
@@ -190,6 +229,7 @@ forResourceWithEntityDescription:entityDescription
 forResourceWithEntityDescription:entityDescription
                      resourceID:resourceID
                        function:nil
+                       isSearch:NO
                        response:response];
         };
         
@@ -223,6 +263,7 @@ forResourceWithEntityDescription:entityDescription
    forResourceWithEntityDescription:entityDescription
                          resourceID:resourceID
                            function:functionName
+                           isSearch:NO
                            response:response];
 
             };
@@ -241,6 +282,7 @@ forResourceWithEntityDescription:entityDescription
 forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
           resourceID:(NSNumber *)resourceID
             function:(NSString *)functionName
+            isSearch:(BOOL)isSearch
             response:(RouteResponse *)response
 {
     // get session from request
@@ -285,6 +327,8 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         jsonObject = nil;
     }
     
+    // handlers that do not specify an instance...
+    
     // create new instance
     if (!resourceID && [request.method isEqualToString:@"POST"]) {
         
@@ -296,7 +340,19 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         
     }
     
-    // methods that manipulate a instance
+    // search
+    if (!resourceID && [request.method isEqualToString:@"GET"]) {
+        
+        [self handleSearchForResourceWithEntityDescription:entityDescription
+                                                   session:session
+                                          searchParameters:jsonObject
+                                                  response:response];
+        
+        return;
+    }
+    
+    // methods that manipulate a instance...
+    
     if (resourceID) {
         
         // get the resource
@@ -324,8 +380,8 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         // requires a body
         if ([request.method isEqualToString:@"PUT"]) {
             
-            // bad request if body data is not JSON
-            if (!jsonObject || ![jsonObject isKindOfClass:[NSDictionary class]]) {
+            // bad request if no JSON body is attached to request
+            if (!jsonObject) {
                 
                 response.statusCode = BadRequestStatusCode;
                 
@@ -348,7 +404,6 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
             
             return;
         }
-        
         
         if ([request.method isEqualToString:@"DELETE"]) {
             
@@ -734,13 +789,443 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     [response respondWithData:jsonData];
 }
 
+-(void)handleSearchForResourceWithEntityDescription:(NSEntityDescription *)entityDescription
+                                            session:(NSManagedObject<NOSessionProtocol> *)session
+                                   searchParameters:(NSDictionary *)searchParameters
+                                           response:(RouteResponse *)response
+{
+    // check permission
+    
+    if (![NSClassFromString(entityDescription.managedObjectClassName) canSearchFromSession:session]) {
+        
+        response.statusCode = ForbiddenStatusCode;
+        
+        return;
+    }
+    
+    // Put togeather fetch request
+    NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:entityDescription.name];
+    
+    // get resourceID key
+    
+    NSString *resourceIDKey = [NSClassFromString(entityDescription.managedObjectClassName) resourceIDKey];
+    
+    NSSortDescriptor *defaultSortDescriptor = [NSSortDescriptor sortDescriptorWithKey:resourceIDKey
+                                                                            ascending:YES];
+    
+    fetchRequest.sortDescriptors = @[defaultSortDescriptor];
+    
+    
+    // add search parameters...
+    
+    // predicate...
+    
+    NSString *predicateKey = searchParameters[[NSString stringWithFormat:@"%lu", NOSearchPredicateKeyParameter]];
+    
+    id jsonPredicateValue = searchParameters[[NSString stringWithFormat:@"%lu", NOSearchPredicateValueParameter]];
+    
+    NSNumber *predicateOperator = searchParameters[[NSString stringWithFormat:@"%lu", NOSearchPredicateOperatorParameter]];
+    
+    if ([predicateKey isKindOfClass:[NSString class]] &&
+        [predicateOperator isKindOfClass:[NSNumber class]] &&
+        jsonPredicateValue) {
+        
+        // validate comparator
+        
+        BOOL validComparator;
+        
+        for (NSNumber *allowedOperatorNumber in self.allowedOperatorsForSearch) {
+            
+            if ([allowedOperatorNumber isEqualToNumber:predicateOperator]) {
+                
+                validComparator = YES;
+                
+                break;
+            }
+        }
+        
+        if (!validComparator ||
+            predicateOperator.integerValue == NSCustomSelectorPredicateOperatorType) {
+            
+            response.statusCode = BadRequestStatusCode;
+            
+            return;
+        }
+        
+        // convert to Core Data value...
+        
+        id value;
+        
+        // one of these will be nil
+        
+        NSRelationshipDescription *relationshipDescription = entityDescription.relationshipsByName[predicateKey];
+        
+        NSAttributeDescription *attributeDescription = entityDescription.attributesByName[predicateKey];
+        
+        // validate that key is attribute or relationship
+        if (!relationshipDescription && !attributeDescription) {
+            
+            response.statusCode = BadRequestStatusCode;
+            
+            return;
+        }
+        
+        // attribute value
+        
+        if (attributeDescription) {
+            
+            value = [entityDescription attributeValueForJSONCompatibleValue:jsonPredicateValue
+                                                               forAttribute:predicateKey];
+        }
+        
+        // relationship value
+        
+        if (relationshipDescription) {
+            
+            // to-one
+            
+            if (!relationshipDescription.isToMany) {
+                
+                // verify
+                if (![jsonPredicateValue isKindOfClass:[NSNumber class]]) {
+                    
+                    response.statusCode = BadRequestStatusCode;
+                    
+                    return;
+                }
+                
+                NSNumber *resourceID = jsonPredicateValue;
+                
+                value = [self.store resourceWithEntityDescription:entityDescription
+                                                       resourceID:resourceID.integerValue];
+                
+            }
+            
+            // to-many
+            
+            else {
+                
+                // verify
+                if (![jsonPredicateValue isKindOfClass:[NSArray class]]) {
+                    
+                    response.statusCode = BadRequestStatusCode;
+                    
+                    return;
+                }
+                
+                value = [[NSMutableArray alloc] init];
+                
+                for (NSNumber *resourceID in jsonPredicateValue) {
+                    
+                    if (![resourceID isKindOfClass:[NSNumber class]]) {
+                        
+                        response.statusCode = BadRequestStatusCode;
+                        
+                        return;
+                    }
+                    
+                    NSManagedObject<NOResourceProtocol> *resource = [self.store resourceWithEntityDescription:relationshipDescription.destinationEntity resourceID:resourceID.integerValue];
+                    
+                    if (!resource) {
+                        
+                        response.statusCode = BadRequestStatusCode;
+                        
+                        return;
+                    }
+                    
+                    [value addObject:resource];
+                }
+            }
+        }
+        
+        // create predicate
+        
+        NSExpression *leftExp = [NSExpression expressionForKeyPath:predicateKey];
+        
+        NSExpression *rightExp = [NSExpression expressionForConstantValue:value];
+        
+        NSPredicateOperatorType operator = predicateOperator.integerValue;
+        
+        // add optional parameters...
+        
+        NSNumber *optionNumber = searchParameters[[NSString stringWithFormat:@"%lu", NOSearchPredicateOptionParameter]];
+        
+        NSComparisonPredicateOptions options;
+        
+        if ([optionNumber isKindOfClass:[NSNumber class]]) {
+            
+            options = optionNumber.integerValue;
+            
+        }
+        else {
+            
+            options = NSNormalizedPredicateOption;
+        }
+        
+        NSNumber *modifierNumber = searchParameters[[NSString stringWithFormat:@"%lu", NOSearchPredicateModifierParameter]];
+        
+        NSComparisonPredicateModifier modifier;
+        
+        if ([modifierNumber isKindOfClass:[NSNumber class]]) {
+            
+            modifier = modifierNumber.integerValue;
+        }
+        
+        else {
+            
+            modifier = NSDirectPredicateModifier;
+        }
+        
+        NSComparisonPredicate *predicate = [[NSComparisonPredicate alloc] initWithLeftExpression:leftExp
+                                                                                 rightExpression:rightExp
+                                                                                        modifier:modifier
+                                                                                            type:operator
+                                                                                         options:options];
+        
+        if (!predicate) {
+            
+            response.statusCode = BadRequestStatusCode;
+            
+            return;
+        }
+        
+        fetchRequest.predicate = predicate;
+        
+    }
+    
+    // sort descriptors
+    
+    NSArray *sortDescriptorsJSONArray = searchParameters[[NSString stringWithFormat:@"%lu", NOSearchSortDescriptorsParameter]];
+    
+    NSMutableArray *sortDescriptors;
+    
+    if (sortDescriptorsJSONArray) {
+        
+        if (![sortDescriptorsJSONArray isKindOfClass:[NSArray class]]) {
+            
+            response.statusCode = BadRequestStatusCode;
+            
+            return;
+        }
+        
+        if (!sortDescriptorsJSONArray.count) {
+            
+            response.statusCode = BadRequestStatusCode;
+            
+            return;
+        }
+        
+        sortDescriptors = [[NSMutableArray alloc] init];
+        
+        for (NSDictionary *sortDescriptorJSON in sortDescriptorsJSONArray) {
+            
+            // validate JSON
+            
+            if (![sortDescriptorJSON isKindOfClass:[NSDictionary class]]) {
+                
+                response.statusCode = BadRequestStatusCode;
+                
+                return;
+            }
+            
+            if (sortDescriptorJSON.allKeys.count != 1) {
+                
+                response.statusCode = BadRequestStatusCode;
+                
+                return;
+            }
+            
+            NSString *key = sortDescriptorJSON.allKeys.firstObject;
+            
+            NSNumber *ascending = sortDescriptorJSON.allValues.firstObject;
+            
+            // more validation
+            
+            if (![key isKindOfClass:[NSString class]] ||
+                ![ascending isKindOfClass:[NSNumber class]]) {
+                
+                response.statusCode = BadRequestStatusCode;
+                
+                return;
+            }
+            
+            NSSortDescriptor *sort = [NSSortDescriptor sortDescriptorWithKey:key
+                                                                   ascending:ascending.boolValue];
+            
+            [sortDescriptors addObject:sort];
+            
+        }
+        
+        fetchRequest.sortDescriptors = sortDescriptors;
+        
+    }
+    
+    // fetch limit
+    
+    NSNumber *fetchLimitNumber = searchParameters[[NSString stringWithFormat:@"%lu", NOSearchFetchLimitParameter]];
+    
+    if (fetchLimitNumber) {
+        
+        if (![fetchLimitNumber isKindOfClass:[NSNumber class]]) {
+            
+            response.statusCode = BadRequestStatusCode;
+            
+            return;
+        }
+        
+        fetchRequest.fetchLimit = fetchLimitNumber.integerValue;
+    }
+    
+    // fetch offset
+    
+    NSNumber *fetchOffsetNumber = searchParameters[[NSString stringWithFormat:@"%lu", NOSearchFetchOffsetParameter]];
+    
+    if (fetchOffsetNumber) {
+        
+        if (![fetchOffsetNumber isKindOfClass:[NSNumber class]]) {
+            
+            response.statusCode = BadRequestStatusCode;
+            
+            return;
+        }
+        
+        
+        fetchRequest.fetchOffset = fetchOffsetNumber.integerValue;
+    }
+    
+    NSNumber *includeSubEntitites = searchParameters[[NSString stringWithFormat:@"%lu", NOSearchIncludesSubentitiesParameter]];
+    
+    if (includeSubEntitites) {
+        
+        if (![includeSubEntitites isKindOfClass:[NSNumber class]]) {
+            
+            response.statusCode = BadRequestStatusCode;
+            
+            return;
+        }
+        
+        fetchRequest.includesSubentities = includeSubEntitites.boolValue;
+    }
+    
+    // execute fetch request...
+    
+    __block NSError *fetchError;
+    
+    __block NSArray *result;
+    
+    [self.store.context performBlockAndWait:^{
+        
+        result = [self.store.context executeFetchRequest:fetchRequest
+                                                   error:&fetchError];
+        
+    }];
+    
+    // invalid fetch
+    
+    if (fetchError) {
+        
+        response.statusCode = BadRequestStatusCode;
+        
+        return;
+    }
+    
+    // filter results (session must have read permissions)
+    
+    NSMutableArray *filteredResultsResourceIDs = [[NSMutableArray alloc] init];
+    
+    for (NSManagedObject<NOResourceProtocol> *resource in result) {
+        
+        NSNumber *resourceID = [resource valueForKey:[NSClassFromString(resource.entity.managedObjectClassName) resourceIDKey]];
+        
+        // permission to view resource
+        
+        if ([resource permissionForSession:session] >= ReadOnlyPermission) {
+            
+            // must have permission for keys accessed
+            
+            if (predicateKey) {
+                
+                NSRelationshipDescription *relationship = resource.entity.relationshipsByName[predicateKey];
+                
+                NSAttributeDescription *attribute = resource.entity.attributesByName[predicateKey];
+                
+                if (attribute) {
+                    
+                    if ([resource permissionForAttribute:predicateKey session:session] < ReadOnlyPermission) {
+                        
+                        break;
+                    }
+                }
+                
+                if (relationship) {
+                    
+                    if ([resource permissionForRelationship:predicateKey session:session] < ReadOnlyPermission) {
+                        
+                        break;
+                    }
+                }
+                
+            }
+            
+            // must have read only permission for keys in sort descriptor
+            
+            if (sortDescriptors) {
+                
+                for (NSSortDescriptor *sort in sortDescriptors) {
+                    
+                    NSRelationshipDescription *relationship = resource.entity.relationshipsByName[sort.key];
+                    
+                    NSAttributeDescription *attribute = resource.entity.attributesByName[sort.key];
+                    
+                    if (attribute) {
+                        
+                        if ([resource permissionForAttribute:sort.key session:session] >= ReadOnlyPermission) {
+                            
+                            [filteredResultsResourceIDs addObject:resourceID];
+                        }
+                    }
+                    
+                    if (relationship) {
+                        
+                        if (![resource permissionForRelationship:sort.key session:session] >= ReadOnlyPermission) {
+                            
+                            [filteredResultsResourceIDs addObject:resourceID];
+                        }
+                    }
+                }
+            }
+            
+            else {
+                
+                [filteredResultsResourceIDs addObject:resourceID];
+            }
+        }
+    }
+    
+    // return the resource IDs of filtered objects
+    
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:filteredResultsResourceIDs
+                                                       options:self.jsonWritingOption
+                                                         error:nil];
+    
+    if (!jsonData) {
+        
+        response.statusCode = InternalServerErrorStatusCode;
+        
+        return;
+    }
+    
+    [response respondWithData:jsonData];
+}
+
 #pragma mark - Common methods for handlers
 
 -(NSManagedObject<NOSessionProtocol> *)sessionWithToken:(NSString *)token
 {
     // determine the attribute name the entity uses for storing tokens
     
-    NSEntityDescription *sessionEntityDescription = [NSEntityDescription entityForName:self.sessionEntityName inManagedObjectContext:_store.context];
+    NSEntityDescription *sessionEntityDescription = [NSEntityDescription entityForName:self.sessionEntityName
+                                                                inManagedObjectContext:_store.context];
     
     Class sessionEntityClass = NSClassFromString(sessionEntityDescription.managedObjectClassName);
     

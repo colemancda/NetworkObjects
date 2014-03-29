@@ -17,12 +17,29 @@
 
 @interface NOAPICachedStore : NOAPI
 {
-    /** Hierarchy of dictionaries with dates a resource with a particular resource ID was cached. */
-    NSDictionary *_dateCached;
-    
     /** Dictionary of NSOperationQueue for accessing a sub dictionary in @c _dateCached */
     NSDictionary *_dateCachedOperationQueues;
 }
+
+#pragma mark - Initialization
+
++(instancetype)cachedStoreWithModel:(NSManagedObjectModel *)model
+                  sessionEntityName:(NSString *)sessionEntityName
+                     userEntityName:(NSString *)userEntityName
+                   clientEntityName:(NSString *)clientEntityName
+                          loginPath:(NSString *)loginPath
+                         searchPath:(NSString *)searchPath
+                        datesCached:(NSDictionary *)datesCached;
+
+-(instancetype)initWithModel:(NSManagedObjectModel *)model
+           sessionEntityName:(NSString *)sessionEntityName
+              userEntityName:(NSString *)userEntityName
+            clientEntityName:(NSString *)clientEntityName
+                   loginPath:(NSString *)loginPath
+                  searchPath:(NSString *)searchPath
+                 datesCached:(NSDictionary *)datesCached;
+
+#pragma mark - Cache
 
 // must initialize the persistent store coordinator
 
@@ -33,9 +50,11 @@
  
  */
 
-#pragma mark - Cache
-
 @property (readonly) NSManagedObjectContext *context;
+
+/** Hierarchy of dictionaries with dates a resource with a particular resource ID was cached. */
+
+@property (readonly) NSDictionary *datesCached;
 
 /** Returns the date when this Resource was cached (either downloaded or created) */
 
@@ -43,6 +62,23 @@
                       resourceID:(NSUInteger)resourceID;
 
 #pragma mark - Requests
+
+/** Performs a fetch request on the server and returns the results in the completion block. The fetch request results are filtered by the permissions the session has.
+ 
+ @param fetchRequest The fetch request that will be used to perform the search.
+ 
+ @param urlSession The URL session that will be used to create the data task. If this parameter is nil than the default URL session is used.
+ 
+ @param completionBlock The completion block that will be called when a response is recieved from the server. If an error occurred then the completion block's @c error argument will be set to an @c NSError instance. If there is no error then the completion block's @c results argument will be set to an array of cached resource instances. Note that performing a search does not update the cached results' data which must be retrieved separately.
+ 
+ @return The data task that is communicating with the server. The data task returned is already resumed.
+ 
+ @warning Some of the properties of the fetch request have to use specific values. The entity specified in the fetch request must match an entity description in the store's @c model property. The only valid predicate class that can be used is @c NSComparisonPredicate and never set the predicate's @c predicateOperatorType to @c NSCustomSelectorPredicateOperatorType.
+ */
+
+-(NSURLSessionDataTask *)searchForCachedResourceWithFetchRequest:(NSFetchRequest *)fetchRequest
+                                                      URLSession:(NSURLSession *)urlSession
+                                                      completion:(void (^)(NSError *error, NSArray *results))completionBlock;
 
 -(NSURLSessionDataTask *)getCachedResource:(NSString *)resourceName
                                 resourceID:(NSUInteger)resourceID
@@ -59,9 +95,9 @@
                                    completion:(void (^)(NSError *error))completionBlock;
 
 -(NSURLSessionDataTask *)createCachedResource:(NSString *)resourceName
-                          initialValues:(NSDictionary *)initialValues
-                             URLSession:(NSURLSession *)urlSession
-                             completion:(void (^)(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource)) completionBlock;
+                                initialValues:(NSDictionary *)initialValues
+                                   URLSession:(NSURLSession *)urlSession
+                                   completion:(void (^)(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource)) completionBlock;
 
 -(NSURLSessionDataTask *)performFunction:(NSString *)functionName
                         onCachedResource:(NSManagedObject<NOResourceKeysProtocol>*)resource

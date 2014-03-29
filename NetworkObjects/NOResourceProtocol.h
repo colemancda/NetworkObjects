@@ -79,6 +79,16 @@
 
 #pragma mark - Access
 
+/** Determines whether a session can search for instances of this resource
+ 
+ @param session The session that wants to perform a search on instances of this class.
+ 
+ @return Returns @c YES or @c NO.
+ 
+ */
+
++(BOOL)canSearchFromSession:(NSManagedObject<NOSessionProtocol> *)session;
+
 /**
  Determines whether a session can create new instances of this resource.
  

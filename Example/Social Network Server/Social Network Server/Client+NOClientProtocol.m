@@ -47,6 +47,11 @@
 
 #pragma mark - Permissions
 
++(BOOL)canSearchFromSession:(NSManagedObject<NOSessionProtocol> *)session
+{
+    return YES;
+}
+
 +(BOOL)canCreateNewInstanceFromSession:(NSManagedObject<NOSessionProtocol> *)sessionProtocolObject
 {
     return YES;

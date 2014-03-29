@@ -11,4 +11,21 @@
 
 #define NetworkObjectsErrorDomain @"com.ColemanCDA.NetworkObjects.ErrorDomain"
 
+// search parameters
+
+typedef NS_ENUM(NSUInteger, NOSearchParameter) {
+    
+    NOSearchPredicateKeyParameter,
+    NOSearchPredicateValueParameter,
+    NOSearchPredicateOperatorParameter,
+    NOSearchPredicateOptionParameter,
+    NOSearchPredicateModifierParameter,
+    NOSearchFetchLimitParameter,
+    NOSearchFetchOffsetParameter,
+    NOSearchIncludesSubentitiesParameter,
+    NOSearchSortDescriptorsParameter
+    
+};
+
+
 #endif

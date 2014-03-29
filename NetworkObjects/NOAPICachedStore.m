@@ -8,6 +8,7 @@
 
 #import "NOAPICachedStore.h"
 #import "NSManagedObject+CoreDataJSONCompatibility.h"
+#import "NetworkObjectsConstants.h"
 
 @interface NOAPICachedStore (Cache)
 
@@ -35,21 +36,51 @@
 
 @end
 
+@interface NOAPICachedStore ()
+
+@property NSDictionary *datesCached;
+
+@end
+
 @implementation NOAPICachedStore
 
--(id)initWithModel:(NSManagedObjectModel *)model
- sessionEntityName:(NSString *)sessionEntityName
-    userEntityName:(NSString *)userEntityName
-  clientEntityName:(NSString *)clientEntityName
-         loginPath:(NSString *)loginPath
+#pragma mark - Initialization
+
++(instancetype)cachedStoreWithModel:(NSManagedObjectModel *)model
+                  sessionEntityName:(NSString *)sessionEntityName
+                     userEntityName:(NSString *)userEntityName
+                   clientEntityName:(NSString *)clientEntityName
+                          loginPath:(NSString *)loginPath
+                         searchPath:(NSString *)searchPath
+                        datesCached:(NSDictionary *)datesCached
+{
+    return [[self alloc] initWithModel:model
+                     sessionEntityName:sessionEntityName
+                        userEntityName:userEntityName
+                      clientEntityName:clientEntityName
+                             loginPath:loginPath
+                            searchPath:searchPath
+                           datesCached:datesCached];
+}
+
+-(instancetype)initWithModel:(NSManagedObjectModel *)model
+           sessionEntityName:(NSString *)sessionEntityName
+              userEntityName:(NSString *)userEntityName
+            clientEntityName:(NSString *)clientEntityName
+                   loginPath:(NSString *)loginPath
+                  searchPath:(NSString *)searchPath
+                 datesCached:(NSDictionary *)datesCached
 {
     self = [super initWithModel:model
               sessionEntityName:sessionEntityName
                  userEntityName:userEntityName
                clientEntityName:clientEntityName
-                      loginPath:loginPath];
+                      loginPath:loginPath
+                     searchPath:searchPath];
     
     if (self) {
+        
+        self.datesCached = datesCached;
         
         _context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
         
@@ -71,7 +102,7 @@
     NSOperationQueue *operationQueue = _dateCachedOperationQueues[resourceName];
     
     // get the mutable dictionary
-    NSMutableDictionary *resourceDatesCached = _dateCached[resourceName];
+    NSMutableDictionary *resourceDatesCached = _datesCached[resourceName];
     
     __block NSDate *date;
     
@@ -85,6 +116,122 @@
 }
 
 #pragma mark - Requests
+
+-(NSURLSessionDataTask *)searchForCachedResourceWithFetchRequest:(NSFetchRequest *)fetchRequest
+                                                      URLSession:(NSURLSession *)urlSession
+                                                      completion:(void (^)(NSError *, NSArray *))completionBlock
+{
+    if (!fetchRequest) {
+        
+        [NSException raise:NSInvalidArgumentException
+                    format:@"Must specify a fetch request in order to perform a search"];
+        
+        return nil;
+    }
+    
+    // entity
+    
+    NSEntityDescription *entity = fetchRequest.entity;
+    
+    if (!entity) {
+        
+        NSAssert(fetchRequest.entityName, @"Must specify an entity");
+        
+        entity = self.model.entitiesByName[fetchRequest.entityName];
+        
+        NSAssert(entity, @"Entity specified not found in store's model property");
+    }
+    
+    // build JSON request from fetch request
+    
+    NSMutableDictionary *jsonObject;
+    
+    // Optional comparison predicate
+    
+    NSComparisonPredicate *predicate = (NSComparisonPredicate *)fetchRequest.predicate;
+    
+    if (![predicate isKindOfClass:[NSComparisonPredicate class]]) {
+        
+        [NSException raise:NSInvalidArgumentException
+                    format:@"The fetch request's predicate must be of type NSComparisonPredicate"];
+        
+        return nil;
+    }
+    
+    if (predicate) {
+        
+        jsonObject[[NSString stringWithFormat:@"%lu", NOSearchPredicateKeyParameter]] = predicate.leftExpression.keyPath;
+        
+        // convert value to from Core Data to JSON
+        
+        id jsonValue = [fetchRequest.entity jsonObjectFromCoreDataValues:@{predicate.leftExpression.keyPath: predicate.rightExpression.constantValue}].allValues.firstObject;
+        
+        jsonObject[[NSString stringWithFormat:@"%lu", NOSearchPredicateValueParameter]] = jsonValue;
+        
+        jsonObject[[NSString stringWithFormat:@"%lu", NOSearchPredicateOperatorParameter]] = @(predicate.predicateOperatorType);
+        
+        jsonObject[[NSString stringWithFormat:@"%lu", NOSearchPredicateOptionParameter]] = @(predicate.options);
+        
+        jsonObject[[NSString stringWithFormat:@"%lu", NOSearchPredicateModifierParameter]] = @(predicate.comparisonPredicateModifier);
+    }
+    
+    // other fetch parameters
+    
+    if (fetchRequest.fetchLimit) {
+        
+        jsonObject[[NSString stringWithFormat:@"%lu", NOSearchFetchLimitParameter]] = @(fetchRequest.fetchLimit);
+    }
+    
+    if (fetchRequest.fetchOffset) {
+        
+        jsonObject[[NSString stringWithFormat:@"%lu", NOSearchFetchOffsetParameter]] = @(fetchRequest.fetchOffset);
+    }
+    
+    if (fetchRequest.includesSubentities) {
+        
+        jsonObject[[NSString stringWithFormat:@"%lu", NOSearchIncludesSubentitiesParameter]] = @(fetchRequest.includesSubentities);
+    }
+    
+    // sort descriptors
+    
+    if (fetchRequest.sortDescriptors.count) {
+        
+        NSMutableArray *jsonSortDescriptors = [[NSMutableArray alloc] init];
+        
+        for (NSSortDescriptor *sort in fetchRequest.sortDescriptors) {
+            
+            [jsonSortDescriptors addObject:@{sort.key: @(sort.ascending)}];
+        }
+        
+        jsonObject[[NSString stringWithFormat:@"%lu", NOSearchSortDescriptorsParameter]] = jsonSortDescriptors;
+    }
+    
+    return [self searchForResource:entity.name withParameters:jsonObject URLSession:urlSession completion:^(NSError *error, NSArray *results) {
+        
+        if (error) {
+            
+            completionBlock(error, nil);
+            
+            return;
+        }
+        
+        // get results as cached resources
+        
+        NSMutableArray *cachedResults = [[NSMutableArray alloc] init];
+        
+        for (NSNumber *resourceID in results) {
+            
+            NSManagedObject *resource = [self resource:entity.name
+                                                withID:resourceID.integerValue];
+            
+            [cachedResults addObject:resource];
+        }
+        
+        completionBlock(nil, cachedResults);
+        
+    }];
+}
+
 
 -(NSURLSessionDataTask *)getCachedResource:(NSString *)resourceName
                                 resourceID:(NSUInteger)resourceID
@@ -271,6 +418,8 @@
     [self.context performBlockAndWait:^{
         
         NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:resourceName];
+        
+        fetchRequest.fetchLimit = 1;
         
         // get entity
         NSEntityDescription *entity = self.model.entitiesByName[resourceName];
@@ -562,14 +711,43 @@
 -(void)setupDateCached
 {
     // a mutable dictionary per entity
-    NSMutableDictionary *dateCached = [[NSMutableDictionary alloc] init];
+    NSMutableDictionary *dateCached;
+    
+    // try to load previously saved dates entities where cached
+    
+    if (self.datesCached) {
+        
+        dateCached = [NSMutableDictionary dictionaryWithDictionary:self.datesCached];
+    }
+    
+    else {
+        
+        dateCached = [[NSMutableDictionary alloc] init];
+    }
     
     for (NSString *entityName in self.model.entitiesByName) {
         
-        [dateCached addEntriesFromDictionary:@{entityName: [[NSMutableDictionary alloc] init]}];
+        NSMutableDictionary *entityDates;
+        
+        // try to load previously saved dates instances of this entity where cached
+        
+        NSDictionary *savedEntityDates = dateCached[entityName];
+        
+        if (savedEntityDates) {
+            
+            entityDates = [NSMutableDictionary dictionaryWithDictionary:savedEntityDates];
+        }
+        
+        else {
+            
+            entityDates = [[NSMutableDictionary alloc] init];
+        }
+        
+        
+        [dateCached addEntriesFromDictionary:@{entityName: entityDates}];
     }
     
-    _dateCached = [NSDictionary dictionaryWithDictionary:dateCached];
+    self.datesCached = [NSDictionary dictionaryWithDictionary:dateCached];
     
     // a NSOperationQueue per entity
     NSMutableDictionary *dateCachedOperationQueues = [[NSMutableDictionary alloc] init];
@@ -590,7 +768,7 @@
     NSOperationQueue *operationQueue = _dateCachedOperationQueues[resourceName];
     
     // get the mutable dictionary
-    NSMutableDictionary *resourceDatesCached = _dateCached[resourceName];
+    NSMutableDictionary *resourceDatesCached = _datesCached[resourceName];
     
     [operationQueue addOperations:@[[NSBlockOperation blockOperationWithBlock:^{
         
