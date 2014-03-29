@@ -10,7 +10,7 @@
 #import <NetworkObjects/NetworkObjects.h>
 @class User;
 
-@interface SNCStore : NOAPICachedStore
+@interface SNCStore : NSObject
 
 +(instancetype)sharedStore;
 
@@ -19,6 +19,12 @@
 // properties set after successful authentication
 
 @property (readonly) User *user;
+
+@property (readonly) NOAPICachedStore *cachedStore;
+
+@property (readonly) NOIncrementalStore *incrementalStore;
+
+@property (readonly) NSManagedObjectContext *context;
 
 #pragma mark - Logout
 
@@ -35,12 +41,12 @@
                    completion:(void (^)(NSError *error))completionBlock;
 
 -(void)registerWithUsername:(NSString *)username
-                        password:(NSString *)password
-                       serverURL:(NSURL *)serverURL
-                        clientID:(NSUInteger)clientID
-                    clientSecret:(NSString *)secret
-                      URLSession:(NSURLSession *)urlSession
-                      completion:(void (^)(NSError *error))completionBlock;
+                   password:(NSString *)password
+                  serverURL:(NSURL *)serverURL
+                   clientID:(NSUInteger)clientID
+               clientSecret:(NSString *)secret
+                 URLSession:(NSURLSession *)urlSession
+                 completion:(void (^)(NSError *error))completionBlock;
 
 #pragma mark - Specialized Requests
 

@@ -38,8 +38,8 @@
 		6E3524E918E293B4004F339F /* NOAPI+CommonErrors.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E3524E318E293B4004F339F /* NOAPI+CommonErrors.m */; };
 		6E6BB59718385ACB00FAE40E /* NSDate+ISO8601.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EED74791818852200F911BC /* NSDate+ISO8601.m */; };
 		6E6BB59818385AD100FAE40E /* NSManagedObject+CoreDataJSONCompatibility.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EED747B1818852200F911BC /* NSManagedObject+CoreDataJSONCompatibility.m */; };
-		6E70C59E18E5E3D700D01D58 /* NOIncrementalStore.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E70C59C18E5E3D700D01D58 /* NOIncrementalStore.h */; };
-		6E70C59F18E5E3D700D01D58 /* NOIncrementalStore.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E70C59C18E5E3D700D01D58 /* NOIncrementalStore.h */; };
+		6E70C59E18E5E3D700D01D58 /* NOIncrementalStore.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E70C59C18E5E3D700D01D58 /* NOIncrementalStore.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		6E70C59F18E5E3D700D01D58 /* NOIncrementalStore.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E70C59C18E5E3D700D01D58 /* NOIncrementalStore.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6E70C5A018E5E3D700D01D58 /* NOIncrementalStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E70C59D18E5E3D700D01D58 /* NOIncrementalStore.m */; };
 		6E70C5A118E5E3D700D01D58 /* NOIncrementalStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E70C59D18E5E3D700D01D58 /* NOIncrementalStore.m */; };
 		6E70C5A218E5E3D700D01D58 /* NOIncrementalStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E70C59D18E5E3D700D01D58 /* NOIncrementalStore.m */; };

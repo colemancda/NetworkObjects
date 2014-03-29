@@ -7,13 +7,18 @@
 //
 
 #import "SNCStore.h"
-#import <NetworkObjects/NetworkObjects.h>
 #import "User.h"
 #import "Post.h"
 
 @interface SNCStore ()
 
 @property User *user;
+
+@property NOAPICachedStore *cachedStore;
+
+@property NOIncrementalStore *incrementalStore;
+
+@property NSManagedObjectContext *context;
 
 @end
 
@@ -22,9 +27,13 @@
 + (instancetype)sharedStore
 {
     static SNCStore *sharedStore = nil;
-    if (!sharedStore) {
-        sharedStore = [[super allocWithZone:nil] init];
-    }
+    
+    static dispatch_once_t onceToken;
+    
+    dispatch_once(&onceToken, ^{
+        sharedStore = [[self alloc] init];
+    });
+    
     return sharedStore;
 }
 
@@ -35,22 +44,30 @@
 
 - (id)init
 {
-    self = [super initWithModel:[NSManagedObjectModel mergedModelFromBundles:nil]
-              sessionEntityName:@"Session"
-                 userEntityName:@"User"
-               clientEntityName:@"Client"
-                      loginPath:@"login"];
+    self = [super init];
     
     if (self) {
         
-        self.prettyPrintJSON = YES;
+        self.cachedStore = [NOAPICachedStore cachedStoreWithModel:[NSManagedObjectModel mergedModelFromBundles:nil]
+                                                 sessionEntityName:@"Session"
+                                                    userEntityName:@"User"
+                                                  clientEntityName:@"Client"
+                                                         loginPath:@"login"
+                                                        searchPath:@"search"
+                                                       datesCached:nil];
+        
+        self.cachedStore.prettyPrintJSON = YES;
         
         // add persistent store
-        self.context.persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:self.model];
+        self.context.persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:self.cachedStore.model];
         
         NSError *error;
         
-        [self.context.persistentStoreCoordinator addPersistentStoreWithType:NSInMemoryStoreType configuration:nil URL:nil options:nil error:&error];
+        [self.context.persistentStoreCoordinator addPersistentStoreWithType:[NOIncrementalStore storeType]
+                                                              configuration:nil
+                                                                        URL:nil
+                                                                    options:@{NOIncrementalStoreCachedStoreOption: self.cachedStore}
+                                                                      error:&error];
         
         NSAssert(!error, @"Could not create In-Memory store");
         
