@@ -25,6 +25,10 @@ NSString *const NOIncrementalStoreErrorKey = @"NOIncrementalStoreErrorKey";
 
 NSString *const NOIncrementalStoreResultsKey = @"NOIncrementalStoreResultsKey";
 
+NSString *const NOIncrementalStoreNewValuesKey = @"NOIncrementalStoreNewValuesKey";
+
+NSString *const NOIncrementalStoreObjectIDKey = @"NOIncrementalStoreObjectIDKey";
+
 @interface NOIncrementalStore (Requests)
 
 -(id)executeSaveRequest:(NSSaveChangesRequest *)request
@@ -451,21 +455,28 @@ NSString *const NOIncrementalStoreResultsKey = @"NOIncrementalStoreResultsKey";
         return nil;
     }
     
-    NSManagedObject *cachedResource = results.firstObject;
+    NSManagedObject *resource = results.firstObject;
     
-    if (!cachedResource) {
+    if (!resource) {
         
         return nil;
     }
     
     NSMutableDictionary *values = [[NSMutableDictionary alloc] init];
     
-    for (NSAttributeDescription *attribute in cachedResource.entity.attributesByName) {
+    for (NSAttributeDescription *attribute in resource.entity.attributesByName) {
         
-        values[attribute.name] = [cachedResource valueForKey:attribute.name];
+        id value = [resource valueForKey:attribute.name];
+        
+        if (!value) {
+            
+            value = [NSNull null];
+        }
+        
+        values[attribute.name] = value;
     }
     
-    for (NSRelationshipDescription *relationship in cachedResource.entity.attributesByName) {
+    for (NSRelationshipDescription *relationship in resource.entity.attributesByName) {
         
         // you are encouaraged to lazily fetch to-many relationships, but then we GET data from a NetworkObjects server, the info is already included, so in our case its better to include everything in -newValues...
         
@@ -473,11 +484,35 @@ NSString *const NOIncrementalStoreResultsKey = @"NOIncrementalStoreResultsKey";
         
         if (!relationship.isToMany) {
             
-            [self objectIDForEntity:[NSEntityDescription entityForName:resourceName inManagedObjectContext:context]
-                    referenceObject:<#(id)#>];
+            NSManagedObject *managedObject = [resource valueForKey:relationship.name];
+            
+            NSManagedObjectID *objectID = managedObject.objectID;
+            
+            if (!managedObject) {
+                
+                objectID = (NSManagedObjectID *)[NSNull null];
+            }
+            
+            values[relationship.name] = resource.objectID;
+            
+        }
+        
+        else {
+            
+            NSMutableArray *objectIDs = [[NSMutableArray alloc] init];
+            
+            NSSet *set = [resource valueForKey:relationship.name];
+            
+            for (NSManagedObject *managedObject in set) {
+                
+                [objectIDs addObject:managedObject.objectID];
+            }
+            
+            values[relationship.name] = [NSArray arrayWithArray:objectIDs];
         }
     }
     
+    return values;
 }
 
 @end

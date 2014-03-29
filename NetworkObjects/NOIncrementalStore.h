@@ -6,7 +6,7 @@
 //  Copyright (c) 2014 ColemanCDA. All rights reserved.
 //
 
-#import <CoreData/CoreData.h>
+@import CoreData;
 @class NOAPICachedStore;
 
 // Initializations options
