@@ -13,6 +13,20 @@ NSString *const NOIncrementalStoreCachedStoreOption = @"NOIncrementalStoreCached
 
 NSString *const NOIncrementalStoreType = @"NOIncrementalStoreType";
 
+// Notifications
+
+NSString *const NOIncrementalStoreFinishedFetchRequestNotification = @"NOIncrementalStoreFinishedFetchRequestNotification";
+
+NSString *const NOIncrementalStoreDidGetNewValuesNotification = @"NOIncrementalStoreDidGetNewValuesNotification";
+
+NSString *const NOIncrementalStoreRequestKey = @"NOIncrementalStoreRequestKey";
+
+NSString *const NOIncrementalStoreErrorKey = @"NOIncrementalStoreErrorKey";
+
+NSString *const NOIncrementalStoreResultsKey = @"NOIncrementalStoreResultsKey";
+
+
+
 @interface NOIncrementalStore (Requests)
 
 -(id)executeSaveRequest:(NSSaveChangesRequest *)request
@@ -23,9 +37,23 @@ NSString *const NOIncrementalStoreType = @"NOIncrementalStoreType";
              withContext:(NSManagedObjectContext *)context
                    error:(NSError *__autoreleasing *)error;
 
+-(NSArray *)cachedResultsForFetchRequest:(NSFetchRequest *)fetchRequest
+                                 context:(NSManagedObjectContext *)context
+                                   error:(NSError **)error;
+
+
+@end
+
+@interface NOIncrementalStore (ManagedObjectID)
+
+-(NSManagedObjectID *)objectIDForEntity:(NSEntityDescription *)entity
+                        referenceObject:(id)data;
+
 @end
 
 @interface NOIncrementalStore ()
+
+@property NSMutableDictionary *objectIDs;
 
 @property NOAPICachedStore *cachedStore;
 
@@ -39,7 +67,7 @@ NSString *const NOIncrementalStoreType = @"NOIncrementalStoreType";
 {
     if (self == [NOIncrementalStore self]) {
         
-        [NSPersistentStoreCoordinator registerStoreClass:[NOIncrementalStore self]
+        [NSPersistentStoreCoordinator registerStoreClass:self
                                             forStoreType:NOIncrementalStoreType];
     }
 }
@@ -59,6 +87,12 @@ NSString *const NOIncrementalStoreType = @"NOIncrementalStoreType";
     if (self) {
         
         self.cachedStore = options[NOIncrementalStoreCachedStoreOption];
+        
+        // notification queue
+        
+        _notificationQueue = [[NSOperationQueue alloc] init];
+        
+        _notificationQueue.name = @"NOIncrementalStore Notification Queue";
         
     }
     
@@ -104,12 +138,44 @@ NSString *const NOIncrementalStoreType = @"NOIncrementalStoreType";
                                error:error];
 }
 
+#pragma mark - Faulting
+
 -(NSIncrementalStoreNode *)newValuesForObjectWithID:(NSManagedObjectID *)objectID
                                         withContext:(NSManagedObjectContext *)context
                                               error:(NSError *__autoreleasing *)error
 {
+    // get reference object
     
+    NSNumber *resourceID = [self referenceObjectForObjectID:objectID];
     
+    if (!resourceID) {
+        
+        return nil;
+    }
+    
+    // download from server
+    
+    [self.cachedStore getCachedResource:objectID.entity.name resourceID:resourceID.integerValue URLSession:self.urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
+        
+        NSDictionary *userInfo;
+        
+        if (error) {
+            
+            // forward error
+            
+            userInfo = @{NOIncrementalStoreErrorKey: error, }
+            
+        }
+        
+    }];
+    
+    // immediately return cached values
+    
+    NSIncrementalStoreNode *storeNode = [[NSIncrementalStoreNode alloc] initWithObjectID:objectID
+                                                                              withValues:
+                                                                                 version:0];
+    
+    return nil;
 }
 
 -(id)newValueForRelationship:(NSRelationshipDescription *)relationship
@@ -118,14 +184,14 @@ NSString *const NOIncrementalStoreType = @"NOIncrementalStoreType";
                        error:(NSError *__autoreleasing *)error
 {
     
-    
+    return nil;
 }
 
 -(NSArray *)obtainPermanentIDsForObjects:(NSArray *)array
                                    error:(NSError *__autoreleasing *)error
 {
     
-    
+    return nil;
 }
 
 @end
@@ -142,32 +208,153 @@ NSString *const NOIncrementalStoreType = @"NOIncrementalStoreType";
                                       inManagedObjectContext:self.cachedStore.context];
     
     // comparison predicate, use search
+    
     if ([request.predicate isKindOfClass:[NSComparisonPredicate class]]) {
         
-        [self.cachedStore searchForCachedResourceWithFetchRequest:cacheRequest URLSession:self.urlSession completion:^(NSError *error, NSArray *results) {
+        [self.cachedStore searchForCachedResourceWithFetchRequest:cacheRequest URLSession:self.urlSession completion:^(NSError *remoteError, NSArray *results) {
             
-            // use notification center
+            // forward error
+            
+            NSDictionary *userInfo;
+            
+            if (remoteError) {
+                
+                userInfo = @{NOIncrementalStoreErrorKey: remoteError,
+                             NOIncrementalStoreRequestKey: request};
+                
+            }
+            
+            else {
+                
+                NSArray *coreDataResults = [self cachedResultsForFetchRequest:cacheRequest
+                                                                       context:context
+                                                                         error:nil];
+                
+                userInfo = @{NOIncrementalStoreRequestKey: request,
+                             NOIncrementalStoreResultsKey : coreDataResults};
+                
+                
+                
+            }
+            
+            // post notification
+
+            [_notificationQueue addOperationWithBlock:^{
+               
+                [[NSNotificationCenter defaultCenter] postNotificationName:NOIncrementalStoreFinishedFetchRequestNotification
+                                                                    object:self
+                                                                  userInfo:userInfo];
+                
+            }];
             
         }];
     }
     
-    // other fetch requests
     else {
         
+        [NSException raise:NSInvalidArgumentException
+                    format:@"NOIncrementalStore only supports NSComparisonPredicate predicates for fetch requests"];
         
+        return nil;
         
     }
     
+    return [self cachedResultsForFetchRequest:cacheRequest
+                                      context:context
+                                        error:error];
+}
+
+-(NSArray *)cachedResultsForFetchRequest:(NSFetchRequest *)fetchRequest
+                                 context:(NSManagedObjectContext *)context
+                                   error:(NSError *__autoreleasing *)error
+{
     // Immediately return cached values
     
-    __block id results;
+    NSManagedObjectContext *cacheContext = self.cachedStore.context;
     
-    [self.cachedStore.context performBlockAndWait:^{
-       
-        results = [self.cachedStore.context executeFetchRequest:request
-                                                          error:error];
+    NSArray *results;
+    
+    __block NSArray *cachedResults;
+    
+    NSFetchRequest *cacheFetchRequest = fetchRequest.copy;
+    
+    // forward fetch to cache
+    
+    if (fetchRequest.resultType == NSCountResultType ||
+        fetchRequest.resultType == NSDictionaryResultType) {
         
-    }];
+        [cacheContext performBlockAndWait:^{
+            
+            cachedResults = [cacheContext executeFetchRequest:cacheFetchRequest
+                                                        error:error];
+        }];
+        
+        return cachedResults;
+    }
+    
+    // fetch resourceID from cache
+    
+    if (fetchRequest.resultType == NSManagedObjectResultType ||
+        fetchRequest.resultType == NSManagedObjectIDResultType) {
+        
+        cacheFetchRequest.resultType = NSDictionaryResultType;
+        
+        NSString *resourceIDKey = [NSClassFromString(fetchRequest.entity.managedObjectClassName) resourceIDKey];
+        
+        cacheFetchRequest.propertiesToFetch = @[resourceIDKey];
+        
+        [cacheContext performBlockAndWait:^{
+            
+            cachedResults = [cacheContext executeFetchRequest:cacheFetchRequest
+                                                        error:error];
+        }];
+        
+        // error
+        
+        if (!cachedResults) {
+            
+            return nil;
+        }
+        
+        // build array of object ids
+        
+        NSMutableArray *managedObjectIDs = [NSMutableArray arrayWithCapacity:cachedResults.count];
+        
+        for (NSDictionary *cachedDictionary in cachedResults) {
+            
+            NSNumber *resourceID = cachedDictionary[resourceIDKey];
+            
+            NSManagedObjectID *managedObjectID = [self objectIDForEntity:fetchRequest.entity
+                                                         referenceObject:resourceID];
+            
+            [managedObjectIDs addObject:managedObjectID];
+        }
+        
+        // object ID result type
+        
+        if (fetchRequest.resultType == NSManagedObjectIDResultType) {
+            
+            results = [NSArray arrayWithArray:managedObjectIDs];
+        }
+        
+        // managed object result. return non-faulted NSManagedObject (only resource ID).
+        
+        if (fetchRequest.resultType == NSManagedObjectResultType) {
+            
+            // build array of non-faulted objects
+            
+            NSMutableArray *managedObjects = [[NSMutableArray alloc] init];
+            
+            for (NSManagedObjectID *objectID in managedObjectIDs) {
+                
+                NSManagedObject *managedObject = [context objectWithID:objectID];
+                
+                [managedObjects addObject:managedObject];
+            }
+            
+            results = [NSArray arrayWithArray:managedObjects];
+        }
+    }
     
     return results;
 }
@@ -177,7 +364,41 @@ NSString *const NOIncrementalStoreType = @"NOIncrementalStoreType";
                   error:(NSError *__autoreleasing *)error
 {
     
+    return nil;
+}
+
+@end
+
+@implementation NOIncrementalStore (ManagedObjectID)
+
+-(NSManagedObjectID *)objectIDForEntity:(NSEntityDescription *)entity
+                        referenceObject:(id)data
+{
+    // lazily initialize dictionary
     
+    if (!self.objectIDs) {
+        
+        self.objectIDs = [[NSMutableDictionary alloc] init];
+    }
+    
+    // key for object ID
+    
+    NSString *objectIDKey = [NSString stringWithFormat:@"%@.%@", entity.name, data];
+    
+    // try to get already created object ID
+    
+    NSManagedObjectID *objectID = self.objectIDs[objectIDKey];
+    
+    // create new and add to dictionary if it doesnt exist
+    
+    if (!objectID) {
+        
+        objectID = [self newObjectIDForEntity:entity referenceObject:data];
+        
+        self.objectIDs[objectIDKey] = objectID;
+    }
+    
+    return objectID;
 }
 
 @end

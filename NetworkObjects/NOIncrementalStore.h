@@ -17,14 +17,36 @@
 
 extern NSString *const NOIncrementalStoreCachedStoreOption;
 
+// Notifications
+
+extern NSString *const NOIncrementalStoreFinishedFetchRequestNotification;
+
+extern NSString *const NOIncrementalStoreDidGetNewValuesNotification;
+
+extern NSString *const NOIncrementalStoreRequestKey;
+
+extern NSString *const NOIncrementalStoreErrorKey;
+
+extern NSString *const NOIncrementalStoreResultsKey;
+
+extern NSString *const NOIncrementalStoreNewValuesKey;
+
+extern NSString *const NOIncrementalStoreNewValuesKey;
+
+
 /** Incremental store for communicating with a NetworkObjects server. The URL specified in the initializer is ignored and all server schema and session variables are specified in the @c NOAPICachedStore associated with @c NOIncrementalStoreCachedStoreOption in the initializer's @c options dictionary. All fetch requests made to this store immediately return values from the cached store's context while a background request is made.*/
 
 @interface NOIncrementalStore : NSIncrementalStore
+{
+    NSOperationQueue *_notificationQueue;
+}
 
 +(NSString *)storeType;
 
 @property (readonly) NOAPICachedStore *cachedStore;
 
 @property (readonly) NSURLSession *urlSession;
+
+@property BOOL shouldProcessPendingChanges;
 
 @end
