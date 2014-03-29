@@ -238,10 +238,25 @@ NSString *const NOIncrementalStoreObjectIDKey = @"NOIncrementalStoreObjectIDKey"
                  withContext:(NSManagedObjectContext *)context
                        error:(NSError *__autoreleasing *)error
 {
-    [NSException raise:NSInternalInconsistencyException
-                format:@"This method should never get called becuase the relationships are not lazily loaded"];
+    // get reference object
     
-    return nil;
+    NSNumber *resourceID = [self referenceObjectForObjectID:objectID];
+    
+    if (!resourceID) {
+        
+        return nil;
+    }
+    
+    // immediately return cached values
+    
+    NSArray *values = [self cachedNewValueForRelationship:relationship
+                                          forObjectWithID:objectID
+                                              withContext:context
+                                                    error:error];
+    
+    // not going to fetch from server becuase that was already called in -newValues...
+    
+    return values;
 }
 
 -(NSArray *)obtainPermanentIDsForObjects:(NSArray *)array
@@ -597,12 +612,35 @@ NSString *const NOIncrementalStoreObjectIDKey = @"NOIncrementalStoreObjectIDKey"
         return nil;
     }
     
-    NSMutableDictionary *values = [[NSMutableDictionary alloc] init];
+    NSArray *value;
     
-    for (NSString *relationshipName in ) {
-        <#statements#>
+    // to-many relationship
+    
+    if (relationship.isToMany) {
+        
+        NSMutableArray *objectIDs = [[NSMutableArray alloc] init];
+        
+        NSSet *set = [cachedResource valueForKey:relationship.name];
+        
+        for (NSManagedObject *cachedDestinationObject in set) {
+            
+            // create an object id
+            
+            NSString *resourceIDKey = [NSClassFromString(cachedResource.entity.managedObjectClassName) resourceIDKey];
+            
+            NSNumber *resourceID = [cachedDestinationObject valueForKey:resourceIDKey];
+            
+            NSManagedObjectID *objectID = [self newObjectIDForEntity:relationship.destinationEntity
+                                                     referenceObject:resourceID];
+            
+            
+            [objectIDs addObject:objectID];
+        }
+        
+        value = [NSArray arrayWithArray:objectIDs];
     }
     
+    return value;
 }
 
 @end
