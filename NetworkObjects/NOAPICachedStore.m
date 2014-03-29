@@ -419,6 +419,8 @@
         
         NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:resourceName];
         
+        fetchRequest.fetchLimit = 1;
+        
         // get entity
         NSEntityDescription *entity = self.model.entitiesByName[resourceName];
         
