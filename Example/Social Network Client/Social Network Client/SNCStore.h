@@ -20,8 +20,6 @@
 
 @property (readonly) User *user;
 
-@property (readonly) NOAPICachedStore *cachedStore;
-
 @property (readonly) NOIncrementalStore *incrementalStore;
 
 @property (readonly) NSManagedObjectContext *context;

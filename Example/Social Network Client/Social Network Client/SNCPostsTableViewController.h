@@ -6,8 +6,10 @@
 //  Copyright (c) 2014 ColemanCDA. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
+@import UIKit;
 @import CoreData;
+#import <NetworkObjects/NetworkObjects.h>
+
 @class User, Post;
 
 @interface SNCPostsTableViewController : UITableViewController <NSFetchedResultsControllerDelegate>
@@ -19,15 +21,11 @@
     NSError *_errorDownloadingPost;
     
     NSMutableDictionary *_postsDownloadTasks;
-    
-    NSOperationQueue *_postsDownloadTasksOperationQueue;
 }
 
-@property User *user;
+@property NSComparisonPredicate *predicate;
 
-@property (readonly) NSDate *dateLastFetched;
-
-@property (readonly) NSURLSession *urlSession;
+#pragma mark - Actions
 
 -(IBAction)fetchData:(id)sender;
 

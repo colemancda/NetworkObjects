@@ -9,58 +9,13 @@
 #import "SNCPostsTableViewController.h"
 #import "SNCStore.h"
 #import "Post.h"
-#import <NetworkObjects/NetworkObjects.h>
 #import "User.h"
 #import "NSError+presentError.h"
 #import "SNCPostViewController.h"
 
+static void *KVOContext = &KVOContext;
+
 @interface SNCPostsTableViewController ()
-
-@property NSURLSession *urlSession;
-
-@property NSDate *dateLastFetched;
-
-@end
-
-@implementation SNCPostsTableViewController (DataTasks)
-
--(void)setDataTask:(NSURLSessionDataTask *)task forPost:(Post *)post
-{
-    [_postsDownloadTasksOperationQueue addOperations:@[[NSBlockOperation blockOperationWithBlock:^{
-        
-        NSString *key = [NSString stringWithFormat:@"%@", post.resourceID];
-        
-        _postsDownloadTasks[key] = task;
-        
-        
-    }]] waitUntilFinished:NO];
-}
-
--(NSURLSessionDataTask *)dataTaskForPost:(Post *)post
-{
-    __block NSURLSessionDataTask *dataTask;
-    
-    [_postsDownloadTasksOperationQueue addOperations:@[[NSBlockOperation blockOperationWithBlock:^{
-        
-        NSString *key = [NSString stringWithFormat:@"%@", post.resourceID];
-        
-        dataTask = _postsDownloadTasks[key];
-        
-    }]] waitUntilFinished:YES];
-    
-    return dataTask;
-}
-
--(void)removeDataTaskForPost:(Post *)post
-{
-    [_postsDownloadTasksOperationQueue addOperations:@[[NSBlockOperation blockOperationWithBlock:^{
-        
-        NSString *key = [NSString stringWithFormat:@"%@", post.resourceID];
-        
-        [_postsDownloadTasks removeObjectForKey:key];
-        
-    }]] waitUntilFinished:NO];
-}
 
 @end
 
@@ -70,15 +25,6 @@
 {
     self = [super initWithCoder:aDecoder];
     if (self) {
-        
-        self.urlSession = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
-        
-        // serial Queues for mutable collections access
-        
-        _postsDownloadTasks = [[NSMutableDictionary alloc] init];
-        _postsDownloadTasksOperationQueue = [[NSOperationQueue alloc] init];
-        _postsDownloadTasksOperationQueue.maxConcurrentOperationCount = 1;
-        _postsDownloadTasksOperationQueue.name = [NSString stringWithFormat: @"%@ _postsDownloadTasks Operation Queue", self];
         
     }
     return self;
@@ -96,10 +42,12 @@
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
     
     // KVO
-    [self addObserver:self forKeyPath:@"user" options:NSKeyValueObservingOptionNew context:nil];
+    [self addObserver:self
+           forKeyPath:NSStringFromSelector(@selector(predicate))
+              options:NSKeyValueObservingOptionNew
+              context:KVOContext];
     
-    // defualt user
-    self.user = [SNCStore sharedStore].user;
+    
 }
 
 - (void)didReceiveMemoryWarning
@@ -110,7 +58,7 @@
 
 -(void)dealloc
 {
-    [self removeObserver:self forKeyPath:@"user"];
+    [self removeObserver:self forKeyPath:NSStringFromSelector(@selector(predicate))];
     
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     
@@ -118,42 +66,46 @@
 
 #pragma mark - KVO
 
--(void)observeValueForKeyPath:(NSString *)keyPath
-                     ofObject:(id)object
-                       change:(NSDictionary *)change
-                      context:(void *)context
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
-    if ([keyPath isEqualToString:@"user"]) {
+    if (context == KVOContext) {
+        
+        if ([keyPath isEqualToString:NSStringFromSelector(@selector(predicate))]) {
+            
+            // create fetch request
+            
+            NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"Post"];
+            
+            fetchRequest.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"resourceID"
+                                                                           ascending:NO]];
+            fetchRequest.predicate = self.predicate;
+            
+            // make nsfetchedresultscontroller
+            _fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest managedObjectContext:[SNCStore sharedStore].context sectionNameKeyPath:nil cacheName:nil];
+            
+            _fetchedResultsController.delegate = self;
+            
+            [[SNCStore sharedStore].context performBlockAndWait:^{
                 
-        // fetch request
-        NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"Post"];
-        
-        fetchRequest.predicate = [NSPredicate predicateWithFormat:@"creator == %@", self.user];
-        
-        fetchRequest.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"resourceID"
-                                                                       ascending:NO]];
-        
-        // make nsfetchedresultscontroller
-        _fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest managedObjectContext:[SNCStore sharedStore].context sectionNameKeyPath:nil cacheName:nil];
-        
-        _fetchedResultsController.delegate = self;
-        
-        [[SNCStore sharedStore].context performBlockAndWait:^{
-            
-            NSError *fetchError;
-            
-            [_fetchedResultsController performFetch:&fetchError];
-            
-            if (fetchError) {
+                NSError *fetchError;
                 
-                [NSException raise:NSInternalInconsistencyException
-                            format:@"Error executing fetch request. (%@)", fetchError.localizedDescription];
-            }
+                [_fetchedResultsController performFetch:&fetchError];
+                
+                if (fetchError) {
+                    
+                    [NSException raise:NSInternalInconsistencyException
+                                format:@"Error executing fetch request. (%@)", fetchError.localizedDescription];
+                }
+                
+            }];
             
-        }];
+            // fetch
+            [self fetchData:nil];
+            
+        }
         
-        // fetch
-        [self fetchData:nil];
+    } else {
+        [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
     }
 }
 
