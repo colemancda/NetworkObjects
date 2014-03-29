@@ -64,8 +64,6 @@ NSString *const NOIncrementalStoreResultsKey = @"NOIncrementalStoreResultsKey";
 
 @property NOAPICachedStore *cachedStore;
 
-@property NSCache *objectIDCache;
-
 @end
 
 @implementation NOIncrementalStore
@@ -102,10 +100,6 @@ NSString *const NOIncrementalStoreResultsKey = @"NOIncrementalStoreResultsKey";
         _notificationQueue = [[NSOperationQueue alloc] init];
         
         _notificationQueue.name = @"NOIncrementalStore Notification Queue";
-        
-        // objectID Cache
-        
-        self.objectIDCache = [[NSCache alloc] init];
         
     }
     

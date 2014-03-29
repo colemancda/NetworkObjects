@@ -57,8 +57,4 @@ extern NSString *const NOIncrementalStoreObjectIDKey;
 
 @property (readonly) NSURLSession *urlSession;
 
-/** Cache of @c NSManagedObjectID associated with equivalent object IDs in @c self.cachedStore.context */
-
-@property (readonly) NSCache *objectIDCache;
-
 @end
