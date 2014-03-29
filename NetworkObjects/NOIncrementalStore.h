@@ -9,7 +9,7 @@
 @import CoreData;
 @class NOAPICachedStore;
 
-// Initializations options
+// Options
 
 /** Option used upon initializaton that specifies the @c NOAPICachedStore the incremental store will be use.
  
@@ -18,6 +18,10 @@
  */
 
 extern NSString *const NOIncrementalStoreCachedStoreOption;
+
+/** Option used upon initializaton that specifies the @c NSURLSession the incremental store will be use. */
+
+extern NSString *const NOIncrementalStoreURLSessionOption;
 
 // Notifications
 

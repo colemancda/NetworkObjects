@@ -9,9 +9,15 @@
 #import "NOIncrementalStore.h"
 #import "NOAPICachedStore.h"
 
-NSString *const NOIncrementalStoreCachedStoreOption = @"NOIncrementalStoreCachedStoreOption";
+// Store Type
 
 NSString *const NOIncrementalStoreType = @"NOIncrementalStoreType";
+
+// Options
+
+NSString *const NOIncrementalStoreCachedStoreOption = @"NOIncrementalStoreCachedStoreOption";
+
+NSString *const NOIncrementalStoreURLSessionOption = @"NOIncrementalStoreURLSessionOption";
 
 // Notifications
 
@@ -48,23 +54,20 @@ NSString *const NOIncrementalStoreObjectIDKey = @"NOIncrementalStoreObjectIDKey"
                                  context:(NSManagedObjectContext *)context
                                    error:(NSError **)error;
 
--(NSDictionary *)cachedNewValuesForResource:(NSString *)resourceName
-                             withResourceID:(NSNumber *)resourceID
-                                    context:(NSManagedObjectContext *)context
-                                      error:(NSError **)error;
+-(NSDictionary *)cachedNewValuesForObjectWithID:(NSManagedObjectID *)objectID
+                                    withContext:(NSManagedObjectContext *)context
+                                          error:(NSError **)error;
 
-@end
+-(NSArray *)cachedNewValueForRelationship:(NSRelationshipDescription *)relationship
+                          forObjectWithID:(NSManagedObjectID *)objectID
+                              withContext:(NSManagedObjectContext *)context
+                                    error:(NSError *__autoreleasing *)error;
 
-@interface NOIncrementalStore (ManagedObjectID)
 
--(NSManagedObjectID *)objectIDForEntity:(NSEntityDescription *)entity
-                        referenceObject:(id)data;
 
 @end
 
 @interface NOIncrementalStore ()
-
-@property NSMutableDictionary *objectIDs;
 
 @property NOAPICachedStore *cachedStore;
 
@@ -166,10 +169,9 @@ NSString *const NOIncrementalStoreObjectIDKey = @"NOIncrementalStoreObjectIDKey"
     
     // immediately return cached values
     
-    NSDictionary *values = [self cachedNewValuesForResource:objectID.entity.name
-                                             withResourceID:resourceID
-                                                    context:context
-                                                      error:error];
+    NSDictionary *values = [self cachedNewValuesForObjectWithID:objectID
+                                                    withContext:context
+                                                          error:error];
     
     if (!values) {
         
@@ -197,10 +199,20 @@ NSString *const NOIncrementalStoreObjectIDKey = @"NOIncrementalStoreObjectIDKey"
         
         else {
             
-            NSDictionary *newValues = [self cachedNewValuesForResource:objectID.entity.name
-                                                        withResourceID:resourceID
-                                                               context:context
-                                                                 error:&error];
+            // update context with new values
+            
+            __block NSDictionary *newValues;
+            
+            [context performBlockAndWait:^{
+                
+                newValues = [self cachedNewValuesForObjectWithID:objectID
+                                                     withContext:context
+                                                           error:nil];
+                
+                [storeNode updateWithValues:newValues
+                                    version:0];
+                
+            }];
             
             userInfo = @{NOIncrementalStoreObjectIDKey: objectID,
                          NOIncrementalStoreNewValuesKey: newValues};
@@ -235,8 +247,23 @@ NSString *const NOIncrementalStoreObjectIDKey = @"NOIncrementalStoreObjectIDKey"
 -(NSArray *)obtainPermanentIDsForObjects:(NSArray *)array
                                    error:(NSError *__autoreleasing *)error
 {
+    NSMutableArray *objectIDs = [NSMutableArray arrayWithCapacity:array.count];
     
-    return nil;
+    for (NSManagedObject *managedObject in array) {
+        
+        // get the resource ID
+        
+        NSString *resourceIDKey = [NSClassFromString(managedObject.entity.managedObjectClassName) resourceIDKey];
+        
+        NSNumber *resourceID = [managedObject valueForKey:resourceIDKey];
+        
+        NSManagedObjectID *objectID = [self newObjectIDForEntity:managedObject.entity
+                                                 referenceObject:resourceID];
+        
+        [objectIDs addObject:objectID];
+    }
+    
+    return objectIDs;
 }
 
 @end
@@ -314,40 +341,6 @@ NSString *const NOIncrementalStoreObjectIDKey = @"NOIncrementalStoreObjectIDKey"
 
 @end
 
-@implementation NOIncrementalStore (ManagedObjectID)
-
--(NSManagedObjectID *)objectIDForEntity:(NSEntityDescription *)entity
-                        referenceObject:(id)data
-{
-    // lazily initialize dictionary
-    
-    if (!self.objectIDs) {
-        
-        self.objectIDs = [[NSMutableDictionary alloc] init];
-    }
-    
-    // key for object ID
-    
-    NSString *objectIDKey = [NSString stringWithFormat:@"%@.%@", entity.name, data];
-    
-    // try to get already created object ID
-    
-    NSManagedObjectID *objectID = self.objectIDs[objectIDKey];
-    
-    // create new and add to dictionary if it doesnt exist
-    
-    if (!objectID) {
-        
-        objectID = [self newObjectIDForEntity:entity referenceObject:data];
-        
-        self.objectIDs[objectIDKey] = objectID;
-    }
-    
-    return objectID;
-}
-
-@end
-
 @implementation NOIncrementalStore (Cache)
 
 -(NSArray *)cachedResultsForFetchRequest:(NSFetchRequest *)fetchRequest
@@ -410,8 +403,8 @@ NSString *const NOIncrementalStoreObjectIDKey = @"NOIncrementalStoreObjectIDKey"
             
             NSNumber *resourceID = cachedDictionary[resourceIDKey];
             
-            NSManagedObjectID *managedObjectID = [self objectIDForEntity:fetchRequest.entity
-                                                         referenceObject:resourceID];
+            NSManagedObjectID *managedObjectID = [self newObjectIDForEntity:fetchRequest.entity
+                                                            referenceObject:resourceID];
             
             [managedObjectIDs addObject:managedObjectID];
         }
@@ -445,86 +438,171 @@ NSString *const NOIncrementalStoreObjectIDKey = @"NOIncrementalStoreObjectIDKey"
     return results;
 }
 
--(NSDictionary *)cachedNewValuesForResource:(NSString *)resourceName
-                             withResourceID:(NSNumber *)resourceID
-                                    context:(NSManagedObjectContext *)context
-                                      error:(NSError *__autoreleasing *)error
+-(NSDictionary *)cachedNewValuesForObjectWithID:(NSManagedObjectID *)objectID
+                                    withContext:(NSManagedObjectContext *)context
+                                          error:(NSError *__autoreleasing *)error
 {
     // find resource with resource ID...
     
-    NSFetchRequest *cachedRequest = [NSFetchRequest fetchRequestWithEntityName:resourceName];
+    NSNumber *resourceID = [self referenceObjectForObjectID:objectID];
+    
+    NSFetchRequest *cachedRequest = [NSFetchRequest fetchRequestWithEntityName:objectID.entity.name];
     
     cachedRequest.fetchLimit = 1;
     
     cachedRequest.predicate = [NSPredicate predicateWithFormat:@"%K == %@", resourceID];
     
-    NSArray *results = [self cachedResultsForFetchRequest:cachedRequest
-                                                  context:context
-                                                    error:error];
+    // prefetch all attributes and to-one relationships
     
-    if (!results) {
+    NSMutableArray *propertiesToFetch = [[NSMutableArray alloc] init];
+    
+    for (NSString *attributeName in objectID.entity.attributesByName) {
+        
+        [propertiesToFetch addObject:attributeName];
+    }
+    
+    for (NSString *relationshipName in objectID.entity.relationshipsByName) {
+        
+        NSRelationshipDescription *relationship = objectID.entity.relationshipsByName[relationshipName];
+        
+        // only to-one relationships
+        
+        if (!relationship.isToMany) {
+            
+            [propertiesToFetch addObject:relationshipName];
+        }
+    }
+    
+    cachedRequest.propertiesToFetch = [NSArray arrayWithArray:propertiesToFetch];
+    
+    NSManagedObjectContext *cachedContext = self.cachedStore.context;
+    
+    __block NSArray *cachedResults;
+    
+    [cachedContext performBlockAndWait:^{
+        
+        cachedResults = [cachedContext executeFetchRequest:cachedRequest
+                                                     error:error];
+    }];
+    
+    if (!cachedResults) {
         
         return nil;
     }
     
-    NSManagedObject *resource = results.firstObject;
+    NSManagedObject *cachedResource = cachedResults.firstObject;
     
-    if (!resource) {
+    if (!cachedResource) {
         
         return nil;
     }
     
     NSMutableDictionary *values = [[NSMutableDictionary alloc] init];
     
-    for (NSAttributeDescription *attribute in resource.entity.attributesByName) {
+    for (NSString *propertyName in propertiesToFetch) {
         
-        id value = [resource valueForKey:attribute.name];
+        // one of these will be nil
         
-        if (!value) {
+        NSAttributeDescription *attribute = cachedResource.entity.attributesByName[propertyName];
+        
+        NSRelationshipDescription *relationship = cachedResource.entity.relationshipsByName[propertyName];
+        
+        if (!attribute && !relationship) {
             
-            value = [NSNull null];
+            [NSException raise:NSInternalInconsistencyException
+                        format:@"Object ID's entity doesnt match the entity used by the cache"];
         }
         
-        values[attribute.name] = value;
-    }
-    
-    for (NSRelationshipDescription *relationship in resource.entity.attributesByName) {
-        
-        // you are encouaraged to lazily fetch to-many relationships, but then we GET data from a NetworkObjects server, the info is already included, so in our case its better to include everything in -newValues...
-        
-        // to-one relationship
-        
-        if (!relationship.isToMany) {
+        if (attribute) {
             
-            NSManagedObject *managedObject = [resource valueForKey:relationship.name];
+            id value = [cachedResource valueForKey:propertyName];
             
-            NSManagedObjectID *objectID = managedObject.objectID;
-            
-            if (!managedObject) {
+            if (!value) {
                 
-                objectID = (NSManagedObjectID *)[NSNull null];
+                value = [NSNull null];
             }
             
-            values[relationship.name] = resource.objectID;
-            
+            values[propertyName] = value;
         }
         
-        else {
+        // only to-one relationship
+        
+        if (relationship) {
             
-            NSMutableArray *objectIDs = [[NSMutableArray alloc] init];
+            NSManagedObject *destinationManagedObject = [cachedResource valueForKey:propertyName];
             
-            NSSet *set = [resource valueForKey:relationship.name];
+            id value;
             
-            for (NSManagedObject *managedObject in set) {
+            // create an object id
+            
+            if (destinationManagedObject) {
                 
-                [objectIDs addObject:managedObject.objectID];
+                NSString *resourceIDKey = [NSClassFromString(cachedResource.entity.managedObjectClassName) resourceIDKey];
+                
+                NSNumber *resourceID = [destinationManagedObject valueForKey:resourceIDKey];
+                
+                value = [self newObjectIDForEntity:relationship.destinationEntity
+                                   referenceObject:resourceID];
             }
             
-            values[relationship.name] = [NSArray arrayWithArray:objectIDs];
+            else {
+                
+                value = [NSNull null];
+            }
+            
+            values[propertyName] = value;
+            
         }
     }
     
     return values;
+}
+
+-(NSArray *)cachedNewValueForRelationship:(NSRelationshipDescription *)relationship
+                          forObjectWithID:(NSManagedObjectID *)objectID
+                              withContext:(NSManagedObjectContext *)context
+                                    error:(NSError *__autoreleasing *)error
+{
+    // find resource with resource ID...
+    
+    NSNumber *resourceID = [self referenceObjectForObjectID:objectID];
+    
+    NSFetchRequest *cachedRequest = [NSFetchRequest fetchRequestWithEntityName:objectID.entity.name];
+    
+    cachedRequest.fetchLimit = 1;
+    
+    cachedRequest.predicate = [NSPredicate predicateWithFormat:@"%K == %@", resourceID];
+    
+    cachedRequest.propertiesToFetch = @[relationship.name];
+    
+    NSManagedObjectContext *cachedContext = self.cachedStore.context;
+    
+    __block NSArray *cachedResults;
+    
+    [cachedContext performBlockAndWait:^{
+        
+        cachedResults = [cachedContext executeFetchRequest:cachedRequest
+                                                     error:error];
+    }];
+    
+    if (!cachedResults) {
+        
+        return nil;
+    }
+    
+    NSManagedObject *cachedResource = cachedResults.firstObject;
+    
+    if (!cachedResource) {
+        
+        return nil;
+    }
+    
+    NSMutableDictionary *values = [[NSMutableDictionary alloc] init];
+    
+    for (NSString *relationshipName in ) {
+        <#statements#>
+    }
+    
 }
 
 @end
