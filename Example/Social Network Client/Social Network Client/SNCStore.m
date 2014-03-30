@@ -39,7 +39,8 @@
                  userEntityName:@"User"
                clientEntityName:@"Client"
                       loginPath:@"login"
-                     searchPath:@"search"];
+                     searchPath:@"search"
+                    datesCached:nil];
     
     if (self) {
         

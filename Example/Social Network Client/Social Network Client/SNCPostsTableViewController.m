@@ -135,11 +135,11 @@ static void *KVOContext = &KVOContext;
             fetchRequest.predicate = self.predicate;
             
             // make nsfetchedresultscontroller
-            _fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest managedObjectContext:[SNCStore sharedStore].cachedStore.context sectionNameKeyPath:nil cacheName:nil];
+            _fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest managedObjectContext:[SNCStore sharedStore].context sectionNameKeyPath:nil cacheName:nil];
             
             _fetchedResultsController.delegate = self;
             
-            [[SNCStore sharedStore].cachedStore.context performBlock:^{
+            [[SNCStore sharedStore].context performBlock:^{
                 
                 NSError *fetchError;
                 
@@ -181,7 +181,7 @@ static void *KVOContext = &KVOContext;
         
         if (!dataTask) {
             
-            dataTask = [[SNCStore sharedStore].cachedStore getCachedResource:@"Post" resourceID:post.resourceID.integerValue URLSession:self.urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
+            dataTask = [[SNCStore sharedStore] getCachedResource:@"Post" resourceID:post.resourceID.integerValue URLSession:self.urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
                 
                 // do nothing, NSFetchedResultsController will detect the changes
                 
@@ -257,13 +257,13 @@ static void *KVOContext = &KVOContext;
     
     // download if not in cache...
     
-    NSDate *dateCached = [[SNCStore sharedStore].cachedStore dateCachedForResource:@"Post"
-                                                                        resourceID:post.resourceID.integerValue];
+    NSDate *dateCached = [[SNCStore sharedStore] dateCachedForResource:@"Post"
+                                                            resourceID:post.resourceID.integerValue];
     
     // never downloaded / not in cache
     if (!dateCached) {
         
-        NSURLSessionDataTask *dataTask = [[SNCStore sharedStore].cachedStore getCachedResource:@"Post" resourceID:post.resourceID.integerValue URLSession:self.urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
+        NSURLSessionDataTask *dataTask = [[SNCStore sharedStore] getCachedResource:@"Post" resourceID:post.resourceID.integerValue URLSession:self.urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
             
             [self removeDataTaskForPost:post];
             
@@ -349,7 +349,7 @@ static void *KVOContext = &KVOContext;
     
     if (editingStyle == UITableViewCellEditingStyleDelete) {
         
-        [[SNCStore sharedStore].cachedStore deleteCachedResource:(id)post URLSession:self.urlSession completion:^(NSError *error) {
+        [[SNCStore sharedStore] deleteCachedResource:(id)post URLSession:self.urlSession completion:^(NSError *error) {
             
             if (error) {
                 
@@ -409,7 +409,7 @@ static void *KVOContext = &KVOContext;
     // create new post
     if (!postVC.post) {
         
-        [[SNCStore sharedStore].cachedStore createCachedResource:@"Post" initialValues:@{@"text": postVC.textView.text} URLSession:postVC.urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
+        [[SNCStore sharedStore] createCachedResource:@"Post" initialValues:@{@"text": postVC.textView.text} URLSession:postVC.urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
             
             if (error) {
                 

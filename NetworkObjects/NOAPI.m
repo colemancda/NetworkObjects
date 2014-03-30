@@ -71,21 +71,6 @@
 
 #pragma mark - Initialization
 
-+(instancetype)apiWithModel:(NSManagedObjectModel *)model
-          sessionEntityName:(NSString *)sessionEntityName
-             userEntityName:(NSString *)userEntityName
-           clientEntityName:(NSString *)clientEntityName
-                  loginPath:(NSString *)loginPath
-                 searchPath:(NSString *)searchPath
-{
-    return [[self alloc] initWithModel:model
-                     sessionEntityName:sessionEntityName
-                        userEntityName:userEntityName
-                      clientEntityName:clientEntityName
-                             loginPath:loginPath
-                            searchPath:searchPath];
-}
-
 - (instancetype)initWithModel:(NSManagedObjectModel *)model
             sessionEntityName:(NSString *)sessionEntityName
                userEntityName:(NSString *)userEntityName
