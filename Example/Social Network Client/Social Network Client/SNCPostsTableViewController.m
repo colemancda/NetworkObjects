@@ -21,6 +21,8 @@ static void *KVOContext = &KVOContext;
 
 -(void)didFinishFetchRequest:(NSNotification *)notification;
 
+-(void)didGetNewValues:(NSNotification *)notification;
+
 @end
 
 @interface SNCPostsTableViewController ()
@@ -200,18 +202,27 @@ static void *KVOContext = &KVOContext;
     
     // not downloaded from server
     
-    if (post.isFault) {
-        
-        // fires fault
-        
-        [post text];
-        
-        configurePlaceholderCell();
-        
-        return cell;
-    }
+    __block BOOL isFault;
     
-    configureCell();
+    [[SNCStore sharedStore].context performBlockAndWait:^{
+        
+        isFault = post.isFault;
+        
+        if (isFault) {
+            
+            // fires fault
+            
+            [post text];
+            
+            configurePlaceholderCell();
+        }
+        
+    }];
+    
+    if (!isFault) {
+        
+        configureCell();
+    }
     
     return cell;
 }
@@ -334,9 +345,8 @@ static void *KVOContext = &KVOContext;
 #pragma mark - Fetched Results Controller Delegate
 
 - (void)controllerWillChangeContent:(NSFetchedResultsController *)controller {
-    // The fetch controller is about to start sending change notifications, so prepare the table view for updates.
     
-    NSLog(@"%@", NSStringFromSelector(_cmd));
+    // The fetch controller is about to start sending change notifications, so prepare the table view for updates.
     
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
         
@@ -371,7 +381,7 @@ static void *KVOContext = &KVOContext;
                 
             case NSFetchedResultsChangeUpdate:
                 
-                // no animation becuase the number of views is being constantly updated
+                // no animation becuase the number of post views is being constantly updated
                 
                 [self.tableView reloadRowsAtIndexPaths:@[indexPath]
                                       withRowAnimation:UITableViewRowAnimationNone];
@@ -436,6 +446,11 @@ static void *KVOContext = &KVOContext;
                                              selector:@selector(didFinishFetchRequest:)
                                                  name:NOIncrementalStoreFinishedFetchRequestNotification
                                                object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(didGetNewValues:)
+                                                 name:NOIncrementalStoreDidGetNewValuesNotification
+                                               object:nil];
 }
 
 -(void)didFinishFetchRequest:(NSNotification *)notification
@@ -464,6 +479,31 @@ static void *KVOContext = &KVOContext;
         // nothing needed, fetch result controller should detect the new changes from context
         
     }
+}
+
+-(void)didGetNewValues:(NSNotification *)notification
+{
+    // make sure its values we requested
+    
+    NSManagedObjectID *objectID = notification.userInfo[NOIncrementalStoreObjectIDKey];
+    
+    for (NSManagedObject *object in _fetchedResultsController.fetchedObjects) {
+        
+        if (object.objectID == objectID) {
+            
+            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                
+                // get row
+                
+                [self.tableView reloadRowsAtIndexPaths:@[[_fetchedResultsController indexPathForObject:object]]
+                                      withRowAnimation:UITableViewRowAnimationNone];
+                
+            }];
+            
+            break;
+        }
+    }
+                                                         
 }
 
     
