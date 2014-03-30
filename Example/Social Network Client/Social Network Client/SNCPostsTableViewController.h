@@ -17,10 +17,6 @@
     NSFetchedResultsController *_fetchedResultsController;
     
     NSDateFormatter *_dateFormatter;
-    
-    NSDate *_dateLastFetched;
-    
-    NSMutableDictionary *_postsDownloadTasks;
 }
 
 #pragma mark - Properties

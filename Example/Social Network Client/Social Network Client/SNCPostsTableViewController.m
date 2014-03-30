@@ -111,8 +111,6 @@ static void *KVOContext = &KVOContext;
 
 -(void)fetchData:(id)sender
 {
-    _dateLastFetched = [NSDate date];
-    
     [[SNCStore sharedStore].context performBlock:^{
         
         NSError *fetchError;
@@ -125,9 +123,19 @@ static void *KVOContext = &KVOContext;
                         format:@"Error executing fetch request. (%@)", fetchError.localizedDescription];
         }
         
+        // refault all posts (refetch from server)
+        
+        for (Post *post in _fetchedResultsController.fetchedObjects) {
+            
+            [[SNCStore sharedStore].context refreshObject:post
+                                             mergeChanges:YES];
+        }
+        
     }];
     
-    // notifiation selector will handle error
+    // notifiation selector will handle fetch request error
+    
+    
 }
 
 
@@ -190,47 +198,17 @@ static void *KVOContext = &KVOContext;
         }];
     };
     
-    // download if not in cache...
+    // not downloaded from server
     
-    NSDate *dateCached = [[SNCStore sharedStore].incrementalStore.cachedStore dateCachedForResource:@"Post"
-                                                                                         resourceID:post.resourceID.integerValue];
-    
-    // never downloaded / not in cache
-    if (!dateCached) {
+    if (post.isFault) {
         
-        // refault object
+        // fires fault
         
-        [[SNCStore sharedStore].context performBlock:^{
-            
-            [[SNCStore sharedStore].context refreshObject:post
-                                             mergeChanges:YES];
-            
-        }];
-        
+        [post text];
         
         configurePlaceholderCell();
         
         return cell;
-    }
-    
-    // cached object was fetched before we started loading this table view
-    if ([dateCached compare:_dateLastFetched] == NSOrderedAscending) {
-        
-        // refault object
-        
-        [[SNCStore sharedStore].context performBlock:^{
-            
-            [[SNCStore sharedStore].context refreshObject:post
-                                             mergeChanges:YES];
-            
-        }];
-    }
-    
-    // cached object was downloaded after we started loading this tableview
-    
-    else {
-        
-        
     }
     
     configureCell();

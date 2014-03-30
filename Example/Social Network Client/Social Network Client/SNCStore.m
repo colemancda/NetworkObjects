@@ -244,7 +244,7 @@
     
     [self.cachedStore.context performBlock:^{
         
-        [self.context reset];
+        [self.cachedStore.context reset];
         
     }];
     

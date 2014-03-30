@@ -306,7 +306,7 @@ NSString *const NOIncrementalStoreObjectIDKey = @"NOIncrementalStoreObjectIDKey"
         [[NSNotificationCenter defaultCenter] postNotificationName:NOIncrementalStoreFinishedFetchRequestNotification
                                                             object:self
                                                           userInfo:userInfo];
-    }];    
+    }];
     
     return [self cachedResultsForFetchRequest:request
                                       context:context
@@ -361,7 +361,7 @@ NSString *const NOIncrementalStoreObjectIDKey = @"NOIncrementalStoreObjectIDKey"
         
         // fetch resourceID from cache
         
-        cacheFetchRequest.resultType = NSDictionaryResultType;
+        cacheFetchRequest.resultType = NSManagedObjectResultType;
         
         NSString *resourceIDKey = [NSClassFromString(fetchRequest.entity.managedObjectClassName) resourceIDKey];
         
@@ -384,9 +384,9 @@ NSString *const NOIncrementalStoreObjectIDKey = @"NOIncrementalStoreObjectIDKey"
         
         NSMutableArray *managedObjectIDs = [NSMutableArray arrayWithCapacity:cachedResults.count];
         
-        for (NSDictionary *cachedDictionary in cachedResults) {
+        for (NSManagedObject *cachedManagedObject in cachedResults) {
             
-            NSNumber *resourceID = cachedDictionary[resourceIDKey];
+            NSNumber *resourceID = [cachedManagedObject valueForKey:resourceIDKey];
             
             NSManagedObjectID *managedObjectID = [self newObjectIDForEntity:fetchRequest.entity
                                                             referenceObject:resourceID];
@@ -435,7 +435,11 @@ NSString *const NOIncrementalStoreObjectIDKey = @"NOIncrementalStoreObjectIDKey"
     
     cachedRequest.fetchLimit = 1;
     
-    cachedRequest.predicate = [NSPredicate predicateWithFormat:@"%K == %@", resourceID];
+    // resourceID key
+    
+    NSString *resourceIDKey = [NSClassFromString(objectID.entity.managedObjectClassName) resourceIDKey];
+    
+    cachedRequest.predicate = [NSPredicate predicateWithFormat:@"%K == %@", resourceIDKey, resourceID];
     
     // prefetch all attributes and to-one relationships
     
