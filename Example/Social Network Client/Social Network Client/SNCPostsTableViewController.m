@@ -170,6 +170,8 @@ static void *KVOContext = &KVOContext;
     
     self.dateLastFetched = [NSDate date];
     
+    _errorDownloadingPost = nil;
+    
     [[SNCStore sharedStore] searchForCachedResourceWithFetchRequest:_fetchedResultsController.fetchRequest URLSession:self.urlSession completion:^(NSError *error, NSArray *results) {
         
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
@@ -185,11 +187,27 @@ static void *KVOContext = &KVOContext;
             return;
         }
         
-        [[SNCStore sharedStore].context performBlock:^{
-           
+        // make copy of fetchedObjects array becuase the values can change any time
+        NSArray *posts = [NSArray arrayWithArray:_fetchedResultsController.fetchedObjects];
+        
+        for (Post *post in posts) {
             
+            // download posts that are not being downloaded (lazily fetched)
             
-        }];
+            NSURLSessionDataTask *dataTask = [self dataTaskForPost:post];
+            
+            if (!dataTask) {
+                
+                dataTask = [[SNCStore sharedStore] getCachedResource:@"Post" resourceID:post.resourceID.integerValue URLSession:self.urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
+                    
+                    // do nothing, NSFetchedResultsController will detect the changes
+                    
+                    // remove data task
+                    [self removeDataTaskForPost:post];
+                    
+                }];
+            }
+        }
     }];
     
 }
