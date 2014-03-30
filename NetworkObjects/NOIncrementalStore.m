@@ -240,7 +240,7 @@ NSString *const NOIncrementalStoreObjectIDKey = @"NOIncrementalStoreObjectIDKey"
                                               withContext:context
                                                     error:error];
     
-    // not going to fetch from server becuase that was already called in -newValues...
+    // not going to fetch to-many from server becuase that was already called in -newValues...
     
     return values;
 }

@@ -52,8 +52,7 @@
                                                     userEntityName:@"User"
                                                   clientEntityName:@"Client"
                                                          loginPath:@"login"
-                                                        searchPath:@"search"
-                                                       datesCached:nil];
+                                                        searchPath:@"search"];
         
         self.cachedStore.prettyPrintJSON = YES;
         
