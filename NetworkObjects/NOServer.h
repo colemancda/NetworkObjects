@@ -15,6 +15,20 @@
 @protocol NOResourceProtocol;
 @protocol NOSessionProtocol;
 
+// Initialization Options
+
+extern NSString *const NOServerStoreOption;
+
+extern NSString *const NOServerUserEntityNameOption;
+
+extern NSString *const NOServerSessionEntityNameOption;
+
+extern NSString *const NOServerClientEntityNameOption;
+
+extern NSString *const NOServerLoginPathOption;
+
+extern NSString *const NOServerSearchPathOption;
+
 /**
  This is the server class that broadcasts the Core Data entities in a NOStore (called Resources) over the network.
  */
@@ -40,12 +54,7 @@
 
  */
 
--(id)initWithStore:(NOStore *)store
-    userEntityName:(NSString *)userEntityName
- sessionEntityName:(NSString *)sessionEntityName
-  clientEntityName:(NSString *)clientEntityName
-         loginPath:(NSString *)loginPath
-        searchPath:(NSString *)searchPath;
+-(instancetype)initWithOptions:(NSDictionary *)options;
 
 /**
  The NOStore that NOServer will broadcast.

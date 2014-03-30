@@ -34,13 +34,12 @@
 
 - (id)init
 {
-    self = [super initWithModel:[NSManagedObjectModel mergedModelFromBundles:nil]
-              sessionEntityName:@"Session"
-                 userEntityName:@"User"
-               clientEntityName:@"Client"
-                      loginPath:@"login"
-                     searchPath:@"search"
-                    datesCached:nil];
+    self = [super initWithOptions:@{NOAPIModelOption: [NSManagedObjectModel mergedModelFromBundles:nil],
+                                    NOAPISessionEntityNameOption: @"Session",
+                                    NOAPIUserEntityNameOption: @"User",
+                                    NOAPIClientEntityNameOption: @"Client",
+                                    NOAPILoginPathOption: @"login",
+                                    NOAPISearchPathOption: @"search"}];
     
     if (self) {
         

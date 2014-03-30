@@ -12,8 +12,22 @@
 #import "NOSessionProtocol.h"
 #import "NOClientProtocol.h"
 #import "NetworkObjectsConstants.h"
-#import <NetworkObjects/NOServerConstants.h>
+#import "NOServerConstants.h"
 #import "NOAPI+CommonErrors.h"
+
+// Initialization Options
+
+NSString *const NOAPIModelOption = @"NOAPIModelOption";
+
+NSString *const NOAPIUserEntityNameOption = @"NOAPIUserEntityNameOption";
+
+NSString *const NOAPISessionEntityNameOption = @"NOAPISessionEntityNameOption";
+
+NSString *const NOAPIClientEntityNameOption = @"NOAPIClientEntityNameOption";
+
+NSString *const NOAPILoginPathOption = @"NOAPILoginPathOption";
+
+NSString *const NOAPISearchPathOption = @"NOAPISearchPathOption";
 
 // Macro for checking if the serverURL property is not nil
 
@@ -71,23 +85,31 @@
 
 #pragma mark - Initialization
 
-- (instancetype)initWithModel:(NSManagedObjectModel *)model
-            sessionEntityName:(NSString *)sessionEntityName
-               userEntityName:(NSString *)userEntityName
-             clientEntityName:(NSString *)clientEntityName
-                    loginPath:(NSString *)loginPath
-                   searchPath:(NSString *)searchPath
+- (instancetype)initWithOptions:(NSDictionary *)options
 {
     self = [super init];
     if (self) {
         
         // set immutable values
-        self.model = model;
-        self.sessionEntityName = sessionEntityName;
-        self.userEntityName = userEntityName;
-        self.clientEntityName = clientEntityName;
-        self.loginPath = loginPath;
-        self.searchPath = searchPath;
+        self.model = options[NOAPIModelOption];
+        
+        self.sessionEntityName = options[NOAPISessionEntityNameOption];
+        
+        self.userEntityName = options[NOAPIUserEntityNameOption];
+        
+        self.clientEntityName = options[NOAPIClientEntityNameOption];
+        
+        if (!self.model || !self.sessionEntityName || !self.userEntityName || !self.clientEntityName) {
+            
+            [NSException raise:NSInvalidArgumentException
+                        format:@"Required initialzation options were not included in the options dictionary"];
+            
+            return nil;
+        }
+        
+        self.loginPath = options[NOAPILoginPathOption];
+        
+        self.searchPath = options[NOAPISearchPathOption];
         
     }
     return self;
@@ -99,7 +121,7 @@
                 format:@"You cannot use %@ with '-%@', you have to use '-%@'",
      self,
      NSStringFromSelector(_cmd),
-     NSStringFromSelector(@selector(initWithModel:sessionEntityName:userEntityName:clientEntityName:loginPath:searchPath:))];
+     NSStringFromSelector(@selector(initWithOptions:))];
     return nil;
 }
 

@@ -283,12 +283,12 @@
         [NSApp terminate:nil];
     }
     
-    _server = [[NOServer alloc] initWithStore:_store
-                               userEntityName:@"User"
-                            sessionEntityName:@"Session"
-                             clientEntityName:@"Client"
-                                    loginPath:@"login"
-                                   searchPath:@"search"];
+    _server = [[NOServer alloc] initWithOptions:@{NOServerStoreOption: _store,
+                                                  NOServerUserEntityNameOption: @"User",
+                                                  NOServerSessionEntityNameOption: @"Session",
+                                                  NOServerClientEntityNameOption: @"Client",
+                                                  NOServerLoginPathOption: @"login",
+                                                  NOServerSearchPathOption: @"search"}];
     
     // Set a default Server header in the form of YourApp/1.0
 	NSDictionary *bundleInfo = [[NSBundle mainBundle] infoDictionary];
