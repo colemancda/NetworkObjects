@@ -10,6 +10,15 @@
 #import <CoreData/CoreData.h>
 #import <NetworkObjects/NOResourceProtocol.h>
 
+typedef NS_ENUM(NSUInteger, NOStoreSaveErrorCode) {
+    
+    /** Could not backup the previous archive of @c _lastResourceIDs. */
+    NOStoreBackupLastIDsSaveError = 100,
+    
+    /** Could not restore the previous archive of @c _lastResourceIDs. */
+    NOStoreRestoreLastIDsSaveError
+};
+
 /**
  This is the store class that holds the Core Data entities (called Resources) that conform to NOResourceProtocol. It creates, deletes and accesses Resources in a manner that is friendly to NOResourceProtocol. You MUST add a persistent store to the @c context property after initialization to properly use this class.
  */
@@ -55,7 +64,7 @@
 /**
  Saves the NSManagedObjectContext @c context and @c lastResourceIDs dictionary.
  */
--(BOOL)save;
+-(BOOL)save:(NSError **)error;
 
 #pragma mark - Resource Methods
 
@@ -78,7 +87,8 @@
 
 -(NSManagedObject<NOResourceProtocol> *)newResourceWithEntityDescription:(NSEntityDescription *)entityDescription;
 
--(NSManagedObject<NOResourceProtocol> *)resourceWithEntityDescription:(NSEntityDescription *)entityDescription resourceID:(NSUInteger)resourceID;
+-(NSManagedObject<NOResourceProtocol> *)resourceWithEntityDescription:(NSEntityDescription *)entityDescription
+                                                           resourceID:(NSUInteger)resourceID;
 
 -(void)deleteResource:(NSManagedObject<NOResourceProtocol> *)resource;
 

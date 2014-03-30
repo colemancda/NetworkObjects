@@ -8,6 +8,7 @@
 
 #import "NOStore.h"
 @import CoreData;
+#import "NetworkObjectsConstants.h"
 
 @implementation NOStore
 
@@ -76,13 +77,13 @@
 
 #pragma mark - Save
 
--(BOOL)save
+-(BOOL)save:(NSError **)error
 {
-    // this will be nil for in-memory stores
-    
     BOOL savedLastIDs;
     
     NSDictionary *lastIDsBackup;
+    
+    // this will be nil for in-memory stores
     
     if (_lastIDsURL) {
         
@@ -94,25 +95,29 @@
                                          atomically:YES];
         
         if (!savedLastIDs) {
+            
+            NSString *localizedDescription = NSLocalizedString(@"Could not backup previous lastIDs archived dictionary",
+                                                               @"NOStore Save Backup Error Description");
+            
+            *error = [NSError errorWithDomain:NetworkObjectsErrorDomain
+                                         code:NOStoreBackupLastIDsSaveError
+                                     userInfo:@{NSLocalizedDescriptionKey: localizedDescription}];
+            
             return NO;
         }
     }
     
     // save context
-    __block BOOL savedContext;
+    __block NSError *saveContextError;
+    
     [_context performBlockAndWait:^{
         
-        NSError *saveError;
-        savedContext = [_context save:&saveError];
+        [_context save:&saveContextError];
         
-        if (!savedContext) {
-            
-            NSLog(@"Could not save Core Data context of %@. %@", self, saveError.localizedDescription);
-        }
     }];
     
     // restore lastIDs file becuase the Core Data save failed
-    if (!savedContext && savedLastIDs && lastIDsBackup) {
+    if (saveContextError && savedLastIDs && lastIDsBackup) {
         
         // restore saved lastIDs
         BOOL restoreLastIDs = [lastIDsBackup writeToURL:_lastIDsURL
@@ -120,9 +125,18 @@
         
         if (!restoreLastIDs) {
             
-            NSLog(@"Could not restore lastIDs file to value before failed context save operation!");
+            NSString *localizedDescription = NSLocalizedString(@"Could not restore lastIDs file to value before failed context save operation.", @"NOStore Restore Backup Error Description");
+            
+            *error = [NSError errorWithDomain:NetworkObjectsErrorDomain
+                                         code:NOStoreRestoreLastIDsSaveError
+                                     userInfo:@{NSLocalizedDescriptionKey: localizedDescription,
+                                                NSUnderlyingErrorKey: saveContextError}];
+            
+            return NO;
             
         }
+        
+        *error = saveContextError;
         
         return NO;
     }
