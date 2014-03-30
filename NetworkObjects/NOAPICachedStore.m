@@ -240,8 +240,20 @@
                                                                     forResource:resourceName
                                                                          withID:resourceID];
         
+        // set date cached
+        
         [self cachedResource:resourceName
               withResourceID:resourceID];
+        
+        // optionally process changes
+        
+        if (self.shouldProcessPendingChanges) {
+            
+            [self.context performBlock:^{
+                
+                [self.context processPendingChanges];
+            }];
+        }
         
         completionBlock(nil, resource);
     }];
@@ -287,8 +299,20 @@
                         forKey:key];
         }
         
+        // set date cached
+        
         [self cachedResource:resourceName
               withResourceID:resourceID.integerValue];
+        
+        // optionally process pending changes
+        
+        if (self.shouldProcessPendingChanges) {
+            
+            [self.context performBlock:^{
+                
+                [self.context processPendingChanges];
+            }];
+        }
         
         completionBlock(nil, resource);
     }];
@@ -335,6 +359,16 @@
                         forKey:key];
         }
         
+        // optionally process pending changes
+        
+        if (self.shouldProcessPendingChanges) {
+            
+            [self.context performBlock:^{
+                
+                [self.context processPendingChanges];
+            }];
+        }
+        
         completionBlock(nil);
         
     }];
@@ -365,6 +399,13 @@
         [_context performBlock:^{
            
             [_context deleteObject:resource];
+            
+            // optionally process pending changes
+            
+            if (self.shouldProcessPendingChanges) {
+                
+                [self.context processPendingChanges];
+            }
             
             completionBlock(nil);
         }];

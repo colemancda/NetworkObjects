@@ -46,6 +46,8 @@
         
         // configure cache store...
         
+        self.shouldProcessPendingChanges = YES;
+        
         self.prettyPrintJSON = YES;
         
         self.context.persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:self.model];
