@@ -16,10 +16,6 @@
 
 @property NOAPICachedStore *cachedStore;
 
-@property NOIncrementalStore *incrementalStore;
-
-@property NSManagedObjectContext *context;
-
 @end
 
 @implementation SNCStore
@@ -67,16 +63,6 @@
                                                                                   error:&error];
         
         NSAssert(!error, @"Could not create persistent store for cached store");
-        
-        // add incremental store...
-        
-        self.context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-        
-        self.context.persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:self.cachedStore.model];
-        
-        self.incrementalStore = (id)[self.context.persistentStoreCoordinator addPersistentStoreWithType:[NOIncrementalStore storeType] configuration:nil URL:nil options:@{NOIncrementalStoreCachedStoreOption: self.cachedStore} error:&error];
-        
-        NSAssert(!error, @"Could not create incremental store");
         
     }
     
@@ -231,13 +217,6 @@
     self.cachedStore.clientSecret = nil;
     self.cachedStore.serverURL = nil;
     self.cachedStore.sessionToken = nil;
-    
-    // reset context
-    [self.context performBlock:^{
-        
-        [self.context reset];
-        
-    }];
     
     // reset cache
     

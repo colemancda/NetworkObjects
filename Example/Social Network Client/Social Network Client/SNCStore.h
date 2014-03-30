@@ -18,9 +18,7 @@
 
 @property (readonly) User *user;
 
-@property (readonly) NOIncrementalStore *incrementalStore;
-
-@property (readonly) NSManagedObjectContext *context;
+@property (readonly) NOAPICachedStore *cachedStore;
 
 #pragma mark - Actions
 

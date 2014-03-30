@@ -73,9 +73,6 @@ static void *KVOContext = &KVOContext;
 -(void)dealloc
 {
     [self removeObserver:self forKeyPath:NSStringFromSelector(@selector(predicate))];
-    
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
-    
 }
 
 #pragma mark - KVO
@@ -95,9 +92,22 @@ static void *KVOContext = &KVOContext;
             fetchRequest.predicate = self.predicate;
             
             // make nsfetchedresultscontroller
-            _fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest managedObjectContext:[SNCStore sharedStore].context sectionNameKeyPath:nil cacheName:nil];
+            _fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest managedObjectContext:[SNCStore sharedStore].cachedStore.context sectionNameKeyPath:nil cacheName:nil];
             
             _fetchedResultsController.delegate = self;
+            
+            [[SNCStore sharedStore].cachedStore.context performBlock:^{
+                
+                NSError *fetchError;
+                
+                [_fetchedResultsController performFetch:&fetchError];
+                
+                if (fetchError) {
+                    
+                    [NSException raise:NSInternalInconsistencyException
+                                format:@"Error executing fetch request. (%@)", fetchError.localizedDescription];
+                }
+            }];
             
             // fetch
             [self fetchData:nil];
@@ -113,30 +123,12 @@ static void *KVOContext = &KVOContext;
 
 -(void)fetchData:(id)sender
 {
-    [[SNCStore sharedStore].context performBlock:^{
-        
-        NSError *fetchError;
-        
-        [_fetchedResultsController performFetch:&fetchError];
-        
-        if (fetchError) {
-            
-            [NSException raise:NSInternalInconsistencyException
-                        format:@"Error executing fetch request. (%@)", fetchError.localizedDescription];
-        }
-        
-        // refault all posts (refetch from server)
-        
-        for (Post *post in _fetchedResultsController.fetchedObjects) {
-            
-            [[SNCStore sharedStore].context refreshObject:post
-                                             mergeChanges:YES];
-        }
-        
-    }];
+    // refetch all of the fetch results
     
-    // notifiation selector will handle fetch request error
-    
+    for (Post *post in _fetchedResultsController.fetchedObjects) {
+        
+        [SNCStore sharedStore]
+    }
     
 }
 
@@ -431,79 +423,6 @@ static void *KVOContext = &KVOContext;
         [self.tableView endUpdates];
 
     }];
-}
-
-
-@end
-
-#pragma mark - Categories
-
-@implementation SNCPostsTableViewController (Notifications)
-
--(void)setupNotifications
-{
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(didFinishFetchRequest:)
-                                                 name:NOIncrementalStoreFinishedFetchRequestNotification
-                                               object:nil];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(didGetNewValues:)
-                                                 name:NOIncrementalStoreDidGetNewValuesNotification
-                                               object:nil];
-}
-
--(void)didFinishFetchRequest:(NSNotification *)notification
-{
-    NSFetchRequest *notificationFetchRequest = notification.userInfo[NOIncrementalStoreRequestKey];
-    
-    // make sure its our fetch request
-    
-    if (notificationFetchRequest == _fetchedResultsController.fetchRequest) {
-        
-        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-            
-            [self.refreshControl endRefreshing];
-            
-        }];
-        
-        NSError *error = notification.userInfo[NOIncrementalStoreErrorKey];
-        
-        if (error) {
-            
-            [error presentError];
-            
-            return;
-        }
-        
-        // nothing needed, fetch result controller should detect the new changes from context
-        
-    }
-}
-
--(void)didGetNewValues:(NSNotification *)notification
-{
-    // make sure its values we requested
-    
-    NSManagedObjectID *objectID = notification.userInfo[NOIncrementalStoreObjectIDKey];
-    
-    for (NSManagedObject *object in _fetchedResultsController.fetchedObjects) {
-        
-        if (object.objectID == objectID) {
-            
-            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-                
-                // get row
-                
-                [self.tableView reloadRowsAtIndexPaths:@[[_fetchedResultsController indexPathForObject:object]]
-                                      withRowAnimation:UITableViewRowAnimationNone];
-                
-            }];
-            
-            break;
-        }
-    }
-                                                         
 }
 
     
