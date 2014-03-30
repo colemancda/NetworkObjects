@@ -65,6 +65,14 @@ static void *KVOContext = &KVOContext;
 
 @end
 
+
+@interface SNCPostsTableViewController (ConfigureCell)
+
+-(void)configureCell:(UITableViewCell *)cell
+             forPost:(Post *)post;
+
+@end
+
 @implementation SNCPostsTableViewController
 
 - (id)initWithCoder:(NSCoder *)aDecoder
@@ -237,114 +245,7 @@ static void *KVOContext = &KVOContext;
     // get model object
     Post *post = [_fetchedResultsController objectAtIndexPath:indexPath];
     
-    // blocks
-    
-    void (^configureCell)() = ^void() {
-        
-        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-            
-            // Configure the cell...
-            cell.textLabel.text = post.text;
-            
-            if (!_dateFormatter) {
-                
-                _dateFormatter = [[NSDateFormatter alloc] init];
-                _dateFormatter.dateStyle = NSDateFormatterShortStyle;
-            }
-            
-            cell.detailTextLabel.text = [_dateFormatter stringFromDate:post.created];
-            
-        }];
-    };
-    
-    void (^configurePlaceholderCell)() = ^void() {
-        
-        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-            
-            // Configure the cell...
-            cell.textLabel.text = NSLocalizedString(@"Loading...",
-                                                    @"Loading...");
-            
-            cell.detailTextLabel.text = @"";
-            
-        }];
-    };
-    
-    // download if not in cache...
-    
-    NSDate *dateCached = [[SNCStore sharedStore] dateCachedForResource:@"Post"
-                                                            resourceID:post.resourceID.integerValue];
-    
-    // never downloaded / not in cache
-    if (!dateCached) {
-        
-        NSURLSessionDataTask *dataTask = [[SNCStore sharedStore] getCachedResource:@"Post" resourceID:post.resourceID.integerValue URLSession:self.urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
-            
-            [self removeDataTaskForPost:post];
-            
-            if (_errorDownloadingPost) {
-                
-                // load empty cell
-                configurePlaceholderCell();
-                
-                return;
-            }
-            
-            if (error) {
-                
-                _errorDownloadingPost = error;
-                
-                // load empty cell
-                configurePlaceholderCell();
-                
-                return;
-            }
-            
-            configureCell();
-            
-        }];
-        
-        [self setDataTask:dataTask forPost:post];
-    }
-    
-    // cached object was fetched before we started loading this table view
-    if ([dateCached compare:_dateLastFetched] == NSOrderedAscending) {
-        
-        NSURLSessionDataTask *dataTask = [[SNCStore sharedStore] getCachedResource:@"Post" resourceID:post.resourceID.integerValue URLSession:self.urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
-            
-            [self removeDataTaskForPost:post];
-            
-            if (_errorDownloadingPost) {
-                
-                // load the cache
-                configureCell();
-                
-                return;
-            }
-            
-            if (error) {
-                
-                _errorDownloadingPost = error;
-                
-                // load the cache
-                configureCell();
-                
-                return;
-            }
-            
-            configureCell();
-        }];
-        
-        [self setDataTask:dataTask forPost:post];
-        
-    }
-    
-    // cached object was downloaded after we started loading this tableview
-    else {
-        
-        configureCell();
-        
-    }
+    [self configureCell:cell forPost:post];
     
     return cell;
 }
@@ -501,10 +402,11 @@ static void *KVOContext = &KVOContext;
                 
             case NSFetchedResultsChangeUpdate:
                 
-                // no animation becuase the number of post views is being constantly updated
+                // setup cell without reloading it...
                 
-                [self.tableView reloadRowsAtIndexPaths:@[indexPath]
-                                      withRowAnimation:UITableViewRowAnimationNone];
+                [self configureCell:[self.tableView cellForRowAtIndexPath:indexPath]
+                            forPost:anObject];
+                
                 break;
                 
             case NSFetchedResultsChangeMove:
@@ -555,3 +457,121 @@ static void *KVOContext = &KVOContext;
 
     
 @end
+
+@implementation SNCPostsTableViewController (ConfigureCell)
+
+-(void)configureCell:(UITableViewCell *)cell forPost:(Post *)post
+{
+    // blocks
+    
+    void (^configureCell)() = ^void() {
+        
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            
+            // Configure the cell...
+            cell.textLabel.text = post.text;
+            
+            if (!_dateFormatter) {
+                
+                _dateFormatter = [[NSDateFormatter alloc] init];
+                _dateFormatter.dateStyle = NSDateFormatterShortStyle;
+            }
+            
+            cell.detailTextLabel.text = [_dateFormatter stringFromDate:post.created];
+            
+        }];
+    };
+    
+    void (^configurePlaceholderCell)() = ^void() {
+        
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            
+            // Configure the cell...
+            cell.textLabel.text = NSLocalizedString(@"Loading...",
+                                                    @"Loading...");
+            
+            cell.detailTextLabel.text = @"";
+            
+        }];
+    };
+    
+    // download if not in cache...
+    
+    NSDate *dateCached = [[SNCStore sharedStore] dateCachedForResource:@"Post"
+                                                            resourceID:post.resourceID.integerValue];
+    
+    // never downloaded / not in cache
+    if (!dateCached) {
+        
+        NSURLSessionDataTask *dataTask = [[SNCStore sharedStore] getCachedResource:@"Post" resourceID:post.resourceID.integerValue URLSession:self.urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
+            
+            [self removeDataTaskForPost:post];
+            
+            if (_errorDownloadingPost) {
+                
+                // load empty cell
+                configurePlaceholderCell();
+                
+                return;
+            }
+            
+            if (error) {
+                
+                _errorDownloadingPost = error;
+                
+                // load empty cell
+                configurePlaceholderCell();
+                
+                return;
+            }
+            
+            configureCell();
+            
+        }];
+        
+        [self setDataTask:dataTask forPost:post];
+    }
+    
+    // cached object was fetched before we started loading this table view
+    if ([dateCached compare:_dateLastFetched] == NSOrderedAscending) {
+        
+        NSURLSessionDataTask *dataTask = [[SNCStore sharedStore] getCachedResource:@"Post" resourceID:post.resourceID.integerValue URLSession:self.urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
+            
+            [self removeDataTaskForPost:post];
+            
+            if (_errorDownloadingPost) {
+                
+                // load the cache
+                configureCell();
+                
+                return;
+            }
+            
+            if (error) {
+                
+                _errorDownloadingPost = error;
+                
+                // load the cache
+                configureCell();
+                
+                return;
+            }
+            
+            configureCell();
+        }];
+        
+        [self setDataTask:dataTask forPost:post];
+        
+    }
+    
+    // cached object was downloaded after we started loading this tableview
+    else {
+        
+        configureCell();
+        
+    }
+    
+}
+
+@end
+
