@@ -506,12 +506,10 @@ NSString *const NOIncrementalStoreObjectIDKey = @"NOIncrementalStoreObjectIDKey"
             
             id value = [cachedResource valueForKey:propertyName];
             
-            if (!value) {
+            if (value) {
                 
-                value = [NSNull null];
+                values[propertyName] = value;
             }
-            
-            values[propertyName] = value;
         }
         
         // only to-one relationship
