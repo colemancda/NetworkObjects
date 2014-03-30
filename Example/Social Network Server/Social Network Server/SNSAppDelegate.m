@@ -74,7 +74,9 @@
 {
     NSLog(@"Terminating...");
     
-    BOOL saved = [self.store save];
+    NSError *error;
+    
+    BOOL saved = [self.store save:&error];
     
     if (saved) {
         
@@ -82,9 +84,8 @@
     }
     else {
         
-        NSLog(@"Could not save data");
+        NSLog(@"Could not save data. (%@)", error.localizedDescription);
     }
-    
 }
 
 -(BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)sender
