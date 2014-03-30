@@ -9,6 +9,20 @@
 @import Foundation;
 @import CoreData;
 
+// Initialization Options
+
+extern NSString *const NOAPIModelOption;
+
+extern NSString *const NOAPIUserEntityNameOption;
+
+extern NSString *const NOAPISessionEntityNameOption;
+
+extern NSString *const NOAPIClientEntityNameOption;
+
+extern NSString *const NOAPILoginPathOption;
+
+extern NSString *const NOAPISearchPathOption;
+
 /**
  NOAPI error codes.
  */
@@ -37,12 +51,7 @@ typedef NS_ENUM(NSUInteger, NOAPIErrorCode) {
 
 /** Default initializer to use. Do not use -init. */
 
-- (instancetype)initWithModel:(NSManagedObjectModel *)model
-            sessionEntityName:(NSString *)sessionEntityName
-               userEntityName:(NSString *)userEntityName
-             clientEntityName:(NSString *)clientEntityName
-                    loginPath:(NSString *)loginPath
-                   searchPath:(NSString *)searchPath;
+- (instancetype)initWithOptions:(NSDictionary *)options;
 
 #pragma mark - Properties
 

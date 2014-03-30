@@ -10,6 +10,8 @@
 #import "NSManagedObject+CoreDataJSONCompatibility.h"
 #import "NetworkObjectsConstants.h"
 
+NSString *const NOAPICachedStoreDatesCachedOption = @"NOAPICachedStoreDatesCachedOption";
+
 @interface NOAPICachedStore (Cache)
 
 -(NSManagedObject<NOResourceKeysProtocol> *)resource:(NSString *)resourceName
@@ -46,24 +48,13 @@
 
 #pragma mark - Initialization
 
--(instancetype)initWithModel:(NSManagedObjectModel *)model
-           sessionEntityName:(NSString *)sessionEntityName
-              userEntityName:(NSString *)userEntityName
-            clientEntityName:(NSString *)clientEntityName
-                   loginPath:(NSString *)loginPath
-                  searchPath:(NSString *)searchPath
-                 datesCached:(NSDictionary *)datesCached
+-(instancetype)initWithOptions:(NSDictionary *)options
 {
-    self = [super initWithModel:model
-              sessionEntityName:sessionEntityName
-                 userEntityName:userEntityName
-               clientEntityName:clientEntityName
-                      loginPath:loginPath
-                     searchPath:searchPath];
+    self = [super initWithOptions:options];
     
     if (self) {
         
-        self.datesCached = datesCached;
+        self.datesCached = options[NOAPICachedStoreDatesCachedOption];
         
         _context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
         
@@ -75,12 +66,6 @@
     }
     return self;
 }
-
--(instancetype)initWithModel:(NSManagedObjectModel *)model sessionEntityName:(NSString *)sessionEntityName userEntityName:(NSString *)userEntityName clientEntityName:(NSString *)clientEntityName loginPath:(NSString *)loginPath searchPath:(NSString *)searchPath
-{
-    return [[[self class] alloc] initWithModel:model sessionEntityName:sessionEntityName userEntityName:userEntityName clientEntityName:clientEntityName loginPath:loginPath searchPath:sessionEntityName datesCached:nil];
-}
-
 
 #pragma mark - Date Cached
 

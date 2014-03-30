@@ -18,6 +18,20 @@
 #import "NOHTTPServer.h"
 #import "NetworkObjectsConstants.h"
 
+// Initialization Options
+
+NSString *const NOServerStoreOption = @"NOServerStoreOption";
+
+NSString *const NOServerUserEntityNameOption = @"NOServerUserEntityNameOption";
+
+NSString *const NOServerSessionEntityNameOption = @"NOServerSessionEntityNameOption";
+
+NSString *const NOServerClientEntityNameOption = @"NOServerClientEntityNameOption";
+
+NSString *const NOServerLoginPathOption = @"NOServerLoginPathOption";
+
+NSString *const NOServerSearchPathOption = @"NOServerSearchPathOption";
+
 @implementation NOServer (NSJSONWritingOption)
 
 -(NSJSONWritingOptions)jsonWritingOption
@@ -33,36 +47,58 @@
 
 @interface NOServer ()
 
+@property NOStore *store;
+
+@property NOHTTPServer *httpServer;
+
+@property NSString *sessionEntityName;
+
+@property NSString *userEntityName;
+
+@property NSString *clientEntityName;
+
+@property NSString *loginPath;
+
+@property NSString *searchPath;
+
 @end
 
 @implementation NOServer
 
 @synthesize resourcePaths = _resourcePaths;
 
--(id)initWithStore:(NOStore *)store
-    userEntityName:(NSString *)userEntityName
- sessionEntityName:(NSString *)sessionEntityName
-  clientEntityName:(NSString *)clientEntityName
-         loginPath:(NSString *)loginPath
-        searchPath:(NSString *)searchPath
+-(instancetype)initWithOptions:(NSDictionary *)options
 
 {
     self = [super init];
     if (self) {
         
-        _store = store;
+        // Obligatory Options
         
-        _userEntityName = userEntityName;
+        self.store = options[NOServerStoreOption];
         
-        _sessionEntityName = sessionEntityName;
+        self.userEntityName = options[NOServerUserEntityNameOption];
         
-        _clientEntityName = clientEntityName;
+        self.sessionEntityName = options[NOServerSessionEntityNameOption];
         
-        _loginPath = loginPath;
+        self.clientEntityName = options[NOServerClientEntityNameOption];
         
-        _searchPath = searchPath;
+        if (!self.store || !self.userEntityName || !self.sessionEntityName || !self.clientEntityName) {
+            
+            [NSException raise:NSInvalidArgumentException
+                        format:@"Required initialzation options were not included in the options dictionary"];
+            
+            return nil;
+        }
+        
+        // Optional Options
+        
+        _loginPath = options[NOServerLoginPathOption];
+        
+        _searchPath = options[NOServerSearchPathOption];
         
         // HTTP Server
+        
         _httpServer = [[NOHTTPServer alloc] init];
         
         _httpServer.server = self;
@@ -88,7 +124,7 @@
                 format:@"You cannot use %@ with '-%@', you have to use '-%@'",
      self,
      NSStringFromSelector(_cmd),
-     NSStringFromSelector(@selector(initWithStore:userEntityName:sessionEntityName:clientEntityName:loginPath:searchPath:))];
+     NSStringFromSelector(@selector(initWithOptions:))];
     return nil;
 }
 
