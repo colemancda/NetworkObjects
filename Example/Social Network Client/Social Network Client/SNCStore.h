@@ -10,15 +10,13 @@
 #import <NetworkObjects/NetworkObjects.h>
 @class User;
 
-@interface SNCStore : NSObject
+@interface SNCStore : NOAPICachedStore
 
 +(instancetype)sharedStore;
 
 #pragma mark - Properties
 
 @property (readonly) User *user;
-
-@property (readonly) NOAPICachedStore *cachedStore;
 
 #pragma mark - Actions
 

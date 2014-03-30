@@ -16,15 +16,13 @@
  */
 
 @interface NOAPICachedStore : NOAPI
-
-#pragma mark - Initialization
-
-+(instancetype)cachedStoreWithModel:(NSManagedObjectModel *)model
-                  sessionEntityName:(NSString *)sessionEntityName
-                     userEntityName:(NSString *)userEntityName
-                   clientEntityName:(NSString *)clientEntityName
-                          loginPath:(NSString *)loginPath
-                         searchPath:(NSString *)searchPath;
+{
+    /** Hierarchy of dictionaries with dates a resource with a particular resource ID was cached. */
+    NSDictionary *_dateCached;
+    
+    /** Dictionary of NSOperationQueue for accessing a sub dictionary in @c _dateCached */
+    NSDictionary *_dateCachedOperationQueues;
+}
 
 #pragma mark - Cache
 
@@ -38,6 +36,11 @@
  */
 
 @property (readonly) NSManagedObjectContext *context;
+
+/** Returns the date when this Resource was cached (either downloaded or created) */
+
+-(NSDate *)dateCachedForResource:(NSString *)resourceName
+                      resourceID:(NSUInteger)resourceID;
 
 #pragma mark - Requests
 

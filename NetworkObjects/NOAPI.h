@@ -37,15 +37,6 @@ typedef NS_ENUM(NSUInteger, NOAPIErrorCode) {
 
 /** Default initializer to use. Do not use -init. */
 
-+ (instancetype)apiWithModel:(NSManagedObjectModel *)model
-           sessionEntityName:(NSString *)sessionEntityName
-              userEntityName:(NSString *)userEntityName
-            clientEntityName:(NSString *)clientEntityName
-                   loginPath:(NSString *)loginPath
-                  searchPath:(NSString *)searchPath;
-
-/** Default initializer to use. Do not use -init. */
-
 - (instancetype)initWithModel:(NSManagedObjectModel *)model
             sessionEntityName:(NSString *)sessionEntityName
                userEntityName:(NSString *)userEntityName
