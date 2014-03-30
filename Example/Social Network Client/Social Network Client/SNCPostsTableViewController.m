@@ -171,9 +171,25 @@ static void *KVOContext = &KVOContext;
     self.dateLastFetched = [NSDate date];
     
     [[SNCStore sharedStore] searchForCachedResourceWithFetchRequest:_fetchedResultsController.fetchRequest URLSession:self.urlSession completion:^(NSError *error, NSArray *results) {
+        
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            
+            [self.refreshControl endRefreshing];
+            
+        }];
        
+        if (error) {
+            
+            [error presentError];
+            
+            return;
+        }
         
-        
+        [[SNCStore sharedStore].context performBlock:^{
+           
+            
+            
+        }];
     }];
     
 }
