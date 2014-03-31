@@ -15,16 +15,6 @@
 
 static void *KVOContext = &KVOContext;
 
-@interface SNCPostsTableViewController (Notifications)
-
--(void)setupNotifications;
-
--(void)didFinishFetchRequest:(NSNotification *)notification;
-
--(void)didGetNewValues:(NSNotification *)notification;
-
-@end
-
 @interface SNCPostsTableViewController ()
 
 @property NSDate *dateLastFetched;
@@ -66,10 +56,6 @@ static void *KVOContext = &KVOContext;
               options:NSKeyValueObservingOptionNew
               context:KVOContext];
     
-    // notifications
-    
-    [self setupNotifications];
-    
     // default predicate
     
     self.predicate = nil;
@@ -84,8 +70,6 @@ static void *KVOContext = &KVOContext;
 -(void)dealloc
 {
     [self removeObserver:self forKeyPath:NSStringFromSelector(@selector(predicate))];
-    
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 #pragma mark - KVO
@@ -105,7 +89,7 @@ static void *KVOContext = &KVOContext;
             fetchRequest.predicate = self.predicate;
             
             // make nsfetchedresultscontroller
-            _fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest managedObjectContext:[SNCStore sharedStore].context sectionNameKeyPath:nil cacheName:nil];
+            _fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest managedObjectContext:[SNCStore sharedStore].cacheContext sectionNameKeyPath:nil cacheName:nil];
             
             _fetchedResultsController.delegate = self;
             
@@ -129,7 +113,9 @@ static void *KVOContext = &KVOContext;
     
     _errorDownloadingPost = nil;
     
-    [[SNCStore sharedStore].context performBlock:^{
+    // search cache
+    
+    [[SNCStore sharedStore].cacheContext performBlock:^{
         
         NSError *fetchError;
         
@@ -141,6 +127,10 @@ static void *KVOContext = &KVOContext;
                         format:@"Error executing fetch request. (%@)", fetchError.localizedDescription];
         }
     }];
+    
+    // start remote fetch
+    
+    NSFetchRequest *request = 
     
 }
 

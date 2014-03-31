@@ -14,11 +14,29 @@
 
 @property User *user;
 
-@property NOAPICachedStore *cachedStore;
+@property NSManagedObjectContext *cacheContext;
+
+@property NSManagedObjectContext *incrementalContext;
 
 @property NOIncrementalStore *incrementalStore;
 
-@property NSManagedObjectContext *context;
+@property NSMutableSet *incrementalStores;
+
+@property NSOperationQueue *incrementalStoresOperationQueue;
+
+// Session properties
+
+@property NSString *username;
+
+@property NSString *userPassword;
+
+@property NSURL *serverURL;
+
+@property NSString *clientSecret;
+
+@property NSNumber *clientResourceID;
+
+-(void)contextDidChange:(NSNotification *)notification;
 
 @end
 
@@ -45,43 +63,38 @@
     
     if (self) {
         
-        // configure cache store...
+        self.incrementalStores = [[NSMutableSet alloc] init];
         
-        self.cachedStore = [[NOAPICachedStore alloc] initWithOptions:@{NOAPIModelOption: [NSManagedObjectModel mergedModelFromBundles:nil], NOAPISessionEntityNameOption: @"Session", NOAPIUserEntityNameOption: @"User", NOAPIClientEntityNameOption: @"Client", NOAPILoginPathOption: @"login", NOAPISearchPathOption: @"search"}];
+        self.incrementalStoresOperationQueue = [[NSOperationQueue alloc] init];
         
-        self.cachedStore.shouldProcessPendingChanges = YES;
+        self.incrementalStoresOperationQueue.maxConcurrentOperationCount = 1;
         
-        self.cachedStore.prettyPrintJSON = YES;
+        // configure cache context...
         
-        self.cachedStore.context.persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:self.cachedStore.model];
+        self.cacheContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+        
+        self.cacheContext.persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:[NSManagedObjectModel mergedModelFromBundles:nil]];
         
         NSError *error;
         
-        [self.cachedStore.context.persistentStoreCoordinator addPersistentStoreWithType:NSInMemoryStoreType
-                                                                          configuration:nil
-                                                                                    URL:nil
-                                                                                options:nil
-                                                                                  error:&error];
+        [self.cacheContext.persistentStoreCoordinator addPersistentStoreWithType:NSInMemoryStoreType
+                                                                   configuration:nil
+                                                                             URL:nil
+                                                                         options:nil
+                                                                           error:&error];
         
-        NSAssert(!error, @"Could not create persistent cache store");
+        NSAssert(!error, @"Could not setup cache context");
         
-        // configure incremental store
         
-        self.context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-        
-        self.context.persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:self.cachedStore.model];
-        
-        self.incrementalStore = (id)[self.context.persistentStoreCoordinator addPersistentStoreWithType:[NOIncrementalStore storeType]
-                                                                          configuration:nil
-                                                                                    URL:nil
-                                                                                options:@{NOIncrementalStoreCachedStoreOption: self.cachedStore}
-                                                                                  error:&error];
-        
-        NSAssert(!error, @"Could not create incremental store");
         
     }
     
     return self;
+}
+
+-(void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 #pragma mark - Authentication
@@ -96,15 +109,21 @@
 
 {
     // setup session properties
-    self.cachedStore.username = username;
-    self.cachedStore.userPassword = password;
-    self.cachedStore.serverURL = serverURL;
-    self.cachedStore.clientSecret = secret;
-    self.cachedStore.clientResourceID = @(clientID);
+    self.username = username;
+    self.userPassword = password;
+    self.serverURL = serverURL;
+    self.clientSecret = secret;
+    self.clientResourceID = @(clientID);
     
     NSLog(@"Logging in as '%@'...", username);
     
-    [self.cachedStore loginWithURLSession:urlSession completion:^(NSError *error) {
+    NSManagedObjectContext *context;
+    
+    self.incrementalStore = [self newIncrementalStoreWithURLSession:urlSession context:&context];
+    
+    self.incrementalContext = context;
+    
+    [self.incrementalStore loginWithContext:context completion:^(NSError *error) {
         
         if (error) {
             
@@ -113,8 +132,17 @@
             return;
         }
         
-        // get the user for this session
-        [self.cachedStore getCachedResource:@"User" resourceID:self.cachedStore.userResourceID.integerValue URLSession:urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
+        // fetch request
+        
+        NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"User"];
+        
+        fetchRequest.predicate = (id)[NSComparisonPredicate predicateWithLeftExpression:[NSExpression expressionForKeyPath:@"resourceID"] rightExpression:[NSExpression expressionForConstantValue:self.incrementalStore.userResourceID] modifier:NSDirectPredicateModifier type:NSEqualToPredicateOperatorType options:NSNormalizedPredicateOption];
+        
+        [context performBlock:^{
+            
+            NSError *error;
+            
+            NSArray *results = [context executeFetchRequest:fetchRequest error:&error];
             
             if (error) {
                 
@@ -123,24 +151,27 @@
                 return;
             }
             
-            // save session values
-            self.user = (User *)resource;
+            // save user
+            
+            self.user = results.firstObject;
             
             NSLog(@"Successfully logged in");
             
             completionBlock(nil);
-            
+
         }];
+        
     }];
 }
 
+/*
+
 -(void)registerWithUsername:(NSString *)username
-                        password:(NSString *)password
-                       serverURL:(NSURL *)serverURL
-                        clientID:(NSUInteger)clientID
-                    clientSecret:(NSString *)secret
-                      URLSession:(NSURLSession *)urlSession
-                      completion:(void (^)(NSError *))completionBlock
+                   password:(NSString *)password
+                  serverURL:(NSURL *)serverURL
+                   clientID:(NSUInteger)clientID
+               clientSecret:(NSString *)secret
+                 completion:(void (^)(NSError *))completionBlock
 {
     
     // setup session properties
@@ -193,36 +224,85 @@
         }];
     }];
 }
+ 
+ */
 
 #pragma mark - Logout
 
 -(void)logout
 {
     self.user = nil;
-    self.cachedStore.userPassword = nil;
-    self.cachedStore.username = nil;
-    self.cachedStore.userResourceID = nil;
-    self.cachedStore.clientResourceID = nil;
-    self.cachedStore.clientSecret = nil;
-    self.cachedStore.serverURL = nil;
-    self.cachedStore.sessionToken = nil;
+    self.userPassword = nil;
+    self.username = nil;
+    self.clientSecret = nil;
+    self.serverURL = nil;
     
     // reset cache
     
-    [self.cachedStore.context performBlock:^{
+    [self.cacheContext performBlock:^{
         
-        [self.cachedStore.context reset];
-        
-    }];
-    
-    [self.context performBlock:^{
-        
-        [self.context reset];
+        [self.cacheContext reset];
         
     }];
     
     NSLog(@"User logged out");
+}
+
+#pragma mark - Incremental Stores
+
+-(NOIncrementalStore *)newIncrementalStoreWithURLSession:(NSURLSession *)urlSession context:(NSManagedObjectContext *__autoreleasing *)contextPointer
+{
+    NSMutableDictionary *options = [[NSMutableDictionary alloc] init];
     
+    [options addEntriesFromDictionary:@{NOIncrementalStoreClientEntityNameOption: @"Client",
+                                        NOIncrementalStoreSessionEntityNameOption: @"Session",
+                                        NOIncrementalStoreUserEntityNameOption: @"Session",
+                                        NOIncrementalStoreSearchPathOption: @"search",
+                                        NOIncrementalStoreLoginPathOption: @"login"}];
+    
+    NSManagedObjectContext *context = *contextPointer;
+    
+    context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+    
+    NOIncrementalStore *incrementalStore = (id)[context.persistentStoreCoordinator addPersistentStoreWithType:[NOIncrementalStore storeType]
+                                                                             configuration:nil
+                                                                                       URL:self.serverURL
+                                                                                   options:options
+                                                                                     error:nil];
+    
+    // setup session properties
+    
+    incrementalStore.username = self.username;
+    
+    incrementalStore.userPassword = self.userPassword;
+    
+    incrementalStore.clientResourceID = self.clientResourceID;
+    
+    incrementalStore.clientSecret = self.clientSecret;
+    
+    // setup syncing
+    
+    [self.incrementalStoresOperationQueue addOperations:@[[NSBlockOperation blockOperationWithBlock:^{
+        
+        [self.incrementalStores addObject:incrementalStore];
+        
+    }]] waitUntilFinished:YES];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(contextDidChange:)
+                                                 name:NSManagedObjectContextObjectsDidChangeNotification
+                                               object:context];
+    
+    return incrementalStore;
+}
+
+-(void)deleteIncrementalStore:(NOIncrementalStore *)store
+{
+    [self.incrementalStoresOperationQueue addOperations:@[[NSBlockOperation blockOperationWithBlock:^{
+        
+        [self.incrementalStores removeObject:store];
+        
+    }]] waitUntilFinished:YES];
 }
 
 @end

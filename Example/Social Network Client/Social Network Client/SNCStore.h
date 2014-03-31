@@ -18,11 +18,19 @@
 
 @property (readonly) User *user;
 
+@property (readonly) NSManagedObjectContext *cacheContext;
+
+@property (readonly) NSManagedObjectContext *incrementalContext;
+
 @property (readonly) NOIncrementalStore *incrementalStore;
 
-@property (readonly) NSManagedObjectContext *context;
-
 #pragma mark - Actions
+
+/** Creates a new incremental store and context that will sync with the cache */
+
+-(NOIncrementalStore *)newIncrementalStoreWithURLSession:(NSURLSession *)urlSession context:(NSManagedObjectContext **)context;
+
+-(void)deleteIncrementalStore:(NOIncrementalStore *)store;
 
 -(void)logout;
 
