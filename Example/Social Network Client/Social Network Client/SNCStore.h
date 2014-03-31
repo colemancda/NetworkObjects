@@ -10,13 +10,17 @@
 #import <NetworkObjects/NetworkObjects.h>
 @class User;
 
-@interface SNCStore : NOAPICachedStore
+@interface SNCStore : NSObject
 
 +(instancetype)sharedStore;
 
 #pragma mark - Properties
 
 @property (readonly) User *user;
+
+@property (readonly) NOIncrementalStore *incrementalStore;
+
+@property (readonly) NSManagedObjectContext *context;
 
 #pragma mark - Actions
 
@@ -39,12 +43,6 @@
                clientSecret:(NSString *)secret
                  URLSession:(NSURLSession *)urlSession
                  completion:(void (^)(NSError *error))completionBlock;
-
-#pragma mark - Specialized Requests
-
-/** Fetches current user */
--(NSURLSessionDataTask *)fetchUserWithURLSession:(NSURLSession *)urlSession
-                                      completion:(void (^)(NSError *error))completionBlock;
 
 
 @end
