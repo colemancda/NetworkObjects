@@ -419,47 +419,44 @@ static void *KVOContext = &KVOContext;
         }];
     };
     
-    // download if not in cache...
+    // not downloaded from server
     
-    NSDate *dateCached = [[SNCStore sharedStore].incrementalStore.cachedStore dateCachedForResource:@"Post"
-                                                                                         resourceID:post.resourceID.integerValue];
+    __block BOOL isFault;
     
-    // never downloaded / not in cache
-    if (!dateCached) {
+    [[SNCStore sharedStore].context performBlockAndWait:^{
         
-        [[SNCStore sharedStore].context performBlock:^{
-           
-            [[SNCStore sharedStore].context refreshObject:post
-                                             mergeChanges:YES];
+        isFault = post.isFault;
+        
+        if (isFault) {
             
-        }];
-        
-        configurePlaceholderCell();
-        
-        return;
-    }
-    
-    // cached object was fetched before we started loading this table view
-    if ([dateCached compare:_dateLastFetched] == NSOrderedAscending) {
-        
-        [[SNCStore sharedStore].context performBlock:^{
+            // fires fault
             
-            [[SNCStore sharedStore].context refreshObject:post
-                                             mergeChanges:YES];
+            [post text];
             
-        }];
+            configurePlaceholderCell();
+        }
+        
+    }];
     
+    // not fault
+    
+    if (!isFault) {
+        
+        NSDate *dateCached = [[SNCStore sharedStore].incrementalStore.cachedStore dateCachedForResource:@"Post"
+                                                                                             resourceID:post.resourceID.integerValue];
+        
+        // cached object was fetched before we started loading this table view
+        if ([dateCached compare:_dateLastFetched] == NSOrderedAscending) {
+            
+            [[SNCStore sharedStore].context performBlock:^{
+                
+                [[SNCStore sharedStore].context refreshObject:post
+                                                 mergeChanges:YES];
+                
+            }];
+        }
+        
         configureCell();
-        
-        return;
-    }
-    
-    // cached object was downloaded after we started loading this tableview
-    else {
-        
-        configureCell();
-        
-        return;
     }
     
 }
@@ -471,20 +468,14 @@ static void *KVOContext = &KVOContext;
 -(void)setupNotifications
 {
     [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(didGetNewValues:)
-                                                 name:NOIncrementalStoreDidGetNewValuesNotification
-                                               object:nil];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(didFinishFetchRequest:)
                                                  name:NOIncrementalStoreFinishedFetchRequestNotification
                                                object:nil];
     
-}
-
--(void)didGetNewValues:(NSNotification *)notification
-{
-    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(didGetNewValues:)
+                                                 name:NOIncrementalStoreDidGetNewValuesNotification
+                                               object:nil];
 }
 
 -(void)didFinishFetchRequest:(NSNotification *)notification
@@ -497,7 +488,44 @@ static void *KVOContext = &KVOContext;
             [self.refreshControl endRefreshing];
             
         }];
+        
+        
+        NSError *error = notification.userInfo[NOIncrementalStoreErrorKey];
+        
+        if (error) {
+            
+            [error presentError];
+            
+            return;
+        }
+        
+        // nothing needed, fetch result controller should detect the new changes from context
     }
+}
+
+-(void)didGetNewValues:(NSNotification *)notification
+{
+    // make sure its values we requested
+    
+    NSManagedObjectID *objectID = notification.userInfo[NOIncrementalStoreObjectIDKey];
+    
+    for (Post *post in _fetchedResultsController.fetchedObjects) {
+        
+        if (post.objectID == objectID) {
+            
+            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                
+                // setup cell without reloading it...
+                
+                [self configureCell:[self.tableView cellForRowAtIndexPath:[_fetchedResultsController indexPathForObject:post]]
+                            forPost:post];
+                
+            }];
+            
+            break;
+        }
+    }
+    
 }
 
 @end

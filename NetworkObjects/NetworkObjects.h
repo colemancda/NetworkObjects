@@ -22,8 +22,6 @@
 #import <NetworkObjects/NOSessionProtocol.h>
 #import <NetworkObjects/NOClientProtocol.h>
 
-#import <NetworkObjects/NOAPI.h>
-#import <NetworkObjects/NOAPICachedStore.h>
 #import <NetworkObjects/NOIncrementalStore.h>
 
 #endif

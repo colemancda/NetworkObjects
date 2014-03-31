@@ -11,25 +11,17 @@
 
 // Options
 
-NSString *const NOIncrementalStoreCachedStoreOption = @"NOIncrementalStoreCachedStoreOption";
-
 NSString *const NOIncrementalStoreURLSessionOption = @"NOIncrementalStoreURLSessionOption";
 
-// Notifications
+NSString *const NOIncrementalStoreUserEntityNameOption = @"NOIncrementalStoreUserEntityNameOption";
 
-NSString *const NOIncrementalStoreFinishedFetchRequestNotification = @"NOIncrementalStoreFinishedFetchRequestNotification";
+NSString *const NOIncrementalStoreSessionEntityNameOption = @"NOIncrementalStoreSessionEntityNameOption";
 
-NSString *const NOIncrementalStoreDidGetNewValuesNotification = @"NOIncrementalStoreDidGetNewValuesNotification";
+NSString *const NOIncrementalStoreClientEntityNameOption = @"NOIncrementalStoreClientEntityNameOption";
 
-NSString *const NOIncrementalStoreRequestKey = @"NOIncrementalStoreRequestKey";
+NSString *const NOIncrementalStoreLoginPathOption = @"NOIncrementalStoreLoginPathOption";
 
-NSString *const NOIncrementalStoreErrorKey = @"NOIncrementalStoreErrorKey";
-
-NSString *const NOIncrementalStoreResultsKey = @"NOIncrementalStoreResultsKey";
-
-NSString *const NOIncrementalStoreNewValuesKey = @"NOIncrementalStoreNewValuesKey";
-
-NSString *const NOIncrementalStoreObjectIDKey = @"NOIncrementalStoreObjectIDKey";
+NSString *const NOIncrementalStoreSearchPathOption = @"NOIncrementalStoreSearchPathOption";
 
 @interface NOIncrementalStore (Requests)
 
@@ -59,9 +51,15 @@ NSString *const NOIncrementalStoreObjectIDKey = @"NOIncrementalStoreObjectIDKey"
                               withContext:(NSManagedObjectContext *)context
                                     error:(NSError *__autoreleasing *)error;
 
+@end
+
+@interface NOIncrementalStore (API)
+
 
 
 @end
+
+
 
 @interface NOIncrementalStore ()
 
@@ -275,10 +273,42 @@ NSString *const NOIncrementalStoreObjectIDKey = @"NOIncrementalStoreObjectIDKey"
              withContext:(NSManagedObjectContext *)context
                    error:(NSError *__autoreleasing *)error
 {
+    // create a group dispatch and queue
+    dispatch_queue_t queue = dispatch_queue_create("com.ColemanCDA.NetworkObjects.NOIncrementalStoreFetchFromNetworkQueue", NULL);
+    dispatch_group_t group = dispatch_group_create();
     
+    dispatch_group_enter(group);
     
-    [self.cachedStore searchForCachedResourceWithFetchRequest:request URLSession:self.urlSession completion:^(NSError *remoteError, NSArray *results) {
+    __block NSArray *results;
+    
+    // start remote fetch
+    [self.cachedStore searchForCachedResourceWithFetchRequest:request URLSession:self.urlSession completion:^(NSError *remoteError, NSArray *remoteResults) {
         
+        if (remoteError) {
+            *error = (__bridge id)(__bridge_retained CFTypeRef)remoteError;
+        }
+        
+        else {
+            
+            results = remoteResults;
+        
+        }
+        
+        dispatch_group_leave(group);
+        
+    }];
+    
+    dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
+    
+    if (*error) {
+        
+        return nil;
+    }
+    
+    // success
+    
+    
+     
         // forward error
         
         NSDictionary *userInfo;
@@ -292,9 +322,95 @@ NSString *const NOIncrementalStoreObjectIDKey = @"NOIncrementalStoreObjectIDKey"
         
         else {
             
-            NSArray *coreDataResults = [self cachedResultsForFetchRequest:request
-                                                                  context:context
-                                                                    error:nil];
+            // Immediately return cached values
+            
+            NSManagedObjectContext *cacheContext = self.cachedStore.context;
+            
+            NSArray *results;
+            
+            __block NSArray *cachedResults;
+            
+            NSFetchRequest *cacheFetchRequest = fetchRequest.copy;
+            
+            // forward fetch to cache
+            
+            if (fetchRequest.resultType == NSCountResultType ||
+                fetchRequest.resultType == NSDictionaryResultType) {
+                
+                [cacheContext performBlockAndWait:^{
+                    
+                    cachedResults = [cacheContext executeFetchRequest:cacheFetchRequest
+                                                                error:error];
+                }];
+                
+                results = cachedResults;
+            }
+            
+            // ManagedObjectID & faults
+            
+            if (fetchRequest.resultType == NSManagedObjectResultType ||
+                fetchRequest.resultType == NSManagedObjectIDResultType) {
+                
+                // fetch resourceID from cache
+                
+                cacheFetchRequest.resultType = NSManagedObjectResultType;
+                
+                NSString *resourceIDKey = [NSClassFromString(fetchRequest.entity.managedObjectClassName) resourceIDKey];
+                
+                cacheFetchRequest.propertiesToFetch = @[resourceIDKey];
+                
+                [cacheContext performBlockAndWait:^{
+                    
+                    cachedResults = [cacheContext executeFetchRequest:cacheFetchRequest
+                                                                error:error];
+                }];
+                
+                // error
+                
+                if (!cachedResults) {
+                    
+                    return nil;
+                }
+                
+                // build array of object ids
+                
+                NSMutableArray *managedObjectIDs = [NSMutableArray arrayWithCapacity:cachedResults.count];
+                
+                for (NSManagedObject *cachedManagedObject in cachedResults) {
+                    
+                    NSNumber *resourceID = [cachedManagedObject valueForKey:resourceIDKey];
+                    
+                    NSManagedObjectID *managedObjectID = [self newObjectIDForEntity:fetchRequest.entity
+                                                                    referenceObject:resourceID];
+                    
+                    [managedObjectIDs addObject:managedObjectID];
+                }
+                
+                // object ID result type
+                
+                if (fetchRequest.resultType == NSManagedObjectIDResultType) {
+                    
+                    results = [NSArray arrayWithArray:managedObjectIDs];
+                }
+                
+                // managed object result. return non-faulted NSManagedObject (only resource ID).
+                
+                if (fetchRequest.resultType == NSManagedObjectResultType) {
+                    
+                    // build array of non-faulted objects
+                    
+                    NSMutableArray *managedObjects = [[NSMutableArray alloc] init];
+                    
+                    for (NSManagedObjectID *objectID in managedObjectIDs) {
+                        
+                        NSManagedObject *managedObject = [context objectWithID:objectID];
+                        
+                        [managedObjects addObject:managedObject];
+                    }
+                    
+                    results = [NSArray arrayWithArray:managedObjects];
+                }
+            }
             
             userInfo = @{NOIncrementalStoreRequestKey: request,
                          NOIncrementalStoreResultsKey : coreDataResults};
