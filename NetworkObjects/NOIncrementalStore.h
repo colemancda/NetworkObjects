@@ -70,8 +70,6 @@ typedef NS_ENUM(NSUInteger, NOIncrementalStoreErrorCode) {
 
 @property (readonly) NSString *clientEntityName;
 
-#pragma mark - Connection Info
-
 /** The URL path that the NetworkObjects server uses for authentication. */
 
 @property (readonly) NSString *loginPath;
@@ -137,8 +135,8 @@ typedef NS_ENUM(NSUInteger, NOIncrementalStoreErrorCode) {
  
  */
 
--(NSURLSessionDataTask *)loginWithModel:(NSManagedObjectModel *)model
-                             completion:(void (^)(NSError *error))completionBlock;
+-(NSURLSessionDataTask *)loginWithContext:(NSManagedObjectContext *)context
+                               completion:(void (^)(NSError *error))completionBlock;
 
 /**
  Performs a function on the instance of the specified resource. Functions are like Objective-C selectors. If that function is not defined then the server returns an error.
@@ -161,7 +159,7 @@ typedef NS_ENUM(NSUInteger, NOIncrementalStoreErrorCode) {
                               onResource:(NSString *)resourceName
                                   withID:(NSUInteger)resourceID
                           withJSONObject:(NSDictionary *)jsonObject
-                                   model:(NSManagedObjectModel *)model
+                                 context:(NSManagedObjectContext *)context
                               completion:(void (^)(NSError *error, NSNumber *statusCode, NSDictionary *response))completionBlock;
 
 @end
