@@ -38,10 +38,6 @@
 		6E70C5A118E5E3D700D01D58 /* NOIncrementalStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E70C59D18E5E3D700D01D58 /* NOIncrementalStore.m */; };
 		6E70C5A218E5E3D700D01D58 /* NOIncrementalStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E70C59D18E5E3D700D01D58 /* NOIncrementalStore.m */; };
 		6E70C5A318E5E3D700D01D58 /* NOIncrementalStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E70C59D18E5E3D700D01D58 /* NOIncrementalStore.m */; };
-		6E79DE39183872770044B78E /* NOAPICachedStore.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E79DE37183872770044B78E /* NOAPICachedStore.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		6E79DE3A183872770044B78E /* NOAPICachedStore.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E79DE37183872770044B78E /* NOAPICachedStore.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		6E79DE3B183872770044B78E /* NOAPICachedStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E79DE38183872770044B78E /* NOAPICachedStore.m */; };
-		6E79DE3C183872770044B78E /* NOAPICachedStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E79DE38183872770044B78E /* NOAPICachedStore.m */; };
 		6E838378183083B0003AE302 /* NOServerConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E838377183083B0003AE302 /* NOServerConstants.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6E838379183083B0003AE302 /* NOServerConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E838377183083B0003AE302 /* NOServerConstants.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6E83838118308E73003AE302 /* NetworkObjectsConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E83838018308E73003AE302 /* NetworkObjectsConstants.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -272,8 +268,6 @@
 		6E2BDA911817341900E9D04C /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		6E70C59C18E5E3D700D01D58 /* NOIncrementalStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NOIncrementalStore.h; path = ../../NetworkObjects/NOIncrementalStore.h; sourceTree = "<group>"; };
 		6E70C59D18E5E3D700D01D58 /* NOIncrementalStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NOIncrementalStore.m; path = ../../NetworkObjects/NOIncrementalStore.m; sourceTree = "<group>"; };
-		6E79DE37183872770044B78E /* NOAPICachedStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NOAPICachedStore.h; path = ../../NetworkObjects/NOAPICachedStore.h; sourceTree = "<group>"; };
-		6E79DE38183872770044B78E /* NOAPICachedStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NOAPICachedStore.m; path = ../../NetworkObjects/NOAPICachedStore.m; sourceTree = "<group>"; };
 		6E838377183083B0003AE302 /* NOServerConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NOServerConstants.h; path = ../../../NetworkObjects/NOServerConstants.h; sourceTree = "<group>"; };
 		6E83838018308E73003AE302 /* NetworkObjectsConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NetworkObjectsConstants.h; path = ../../../NetworkObjects/NetworkObjectsConstants.h; sourceTree = "<group>"; };
 		6EA79B9A18189339005F0866 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS7.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
@@ -493,8 +487,6 @@
 		6ECD2B6D1818B18C00244E05 /* Stores */ = {
 			isa = PBXGroup;
 			children = (
-				6E79DE37183872770044B78E /* NOAPICachedStore.h */,
-				6E79DE38183872770044B78E /* NOAPICachedStore.m */,
 				6E70C59C18E5E3D700D01D58 /* NOIncrementalStore.h */,
 				6E70C59D18E5E3D700D01D58 /* NOIncrementalStore.m */,
 			);
@@ -777,7 +769,6 @@
 			files = (
 				6EED74D81818852200F911BC /* NetworkObjects.h in Headers */,
 				6E83838118308E73003AE302 /* NetworkObjectsConstants.h in Headers */,
-				6E79DE39183872770044B78E /* NOAPICachedStore.h in Headers */,
 				6EED74E01818852200F911BC /* NOServer.h in Headers */,
 				6E838378183083B0003AE302 /* NOServerConstants.h in Headers */,
 				6EED74E61818852200F911BC /* NOStore.h in Headers */,
@@ -879,7 +870,6 @@
 				6EED74EB1818852200F911BC /* NOUserProtocol.h in Headers */,
 				6EED75211818852200F911BC /* GCDAsyncSocket.h in Headers */,
 				6EED75591818852200F911BC /* WebSocket.h in Headers */,
-				6E79DE3A183872770044B78E /* NOAPICachedStore.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1096,7 +1086,6 @@
 				6EED754E1818852200F911BC /* HTTPDynamicFileResponse.m in Sources */,
 				6EED74E81818852200F911BC /* NOStore.m in Sources */,
 				6EED753A1818852200F911BC /* MultipartFormDataParser.m in Sources */,
-				6E79DE3B183872770044B78E /* NOAPICachedStore.m in Sources */,
 				6EED75421818852200F911BC /* MultipartMessageHeaderField.m in Sources */,
 				6EED754A1818852200F911BC /* HTTPDataResponse.m in Sources */,
 			);
@@ -1151,7 +1140,6 @@
 				6EED75671818852200F911BC /* RouteRequest.m in Sources */,
 				6EED75531818852200F911BC /* HTTPFileResponse.m in Sources */,
 				6EED75571818852200F911BC /* HTTPRedirectResponse.m in Sources */,
-				6E79DE3C183872770044B78E /* NOAPICachedStore.m in Sources */,
 				6EED750B1818852200F911BC /* DDASLLogger.m in Sources */,
 				6EED753B1818852200F911BC /* MultipartFormDataParser.m in Sources */,
 			);

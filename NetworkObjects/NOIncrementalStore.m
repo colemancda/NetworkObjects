@@ -12,6 +12,8 @@
 #import "NOUserProtocol.h"
 #import "NOClientProtocol.h"
 #import "NOServerConstants.h"
+#import "NetworkObjectsConstants.h"
+#import "NSManagedObject+CoreDataJSONCompatibility.h"
 
 // Options
 
@@ -27,295 +29,111 @@ NSString *const NOIncrementalStoreLoginPathOption = @"NOIncrementalStoreLoginPat
 
 NSString *const NOIncrementalStoreSearchPathOption = @"NOIncrementalStoreSearchPathOption";
 
-@implementation NOIncrementalStore (Cache)
 
--(NSArray *)cachedResultsForFetchRequest:(NSFetchRequest *)fetchRequest
-                                 context:(NSManagedObjectContext *)context
-                                   error:(NSError *__autoreleasing *)error
+
+@implementation NOIncrementalStore (CommonErrors)
+
+-(NSError *)invalidServerResponseError
 {
-    // Immediately return cached values
     
-    NSManagedObjectContext *cacheContext = self.cachedStore.context;
+    NSString *description = NSLocalizedString(@"The server returned a invalid response",
+                                              @"The server returned a invalid response");
     
-    NSArray *results;
+    NSError *error = [NSError errorWithDomain:NetworkObjectsErrorDomain
+                                         code:NOIncrementalStoreInvalidServerResponseErrorCode
+                                     userInfo:@{NSLocalizedDescriptionKey: description}];
     
-    __block NSArray *cachedResults;
-    
-    NSFetchRequest *cacheFetchRequest = fetchRequest.copy;
-    
-    // forward fetch to cache
-    
-    if (fetchRequest.resultType == NSCountResultType ||
-        fetchRequest.resultType == NSDictionaryResultType) {
-        
-        [cacheContext performBlockAndWait:^{
-            
-            cachedResults = [cacheContext executeFetchRequest:cacheFetchRequest
-                                                        error:error];
-        }];
-        
-        return cachedResults;
-    }
-    
-    // ManagedObjectID & faults
-    
-    if (fetchRequest.resultType == NSManagedObjectResultType ||
-        fetchRequest.resultType == NSManagedObjectIDResultType) {
-        
-        // fetch resourceID from cache
-        
-        cacheFetchRequest.resultType = NSManagedObjectResultType;
-        
-        NSString *resourceIDKey = [NSClassFromString(fetchRequest.entity.managedObjectClassName) resourceIDKey];
-        
-        cacheFetchRequest.propertiesToFetch = @[resourceIDKey];
-        
-        [cacheContext performBlockAndWait:^{
-            
-            cachedResults = [cacheContext executeFetchRequest:cacheFetchRequest
-                                                        error:error];
-        }];
-        
-        // error
-        
-        if (!cachedResults) {
-            
-            return nil;
-        }
-        
-        // build array of object ids
-        
-        NSMutableArray *managedObjectIDs = [NSMutableArray arrayWithCapacity:cachedResults.count];
-        
-        for (NSManagedObject *cachedManagedObject in cachedResults) {
-            
-            NSNumber *resourceID = [cachedManagedObject valueForKey:resourceIDKey];
-            
-            NSManagedObjectID *managedObjectID = [self newObjectIDForEntity:fetchRequest.entity
-                                                            referenceObject:resourceID];
-            
-            [managedObjectIDs addObject:managedObjectID];
-        }
-        
-        // object ID result type
-        
-        if (fetchRequest.resultType == NSManagedObjectIDResultType) {
-            
-            results = [NSArray arrayWithArray:managedObjectIDs];
-        }
-        
-        // managed object result. return non-faulted NSManagedObject (only resource ID).
-        
-        if (fetchRequest.resultType == NSManagedObjectResultType) {
-            
-            // build array of non-faulted objects
-            
-            NSMutableArray *managedObjects = [[NSMutableArray alloc] init];
-            
-            for (NSManagedObjectID *objectID in managedObjectIDs) {
-                
-                NSManagedObject *managedObject = [context objectWithID:objectID];
-                
-                [managedObjects addObject:managedObject];
-            }
-            
-            results = [NSArray arrayWithArray:managedObjects];
-        }
-    }
-    
-    return results;
+    return error;
 }
 
--(NSDictionary *)cachedNewValuesForObjectWithID:(NSManagedObjectID *)objectID
-                                    withContext:(NSManagedObjectContext *)context
-                                          error:(NSError *__autoreleasing *)error
+-(NSError *)badRequestError
 {
-    // find resource with resource ID...
+    static NSError *error;
     
-    NSNumber *resourceID = [self referenceObjectForObjectID:objectID];
-    
-    NSFetchRequest *cachedRequest = [NSFetchRequest fetchRequestWithEntityName:objectID.entity.name];
-    
-    cachedRequest.fetchLimit = 1;
-    
-    // resourceID key
-    
-    NSString *resourceIDKey = [NSClassFromString(objectID.entity.managedObjectClassName) resourceIDKey];
-    
-    cachedRequest.predicate = [NSPredicate predicateWithFormat:@"%K == %@", resourceIDKey, resourceID];
-    
-    // prefetch all attributes and to-one relationships
-    
-    NSMutableArray *propertiesToFetch = [[NSMutableArray alloc] init];
-    
-    for (NSString *attributeName in objectID.entity.attributesByName) {
+    if (!error) {
         
-        [propertiesToFetch addObject:attributeName];
+        NSString *description = NSLocalizedString(@"Invalid request",
+                                                  @"Invalid request");
+        
+        error = [NSError errorWithDomain:NetworkObjectsErrorDomain
+                                    code:NOIncrementalStoreBadRequestErrorCode
+                                userInfo:@{NSLocalizedDescriptionKey: description}];
+        
     }
     
-    for (NSString *relationshipName in objectID.entity.relationshipsByName) {
-        
-        NSRelationshipDescription *relationship = objectID.entity.relationshipsByName[relationshipName];
-        
-        // only to-one relationships
-        
-        if (!relationship.isToMany) {
-            
-            [propertiesToFetch addObject:relationshipName];
-        }
-    }
-    
-    cachedRequest.propertiesToFetch = [NSArray arrayWithArray:propertiesToFetch];
-    
-    NSManagedObjectContext *cachedContext = self.cachedStore.context;
-    
-    __block NSArray *cachedResults;
-    
-    [cachedContext performBlockAndWait:^{
-        
-        cachedResults = [cachedContext executeFetchRequest:cachedRequest
-                                                     error:error];
-    }];
-    
-    if (!cachedResults) {
-        
-        return nil;
-    }
-    
-    NSManagedObject *cachedResource = cachedResults.firstObject;
-    
-    if (!cachedResource) {
-        
-        return nil;
-    }
-    
-    NSMutableDictionary *values = [[NSMutableDictionary alloc] init];
-    
-    for (NSString *propertyName in propertiesToFetch) {
-        
-        // one of these will be nil
-        
-        NSAttributeDescription *attribute = cachedResource.entity.attributesByName[propertyName];
-        
-        NSRelationshipDescription *relationship = cachedResource.entity.relationshipsByName[propertyName];
-        
-        if (!attribute && !relationship) {
-            
-            [NSException raise:NSInternalInconsistencyException
-                        format:@"Object ID's entity doesnt match the entity used by the cache"];
-        }
-        
-        if (attribute) {
-            
-            id value = [cachedResource valueForKey:propertyName];
-            
-            if (value) {
-                
-                values[propertyName] = value;
-            }
-        }
-        
-        // only to-one relationship
-        
-        if (relationship) {
-            
-            NSManagedObject *destinationManagedObject = [cachedResource valueForKey:propertyName];
-            
-            id value;
-            
-            // create an object id
-            
-            if (destinationManagedObject) {
-                
-                NSString *resourceIDKey = [NSClassFromString(cachedResource.entity.managedObjectClassName) resourceIDKey];
-                
-                NSNumber *resourceID = [destinationManagedObject valueForKey:resourceIDKey];
-                
-                value = [self newObjectIDForEntity:relationship.destinationEntity
-                                   referenceObject:resourceID];
-            }
-            
-            else {
-                
-                value = [NSNull null];
-            }
-            
-            values[propertyName] = value;
-            
-        }
-    }
-    
-    return values;
+    return error;
 }
 
--(NSArray *)cachedNewValueForRelationship:(NSRelationshipDescription *)relationship
-                          forObjectWithID:(NSManagedObjectID *)objectID
-                              withContext:(NSManagedObjectContext *)context
-                                    error:(NSError *__autoreleasing *)error
+-(NSError *)serverError
 {
-    // find resource with resource ID...
+    static NSError *error;
     
-    NSNumber *resourceID = [self referenceObjectForObjectID:objectID];
-    
-    NSFetchRequest *cachedRequest = [NSFetchRequest fetchRequestWithEntityName:objectID.entity.name];
-    
-    cachedRequest.fetchLimit = 1;
-    
-    cachedRequest.predicate = [NSPredicate predicateWithFormat:@"%K == %@", resourceID];
-    
-    cachedRequest.propertiesToFetch = @[relationship.name];
-    
-    NSManagedObjectContext *cachedContext = self.cachedStore.context;
-    
-    __block NSArray *cachedResults;
-    
-    [cachedContext performBlockAndWait:^{
+    if (!error) {
         
-        cachedResults = [cachedContext executeFetchRequest:cachedRequest
-                                                     error:error];
-    }];
-    
-    if (!cachedResults) {
+        NSString *description = NSLocalizedString(@"The server suffered an internal error",
+                                                  @"The server suffered an internal error");
         
-        return nil;
+        error = [NSError errorWithDomain:NetworkObjectsErrorDomain
+                                    code:NOIncrementalStoreServerInternalErrorCode
+                                userInfo:@{NSLocalizedDescriptionKey: description}];
+        
     }
     
-    NSManagedObject *cachedResource = cachedResults.firstObject;
+    return error;
+}
+
+-(NSError *)unauthorizedError
+{
+    static NSError *error;
     
-    if (!cachedResource) {
+    if (!error) {
         
-        return nil;
+        NSString *description = NSLocalizedString(@"Authentication is required",
+                                                  @"Authentication is required");
+        
+        error = [NSError errorWithDomain:NetworkObjectsErrorDomain
+                                    code:NOIncrementalStoreUnauthorizedErrorCode
+                                userInfo:@{NSLocalizedDescriptionKey: description}];
     }
     
-    NSArray *value;
+    return error;
+}
+
+-(NSError *)notFoundError
+{
+    static NSError *error;
     
-    // to-many relationship
-    
-    if (relationship.isToMany) {
+    if (!error) {
         
-        NSMutableArray *objectIDs = [[NSMutableArray alloc] init];
+        NSString *description = NSLocalizedString(@"Resource was not found",
+                                                  @"Resource was not found");
         
-        NSSet *set = [cachedResource valueForKey:relationship.name];
-        
-        for (NSManagedObject *cachedDestinationObject in set) {
-            
-            // create an object id
-            
-            NSString *resourceIDKey = [NSClassFromString(cachedResource.entity.managedObjectClassName) resourceIDKey];
-            
-            NSNumber *resourceID = [cachedDestinationObject valueForKey:resourceIDKey];
-            
-            NSManagedObjectID *objectID = [self newObjectIDForEntity:relationship.destinationEntity
-                                                     referenceObject:resourceID];
-            
-            
-            [objectIDs addObject:objectID];
-        }
-        
-        value = [NSArray arrayWithArray:objectIDs];
+        error = [NSError errorWithDomain:NetworkObjectsErrorDomain
+                                    code:NOIncrementalStoreNotFoundErrorCode
+                                userInfo:@{NSLocalizedDescriptionKey: description}];
     }
     
-    return value;
+    return error;
+}
+
+@end
+
+@implementation NOIncrementalStore (Common)
+
+-(Class)entityClassWithResourceName:(NSString *)resourceName
+                            context:(NSManagedObjectContext *)context
+{
+    NSEntityDescription *entity = context.persistentStoreCoordinator.managedObjectModel.entitiesByName[resourceName];
+    
+    if (!entity) {
+        
+        [NSException raise:NSInvalidArgumentException
+                    format:@"No entity in the model matches '%@'", resourceName];
+    }
+    
+    Class entityClass = NSClassFromString(entity.managedObjectClassName);
+    
+    return entityClass;
 }
 
 @end
@@ -404,113 +222,6 @@ NSString *const NOIncrementalStoreSearchPathOption = @"NOIncrementalStoreSearchP
 
 @end
 
-@implementation NOIncrementalStore (CommonErrors)
-
--(NSError *)invalidServerResponseError
-{
-    
-    NSString *description = NSLocalizedString(@"The server returned a invalid response",
-                                              @"The server returned a invalid response");
-    
-    NSError *error = [NSError errorWithDomain:NetworkObjectsErrorDomain
-                                         code:NOAPIInvalidServerResponseErrorCode
-                                     userInfo:@{NSLocalizedDescriptionKey: description}];
-    
-    return error;
-}
-
--(NSError *)badRequestError
-{
-    static NSError *error;
-    
-    if (!error) {
-        
-        NSString *description = NSLocalizedString(@"Invalid request",
-                                                  @"Invalid request");
-        
-        error = [NSError errorWithDomain:NetworkObjectsErrorDomain
-                                    code:NOAPIBadRequestErrorCode
-                                userInfo:@{NSLocalizedDescriptionKey: description}];
-        
-    }
-    
-    return error;
-}
-
--(NSError *)serverError
-{
-    static NSError *error;
-    
-    if (!error) {
-        
-        NSString *description = NSLocalizedString(@"The server suffered an internal error",
-                                                  @"The server suffered an internal error");
-        
-        error = [NSError errorWithDomain:NetworkObjectsErrorDomain
-                                    code:NOAPIServerInternalErrorCode
-                                userInfo:@{NSLocalizedDescriptionKey: description}];
-        
-    }
-    
-    return error;
-}
-
--(NSError *)unauthorizedError
-{
-    static NSError *error;
-    
-    if (!error) {
-        
-        NSString *description = NSLocalizedString(@"Authentication is required",
-                                                  @"Authentication is required");
-        
-        error = [NSError errorWithDomain:NetworkObjectsErrorDomain
-                                    code:NOAPIUnauthorizedErrorCode
-                                userInfo:@{NSLocalizedDescriptionKey: description}];
-    }
-    
-    return error;
-}
-
--(NSError *)notFoundError
-{
-    static NSError *error;
-    
-    if (!error) {
-        
-        NSString *description = NSLocalizedString(@"Resource was not found",
-                                                  @"Resource was not found");
-        
-        error = [NSError errorWithDomain:NetworkObjectsErrorDomain
-                                    code:NOAPINotFoundErrorCode
-                                userInfo:@{NSLocalizedDescriptionKey: description}];
-    }
-    
-    return error;
-}
-
-@end
-
-@implementation NOIncrementalStore (Common)
-
--(Class)entityClassWithResourceName:(NSString *)resourceName
-                            context:(NSManagedObjectContext *)context
-{
-    NSEntityDescription *entity = context.persistentStoreCoordinator.managedObjectModel.entitiesByName[resourceName];
-    
-    if (!entity) {
-        
-        [NSException raise:NSInvalidArgumentException
-                    format:@"No entity in the model matches '%@'", resourceName];
-    }
-    
-    Class entityClass = NSClassFromString(entity.managedObjectClassName);
-    
-    return entityClass;
-}
-
-@end
-
 @interface NOIncrementalStore ()
 
 @property NSString *sessionEntityName;
@@ -525,12 +236,34 @@ NSString *const NOIncrementalStoreSearchPathOption = @"NOIncrementalStoreSearchP
 
 @property NSURLSession *urlSession;
 
-// private methods
+@property (readonly) NSJSONWritingOptions jsonWritingOption;
 
--(NSJSONWritingOptions)jsonWritingOption;
+// Private JSON API Calls
 
 -(NSURLSessionDataTask *)searchWithFetchRequest:(NSFetchRequest *)fetchRequest
+                                        context:(NSManagedObjectContext *)context
                                      completion:(void (^)(NSError *, NSArray *))completionBlock;
+
+-(NSURLSessionDataTask *)getResource:(NSString *)resourceName
+                              withID:(NSUInteger)resourceID
+                             context:(NSManagedObjectContext *)context
+                          completion:(void (^)(NSError *, NSDictionary *))completionBlock;
+
+-(NSURLSessionDataTask *)editResource:(NSString *)resourceName
+                               withID:(NSUInteger)resourceID
+                              changes:(NSDictionary *)changes
+                              context:(NSManagedObjectContext *)context
+                           completion:(void (^)(NSError *error))completionBlock;
+
+-(NSURLSessionDataTask *)deleteResource:(NSString *)resourceName
+                                 withID:(NSUInteger)resourceID
+                                context:(NSManagedObjectContext *)context
+                             completion:(void (^)(NSError *error))completionBlock;
+
+-(NSURLSessionDataTask *)createResource:(NSString *)resourceName
+                      withInitialValues:(NSDictionary *)initialValues
+                                context:(NSManagedObjectContext *)context
+                             completion:(void (^)(NSError *error, NSNumber *resourceID))completionBlock;
 
 @end
 
@@ -590,7 +323,7 @@ NSString *const NOIncrementalStoreSearchPathOption = @"NOIncrementalStoreSearchP
     self.metadata = @{NSStoreTypeKey: NSStringFromClass([self class]),
                       NSStoreUUIDKey : [[NSUUID UUID] UUIDString]};
     
-    if (!self.model || !self.sessionEntityName || !self.userEntityName || !self.clientEntityName || !self.searchPath) {
+    if (!self.sessionEntityName || !self.userEntityName || !self.clientEntityName || !self.searchPath) {
         
         // return error
         
@@ -636,16 +369,13 @@ NSString *const NOIncrementalStoreSearchPathOption = @"NOIncrementalStoreSearchP
              withContext:(NSManagedObjectContext *)context
                    error:(NSError *__autoreleasing *)error
 {
-    // create a group dispatch and queue
-    dispatch_queue_t queue = dispatch_queue_create("com.ColemanCDA.NetworkObjects.NOIncrementalStoreFetchFromNetworkQueue", NULL);
-    dispatch_group_t group = dispatch_group_create();
-    
-    dispatch_group_enter(group);
-    
     __block NSArray *results;
     
+    // create semaphore
+    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+    
     // start remote fetch
-    [self sear {
+    [self searchWithFetchRequest:request context:context completion:^(NSError *remoteError, NSArray *remoteResults) {
         
         if (remoteError) {
             *error = (__bridge id)(__bridge_retained CFTypeRef)remoteError;
@@ -657,139 +387,62 @@ NSString *const NOIncrementalStoreSearchPathOption = @"NOIncrementalStoreSearchP
             
         }
         
-        dispatch_group_leave(group);
+        dispatch_semaphore_signal(semaphore);
         
     }];
     
-    dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
+    dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
     
     if (*error) {
         
         return nil;
     }
     
-    // success
+    // success fetching from server, convert to Core Data
     
-    
-    
-    // forward error
-    
-    NSDictionary *userInfo;
-    
-    if (remoteError) {
+    if (request.resultType == NSCountResultType) {
         
-        userInfo = @{NOIncrementalStoreErrorKey: remoteError,
-                     NOIncrementalStoreRequestKey: request};
+        return @[@(results.count)];
+    }
+    
+    if (request.resultType == NSDictionaryResultType) {
+        
+        [NSException raise:NSInvalidArgumentException
+                    format:@"NOIncrementalStore does not support fetch requests with NSDictionaryResultType"];
+        
+        return nil;
+    }
+    
+    // build array of object IDs
+    
+    NSMutableArray *objectIDs = [[NSMutableArray alloc] initWithCapacity:results.count];
+    
+    for (NSNumber *resourceID in results) {
+        
+        NSManagedObjectID *objectID = [self newObjectIDForEntity:request.entity
+                                                 referenceObject:resourceID];
+        
+        [objectIDs addObject:objectID];
         
     }
     
-    else {
+    if (request.resultType == NSManagedObjectIDResultType) {
         
-        // Immediately return cached values
-        
-        NSManagedObjectContext *cacheContext = self.cachedStore.context;
-        
-        NSArray *results;
-        
-        __block NSArray *cachedResults;
-        
-        NSFetchRequest *cacheFetchRequest = fetchRequest.copy;
-        
-        // forward fetch to cache
-        
-        if (fetchRequest.resultType == NSCountResultType ||
-            fetchRequest.resultType == NSDictionaryResultType) {
-            
-            [cacheContext performBlockAndWait:^{
-                
-                cachedResults = [cacheContext executeFetchRequest:cacheFetchRequest
-                                                            error:error];
-            }];
-            
-            results = cachedResults;
-        }
-        
-        // ManagedObjectID & faults
-        
-        if (fetchRequest.resultType == NSManagedObjectResultType ||
-            fetchRequest.resultType == NSManagedObjectIDResultType) {
-            
-            // fetch resourceID from cache
-            
-            cacheFetchRequest.resultType = NSManagedObjectResultType;
-            
-            NSString *resourceIDKey = [NSClassFromString(fetchRequest.entity.managedObjectClassName) resourceIDKey];
-            
-            cacheFetchRequest.propertiesToFetch = @[resourceIDKey];
-            
-            [cacheContext performBlockAndWait:^{
-                
-                cachedResults = [cacheContext executeFetchRequest:cacheFetchRequest
-                                                            error:error];
-            }];
-            
-            // error
-            
-            if (!cachedResults) {
-                
-                return nil;
-            }
-            
-            // build array of object ids
-            
-            NSMutableArray *managedObjectIDs = [NSMutableArray arrayWithCapacity:cachedResults.count];
-            
-            for (NSManagedObject *cachedManagedObject in cachedResults) {
-                
-                NSNumber *resourceID = [cachedManagedObject valueForKey:resourceIDKey];
-                
-                NSManagedObjectID *managedObjectID = [self newObjectIDForEntity:fetchRequest.entity
-                                                                referenceObject:resourceID];
-                
-                [managedObjectIDs addObject:managedObjectID];
-            }
-            
-            // object ID result type
-            
-            if (fetchRequest.resultType == NSManagedObjectIDResultType) {
-                
-                results = [NSArray arrayWithArray:managedObjectIDs];
-            }
-            
-            // managed object result. return non-faulted NSManagedObject (only resource ID).
-            
-            if (fetchRequest.resultType == NSManagedObjectResultType) {
-                
-                // build array of non-faulted objects
-                
-                NSMutableArray *managedObjects = [[NSMutableArray alloc] init];
-                
-                for (NSManagedObjectID *objectID in managedObjectIDs) {
-                    
-                    NSManagedObject *managedObject = [context objectWithID:objectID];
-                    
-                    [managedObjects addObject:managedObject];
-                }
-                
-                results = [NSArray arrayWithArray:managedObjects];
-            }
-        }
-        
-        userInfo = @{NOIncrementalStoreRequestKey: request,
-                     NOIncrementalStoreResultsKey : coreDataResults};
-        
+        return [NSArray arrayWithArray:objectIDs];
     }
     
-    // post notification
+    // NSManagedObject
     
-    [[NSNotificationCenter defaultCenter] postNotificationName:NOIncrementalStoreFinishedFetchRequestNotification
-                                                        object:self
-                                                      userInfo:userInfo];
-}];
-
-return [self cachedResultsForFetchRequest:request
-                                  context:context
-                                    error:error];
+    NSMutableArray *managedObjects = [[NSMutableArray alloc] init];
+    
+    for (NSManagedObjectID *objectID in objectIDs) {
+        
+        NSManagedObject *managedObject = [context objectWithID:objectID];
+        
+        [managedObjects addObject:managedObject];
+    }
+    
+    return [NSArray arrayWithArray:managedObjects];
 }
 
 -(id)executeSaveRequest:(NSSaveChangesRequest *)request
@@ -807,6 +460,9 @@ return [self cachedResultsForFetchRequest:request
                                         withContext:(NSManagedObjectContext *)context
                                               error:(NSError *__autoreleasing *)error
 {
+    // create semaphore
+    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+    
     // get reference object
     
     NSNumber *resourceID = [self referenceObjectForObjectID:objectID];
@@ -816,64 +472,118 @@ return [self cachedResultsForFetchRequest:request
         return nil;
     }
     
-    // immediately return cached values
+    __block NSDictionary *jsonObject;
     
-    NSDictionary *values = [self cachedNewValuesForObjectWithID:objectID
-                                                    withContext:context
-                                                          error:error];
+    [self getResource:objectID.entity.name withID:resourceID.integerValue context:context completion:^(NSError *remoteError, NSDictionary *JSONResponse) {
+        
+        if (remoteError) {
+            *error = (__bridge id)(__bridge_retained CFTypeRef)remoteError;
+        }
+        
+        else {
+            
+            jsonObject = JSONResponse;
+            
+        }
+        
+        dispatch_semaphore_signal(semaphore);
+        
+    }];
     
-    if (!values) {
+    dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
+    
+    if (*error) {
         
         return nil;
+    }
+    
+    // convert to Core Data values
+    
+    NSMutableDictionary *values = [[NSMutableDictionary alloc] initWithCapacity:jsonObject.allKeys.count];
+    
+    NSEntityDescription *entity = objectID.entity;
+    
+    for (NSString *attributeName in entity.attributesByName) {
+        
+        for (NSString *key in jsonObject) {
+            
+            // found matching key (will only run once because dictionaries dont have duplicates)
+            if ([key isEqualToString:attributeName]) {
+                
+                id jsonValue = jsonObject[key];
+                
+                id value = [entity attributeValueForJSONCompatibleValue:jsonValue
+                                                           forAttribute:attributeName];
+                
+                values[key] = value;
+                
+                break;
+            }
+        }
+    }
+    
+    for (NSString *relationshipName in entity.relationshipsByName) {
+        
+        NSRelationshipDescription *relationship = entity.relationshipsByName[relationshipName];
+        
+        for (NSString *key in jsonObject) {
+            
+            // found matching key (will only run once because dictionaries dont have duplicates)
+            if ([key isEqualToString:relationshipName]) {
+                
+                // destination entity
+                NSEntityDescription *destinationEntity = relationship.destinationEntity;
+                
+                // to-one relationship
+                if (!relationship.isToMany) {
+                    
+                    // get the resource ID
+                    NSNumber *destinationResourceID = jsonObject[relationshipName];
+                    
+                    if (destinationResourceID) {
+                        
+                        // create new Object ID
+                        
+                        NSManagedObjectID *objectID = [self newObjectIDForEntity:destinationEntity
+                                                                 referenceObject:destinationResourceID];
+                        
+                        values[key] = objectID;
+                    }
+                    
+                    else {
+                        
+                        values[key] = [NSNull null];
+                    }
+                }
+                
+                // to-many relationship
+                else {
+                    
+                    // get the resourceIDs
+                    NSArray *destinationResourceIDs = jsonObject[relationshipName];
+                    
+                    NSMutableArray *destinationResources = [[NSMutableArray alloc] init];
+                    
+                    for (NSNumber *destinationResourceID in destinationResourceIDs) {
+                        
+                        NSManagedObjectID *objectID = [self newObjectIDForEntity:destinationEntity
+                                                                 referenceObject:destinationResourceID];
+                        
+                        [destinationResources addObject:objectID];
+                    }
+                    
+                    values[key] = destinationResources;
+                }
+                
+                break;
+                
+            }
+        }
     }
     
     NSIncrementalStoreNode *storeNode = [[NSIncrementalStoreNode alloc] initWithObjectID:objectID
                                                                               withValues:values
                                                                                  version:0];
-    
-    // download from server
-    
-    [self getCachedResource:objectID.entity.name resourceID:resourceID.integerValue URLSession:self.urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
-        
-        NSDictionary *userInfo;
-        
-        if (error) {
-            
-            // forward error
-            
-            userInfo = @{NOIncrementalStoreErrorKey: error,
-                         NOIncrementalStoreObjectIDKey: objectID};
-            
-        }
-        
-        else {
-            
-            // update context with new values
-            
-            __block NSDictionary *newValues;
-            
-            [context performBlockAndWait:^{
-                
-                newValues = [self cachedNewValuesForObjectWithID:objectID
-                                                     withContext:context
-                                                           error:nil];
-                
-                [storeNode updateWithValues:newValues
-                                    version:0];
-                
-            }];
-            
-            userInfo = @{NOIncrementalStoreObjectIDKey: objectID,
-                         NOIncrementalStoreNewValuesKey: newValues};
-        }
-        
-        // post notification
-        
-        [[NSNotificationCenter defaultCenter] postNotificationName:NOIncrementalStoreDidGetNewValuesNotification
-                                                            object:self
-                                                          userInfo:userInfo];
-        
-    }];
     
     return storeNode;
 }
@@ -883,47 +593,9 @@ return [self cachedResultsForFetchRequest:request
                  withContext:(NSManagedObjectContext *)context
                        error:(NSError *__autoreleasing *)error
 {
-    // get reference object
+    // relationships are not lazily fetched
     
-    NSNumber *resourceID = [self referenceObjectForObjectID:objectID];
-    
-    if (!resourceID) {
-        
-        return nil;
-    }
-    
-    // immediately return cached values
-    
-    NSArray *values = [self cachedNewValueForRelationship:relationship
-                                          forObjectWithID:objectID
-                                              withContext:context
-                                                    error:error];
-    
-    // not going to fetch to-many from server becuase that was already called in -newValues...
-    
-    return values;
-}
-
--(NSArray *)obtainPermanentIDsForObjects:(NSArray *)array
-                                   error:(NSError *__autoreleasing *)error
-{
-    NSMutableArray *objectIDs = [NSMutableArray arrayWithCapacity:array.count];
-    
-    for (NSManagedObject *managedObject in array) {
-        
-        // get the resource ID
-        
-        NSString *resourceIDKey = [NSClassFromString(managedObject.entity.managedObjectClassName) resourceIDKey];
-        
-        NSNumber *resourceID = [managedObject valueForKey:resourceIDKey];
-        
-        NSManagedObjectID *objectID = [self newObjectIDForEntity:managedObject.entity
-                                                 referenceObject:resourceID];
-        
-        [objectIDs addObject:objectID];
-    }
-    
-    return objectIDs;
+    return nil;
 }
 
 #pragma mark - JSON Writing Option
@@ -937,7 +609,7 @@ return [self cachedResultsForFetchRequest:request
     return 0;
 }
 
-#pragma mark - JSON Requests
+#pragma mark - API
 
 -(NSURLSessionDataTask *)loginWithContext:(NSManagedObjectContext *)context
                                completion:(void (^)(NSError *))completionBlock
@@ -1035,7 +707,7 @@ return [self cachedResultsForFetchRequest:request
                                                                @"The login failed");
                 
                 NSError *loginFailedError = [NSError errorWithDomain:NetworkObjectsErrorDomain
-                                                                code:NOAPILoginFailedErrorCode
+                                                                code:NOIncrementalStoreLoginFailedErrorCode
                                                             userInfo:@{NSLocalizedDescriptionKey: errorDescription}];
                 completionBlock(loginFailedError);
                 
@@ -1103,11 +775,12 @@ return [self cachedResultsForFetchRequest:request
 {
     // build URL
     
-    Class entityClass = [self entityClassWithResourceName:resourceName];
+    Class entityClass = [self entityClassWithResourceName:resourceName
+                                                  context:context];
     
     NSString *resourcePath = [entityClass resourcePath];
     
-    NSURL *deleteResourceURL = [self.serverURL URLByAppendingPathComponent:resourcePath];
+    NSURL *deleteResourceURL = [self.URL URLByAppendingPathComponent:resourcePath];
     
     NSString *resourceIDString = [NSString stringWithFormat:@"%ld", (unsigned long)resourceID];
     
@@ -1142,7 +815,7 @@ return [self cachedResultsForFetchRequest:request
         request.HTTPBody = jsonData;
     }
     
-    NSURLSessionDataTask *dataTask = [urlSession dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+    NSURLSessionDataTask *dataTask = [self.urlSession dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         
         if (error) {
             
@@ -1180,15 +853,17 @@ return [self cachedResultsForFetchRequest:request
     return dataTask;
 }
 
-
+-(NSURLSessionDataTask *)searchWithFetchRequest:(NSFetchRequest *)fetchRequest
+                                        context:(NSManagedObjectContext *)context
+                                     completion:(void (^)(NSError *, NSArray *))completionBlock
 {
     // Build URL
     
-    Class entityClass = [self entityClassWithResourceName:fetchRequest.];
+    Class entityClass = [self entityClassWithResourceName:fetchRequest.entityName context:context];
     
     NSString *resourcePath = [entityClass resourcePath];
     
-    NSURL *searchURL = [self.serverURL URLByAppendingPathComponent:self.searchPath];
+    NSURL *searchURL = [self.URL URLByAppendingPathComponent:self.searchPath];
     
     searchURL = [searchURL URLByAppendingPathComponent:resourcePath];
     
@@ -1201,11 +876,9 @@ return [self cachedResultsForFetchRequest:request
         [urlRequest addValue:self.sessionToken forHTTPHeaderField:@"Authorization"];
     }
     
-    // build JSON dictionary of search parameters
+    // build JSON dictionary of search parameters from fetch request
     
-    // build JSON request from fetch request
-    
-    NSMutableDictionary *jsonObject;
+    NSMutableDictionary *jsonObject = [[NSMutableDictionary alloc] init];
     
     // Optional comparison predicate
     
@@ -1269,9 +942,9 @@ return [self cachedResultsForFetchRequest:request
     
     // add JSON data
     
-    if (parameters) {
+    if (jsonObject) {
         
-        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:parameters
+        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonObject
                                                            options:self.jsonWritingOption
                                                              error:nil];
         if (!jsonData) {
@@ -1286,7 +959,7 @@ return [self cachedResultsForFetchRequest:request
         
     }
     
-    NSURLSessionDataTask *dataTask = [urlSession dataTaskWithRequest:urlRequest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+    NSURLSessionDataTask *dataTask = [self.urlSession dataTaskWithRequest:urlRequest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         
         if (error) {
             
@@ -1313,7 +986,7 @@ return [self cachedResultsForFetchRequest:request
                                                                @"Permission to perform search is denied");
                 
                 NSError *forbiddenError = [NSError errorWithDomain:NetworkObjectsErrorDomain
-                                                              code:NOAPIForbiddenErrorCode
+                                                              code:NOIncrementalStoreForbiddenErrorCode
                                                           userInfo:@{NSLocalizedDescriptionKey: errorDescription}];
                 
                 completionBlock(forbiddenError, nil);
@@ -1379,15 +1052,17 @@ return [self cachedResultsForFetchRequest:request
 
 -(NSURLSessionDataTask *)getResource:(NSString *)resourceName
                               withID:(NSUInteger)resourceID
+                             context:(NSManagedObjectContext *)context
                           completion:(void (^)(NSError *, NSDictionary *))completionBlock
 {
     // build URL
     
-    Class entityClass = [self entityClassWithResourceName:resourceName];
+    Class entityClass = [self entityClassWithResourceName:resourceName
+                                                  context:context];
     
     NSString *resourcePath = [entityClass resourcePath];
     
-    NSURL *getResourceURL = [self.serverURL URLByAppendingPathComponent:resourcePath];
+    NSURL *getResourceURL = [self.URL URLByAppendingPathComponent:resourcePath];
     
     NSString *resourceIDString = [NSString stringWithFormat:@"%ld", (unsigned long)resourceID];
     
@@ -1402,7 +1077,7 @@ return [self cachedResultsForFetchRequest:request
         [request addValue:self.sessionToken forHTTPHeaderField:@"Authorization"];
     }
     
-    NSURLSessionDataTask *dataTask = [urlSession dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+    NSURLSessionDataTask *dataTask = [self.urlSession dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         
         if (error) {
             
@@ -1429,7 +1104,7 @@ return [self cachedResultsForFetchRequest:request
                                                                @"Access to resource is denied");
                 
                 NSError *forbiddenError = [NSError errorWithDomain:NetworkObjectsErrorDomain
-                                                              code:NOAPIForbiddenErrorCode
+                                                              code:NOIncrementalStoreForbiddenErrorCode
                                                           userInfo:@{NSLocalizedDescriptionKey: errorDescription}];
                 
                 completionBlock(forbiddenError, nil);
@@ -1490,16 +1165,16 @@ return [self cachedResultsForFetchRequest:request
 
 -(NSURLSessionDataTask *)createResource:(NSString *)resourceName
                       withInitialValues:(NSDictionary *)initialValues
-                             URLSession:(NSURLSession *)urlSession
+                                context:(NSManagedObjectContext *)context
                              completion:(void (^)(NSError *, NSNumber *))completionBlock
 {
     // build URL...
     
-    Class entityClass = [self entityClassWithResourceName:resourceName];
+    Class entityClass = [self entityClassWithResourceName:resourceName context:context];
     
     NSString *resourcePath = [entityClass resourcePath];
     
-    NSURL *createResourceURL = [self.serverURL URLByAppendingPathComponent:resourcePath];
+    NSURL *createResourceURL = [self.URL URLByAppendingPathComponent:resourcePath];
     
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:createResourceURL];
     
@@ -1529,7 +1204,7 @@ return [self cachedResultsForFetchRequest:request
     
     request.HTTPMethod = @"POST";
     
-    NSURLSessionDataTask *dataTask = [urlSession dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+    NSURLSessionDataTask *dataTask = [self.urlSession dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         
         if (error) {
             
@@ -1556,7 +1231,7 @@ return [self cachedResultsForFetchRequest:request
                                                                @"Permission to create new resource is denied");
                 
                 NSError *forbiddenError = [NSError errorWithDomain:NetworkObjectsErrorDomain
-                                                              code:NOAPIForbiddenErrorCode
+                                                              code:NOIncrementalStoreForbiddenErrorCode
                                                           userInfo:@{NSLocalizedDescriptionKey: errorDescription}];
                 
                 completionBlock(forbiddenError, nil);
@@ -1601,7 +1276,7 @@ return [self cachedResultsForFetchRequest:request
         
         // get new resource id
         
-        NSEntityDescription *entity = _model.entitiesByName[resourceName];
+        NSEntityDescription *entity = context.persistentStoreCoordinator.managedObjectModel.entitiesByName[resourceName];
         
         Class entityClass = NSClassFromString(entity.managedObjectClassName);
         
@@ -1629,16 +1304,16 @@ return [self cachedResultsForFetchRequest:request
 -(NSURLSessionDataTask *)editResource:(NSString *)resourceName
                                withID:(NSUInteger)resourceID
                               changes:(NSDictionary *)changes
-                           URLSession:(NSURLSession *)urlSession
+                              context:(NSManagedObjectContext *)context
                            completion:(void (^)(NSError *))completionBlock
 {
     // build URL
     
-    Class entityClass = [self entityClassWithResourceName:resourceName];
+    Class entityClass = [self entityClassWithResourceName:resourceName context:context];
     
     NSString *resourcePath = [entityClass resourcePath];
     
-    NSURL *editResourceURL = [self.serverURL URLByAppendingPathComponent:resourcePath];
+    NSURL *editResourceURL = [self.URL URLByAppendingPathComponent:resourcePath];
     
     NSString *resourceIDString = [NSString stringWithFormat:@"%ld", (unsigned long)resourceID];
     
@@ -1671,7 +1346,7 @@ return [self cachedResultsForFetchRequest:request
         [request addValue:self.sessionToken forHTTPHeaderField:@"Authorization"];
     }
     
-    NSURLSessionDataTask *dataTask = [urlSession dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+    NSURLSessionDataTask *dataTask = [self.urlSession dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         
         if (error) {
             
@@ -1698,7 +1373,7 @@ return [self cachedResultsForFetchRequest:request
                                                                @"Permission to edit resource is denied");
                 
                 NSError *forbiddenError = [NSError errorWithDomain:NetworkObjectsErrorDomain
-                                                              code:NOAPIForbiddenErrorCode
+                                                              code:NOIncrementalStoreForbiddenErrorCode
                                                           userInfo:@{NSLocalizedDescriptionKey: errorDescription}];
                 
                 completionBlock(forbiddenError);
@@ -1738,16 +1413,16 @@ return [self cachedResultsForFetchRequest:request
 
 -(NSURLSessionDataTask *)deleteResource:(NSString *)resourceName
                                  withID:(NSUInteger)resourceID
-                             URLSession:(NSURLSession *)urlSession
+                                context:(NSManagedObjectContext *)context
                              completion:(void (^)(NSError *))completionBlock
 {
     // build URL
     
-    Class entityClass = [self entityClassWithResourceName:resourceName];
+    Class entityClass = [self entityClassWithResourceName:resourceName context:context];
     
     NSString *resourcePath = [entityClass resourcePath];
     
-    NSURL *deleteResourceURL = [self.serverURL URLByAppendingPathComponent:resourcePath];
+    NSURL *deleteResourceURL = [self.URL URLByAppendingPathComponent:resourcePath];
     
     NSString *resourceIDString = [NSString stringWithFormat:@"%ld", (unsigned long)resourceID];
     
@@ -1764,7 +1439,7 @@ return [self cachedResultsForFetchRequest:request
         [request addValue:self.sessionToken forHTTPHeaderField:@"Authorization"];
     }
     
-    NSURLSessionDataTask *dataTask = [urlSession dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+    NSURLSessionDataTask *dataTask = [self.urlSession dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         
         if (error) {
             
@@ -1791,7 +1466,7 @@ return [self cachedResultsForFetchRequest:request
                                                                @"Permission to delete resource is denied");
                 
                 NSError *forbiddenError = [NSError errorWithDomain:NetworkObjectsErrorDomain
-                                                              code:NOAPIForbiddenErrorCode
+                                                              code:NOIncrementalStoreForbiddenErrorCode
                                                           userInfo:@{NSLocalizedDescriptionKey: errorDescription}];
                 
                 completionBlock(forbiddenError);
