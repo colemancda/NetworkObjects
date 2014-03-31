@@ -12,7 +12,7 @@
 
 /** Option used upon initializaton that specifies the @c NSURLSession the incremental store will be use. */
 
-extern NSString *const NOIncrementalStoreURLSessionOption;
+extern NSString *const NOIncrementalStoreURLSessionOption ;
 
 extern NSString *const NOIncrementalStoreUserEntityNameOption;
 
@@ -124,14 +124,12 @@ typedef NS_ENUM(NSUInteger, NOIncrementalStoreErrorCode) {
 
 @property NSNumber *userResourceID;
 
-#pragma mark - Requests
+#pragma mark - Special Requests
 
 // These requests use JSON compatible values
 
 /**
- Used to authenticate. Upon successful authentication this method will set to a valid value.
- 
- @param urlSession The URL session that will be used to create the data task.
+ Used to authenticate. Upon successful authentication this the session properties will set to a valid value.
  
  @param completionBlock This completion block must be non-nil.
  
@@ -139,107 +137,8 @@ typedef NS_ENUM(NSUInteger, NOIncrementalStoreErrorCode) {
  
  */
 
--(NSURLSessionDataTask *)loginWithCompletion:(void (^)(NSError *error))completionBlock;
-
-/** Performs a fetch request on the server and returns the results in the completion block. The fetch request results are filtered by the permissions the session has.
- 
- @param resourceName Name of the entity that will be searched.
- 
- @param parameters Dictionary with JSON compatible values. This dictionary should use @c NOSearchParameter values for valid keys.
- 
- @param urlSession The URL session that will be used to create the data task. If this parameter is nil than the default URL session is used.
- 
- @param completionBlock The completion block that will be called when a response is recieved from the server. If an error occurred then the completion block's @c error argument will be set to an @c NSError instance. If there is no error then the completion block's @c results argument will be set to an array resource IDs (@c NSNumber instances) of resource instances that fit the search criteria.
- 
- @return The data task that is communicating with the server. The data task returned is already resumed.
- 
- @see NOSearchParameter
- 
- */
-
--(NSURLSessionDataTask *)searchForResource:(NSString *)resourceName
-                            withParameters:(NSDictionary *)parameters
-                                completion:(void (^)(NSError *error, NSArray *results))completionBlock;
-
-/**
- Fetches an instance of the resource with the specified resource ID returns a JSON representation of the resource in the completion block.
- 
- @param resourceName Name of the entity that will be fetched. If this does not match a entity description in @c self.model then an exception is raised.
- 
- @param resourceID An integer representing the unique identifier of an instance of the specified entity.
- 
- @param urlSession The URL session that will be used to create the data task. If this parameter is nil than the default URL session is used.
- 
- @param completionBlock The completion block that will be called when a response is recieved from the server. If an error occurred then the completion block's @c error argument will be set to an @c NSError instance. If there is no error then the completion block's @c resource argument will be set to an JSON-compatible dictionary representing the resource instance.
- 
- @return The data task that is communicating with the server. The data task returned is already resumed.
- 
- */
-
--(NSURLSessionDataTask *)getResource:(NSString *)resourceName
-                              withID:(NSUInteger)resourceID
-                          completion:(void (^)(NSError *error, NSDictionary *resource))completionBlock;
-
-/**
- Takes a JSON-compatible dictionary containing new values that should be set to the properties of an instance of a resource.
- 
- @param resourceName Name of the entity that will be edited. If this does not match a entity description in @c self.model then an exception is raised.
- 
- @param resourceID An integer representing the unique identifier of an instance of the specified entity.
- 
- @param urlSession The URL session that will be used to create the data task. If this parameter is nil than the default URL session is used.
- 
- @param completionBlock The completion block that will be called when a response is recieved from the server. If an error occurred then the completion block's @c error argument will be set to an @c NSError instance.
- 
- @return The data task that is communicating with the server. The data task returned is already resumed.
- 
- */
-
--(NSURLSessionDataTask *)editResource:(NSString *)resourceName
-                               withID:(NSUInteger)resourceID
-                              changes:(NSDictionary *)changes
-                           URLSession:(NSURLSession *)urlSession
-                           completion:(void (^)(NSError *error))completionBlock;
-
-/**
- Deletes an instance of the resource with the specified resource ID.
- 
- @param resourceName Name of the entity that will be deleted. If this does not match a entity description in @c self.model then an exception is raised.
- 
- @param resourceID An integer representing the unique identifier of an instance of the specified entity.
- 
- @param urlSession The URL session that will be used to create the data task. If this parameter is nil than the default URL session is used.
- 
- @param completionBlock The completion block that will be called when a response is recieved from the server. If an error occurred then the completion block's @c error argument will be set to an @c NSError instance.
- 
- @return The data task that is communicating with the server. The data task returned is already resumed.
- 
- */
-
--(NSURLSessionDataTask *)deleteResource:(NSString *)resourceName
-                                 withID:(NSUInteger)resourceID
-                             URLSession:(NSURLSession *)urlSession
+-(NSURLSessionDataTask *)loginWithModel:(NSManagedObjectModel *)model
                              completion:(void (^)(NSError *error))completionBlock;
-
-/**
- Creates an instance of the resource with the specified resource ID and initial values. Returns the resource ID of the newly created resource instance.
- 
- @param resourceName Name of the entity that will be created. If this does not match a entity description in @c self.model then an exception is raised.
- 
- @param initialValues A JSON-compatible dictionary containing the initial values the newly created resource instance should have.
- 
- @param urlSession The URL session that will be used to create the data task. If this parameter is nil than the default URL session is used.
- 
- @param completionBlock The completion block that will be called when a response is recieved from the server. If an error occurred then the completion block's @c error argument will be set to an @c NSError instance. If there is no error then the completion block's @c resourceID argument will be set to number representing the unique identifier of an instance of the specified entity that was created.
- 
- @return The data task that is communicating with the server. The data task returned is already resumed.
- 
- */
-
--(NSURLSessionDataTask *)createResource:(NSString *)resourceName
-                      withInitialValues:(NSDictionary *)initialValues
-                             URLSession:(NSURLSession *)urlSession
-                             completion:(void (^)(NSError *error, NSNumber *resourceID))completionBlock;
 
 /**
  Performs a function on the instance of the specified resource. Functions are like Objective-C selectors. If that function is not defined then the server returns an error.
@@ -252,8 +151,6 @@ typedef NS_ENUM(NSUInteger, NOIncrementalStoreErrorCode) {
  
  @param jsonObject An optional JSON-compatible dictionary that can be used to add argument to the execution of the specified function.
  
- @param urlSession The URL session that will be used to create the data task. If this parameter is nil than the default URL session is used.
- 
  @param completionBlock The completion block that will be called when a response is recieved from the server. If an error occurred then the completion block's @c error argument will be set to an @c NSError instance. If there is no error then the completion block's @c statusCode argument will be set to a @c NOResourceFunctionCode value and the @c response argmument may be set to a JSON-compatible dictionary.
  
  @return The data task that is communicating with the server. The data task returned is already resumed.
@@ -264,7 +161,7 @@ typedef NS_ENUM(NSUInteger, NOIncrementalStoreErrorCode) {
                               onResource:(NSString *)resourceName
                                   withID:(NSUInteger)resourceID
                           withJSONObject:(NSDictionary *)jsonObject
-                              URLSession:(NSURLSession *)urlSession
+                                   model:(NSManagedObjectModel *)model
                               completion:(void (^)(NSError *error, NSNumber *statusCode, NSDictionary *response))completionBlock;
 
 @end

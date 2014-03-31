@@ -7,7 +7,6 @@
 //
 
 #import "NOIncrementalStore.h"
-#import "NOAPICachedStore.h"
 
 // Options
 
@@ -53,17 +52,60 @@ NSString *const NOIncrementalStoreSearchPathOption = @"NOIncrementalStoreSearchP
 
 @end
 
-@interface NOIncrementalStore (API)
+@implementation NOIncrementalStore (NSJSONWritingOption)
 
-
+-(NSJSONWritingOptions)jsonWritingOption
+{
+    if (self.prettyPrintJSON) {
+        return NSJSONWritingPrettyPrinted;
+    }
+    
+    return 0;
+}
 
 @end
 
+@implementation NOIncrementalStore (Common)
 
+-(Class)entityClassWithResourceName:(NSString *)resourceName
+                            context:(NSManagedObjectContext *)context
+{
+    NSEntityDescription *entity = context.persistentStoreCoordinator.managedObjectModel.entitiesByName[resourceName];
+    
+    if (!entity) {
+        
+        [NSException raise:NSInvalidArgumentException
+                    format:@"No entity in the model matches '%@'", resourceName];
+    }
+    
+    Class entityClass = NSClassFromString(entity.managedObjectClassName);
+    
+    return entityClass;
+}
+
+@end
+
+@interface NSEntityDescription (Convert)
+
+-(NSDictionary *)jsonObjectFromCoreDataValues:(NSDictionary *)values;
+
+@end
 
 @interface NOIncrementalStore ()
 
-@property NOAPICachedStore *cachedStore;
+@property NSManagedObjectModel *model;
+
+@property NSString *sessionEntityName;
+
+@property NSString *userEntityName;
+
+@property NSString *clientEntityName;
+
+@property NSString *loginPath;
+
+@property NSString *searchPath;
+
+@property NSURLSession *urlSession;
 
 @end
 
@@ -94,7 +136,24 @@ NSString *const NOIncrementalStoreSearchPathOption = @"NOIncrementalStoreSearchP
     
     if (self) {
         
-        self.cachedStore = options[NOIncrementalStoreCachedStoreOption];
+        self.sessionEntityName = options[NOIncrementalStoreSessionEntityNameOption];
+        
+        self.userEntityName = options[NOIncrementalStoreUserEntityNameOption];
+        
+        self.clientEntityName = options[NOIncrementalStoreClientEntityNameOption];
+        
+        self.loginPath = options[NOIncrementalStoreLoginPathOption];
+        
+        self.searchPath = options[NOIncrementalStoreSearchPathOption];
+        
+        self.urlSession = options[NOIncrementalStoreURLSessionOption];
+        
+        // use default session
+        
+        if (!self.urlSession) {
+            
+            self.urlSession = [NSURLSession sharedSession];
+        }
         
     }
     
@@ -106,6 +165,23 @@ NSString *const NOIncrementalStoreSearchPathOption = @"NOIncrementalStoreSearchP
     self.metadata = @{NSStoreTypeKey: NSStringFromClass([self class]),
                       NSStoreUUIDKey : [[NSUUID UUID] UUIDString]};
     
+    if (!self.model || !self.sessionEntityName || !self.userEntityName || !self.clientEntityName) {
+        
+        // return error
+        
+        // [NSException raise:NSInvalidArgumentException
+        //             format:@"Required initialzation options were not included in the options dictionary"];
+        
+        return NO;
+    }
+    
+    if (!self.URL) {
+        
+        // error
+        
+        return NO;
+    }
+    
     return YES;
 }
 
@@ -115,15 +191,6 @@ NSString *const NOIncrementalStoreSearchPathOption = @"NOIncrementalStoreSearchP
         withContext:(NSManagedObjectContext *)context
               error:(NSError *__autoreleasing *)error
 {
-    // check for API cached store
-    if (!self.cachedStore) {
-        
-        [NSException raise:NSInvalidArgumentException
-                    format:@"Must specify a NOAPICachedStore instance for the NOIncrementalStoreCachedStoreOption in the initializer's options dictionary"];
-        
-        return nil;
-    }
-    
     if (request.requestType == NSSaveRequestType) {
         
         NSSaveChangesRequest *saveRequest = (NSSaveChangesRequest *)request;
@@ -172,7 +239,7 @@ NSString *const NOIncrementalStoreSearchPathOption = @"NOIncrementalStoreSearchP
     
     // download from server
     
-    [self.cachedStore getCachedResource:objectID.entity.name resourceID:resourceID.integerValue URLSession:self.urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
+    [self getCachedResource:objectID.entity.name resourceID:resourceID.integerValue URLSession:self.urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
         
         NSDictionary *userInfo;
         
@@ -263,6 +330,165 @@ NSString *const NOIncrementalStoreSearchPathOption = @"NOIncrementalStoreSearchP
     }
     
     return objectIDs;
+}
+
+#pragma mark - Special JSON Requests
+
+{
+    if (!self.clientResourceID ||
+        !self.clientSecret) {
+        
+        [NSException raise:NSInternalInconsistencyException
+                    format:@"clientResourceID and clientSecret are required for authentication"];
+        
+        return nil;
+    }
+    
+    // determine URL session
+    if (!urlSession) {
+        
+        urlSession = [NSURLSession sharedSession];
+    }
+    
+    // build login URL
+    
+    NSURL *loginUrl = [self.serverURL URLByAppendingPathComponent:self.loginPath];
+    
+    // put togeather POST body...
+    
+    NSEntityDescription *sessionEntity = _model.entitiesByName[self.sessionEntityName];
+    
+    Class sessionEntityClass = NSClassFromString(sessionEntity.managedObjectClassName);
+    
+    NSString *sessionTokenKey = [sessionEntityClass sessionTokenKey];
+    
+    NSString *sessionUserKey = [sessionEntityClass sessionUserKey];
+    
+    NSString *sessionClientKey = [sessionEntityClass sessionClientKey];
+    
+    NSEntityDescription *clientEntity = _model.entitiesByName[self.clientEntityName];
+    
+    Class clientEntityClass = NSClassFromString(clientEntity.managedObjectClassName);
+    
+    NSString *clientResourceIDKey = [clientEntityClass resourceIDKey];
+    
+    NSString *clientSecretKey = [clientEntityClass clientSecretKey];
+    
+    NSEntityDescription *userEntity = _model.entitiesByName[self.userEntityName];
+    
+    Class userEntityClass = NSClassFromString(userEntity.managedObjectClassName);
+    
+    NSString *usernameKey = [userEntityClass usernameKey];
+    
+    NSString *userPasswordKey = [userEntityClass userPasswordKey];
+    
+    NSMutableDictionary *loginJSONObject = [[NSMutableDictionary alloc] init];
+    
+    // need at least client info to login
+    [loginJSONObject addEntriesFromDictionary:@{sessionClientKey:
+                                                    @{clientResourceIDKey: self.clientResourceID,
+                                                      clientSecretKey : self.clientSecret}}];
+    
+    // add user to authentication if available
+    
+    if (self.username && self.userPassword) {
+        
+        [loginJSONObject addEntriesFromDictionary:@{sessionUserKey: @{usernameKey: self.username, userPasswordKey : self.userPassword}}];
+    }
+    
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:loginUrl];
+    
+    request.HTTPBody = [NSJSONSerialization dataWithJSONObject:loginJSONObject
+                                                       options:self.jsonWritingOption
+                                                         error:nil];
+    
+    request.HTTPMethod = @"POST";
+    
+    NSURLSessionDataTask *task = [urlSession dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+        
+        if (error) {
+            
+            completionBlock(error);
+            
+            return;
+        }
+        
+        // error status codes
+        
+        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+        
+        if (httpResponse.statusCode != 200) {
+            
+            if (httpResponse.statusCode == BadRequestStatusCode) {
+                
+                completionBlock(self.badRequestError);
+                
+                return;
+            }
+            
+            if (httpResponse.statusCode == ForbiddenStatusCode) {
+                
+                NSString *errorDescription = NSLocalizedString(@"The login failed",
+                                                               @"The login failed");
+                
+                NSError *loginFailedError = [NSError errorWithDomain:NetworkObjectsErrorDomain
+                                                                code:NOAPILoginFailedErrorCode
+                                                            userInfo:@{NSLocalizedDescriptionKey: errorDescription}];
+                completionBlock(loginFailedError);
+                
+                return;
+            }
+            
+            // else
+            
+            completionBlock(self.invalidServerResponseError);
+            
+            return;
+        }
+        
+        // parse response
+        
+        NSDictionary *jsonResponse = [NSJSONSerialization JSONObjectWithData:data
+                                                                     options:NSJSONReadingAllowFragments
+                                                                       error:nil];
+        
+        if (!jsonResponse ||
+            ![jsonResponse isKindOfClass:[NSDictionary class]]) {
+            
+            completionBlock(self.invalidServerResponseError);
+            
+            return;
+        }
+        
+        // get session token key
+        
+        NSString *token = jsonResponse[sessionTokenKey];
+        
+        if (!token) {
+            
+            completionBlock(self.invalidServerResponseError);
+            
+            return;
+        }
+        
+        // get user ID if availible
+        
+        NSNumber *userResourceID = jsonResponse[sessionUserKey];
+        
+        if (userResourceID) {
+            
+            self.userResourceID = userResourceID;
+        }
+        
+        self.sessionToken = token;
+        
+        completionBlock(nil);
+        
+    }];
+    
+    [task resume];
+    
+    return task;
 }
 
 @end
@@ -729,6 +955,90 @@ NSString *const NOIncrementalStoreSearchPathOption = @"NOIncrementalStoreSearchP
     }
     
     return value;
+}
+
+@end
+
+@implementation NSEntityDescription (Convert)
+
+-(NSDictionary *)jsonObjectFromCoreDataValues:(NSDictionary *)values
+{
+    NSMutableDictionary *jsonObject = [[NSMutableDictionary alloc] init];
+    
+    // convert values...
+    
+    for (NSString *attributeName in self.attributesByName) {
+        
+        for (NSString *key in values) {
+            
+            // found matching key (will only run once because dictionaries dont have duplicates)
+            if ([key isEqualToString:attributeName]) {
+                
+                id value = [values valueForKey:key];
+                
+                id jsonValue = [self JSONCompatibleValueForAttributeValue:value
+                                                             forAttribute:key];
+                
+                jsonObject[key] = jsonValue;
+                
+                break;
+            }
+        }
+    }
+    
+    for (NSString *relationshipName in self.relationshipsByName) {
+        
+        NSRelationshipDescription *relationship = self.relationshipsByName[relationshipName];
+        
+        for (NSString *key in values) {
+            
+            // found matching key (will only run once because dictionaries dont have duplicates)
+            if ([key isEqualToString:relationshipName]) {
+                
+                // destination entity
+                NSEntityDescription *destinationEntity = relationship.destinationEntity;
+                
+                Class entityClass = NSClassFromString(destinationEntity.managedObjectClassName);
+                
+                NSString *destinationResourceIDKey = [entityClass resourceIDKey];
+                
+                // to-one relationship
+                if (!relationship.isToMany) {
+                    
+                    // get resource ID of object
+                    
+                    NSManagedObject<NOResourceKeysProtocol> *destinationResource = values[key];
+                    
+                    NSNumber *destinationResourceID = [destinationResource valueForKey:destinationResourceIDKey];
+                    
+                    jsonObject[key] = destinationResourceID;
+                    
+                }
+                
+                // to-many relationship
+                else {
+                    
+                    NSSet *destinationResources = [values valueForKey:relationshipName];
+                    
+                    NSMutableArray *destinationResourceIDs = [[NSMutableArray alloc] init];
+                    
+                    for (NSManagedObject *destinationResource in destinationResources) {
+                        
+                        NSNumber *destinationResourceID = [destinationResource valueForKey:destinationResourceIDKey];
+                        
+                        [destinationResourceIDs addObject:destinationResourceID];
+                    }
+                    
+                    jsonObject[key] = destinationResourceIDs;
+                    
+                }
+                
+                break;
+            }
+        }
+    }
+    
+    return jsonObject;
 }
 
 @end

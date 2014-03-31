@@ -21,7 +21,7 @@ extern NSString *const NOAPICachedStoreDatesCachedOption;
 
 @interface NOAPICachedStore : NOAPI
 {
-    /** Dictionary of NSOperationQueue for accessing a sub dictionary in @c _datesCached */
+    /** Dictionary of NSOperationQueue for accessing a sub dictionary in @c _dateCached */
     NSDictionary *_dateCachedOperationQueues;
 }
 
