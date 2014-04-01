@@ -227,7 +227,7 @@ NSString *const NOServerSearchPathOption = @"NOServerSearchPathOption";
                 
             };
             
-            [_httpServer get:searchPathExpression
+            [_httpServer post:searchPathExpression
                    withBlock:searchRequestHandler];
         }
         
@@ -366,7 +366,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     // handlers that do not specify an instance...
     
     // create new instance
-    if (!resourceID && [request.method isEqualToString:@"POST"]) {
+    if (!resourceID && [request.method isEqualToString:@"POST"] && !isSearch) {
         
         [self handleCreateResourceWithEntityDescription:entityDescription
                                                 session:session
@@ -377,7 +377,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     }
     
     // search
-    if (!resourceID && [request.method isEqualToString:@"GET"]) {
+    if (!resourceID && [request.method isEqualToString:@"POST"] && isSearch) {
         
         [self handleSearchForResourceWithEntityDescription:entityDescription
                                                    session:session

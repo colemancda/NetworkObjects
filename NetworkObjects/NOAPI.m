@@ -319,6 +319,8 @@ NSString *const NOAPISearchPathOption = @"NOAPISearchPathOption";
     
     NSMutableURLRequest *urlRequest = [[NSMutableURLRequest alloc] initWithURL:searchURL];
     
+    urlRequest.HTTPMethod = @"POST";
+    
     // add authentication header if availible
     
     if (self.sessionToken) {
@@ -328,22 +330,18 @@ NSString *const NOAPISearchPathOption = @"NOAPISearchPathOption";
     
     // add JSON data
     
-    if (parameters) {
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:parameters
+                                                       options:self.jsonWritingOption
+                                                         error:nil];
+    if (!jsonData) {
         
-        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:parameters
-                                                           options:self.jsonWritingOption
-                                                             error:nil];
-        if (!jsonData) {
-            
-            [NSException raise:NSInvalidArgumentException
-                        format:@"Invalid parameters NSDictionary argument. Not valid JSON."];
-            
-            return nil;
-        }
+        [NSException raise:NSInvalidArgumentException
+                    format:@"Invalid parameters NSDictionary argument. Not valid JSON."];
         
-        urlRequest.HTTPBody = jsonData;
-        
+        return nil;
     }
+    
+    urlRequest.HTTPBody = jsonData;
     
     NSURLSessionDataTask *dataTask = [urlSession dataTaskWithRequest:urlRequest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         
