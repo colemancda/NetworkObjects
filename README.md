@@ -71,7 +71,7 @@ Next, initialize an instance of ```NOServer```
 	                            clientEntityName:@"Client"
 	                                   loginPath:@"login"];
                                     
-Once those two instances are initialized you can start broadcasting by sending ```-(NSError *)startOnPort:(NSUInteger)port``` to the ```NOStore``` instance.
+Once those two instances are initialized you can start broadcasting by sending ```-(NSError *)startOnPort:(NSUInteger)port``` to the ```NOServer``` instance.
 
 ### Client
 
@@ -85,7 +85,9 @@ To implement client functionality, initialize an instance of ```NOAPICachedStore
 
 #Example
 
-NetworkObjects includes example client and server apps. The server runs on OS X and the client on iOS. In order to test the functionality compile and run both. Make sure to create a new client entity in the server app since the app is empty upon first launch. On the iOS client, set fill out the session variables in the login screen to login or register a new user.
+NetworkObjects includes example client and server apps. The server runs on OS X and the client on iOS. In order to test the functionality compile and run both. Make sure to create a new client entity in the server app since the app is empty upon first launch. To do this, click on the ```Browser``` button the the server's OS X GUI. In the drop-down box, select the Client entity and press the ```New``` button. Select the newly created entity to edit its settings (Double click the ```0``` row). In the Client Window, enable the ```First Party``` checkbox and set the name and token to whatever values you want.
+
+On the iOS client, set fill out the session variables (0 for Client ID and the token you previously entered for Client Secret, along with the desired username and password) in the login screen to login or register a new user.
 
 If you have any questions you can contact me at @colemancda
 
