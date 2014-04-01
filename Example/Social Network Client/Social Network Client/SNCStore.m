@@ -13,6 +13,13 @@
 @interface SNCStore ()
 
 @property User *user;
+
+@property NOAPICachedStore *cachedStore;
+
+@property NOIncrementalStore *incrementalStore;
+
+@property NSManagedObjectContext *context;
+
 @end
 
 @implementation SNCStore
@@ -34,32 +41,42 @@
 
 - (id)init
 {
-    self = [super initWithOptions:@{NOAPIModelOption: [NSManagedObjectModel mergedModelFromBundles:nil],
-                                    NOAPISessionEntityNameOption: @"Session",
-                                    NOAPIUserEntityNameOption: @"User",
-                                    NOAPIClientEntityNameOption: @"Client",
-                                    NOAPILoginPathOption: @"login",
-                                    NOAPISearchPathOption: @"search"}];
+    self = [super init];
     
     if (self) {
         
         // configure cache store...
         
-        self.shouldProcessPendingChanges = YES;
+        self.cachedStore = [[NOAPICachedStore alloc] initWithOptions:@{NOAPIModelOption: [NSManagedObjectModel mergedModelFromBundles:nil],
+                                                                      NOAPISessionEntityNameOption: @"Session",
+                                                                      NOAPIUserEntityNameOption: @"User",
+                                                                      NOAPIClientEntityNameOption: @"Client",
+                                                                      NOAPILoginPathOption: @"login",
+                                                                       NOAPISearchPathOption: @"search"}];
         
-        self.prettyPrintJSON = YES;
+        self.cachedStore.prettyPrintJSON = YES;
         
-        self.context.persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:self.model];
+        self.cachedStore.context.persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:self.cachedStore.model];
         
         NSError *error;
         
-        [self.context.persistentStoreCoordinator addPersistentStoreWithType:NSInMemoryStoreType
+        [self.cachedStore.context.persistentStoreCoordinator addPersistentStoreWithType:NSInMemoryStoreType
                                                                           configuration:nil
                                                                                     URL:nil
                                                                                 options:nil
                                                                                   error:&error];
         
         NSAssert(!error, @"Could not create persistent store for cached store");
+        
+        // add incremental store...
+        
+        self.context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+        
+        self.context.persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:self.cachedStore.model];
+        
+        self.incrementalStore = (id)[self.context.persistentStoreCoordinator addPersistentStoreWithType:[NOIncrementalStore storeType] configuration:nil URL:nil options:@{NOIncrementalStoreCachedStoreOption: self.cachedStore} error:&error];
+        
+        NSAssert(!error, @"Could not create incremental store");
         
     }
     
@@ -78,15 +95,15 @@
 
 {
     // setup session properties
-    self.username = username;
-    self.userPassword = password;
-    self.serverURL = serverURL;
-    self.clientSecret = secret;
-    self.clientResourceID = @(clientID);
+    self.cachedStore.username = username;
+    self.cachedStore.userPassword = password;
+    self.cachedStore.serverURL = serverURL;
+    self.cachedStore.clientSecret = secret;
+    self.cachedStore.clientResourceID = @(clientID);
     
     NSLog(@"Logging in as '%@'...", username);
     
-    [self loginWithURLSession:urlSession completion:^(NSError *error) {
+    [self.cachedStore loginWithURLSession:urlSession completion:^(NSError *error) {
         
         if (error) {
             
@@ -96,7 +113,7 @@
         }
         
         // get the user for this session
-        [self getCachedResource:@"User" resourceID:self.userResourceID.integerValue URLSession:urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
+        [self.cachedStore getCachedResource:@"User" resourceID:self.cachedStore.userResourceID.integerValue URLSession:urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
             
             if (error) {
                 
@@ -106,9 +123,9 @@
             }
             
             // save session values
-            self.serverURL = serverURL;
-            self.clientSecret = secret;
-            self.clientResourceID = @(clientID);
+            self.cachedStore.serverURL = serverURL;
+            self.cachedStore.clientSecret = secret;
+            self.cachedStore.clientResourceID = @(clientID);
             self.user = (User *)resource;
             
             NSLog(@"Successfully logged in");
@@ -120,26 +137,26 @@
 }
 
 -(void)registerWithUsername:(NSString *)username
-                        password:(NSString *)password
-                       serverURL:(NSURL *)serverURL
-                        clientID:(NSUInteger)clientID
-                    clientSecret:(NSString *)secret
-                      URLSession:(NSURLSession *)urlSession
-                      completion:(void (^)(NSError *))completionBlock
+                   password:(NSString *)password
+                  serverURL:(NSURL *)serverURL
+                   clientID:(NSUInteger)clientID
+               clientSecret:(NSString *)secret
+                 URLSession:(NSURLSession *)urlSession
+                 completion:(void (^)(NSError *))completionBlock
 {
     
     // setup session properties
-    self.serverURL = serverURL;
-    self.clientSecret = secret;
-    self.clientResourceID = @(clientID);
-    self.username = nil;
-    self.userPassword = nil;
+    self.cachedStore.serverURL = serverURL;
+    self.cachedStore.clientSecret = secret;
+    self.cachedStore.clientResourceID = @(clientID);
+    self.cachedStore.username = nil;
+    self.cachedStore.userPassword = nil;
     
     NSLog(@"Registering as '%@'...", username);
     
     // login as app
     
-    [self loginWithURLSession:urlSession completion:^(NSError *error) {
+    [self.cachedStore loginWithURLSession:urlSession completion:^(NSError *error) {
         
         if (error) {
             
@@ -148,7 +165,7 @@
             return;
         }
         
-        [self createCachedResource:@"User" initialValues:@{@"username": username, @"password" : password} URLSession:urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
+        [self.cachedStore createCachedResource:@"User" initialValues:@{@"username": username, @"password" : password} URLSession:urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
             
             if (error) {
                 
@@ -186,7 +203,7 @@
 {
     NSAssert(self.user, @"Must already be authenticated to fetch user");
     
-    return [self getCachedResource:self.user.entity.name resourceID:self.user.resourceID.integerValue URLSession:urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
+    return [self.cachedStore getCachedResource:self.user.entity.name resourceID:self.user.resourceID.integerValue URLSession:urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
         
         if (error) {
             
@@ -207,19 +224,26 @@
 -(void)logout
 {
     self.user = nil;
-    self.userPassword = nil;
-    self.username = nil;
-    self.userResourceID = nil;
-    self.clientResourceID = nil;
-    self.clientSecret = nil;
-    self.serverURL = nil;
-    self.sessionToken = nil;
+    self.cachedStore.userPassword = nil;
+    self.cachedStore.username = nil;
+    self.cachedStore.userResourceID = nil;
+    self.cachedStore.clientResourceID = nil;
+    self.cachedStore.clientSecret = nil;
+    self.cachedStore.serverURL = nil;
+    self.cachedStore.sessionToken = nil;
     
-    // reset cache
-    
+    // reset context
     [self.context performBlock:^{
         
         [self.context reset];
+        
+    }];
+    
+    // reset cache
+    
+    [self.cachedStore.context performBlock:^{
+        
+        [self.cachedStore.context reset];
         
     }];
     
@@ -228,3 +252,4 @@
 }
 
 @end
+

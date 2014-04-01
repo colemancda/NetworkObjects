@@ -23,49 +23,6 @@ static void *KVOContext = &KVOContext;
 
 @end
 
-@implementation SNCPostsTableViewController (DataTasks)
-
--(void)setDataTask:(NSURLSessionDataTask *)task forPost:(Post *)post
-{
-    [_postsDownloadTasksOperationQueue addOperations:@[[NSBlockOperation blockOperationWithBlock:^{
-        
-        NSString *key = [NSString stringWithFormat:@"%@", post.resourceID];
-        
-        _postsDownloadTasks[key] = task;
-        
-        
-    }]] waitUntilFinished:NO];
-}
-
--(NSURLSessionDataTask *)dataTaskForPost:(Post *)post
-{
-    __block NSURLSessionDataTask *dataTask;
-    
-    [_postsDownloadTasksOperationQueue addOperations:@[[NSBlockOperation blockOperationWithBlock:^{
-        
-        NSString *key = [NSString stringWithFormat:@"%@", post.resourceID];
-        
-        dataTask = _postsDownloadTasks[key];
-        
-    }]] waitUntilFinished:YES];
-    
-    return dataTask;
-}
-
--(void)removeDataTaskForPost:(Post *)post
-{
-    [_postsDownloadTasksOperationQueue addOperations:@[[NSBlockOperation blockOperationWithBlock:^{
-        
-        NSString *key = [NSString stringWithFormat:@"%@", post.resourceID];
-        
-        [_postsDownloadTasks removeObjectForKey:key];
-        
-    }]] waitUntilFinished:NO];
-}
-
-@end
-
-
 @interface SNCPostsTableViewController (ConfigureCell)
 
 -(void)configureCell:(UITableViewCell *)cell
@@ -82,12 +39,6 @@ static void *KVOContext = &KVOContext;
         
         self.urlSession = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
         
-        // serial Queues for mutable collections access
-        
-        _postsDownloadTasks = [[NSMutableDictionary alloc] init];
-        _postsDownloadTasksOperationQueue = [[NSOperationQueue alloc] init];
-        _postsDownloadTasksOperationQueue.maxConcurrentOperationCount = 1;
-        _postsDownloadTasksOperationQueue.name = [NSString stringWithFormat: @"%@ _postsDownloadTasks Operation Queue", self];
         
     }
     return self;
@@ -147,19 +98,6 @@ static void *KVOContext = &KVOContext;
             
             _fetchedResultsController.delegate = self;
             
-            [[SNCStore sharedStore].context performBlock:^{
-                
-                NSError *fetchError;
-                
-                [_fetchedResultsController performFetch:&fetchError];
-                
-                if (fetchError) {
-                    
-                    [NSException raise:NSInternalInconsistencyException
-                                format:@"Error executing fetch request. (%@)", fetchError.localizedDescription];
-                }
-            }];
-            
             // fetch
             [self fetchData:nil];
             
@@ -180,42 +118,25 @@ static void *KVOContext = &KVOContext;
     
     _errorDownloadingPost = nil;
     
-    [[SNCStore sharedStore] searchForCachedResourceWithFetchRequest:_fetchedResultsController.fetchRequest URLSession:self.urlSession completion:^(NSError *error, NSArray *results) {
+    [[SNCStore sharedStore].context performBlock:^{
+        
+        NSError *fetchError;
+        
+        [_fetchedResultsController performFetch:&fetchError];
         
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             
             [self.refreshControl endRefreshing];
             
         }];
-       
-        if (error) {
+        
+        if (fetchError) {
             
-            [error presentError];
+            [fetchError presentError];
             
             return;
         }
         
-        // make copy of fetchedObjects array becuase the values can change any time
-        NSArray *posts = [NSArray arrayWithArray:_fetchedResultsController.fetchedObjects];
-        
-        for (Post *post in posts) {
-            
-            // download posts that are not being downloaded (lazily fetched)
-            
-            NSURLSessionDataTask *dataTask = [self dataTaskForPost:post];
-            
-            if (!dataTask) {
-                
-                dataTask = [[SNCStore sharedStore] getCachedResource:@"Post" resourceID:post.resourceID.integerValue URLSession:self.urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
-                    
-                    // do nothing, NSFetchedResultsController will detect the changes
-                    
-                    // remove data task
-                    [self removeDataTaskForPost:post];
-                    
-                }];
-            }
-        }
     }];
     
 }
@@ -265,7 +186,7 @@ static void *KVOContext = &KVOContext;
     
     if (editingStyle == UITableViewCellEditingStyleDelete) {
         
-        [[SNCStore sharedStore] deleteCachedResource:(id)post URLSession:self.urlSession completion:^(NSError *error) {
+        [[SNCStore sharedStore].incrementalStore.cachedStore deleteCachedResource:(id)post URLSession:self.urlSession completion:^(NSError *error) {
             
             if (error) {
                 
@@ -325,7 +246,7 @@ static void *KVOContext = &KVOContext;
     // create new post
     if (!postVC.post) {
         
-        [[SNCStore sharedStore] createCachedResource:@"Post" initialValues:@{@"text": postVC.textView.text} URLSession:postVC.urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
+        [[SNCStore sharedStore].incrementalStore.cachedStore createCachedResource:@"Post" initialValues:@{@"text": postVC.textView.text} URLSession:postVC.urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
             
             if (error) {
                 
@@ -349,7 +270,7 @@ static void *KVOContext = &KVOContext;
     // edit existing post
     else {
         
-        [[SNCStore sharedStore] editCachedResource:(id)postVC.post changes:@{@"text": postVC.textView.text} URLSession:postVC.urlSession completion:^(NSError *error) {
+        [[SNCStore sharedStore].incrementalStore.cachedStore editCachedResource:(id)postVC.post changes:@{@"text": postVC.textView.text} URLSession:postVC.urlSession completion:^(NSError *error) {
             
             if (error) {
                 
@@ -495,80 +416,37 @@ static void *KVOContext = &KVOContext;
         }];
     };
     
-    // download if not in cache...
+    // not downloaded from server
     
-    NSDate *dateCached = [[SNCStore sharedStore] dateCachedForResource:@"Post"
-                                                            resourceID:post.resourceID.integerValue];
+    __block BOOL isFault;
     
-    // never downloaded / not in cache
-    if (!dateCached) {
+    [[SNCStore sharedStore].context performBlockAndWait:^{
         
-        NSURLSessionDataTask *dataTask = [[SNCStore sharedStore] getCachedResource:@"Post" resourceID:post.resourceID.integerValue URLSession:self.urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
+        isFault = post.isFault;
+        
+        if (isFault) {
             
-            [self removeDataTaskForPost:post];
+            // fires fault
             
-            if (_errorDownloadingPost) {
-                
-                // load empty cell
-                configurePlaceholderCell();
-                
-                return;
-            }
+            [post text];
             
-            if (error) {
-                
-                _errorDownloadingPost = error;
-                
-                // load empty cell
-                configurePlaceholderCell();
-                
-                return;
-            }
+            configurePlaceholderCell();
+        }
+        
+    }];
+    
+    // not fault
+    
+    if (!isFault) {
+        
+        [[SNCStore sharedStore].context performBlock:^{
             
-            configureCell();
+            [[SNCStore sharedStore].context refreshObject:post
+                                                  mergeChanges:YES];
             
         }];
-        
-        [self setDataTask:dataTask forPost:post];
-    }
-    
-    // cached object was fetched before we started loading this table view
-    if ([dateCached compare:_dateLastFetched] == NSOrderedAscending) {
-        
-        NSURLSessionDataTask *dataTask = [[SNCStore sharedStore] getCachedResource:@"Post" resourceID:post.resourceID.integerValue URLSession:self.urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
-            
-            [self removeDataTaskForPost:post];
-            
-            if (_errorDownloadingPost) {
-                
-                // load the cache
-                configureCell();
-                
-                return;
-            }
-            
-            if (error) {
-                
-                _errorDownloadingPost = error;
-                
-                // load the cache
-                configureCell();
-                
-                return;
-            }
-            
-            configureCell();
-        }];
-        
-        [self setDataTask:dataTask forPost:post];
-        
-    }
-    
-    // cached object was downloaded after we started loading this tableview
-    else {
         
         configureCell();
-        
     }
     
 }
