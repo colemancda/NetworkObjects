@@ -20,9 +20,11 @@
 
 @property NOIncrementalStore *incrementalStore;
 
-@property NSMutableSet *incrementalStores;
+@property NSMutableSet *incrementalContexts
 
-@property NSOperationQueue *incrementalStoresOperationQueue;
+;
+
+@property NSOperationQueue *incrementalContextsOperationQueue;
 
 // Session properties
 
@@ -63,11 +65,16 @@
     
     if (self) {
         
-        self.incrementalStores = [[NSMutableSet alloc] init];
+        self.incrementalContexts = [[NSMutableSet alloc] init];
         
-        self.incrementalStoresOperationQueue = [[NSOperationQueue alloc] init];
+        self.incrementalContextsOperationQueue = [[NSOperationQueue alloc] init];
         
-        self.incrementalStoresOperationQueue.maxConcurrentOperationCount = 1;
+        self.incrementalContextsOperationQueue.maxConcurrentOperationCount = 1;
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(contextDidChange:)
+                                                     name:NSManagedObjectContextObjectsDidChangeNotification
+                                                   object:nil];
         
         // configure cache context...
         
@@ -140,13 +147,13 @@
         
         [context performBlock:^{
             
-            NSError *error;
+            NSError *fetchError;
             
-            NSArray *results = [context executeFetchRequest:fetchRequest error:&error];
+            NSArray *results = [context executeFetchRequest:fetchRequest error:&fetchError];
             
-            if (error) {
+            if (fetchError) {
                 
-                completionBlock(error);
+                completionBlock(fetchError);
                 
                 return;
             }
@@ -256,13 +263,15 @@
     
     [options addEntriesFromDictionary:@{NOIncrementalStoreClientEntityNameOption: @"Client",
                                         NOIncrementalStoreSessionEntityNameOption: @"Session",
-                                        NOIncrementalStoreUserEntityNameOption: @"Session",
+                                        NOIncrementalStoreUserEntityNameOption: @"User",
                                         NOIncrementalStoreSearchPathOption: @"search",
                                         NOIncrementalStoreLoginPathOption: @"login"}];
     
-    NSManagedObjectContext *context = *contextPointer;
+    NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
     
-    context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+    *contextPointer = context;
+    
+    context.persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:[NSManagedObjectModel mergedModelFromBundles:nil]];
     
     NOIncrementalStore *incrementalStore = (id)[context.persistentStoreCoordinator addPersistentStoreWithType:[NOIncrementalStore storeType]
                                                                              configuration:nil
@@ -282,27 +291,43 @@
     
     // setup syncing
     
-    [self.incrementalStoresOperationQueue addOperations:@[[NSBlockOperation blockOperationWithBlock:^{
+    [self.incrementalContextsOperationQueue addOperations:@[[NSBlockOperation blockOperationWithBlock:^{
         
-        [self.incrementalStores addObject:incrementalStore];
+        [self.incrementalContexts addObject:context];
         
     }]] waitUntilFinished:YES];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(contextDidChange:)
-                                                 name:NSManagedObjectContextObjectsDidChangeNotification
-                                               object:context];
     
     return incrementalStore;
 }
 
--(void)deleteIncrementalStore:(NOIncrementalStore *)store
+-(void)deleteIncrementalContext:(NSManagedObjectContext *)context
 {
-    [self.incrementalStoresOperationQueue addOperations:@[[NSBlockOperation blockOperationWithBlock:^{
+    [self.incrementalContextsOperationQueue addOperations:@[[NSBlockOperation blockOperationWithBlock:^{
         
-        [self.incrementalStores removeObject:store];
+        [self.incrementalContexts removeObject:context];
         
     }]] waitUntilFinished:YES];
+}
+
+#pragma mark - Notifications
+
+-(void)contextDidChange:(NSNotification *)notification
+{
+    // make sure its one of our contexts
+    
+    NSSet *contexts = [NSSet setWithSet:self.incrementalContexts];
+    
+    if ([contexts containsObject:notification.object]) {
+        
+        // syncronize
+        
+        [self.cacheContext performBlock:^{
+           
+            [self.cacheContext mergeChangesFromContextDidSaveNotification:notification];
+            
+        }];
+    }
+    
 }
 
 @end

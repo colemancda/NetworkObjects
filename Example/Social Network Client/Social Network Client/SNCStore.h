@@ -30,7 +30,7 @@
 
 -(NOIncrementalStore *)newIncrementalStoreWithURLSession:(NSURLSession *)urlSession context:(NSManagedObjectContext **)context;
 
--(void)deleteIncrementalStore:(NOIncrementalStore *)store;
+-(void)deleteIncrementalContext:(NSManagedObjectContext *)context;
 
 -(void)logout;
 

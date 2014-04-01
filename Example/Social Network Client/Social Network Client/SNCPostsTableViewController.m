@@ -130,7 +130,40 @@ static void *KVOContext = &KVOContext;
     
     // start remote fetch
     
-    NSFetchRequest *request = 
+    NSFetchRequest *request = _fetchedResultsController.fetchRequest.copy;
+    
+    NSManagedObjectContext *context;
+    
+    NOIncrementalStore *newStore = [[SNCStore sharedStore] newIncrementalStoreWithURLSession:nil context:&context];
+    
+    [context performBlock:^{
+        
+        NSError *error;
+        
+        NSArray *results = [context executeFetchRequest:request error:&error];
+        
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+           
+            [self.refreshControl endRefreshing];
+            
+        }];
+        
+        if (!results) {
+            
+            [error presentError];
+            
+            return;
+        }
+        
+        // FRC should update...
+        
+        [[[NSOperationQueue alloc] init] addOperationWithBlock:^{
+           
+            [[SNCStore sharedStore] deleteIncrementalContext:context];
+            
+        }];
+        
+    }];
     
 }
 
@@ -179,6 +212,8 @@ static void *KVOContext = &KVOContext;
     
     if (editingStyle == UITableViewCellEditingStyleDelete) {
         
+        /*
+        
         [[SNCStore sharedStore].incrementalStore.cachedStore deleteCachedResource:(id)post URLSession:nil completion:^(NSError *error) {
             
             if (error) {
@@ -189,6 +224,8 @@ static void *KVOContext = &KVOContext;
             }
             
         }];
+         
+         */
         
     }
     else if (editingStyle == UITableViewCellEditingStyleInsert) {
@@ -234,6 +271,7 @@ static void *KVOContext = &KVOContext;
 
 -(void)savedPost:(UIStoryboardSegue *)segue
 {
+    /*
     SNCPostViewController *postVC = segue.sourceViewController;
     
     // create new post
@@ -274,6 +312,8 @@ static void *KVOContext = &KVOContext;
             
         }];
     }
+     
+     */
      
 }
 
@@ -413,7 +453,7 @@ static void *KVOContext = &KVOContext;
     
     __block BOOL isFault;
     
-    [[SNCStore sharedStore].context performBlockAndWait:^{
+    [[SNCStore sharedStore].cacheContext performBlockAndWait:^{
         
         isFault = post.isFault;
         
@@ -432,91 +472,18 @@ static void *KVOContext = &KVOContext;
     
     if (!isFault) {
         
-        NSDate *dateCached = [[SNCStore sharedStore].incrementalStore.cachedStore dateCachedForResource:@"Post"
-                                                                                             resourceID:post.resourceID.integerValue];
-        
-        // cached object was fetched before we started loading this table view
-        if ([dateCached compare:_dateLastFetched] == NSOrderedAscending) {
+        [[SNCStore sharedStore].cacheContext performBlock:^{
             
-            [[SNCStore sharedStore].context performBlock:^{
-                
-                [[SNCStore sharedStore].context refreshObject:post
-                                                 mergeChanges:YES];
-                
-            }];
-        }
+            [[SNCStore sharedStore].cacheContext refreshObject:post
+                                             mergeChanges:YES];
+            
+        }];
         
         configureCell();
     }
     
 }
 
-@end
-
-@implementation SNCPostsTableViewController (Notifications)
-
--(void)setupNotifications
-{
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(didFinishFetchRequest:)
-                                                 name:NOIncrementalStoreFinishedFetchRequestNotification
-                                               object:nil];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(didGetNewValues:)
-                                                 name:NOIncrementalStoreDidGetNewValuesNotification
-                                               object:nil];
-}
-
--(void)didFinishFetchRequest:(NSNotification *)notification
-{
-    // make sure this notification was intended for us
-    if (_fetchedResultsController.fetchRequest == notification.userInfo[NOIncrementalStoreRequestKey]) {
-        
-        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-            
-            [self.refreshControl endRefreshing];
-            
-        }];
-        
-        
-        NSError *error = notification.userInfo[NOIncrementalStoreErrorKey];
-        
-        if (error) {
-            
-            [error presentError];
-            
-            return;
-        }
-        
-        // nothing needed, fetch result controller should detect the new changes from context
-    }
-}
-
--(void)didGetNewValues:(NSNotification *)notification
-{
-    // make sure its values we requested
-    
-    NSManagedObjectID *objectID = notification.userInfo[NOIncrementalStoreObjectIDKey];
-    
-    for (Post *post in _fetchedResultsController.fetchedObjects) {
-        
-        if (post.objectID == objectID) {
-            
-            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-                
-                // setup cell without reloading it...
-                
-                [self configureCell:[self.tableView cellForRowAtIndexPath:[_fetchedResultsController indexPathForObject:post]]
-                            forPost:post];
-                
-            }];
-            
-            break;
-        }
-    }
-    
-}
 
 @end
 
