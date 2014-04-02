@@ -512,15 +512,13 @@ NSString *const NOIncrementalStoreSearchPathOption = @"NOIncrementalStoreSearchP
         
     }
     
-    // managed object and dictionary results include data
-    
     if (request.resultType == NSDictionaryResultType) {
         
         NSMutableDictionary *dictionary = [[NSMutableDictionary alloc] init];
         
         // TEMP to do
         
-        return nil;
+        return dictionary;
         
     }
     
@@ -536,6 +534,96 @@ NSString *const NOIncrementalStoreSearchPathOption = @"NOIncrementalStoreSearchP
     for (NSManagedObjectID *objectID in objectIDs) {
         
         NSManagedObject *managedObject = [context objectWithID:objectID];
+        
+        // download values if fault or for prefetching
+        
+        if (managedObject.isFault || request.propertiesToFetch || request.relationshipKeyPathsForPrefetching) {
+            
+            NSDictionary *values = [self downloadValuesForObjectWithID:objectID withContext:context error:error];
+            
+            if (*error) {
+                
+                return nil;
+            }
+            
+            // set values
+            
+            for (NSString *key in values) {
+                
+                NSAttributeDescription *attribute = objectID.entity.attributesByName[key];
+                
+                NSRelationshipDescription *relationship = objectID.entity.relationshipsByName[key];
+                
+                id value = values[key];
+                
+                // attribute
+                
+                if (attribute) {
+                    
+                    if (value == [NSNull null]) {
+                        
+                        [managedObject setValue:nil
+                                                  forKey:key];
+                    }
+                    else {
+                        
+                        [managedObject setValue:value
+                                                  forKey:key];
+                    }
+                }
+                
+                // relationship
+                
+                if (relationship) {
+                    
+                    // to-one
+                    
+                    if (!relationship.isToMany) {
+                        
+                        if (value == [NSNull null]) {
+                            
+                            [managedObject setValue:nil
+                                                      forKey:key];
+                        }
+                        else {
+                            
+                            NSManagedObject *destinationObject = [context objectWithID:value];
+                            
+                            [managedObject setValue:destinationObject
+                                                      forKey:key];
+                        }
+                    }
+                    
+                    // to-many relationship
+                    
+                    else {
+                        
+                        if (value == [NSNull null]) {
+                            
+                            [managedObject setValue:nil
+                                                      forKey:key];
+                        }
+                        
+                        else {
+                            
+                            NSArray *destinationObjectIDs = value;
+                            
+                            NSMutableSet *destinationObjects = [[NSMutableSet alloc] initWithCapacity:destinationObjectIDs.count];
+                            
+                            for (NSManagedObjectID *objectID in destinationObjectIDs) {
+                                
+                                NSManagedObject *object = [context objectWithID:objectID];
+                                
+                                [destinationObjects addObject:object];
+                            }
+                            
+                            [managedObject setValue:destinationObjects
+                                                      forKey:key];
+                        }
+                    }
+                }
+            }
+        }
         
         [managedObjects addObject:managedObject];
     }
@@ -603,6 +691,53 @@ NSString *const NOIncrementalStoreSearchPathOption = @"NOIncrementalStoreSearchP
                                                                                  version:0];
     
     return storeNode;
+}
+
+-(NSDictionary *)downloadValuesForObjectWithID:(NSManagedObjectID *)objectID
+                                   withContext:(NSManagedObjectContext *)context
+                                         error:(NSError **)error
+{
+    // create semaphore
+    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+    
+    // get reference object
+    
+    NSNumber *resourceID = [self referenceObjectForObjectID:objectID];
+    
+    if (!resourceID) {
+        
+        return nil;
+    }
+    
+    __block NSDictionary *jsonObject;
+    
+    [self getResource:objectID.entity.name withID:resourceID.integerValue context:context completion:^(NSError *remoteError, NSDictionary *JSONResponse) {
+        
+        if (remoteError) {
+            *error = (__bridge id)(__bridge_retained CFTypeRef)remoteError;
+        }
+        
+        else {
+            
+            jsonObject = JSONResponse;
+            
+        }
+        
+        dispatch_semaphore_signal(semaphore);
+        
+    }];
+    
+    dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
+    
+    if (*error) {
+        
+        return nil;
+    }
+    
+    NSDictionary *values = [self coreDataFaultingValuesForObjectID:objectID
+                                                        JSONObject:jsonObject];
+    
+    return values;
 }
 
 -(id)newValueForRelationship:(NSRelationshipDescription *)relationship

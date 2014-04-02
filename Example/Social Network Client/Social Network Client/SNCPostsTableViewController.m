@@ -89,7 +89,7 @@ static void *KVOContext = &KVOContext;
             fetchRequest.predicate = self.predicate;
             
             // make nsfetchedresultscontroller
-            _fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest managedObjectContext:[SNCStore sharedStore].cacheContext sectionNameKeyPath:nil cacheName:nil];
+            _fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest managedObjectContext:[SNCStore sharedStore].incrementalContext sectionNameKeyPath:nil cacheName:nil];
             
             _fetchedResultsController.delegate = self;
             
@@ -113,34 +113,15 @@ static void *KVOContext = &KVOContext;
     
     _errorDownloadingPost = nil;
     
-    // search cache
-    
-    [[SNCStore sharedStore].cacheContext performBlock:^{
-        
-        NSError *fetchError;
-        
-        [_fetchedResultsController performFetch:&fetchError];
-        
-        if (fetchError) {
-            
-            [NSException raise:NSInternalInconsistencyException
-                        format:@"Error executing fetch request. (%@)", fetchError.localizedDescription];
-        }
-    }];
-    
     // start remote fetch
     
-    NSFetchRequest *request = _fetchedResultsController.fetchRequest.copy;
-    
-    NSManagedObjectContext *context;
-    
-    NOIncrementalStore *newStore = [[SNCStore sharedStore] newIncrementalStoreWithURLSession:nil context:&context];
+    NSManagedObjectContext *context = [SNCStore sharedStore].incrementalContext;
     
     [context performBlock:^{
         
         NSError *error;
         
-        NSArray *results = [context executeFetchRequest:request error:&error];
+        [_fetchedResultsController performFetch:&error];
         
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
            
@@ -148,7 +129,7 @@ static void *KVOContext = &KVOContext;
             
         }];
         
-        if (!results) {
+        if (error) {
             
             [error presentError];
             
@@ -156,12 +137,6 @@ static void *KVOContext = &KVOContext;
         }
         
         // FRC should update...
-        
-        [[[NSOperationQueue alloc] init] addOperationWithBlock:^{
-           
-            [[SNCStore sharedStore] deleteIncrementalContext:context];
-            
-        }];
         
     }];
     
@@ -453,7 +428,7 @@ static void *KVOContext = &KVOContext;
     
     __block BOOL isFault;
     
-    [[SNCStore sharedStore].cacheContext performBlockAndWait:^{
+    [[SNCStore sharedStore].incrementalContext performBlockAndWait:^{
         
         isFault = post.isFault;
         
@@ -472,9 +447,9 @@ static void *KVOContext = &KVOContext;
     
     if (!isFault) {
         
-        [[SNCStore sharedStore].cacheContext performBlock:^{
+        [[SNCStore sharedStore].incrementalContext performBlock:^{
             
-            [[SNCStore sharedStore].cacheContext refreshObject:post
+            [[SNCStore sharedStore].incrementalContext refreshObject:post
                                              mergeChanges:YES];
             
         }];
