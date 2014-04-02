@@ -222,6 +222,100 @@ NSString *const NOIncrementalStoreSearchPathOption = @"NOIncrementalStoreSearchP
 
 @end
 
+@implementation NOIncrementalStore (Convert)
+
+-(NSDictionary *)coreDataFaultingValuesForObjectID:(NSManagedObjectID *)objectID
+                                        JSONObject:(NSDictionary *)jsonObject
+{
+    // convert to Core Data values
+    
+    NSMutableDictionary *values = [[NSMutableDictionary alloc] initWithCapacity:jsonObject.allKeys.count];
+    
+    NSEntityDescription *entity = objectID.entity;
+    
+    for (NSString *attributeName in entity.attributesByName) {
+        
+        for (NSString *key in jsonObject) {
+            
+            // found matching key (will only run once because dictionaries dont have duplicates)
+            if ([key isEqualToString:attributeName]) {
+                
+                id jsonValue = jsonObject[key];
+                
+                id value = [entity attributeValueForJSONCompatibleValue:jsonValue
+                                                           forAttribute:attributeName];
+                
+                values[key] = value;
+                
+                break;
+            }
+        }
+    }
+    
+    for (NSString *relationshipName in entity.relationshipsByName) {
+        
+        NSRelationshipDescription *relationship = entity.relationshipsByName[relationshipName];
+        
+        for (NSString *key in jsonObject) {
+            
+            // found matching key (will only run once because dictionaries dont have duplicates)
+            if ([key isEqualToString:relationshipName]) {
+                
+                // destination entity
+                NSEntityDescription *destinationEntity = relationship.destinationEntity;
+                
+                // to-one relationship
+                if (!relationship.isToMany) {
+                    
+                    // get the resource ID
+                    NSNumber *destinationResourceID = jsonObject[relationshipName];
+                    
+                    if (destinationResourceID) {
+                        
+                        // create new Object ID
+                        
+                        NSManagedObjectID *objectID = [self newObjectIDForEntity:destinationEntity
+                                                                 referenceObject:destinationResourceID];
+                        
+                        values[key] = objectID;
+                    }
+                    
+                    else {
+                        
+                        values[key] = [NSNull null];
+                    }
+                }
+                
+                // to-many relationship
+                else {
+                    
+                    // get the resourceIDs
+                    NSArray *destinationResourceIDs = jsonObject[relationshipName];
+                    
+                    NSMutableArray *destinationResources = [[NSMutableArray alloc] init];
+                    
+                    for (NSNumber *destinationResourceID in destinationResourceIDs) {
+                        
+                        NSManagedObjectID *objectID = [self newObjectIDForEntity:destinationEntity
+                                                                 referenceObject:destinationResourceID];
+                        
+                        [destinationResources addObject:objectID];
+                    }
+                    
+                    values[key] = destinationResources;
+                }
+                
+                break;
+                
+            }
+        }
+    }
+    
+    return [NSDictionary dictionaryWithDictionary:values];
+}
+
+@end
+
 @interface NOIncrementalStore ()
 
 @property NSString *sessionEntityName;
@@ -405,14 +499,6 @@ NSString *const NOIncrementalStoreSearchPathOption = @"NOIncrementalStoreSearchP
         return @[@(results.count)];
     }
     
-    if (request.resultType == NSDictionaryResultType) {
-        
-        [NSException raise:NSInvalidArgumentException
-                    format:@"NOIncrementalStore does not support fetch requests with NSDictionaryResultType"];
-        
-        return nil;
-    }
-    
     // build array of object IDs
     
     NSMutableArray *objectIDs = [[NSMutableArray alloc] initWithCapacity:results.count];
@@ -423,6 +509,18 @@ NSString *const NOIncrementalStoreSearchPathOption = @"NOIncrementalStoreSearchP
                                                  referenceObject:resourceID];
         
         [objectIDs addObject:objectID];
+        
+    }
+    
+    // managed object and dictionary results include data
+    
+    if (request.resultType == NSDictionaryResultType) {
+        
+        NSMutableDictionary *dictionary = [[NSMutableDictionary alloc] init];
+        
+        // TEMP to do
+        
+        return nil;
         
     }
     
@@ -497,89 +595,8 @@ NSString *const NOIncrementalStoreSearchPathOption = @"NOIncrementalStoreSearchP
         return nil;
     }
     
-    // convert to Core Data values
-    
-    NSMutableDictionary *values = [[NSMutableDictionary alloc] initWithCapacity:jsonObject.allKeys.count];
-    
-    NSEntityDescription *entity = objectID.entity;
-    
-    for (NSString *attributeName in entity.attributesByName) {
-        
-        for (NSString *key in jsonObject) {
-            
-            // found matching key (will only run once because dictionaries dont have duplicates)
-            if ([key isEqualToString:attributeName]) {
-                
-                id jsonValue = jsonObject[key];
-                
-                id value = [entity attributeValueForJSONCompatibleValue:jsonValue
-                                                           forAttribute:attributeName];
-                
-                values[key] = value;
-                
-                break;
-            }
-        }
-    }
-    
-    for (NSString *relationshipName in entity.relationshipsByName) {
-        
-        NSRelationshipDescription *relationship = entity.relationshipsByName[relationshipName];
-        
-        for (NSString *key in jsonObject) {
-            
-            // found matching key (will only run once because dictionaries dont have duplicates)
-            if ([key isEqualToString:relationshipName]) {
-                
-                // destination entity
-                NSEntityDescription *destinationEntity = relationship.destinationEntity;
-                
-                // to-one relationship
-                if (!relationship.isToMany) {
-                    
-                    // get the resource ID
-                    NSNumber *destinationResourceID = jsonObject[relationshipName];
-                    
-                    if (destinationResourceID) {
-                        
-                        // create new Object ID
-                        
-                        NSManagedObjectID *objectID = [self newObjectIDForEntity:destinationEntity
-                                                                 referenceObject:destinationResourceID];
-                        
-                        values[key] = objectID;
-                    }
-                    
-                    else {
-                        
-                        values[key] = [NSNull null];
-                    }
-                }
-                
-                // to-many relationship
-                else {
-                    
-                    // get the resourceIDs
-                    NSArray *destinationResourceIDs = jsonObject[relationshipName];
-                    
-                    NSMutableArray *destinationResources = [[NSMutableArray alloc] init];
-                    
-                    for (NSNumber *destinationResourceID in destinationResourceIDs) {
-                        
-                        NSManagedObjectID *objectID = [self newObjectIDForEntity:destinationEntity
-                                                                 referenceObject:destinationResourceID];
-                        
-                        [destinationResources addObject:objectID];
-                    }
-                    
-                    values[key] = destinationResources;
-                }
-                
-                break;
-                
-            }
-        }
-    }
+    NSDictionary *values = [self coreDataFaultingValuesForObjectID:objectID
+                                                        JSONObject:jsonObject];
     
     NSIncrementalStoreNode *storeNode = [[NSIncrementalStoreNode alloc] initWithObjectID:objectID
                                                                               withValues:values
