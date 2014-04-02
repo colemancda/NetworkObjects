@@ -496,13 +496,21 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		6E4EFE5D18EB6E4B00851C34 /* Categories */ = {
+			isa = PBXGroup;
+			children = (
+				6E3524E218E293B4004F339F /* NOAPI+CommonErrors.h */,
+				6E3524E318E293B4004F339F /* NOAPI+CommonErrors.m */,
+			);
+			name = Categories;
+			sourceTree = "<group>";
+		};
 		6ECD2B6D1818B18C00244E05 /* Stores */ = {
 			isa = PBXGroup;
 			children = (
+				6E4EFE5D18EB6E4B00851C34 /* Categories */,
 				6EED74641818852200F911BC /* NOAPI.h */,
 				6EED74651818852200F911BC /* NOAPI.m */,
-				6E3524E218E293B4004F339F /* NOAPI+CommonErrors.h */,
-				6E3524E318E293B4004F339F /* NOAPI+CommonErrors.m */,
 				6E79DE37183872770044B78E /* NOAPICachedStore.h */,
 				6E79DE38183872770044B78E /* NOAPICachedStore.m */,
 			);

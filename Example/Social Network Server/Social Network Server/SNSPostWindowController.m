@@ -69,16 +69,19 @@ static void *KVOContext = &KVOContext;
             
             Post *post = (Post *)self.representedObject;
             
-            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            if (post.text) {
                 
-                if (![self.textView.string isEqualToString:post.text]) {
+                [[NSOperationQueue mainQueue] addOperationWithBlock:^{
                     
-                    self.textView.string = post.text;
+                    if (![self.textView.string isEqualToString:post.text]) {
+                        
+                        self.textView.string = post.text;
+                        
+                        [self.textView setNeedsDisplay:YES];
+                    }
                     
-                    [self.textView setNeedsDisplay:YES];
-                }
-                
-            }];
+                }];
+            }
         }
         
     } else {
