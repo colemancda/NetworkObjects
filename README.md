@@ -89,5 +89,7 @@ NetworkObjects includes example client and server apps. The server runs on OS X 
 
 On the iOS client, set fill out the session variables (0 for Client ID and the token you previously entered for Client Secret, along with the desired username and password) in the login screen to login or register a new user.
 
+Here's a video of the example working - https://vimeo.com/91811333
+
 If you have any questions you can contact me at @colemancda
 
