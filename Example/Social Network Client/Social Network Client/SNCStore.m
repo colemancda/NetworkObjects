@@ -13,6 +13,17 @@
 @interface SNCStore ()
 
 @property User *user;
+
+@property NSManagedObjectContext *mainContext;
+
+-(void)contextObjectsDidChange:(NSNotification *)notification;
+
+@end
+
+@interface SNCStore (Utility)
+
+@property (readonly) NSString *appSupportFolderPath;
+
 @end
 
 @implementation SNCStore
@@ -51,19 +62,37 @@
         
         self.context.persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:self.model];
         
+        NSURL *SQLiteURL = [NSURL URLWithString:[self.appSupportFolderPath stringByAppendingPathComponent:@"cache.sqlite"]];
+        
         NSError *error;
         
-        [self.context.persistentStoreCoordinator addPersistentStoreWithType:NSInMemoryStoreType
-                                                                          configuration:nil
-                                                                                    URL:nil
-                                                                                options:nil
-                                                                                  error:&error];
+        [self.context.persistentStoreCoordinator addPersistentStoreWithType:NSSQLiteStoreType
+                                                              configuration:nil
+                                                                        URL:SQLiteURL
+                                                                    options:nil
+                                                                      error:&error];
         
         NSAssert(!error, @"Could not create persistent store for cached store");
+        
+        // setup main context
+        
+        self.mainContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
+        
+        self.mainContext.persistentStoreCoordinator = self.context.persistentStoreCoordinator;
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(contextObjectsDidChange:)
+                                                     name:NSManagedObjectContextObjectsDidChangeNotification
+                                                   object:self.context];
         
     }
     
     return self;
+}
+
+-(void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 #pragma mark - Authentication
@@ -225,6 +254,52 @@
     
     NSLog(@"User logged out");
     
+}
+
+#pragma mark - Notifications
+
+
+
+@end
+
+@implementation SNCStore (Utility)
+
+-(NSString *)appSupportFolderPath
+{
+    // App Support Directory
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory,
+                                                         NSUserDomainMask,
+                                                         YES);
+    
+    // Application Support directory
+    NSString *appSupportPath = paths[0];
+    
+    // get the app bundle identifier
+    NSString *folderName = [[NSBundle mainBundle].infoDictionary objectForKey:@"CFBundleIdentifier"];
+    
+    // use that as app support folder and create it if it doesnt exist
+    NSString *appSupportFolder = [appSupportPath stringByAppendingPathComponent:folderName];
+    
+    BOOL isDirectory;
+    BOOL fileExists = [[NSFileManager defaultManager] fileExistsAtPath:appSupportFolder
+                                                           isDirectory:&isDirectory];
+    
+    // create folder if it doesnt exist
+    if (!isDirectory || !fileExists) {
+        
+        NSError *error;
+        BOOL createdFolder = [[NSFileManager defaultManager] createDirectoryAtPath:appSupportFolder
+                                                       withIntermediateDirectories:YES
+                                                                        attributes:nil
+                                                                             error:&error];
+        if (!createdFolder) {
+            
+            [NSException raise:@"Could not create Application Support folder"
+                        format:@"%@", error.localizedDescription];
+        }
+    }
+    
+    return appSupportFolder;
 }
 
 @end

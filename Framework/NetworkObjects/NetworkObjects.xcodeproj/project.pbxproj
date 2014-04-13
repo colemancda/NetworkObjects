@@ -46,6 +46,18 @@
 		6E838379183083B0003AE302 /* NOServerConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E838377183083B0003AE302 /* NOServerConstants.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6E83838118308E73003AE302 /* NetworkObjectsConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E83838018308E73003AE302 /* NetworkObjectsConstants.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6E83838218308E73003AE302 /* NetworkObjectsConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E83838018308E73003AE302 /* NetworkObjectsConstants.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		6E8EDD0518FA422A0018390E /* NOCacheOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E8EDD0318FA422A0018390E /* NOCacheOperation.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		6E8EDD0618FA422A0018390E /* NOCacheOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E8EDD0318FA422A0018390E /* NOCacheOperation.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		6E8EDD0718FA422A0018390E /* NOCacheOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E8EDD0418FA422A0018390E /* NOCacheOperation.m */; };
+		6E8EDD0818FA422A0018390E /* NOCacheOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E8EDD0418FA422A0018390E /* NOCacheOperation.m */; };
+		6E8EDD0918FA422A0018390E /* NOCacheOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E8EDD0418FA422A0018390E /* NOCacheOperation.m */; };
+		6E8EDD0A18FA422A0018390E /* NOCacheOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E8EDD0418FA422A0018390E /* NOCacheOperation.m */; };
+		6E8EDD0E18FA505E0018390E /* NOCacheGetOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E8EDD0C18FA505E0018390E /* NOCacheGetOperation.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		6E8EDD0F18FA505E0018390E /* NOCacheGetOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E8EDD0C18FA505E0018390E /* NOCacheGetOperation.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		6E8EDD1018FA505E0018390E /* NOCacheGetOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E8EDD0D18FA505E0018390E /* NOCacheGetOperation.m */; };
+		6E8EDD1118FA505E0018390E /* NOCacheGetOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E8EDD0D18FA505E0018390E /* NOCacheGetOperation.m */; };
+		6E8EDD1218FA505E0018390E /* NOCacheGetOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E8EDD0D18FA505E0018390E /* NOCacheGetOperation.m */; };
+		6E8EDD1318FA505E0018390E /* NOCacheGetOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E8EDD0D18FA505E0018390E /* NOCacheGetOperation.m */; };
 		6EA79B9918189324005F0866 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E2BD7C41817309E00E9D04C /* Foundation.framework */; };
 		6EA79B9B18189339005F0866 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6EA79B9A18189339005F0866 /* Foundation.framework */; };
 		6EED73F11818648F00F911BC /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E2BD7D61817309E00E9D04C /* XCTest.framework */; };
@@ -280,6 +292,10 @@
 		6E79DE38183872770044B78E /* NOAPICachedStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NOAPICachedStore.m; path = ../../NetworkObjects/NOAPICachedStore.m; sourceTree = "<group>"; };
 		6E838377183083B0003AE302 /* NOServerConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NOServerConstants.h; path = ../../../NetworkObjects/NOServerConstants.h; sourceTree = "<group>"; };
 		6E83838018308E73003AE302 /* NetworkObjectsConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NetworkObjectsConstants.h; path = ../../../NetworkObjects/NetworkObjectsConstants.h; sourceTree = "<group>"; };
+		6E8EDD0318FA422A0018390E /* NOCacheOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NOCacheOperation.h; path = ../../NetworkObjects/NOCacheOperation.h; sourceTree = "<group>"; };
+		6E8EDD0418FA422A0018390E /* NOCacheOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NOCacheOperation.m; path = ../../NetworkObjects/NOCacheOperation.m; sourceTree = "<group>"; };
+		6E8EDD0C18FA505E0018390E /* NOCacheGetOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NOCacheGetOperation.h; path = ../../NetworkObjects/NOCacheGetOperation.h; sourceTree = "<group>"; };
+		6E8EDD0D18FA505E0018390E /* NOCacheGetOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NOCacheGetOperation.m; path = ../../NetworkObjects/NOCacheGetOperation.m; sourceTree = "<group>"; };
 		6EA79B9A18189339005F0866 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS7.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		6EBAE37E18711F1A004F172A /* libcrypto.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcrypto.dylib; path = usr/lib/libcrypto.dylib; sourceTree = SDKROOT; };
 		6EED73E21818648F00F911BC /* libNetworkObjects.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libNetworkObjects.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -505,6 +521,17 @@
 			name = Categories;
 			sourceTree = "<group>";
 		};
+		6E8EDD0B18FA4EFF0018390E /* Operations */ = {
+			isa = PBXGroup;
+			children = (
+				6E8EDD0318FA422A0018390E /* NOCacheOperation.h */,
+				6E8EDD0418FA422A0018390E /* NOCacheOperation.m */,
+				6E8EDD0C18FA505E0018390E /* NOCacheGetOperation.h */,
+				6E8EDD0D18FA505E0018390E /* NOCacheGetOperation.m */,
+			);
+			name = Operations;
+			sourceTree = "<group>";
+		};
 		6ECD2B6D1818B18C00244E05 /* Stores */ = {
 			isa = PBXGroup;
 			children = (
@@ -513,6 +540,7 @@
 				6EED74651818852200F911BC /* NOAPI.m */,
 				6E79DE37183872770044B78E /* NOAPICachedStore.h */,
 				6E79DE38183872770044B78E /* NOAPICachedStore.m */,
+				6E8EDD0B18FA4EFF0018390E /* Operations */,
 			);
 			name = Stores;
 			sourceTree = "<group>";
@@ -808,6 +836,7 @@
 				6EED75341818852200F911BC /* HTTPServer.h in Headers */,
 				6EED75281818852200F911BC /* HTTPConnection.h in Headers */,
 				6EED753C1818852200F911BC /* MultipartMessageHeader.h in Headers */,
+				6E8EDD0E18FA505E0018390E /* NOCacheGetOperation.h in Headers */,
 				6EED75441818852200F911BC /* HTTPAsyncFileResponse.h in Headers */,
 				6EED75701818852200F911BC /* RoutingHTTPServer.h in Headers */,
 				6EED75641818852200F911BC /* RouteRequest.h in Headers */,
@@ -829,6 +858,7 @@
 				6EED75241818852200F911BC /* HTTPAuthenticationRequest.h in Headers */,
 				6EED755C1818852200F911BC /* HTTPResponseProxy.h in Headers */,
 				6EED75681818852200F911BC /* RouteResponse.h in Headers */,
+				6E8EDD0518FA422A0018390E /* NOCacheOperation.h in Headers */,
 				6EED74FC1818852200F911BC /* DDNumber.h in Headers */,
 				6EED75181818852200F911BC /* ContextFilterLogFormatter.h in Headers */,
 				6EED75401818852200F911BC /* MultipartMessageHeaderField.h in Headers */,
@@ -865,6 +895,7 @@
 				6EED74ED1818852200F911BC /* NSDate+ISO8601.h in Headers */,
 				6EED74F91818852200F911BC /* DDData.h in Headers */,
 				6EED752D1818852200F911BC /* HTTPLogging.h in Headers */,
+				6E8EDD0F18FA505E0018390E /* NOCacheGetOperation.h in Headers */,
 				6EED754D1818852200F911BC /* HTTPDynamicFileResponse.h in Headers */,
 				6EED75331818852200F911BC /* HTTPResponse.h in Headers */,
 				6EED750D1818852200F911BC /* DDFileLogger.h in Headers */,
@@ -886,6 +917,7 @@
 				6EED75191818852200F911BC /* ContextFilterLogFormatter.h in Headers */,
 				6EED75411818852200F911BC /* MultipartMessageHeaderField.h in Headers */,
 				6EED751D1818852200F911BC /* DispatchQueueLogFormatter.h in Headers */,
+				6E8EDD0618FA422A0018390E /* NOCacheOperation.h in Headers */,
 				6EED74C51818852200F911BC /* NOAPI.h in Headers */,
 				6EED75151818852200F911BC /* DDTTYLogger.h in Headers */,
 				6EED75111818852200F911BC /* DDLog.h in Headers */,
@@ -1082,10 +1114,12 @@
 				6EED755E1818852200F911BC /* HTTPResponseProxy.m in Sources */,
 				6EED74E21818852200F911BC /* NOServer.m in Sources */,
 				6EED75521818852200F911BC /* HTTPFileResponse.m in Sources */,
+				6E8EDD1018FA505E0018390E /* NOCacheGetOperation.m in Sources */,
 				6EED74F21818852200F911BC /* NSManagedObject+CoreDataJSONCompatibility.m in Sources */,
 				6EED751A1818852200F911BC /* ContextFilterLogFormatter.m in Sources */,
 				6EED74FA1818852200F911BC /* DDData.m in Sources */,
 				6EED74D21818852200F911BC /* NOHTTPServer.m in Sources */,
+				6E8EDD0718FA422A0018390E /* NOCacheOperation.m in Sources */,
 				6EED75221818852200F911BC /* GCDAsyncSocket.m in Sources */,
 				6EED75661818852200F911BC /* RouteRequest.m in Sources */,
 				6EED74C61818852200F911BC /* NOAPI.m in Sources */,
@@ -1125,7 +1159,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6E8EDD0818FA422A0018390E /* NOCacheOperation.m in Sources */,
 				6E2BD7E31817309E00E9D04C /* NetworkObjectsTests.m in Sources */,
+				6E8EDD1118FA505E0018390E /* NOCacheGetOperation.m in Sources */,
 				6E3524E718E293B4004F339F /* NOAPI+CommonErrors.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1138,10 +1174,12 @@
 				6EED74CF1818852200F911BC /* NOHTTPConnection.m in Sources */,
 				6EED750F1818852200F911BC /* DDFileLogger.m in Sources */,
 				6EED752B1818852200F911BC /* HTTPConnection.m in Sources */,
+				6E8EDD1218FA505E0018390E /* NOCacheGetOperation.m in Sources */,
 				6EED751B1818852200F911BC /* ContextFilterLogFormatter.m in Sources */,
 				6EED75271818852200F911BC /* HTTPAuthenticationRequest.m in Sources */,
 				6E6BB59818385AD100FAE40E /* NSManagedObject+CoreDataJSONCompatibility.m in Sources */,
 				6EED753F1818852200F911BC /* MultipartMessageHeader.m in Sources */,
+				6E8EDD0918FA422A0018390E /* NOCacheOperation.m in Sources */,
 				6EED75171818852200F911BC /* DDTTYLogger.m in Sources */,
 				6EED756B1818852200F911BC /* RouteResponse.m in Sources */,
 				6EED754B1818852200F911BC /* HTTPDataResponse.m in Sources */,
@@ -1181,7 +1219,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6E8EDD0A18FA422A0018390E /* NOCacheOperation.m in Sources */,
 				6EED73FF1818648F00F911BC /* NetworkObjectsiOSTests.m in Sources */,
+				6E8EDD1318FA505E0018390E /* NOCacheGetOperation.m in Sources */,
 				6E3524E918E293B4004F339F /* NOAPI+CommonErrors.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

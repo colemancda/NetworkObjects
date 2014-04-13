@@ -16,6 +16,8 @@
 
 #pragma mark - Properties
 
+@property (readonly) NSManagedObjectContext *mainContext;
+
 @property (readonly) User *user;
 
 #pragma mark - Actions
