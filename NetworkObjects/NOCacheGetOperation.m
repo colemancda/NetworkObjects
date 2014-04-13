@@ -29,6 +29,8 @@
 
 @implementation NOCacheGetOperation
 
+/*
+
 -(void)start
 {
     self.isExecuting = YES;
@@ -127,5 +129,7 @@
     }];
     
 }
+
+*/
 
 @end
