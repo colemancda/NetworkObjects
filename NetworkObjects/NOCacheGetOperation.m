@@ -8,6 +8,7 @@
 
 #import "NOCacheGetOperation.h"
 #import "NOAPI.h"
+#import "NOCacheOperation+Cache.h"
 
 @interface NSOperation ()
 
@@ -29,13 +30,18 @@
 
 @implementation NOCacheGetOperation
 
-/*
+-(void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+#pragma mark - Operation
 
 -(void)start
 {
     self.isExecuting = YES;
     
-    self.dataTask = [self.API getResource:self.resourceName withID:self.resourceID URLSession:self.URLSession completion:^(NSError *error, NSDictionary *resourceDict) {
+    self.dataTask = [self.API getResource:self.resourceName withID:self.resourceID.integerValue URLSession:self.URLSession completion:^(NSError *error, NSDictionary *resourceDict) {
         
         if (self.isCancelled) {
             
@@ -54,47 +60,38 @@
             
             if (error.code == NOAPINotFoundErrorCode) {
                 
-                // get resourceID
+                NSManagedObjectContext *context;
                 
-                Class entityClass = NSClassFromString([self.context.persistentStoreCoordinator.managedObjectModel.entitiesByName[self.resourceName] managedObjectClassName]);
+                NSManagedObject<NOResourceKeysProtocol> *resource = [self findResource:self.resourceName
+                                                                        withResourceID:self.resourceID
+                                                                               context:&context];
                 
-                NSString *resourceIDKey = [entityClass resourceIDKey];
-                
-                NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:self.resourceName];
-                
-                fetchRequest.predicate = [NSPredicate predicateWithFormat:@"%K == %lu", resourceIDKey, self.resourceID];
-                
-                [self.context performBlock:^{
+                if (resource) {
                     
-                    NSError *fetchError;
-                    
-                    NSArray *results = [self.context executeFetchRequest:fetchRequest
-                                                                   error:&fetchError];
-                    
-                    NSManagedObject *resource = results.firstObject;
-                    
-                    // delete resouce if there is one in cache
-                    
-                    if (resource) {
+                    [context performBlockAndWait:^{
                         
-                        [self.context deleteObject:resource];
+                        [context deleteObject:resource];
                         
                         NSError *error;
                         
-                        [self.context save:&error];
+                        [context save:&error];
                         
                         if (error) {
                             
                             self.error = error;
                         }
                         
-                    }
-                    
-                    self.isExecuting = NO;
-                    
-                    self.isFinished = YES;
-                    
-                }];
+                        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                                 selector:@selector(contextDidSave:)
+                                                                     name:NSManagedObjectContextDidSaveNotification
+                                                                   object:context];
+                        
+                    }];
+                }
+                
+                self.isExecuting = NO;
+                
+                self.isFinished = YES;
                 
                 return;
             }
@@ -126,10 +123,19 @@
         }
         
         completionBlock(nil, resource);
+        
     }];
-    
 }
 
-*/
+#pragma mark - Notifications
+
+-(void)contextDidSave:(NSNotification *)notification
+{
+    [self.context performBlock:^{
+       
+        [self.context mergeChangesFromContextDidSaveNotification:notification];
+        
+    }];
+}
 
 @end
