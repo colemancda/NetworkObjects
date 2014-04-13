@@ -15,7 +15,7 @@
 
 @property (nonatomic) NSString *resourceName;
 
-@property (nonatomic) NSNumber *resourceID;
+@property (nonatomic) NSUInteger resourceID;
 
 #pragma mark - Output
 

@@ -7,14 +7,46 @@
 //
 
 #import "NOCacheGetOperation.h"
+#import "NOAPI.h"
+
+@interface NSOperation ()
+
+@property BOOL isReady;
+
+@property BOOL isExecuting;
+
+@property BOOL isFinished;
+
+@end
+
+@interface NOCacheOperation ()
+
+@property NSURLSessionDataTask *dataTask;
+
+@property NSError *error;
+
+@end
 
 @implementation NOCacheGetOperation
 
 -(void)start
 {
-    self.dataTask = [self.API getResource:resourceName withID:resourceID URLSession:urlSession completion:^(NSError *error, NSDictionary *resourceDict) {
+    self.isExecuting = YES;
+    
+    self.dataTask = [self.API getResource:self.resourceName withID:self.resourceID URLSession:self.URLSession completion:^(NSError *error, NSDictionary *resourceDict) {
+        
+        if (self.isCancelled) {
+            
+            self.isExecuting = NO;
+            
+            self.isFinished = YES;
+            
+            return;
+        }
         
         if (error) {
+            
+            self.error = error;
             
             // not found, delete object from our cache
             
@@ -22,40 +54,52 @@
                 
                 // get resourceID
                 
-                Class entityClass = NSClassFromString([self.context.persistentStoreCoordinator.managedObjectModel.entitiesByName[resourceName] managedObjectClassName]);
+                Class entityClass = NSClassFromString([self.context.persistentStoreCoordinator.managedObjectModel.entitiesByName[self.resourceName] managedObjectClassName]);
                 
                 NSString *resourceIDKey = [entityClass resourceIDKey];
                 
-                NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:resourceName];
+                NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:self.resourceName];
                 
-                fetchRequest.predicate = [NSPredicate predicateWithFormat:@"%K == %lu", resourceIDKey, resourceID];
+                fetchRequest.predicate = [NSPredicate predicateWithFormat:@"%K == %lu", resourceIDKey, self.resourceID];
                 
-                [_context performBlockAndWait:^{
+                [self.context performBlock:^{
                     
                     NSError *fetchError;
                     
-                    NSArray *results = [_context executeFetchRequest:fetchRequest
-                                                               error:&fetchError];
+                    NSArray *results = [self.context executeFetchRequest:fetchRequest
+                                                                   error:&fetchError];
                     
                     NSManagedObject *resource = results.firstObject;
                     
-                    // delete resouce of there is one in cache
+                    // delete resouce if there is one in cache
                     
                     if (resource) {
                         
-                        [_context deleteObject:resource];
+                        [self.context deleteObject:resource];
                         
-                        // optionally process pending changes
+                        NSError *error;
                         
-                        if (self.shouldProcessPendingChanges) {
+                        [self.context save:&error];
+                        
+                        if (error) {
                             
-                            [self.context processPendingChanges];
+                            self.error = error;
                         }
+                        
                     }
+                    
+                    self.isExecuting = NO;
+                    
+                    self.isFinished = YES;
+                    
                 }];
+                
+                return;
             }
             
-            completionBlock(error, nil);
+            self.isExecuting = NO;
+            
+            self.isFinished = YES;
             
             return;
         }
