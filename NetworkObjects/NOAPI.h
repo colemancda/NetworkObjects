@@ -272,7 +272,7 @@ typedef NS_ENUM(NSUInteger, NOAPIErrorCode) {
  
  @param urlSession The URL session that will be used to create the data task. If this parameter is nil than the default URL session is used.
  
- @param completionBlock The completion block that will be called when a response is recieved from the server. If an error occurred then the completion block's @c error argument will be set to an @c NSError instance. If there is no error then the completion block's @c statusCode argument will be set to a @c NOResourceFunctionCode value and the @c response argmument may be set to a JSON-compatible dictionary.
+ @param completionBlock The completion block that will be called when a response is recieved from the server. If an error occurred then the completion block's @c error argument will be set to an @c NSError instance. If there is no error then the completion block's @c statusCode argument will be set to a @c NOResourceFunctionCode value and the @c response argument may be set to a JSON-compatible dictionary.
  
  @return The data task that is communicating with the server. The data task returned is already resumed.
  
