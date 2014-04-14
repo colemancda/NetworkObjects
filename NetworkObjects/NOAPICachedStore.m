@@ -14,18 +14,10 @@ NSString *const NOAPICachedStoreDatesCachedOption = @"NOAPICachedStoreDatesCache
 
 NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption";
 
-@interface NOAPICachedStore (Cache)
+@interface NOAPICachedStore (Fetch)
 
 -(NSManagedObjectID *)findResource:(NSString *)resourceName
                     withResourceID:(NSNumber *)resourceID;
-
--(NSManagedObjectID *)findOrCreateResource:(NSString *)resourceName
-                            withResourceID:(NSNumber *)resourceID;
-
-
--(NSManagedObject<NOResourceKeysProtocol> *)setJSONObject:(NSDictionary *)jsonObject
-                                              forResource:(NSString *)resourceName
-                                                   withID:(NSNumber *)resourceID;
 
 @end
 
@@ -53,7 +45,6 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
 @interface NOAPICachedStore ()
 {
     NSPredicate *_resourceIDPredicateTemplate;
-    
 }
 
 @property (nonatomic) NSDictionary *datesCached;
@@ -80,6 +71,8 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
         self.datesCached = options[NOAPICachedStoreDatesCachedOption];
         
         self.context = options[NOAPICachedStoreContextOption];
+        
+        _resourceIDPredicateTemplate = [NSPredicate predicateWithFormat:@"$RESOURCEIDKEY == $RESOURCEID"];
         
         // initalize _dateCached & _dateCachedOperationQueues based on self.model
         [self setupDateCached];
@@ -227,6 +220,8 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
                 
                 context.persistentStoreCoordinator = self.context.persistentStoreCoordinator;
                 
+                context.undoManager = nil;
+                
                 [context performBlockAndWait:^{
                     
                     // create new entity
@@ -296,7 +291,30 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
                     
                     context.persistentStoreCoordinator = self.context.persistentStoreCoordinator;
                     
+                    context.undoManager = nil;
                     
+                    [context performBlockAndWait:^{
+                       
+                        [context deleteObject:[context objectWithID:objectID]];
+                        
+                        NSError *saveError;
+                        
+                        // save
+                        
+                        if (![context save:&saveError]) {
+                            
+                            [NSException raise:NSInternalInconsistencyException
+                                        format:@"%@", saveError];
+                        }
+                        
+                    }];
+                    
+                    // merge changes
+                    
+                    [[NSNotificationCenter defaultCenter] addObserver:self
+                                                             selector:@selector(mergeChangesFromContextDidSaveNotification:)
+                                                                 name:NSManagedObjectContextDidSaveNotification
+                                                               object:context];
                     
                 }
             }
@@ -306,26 +324,255 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
             return;
         }
         
-        NSManagedObject<NOResourceKeysProtocol> *resource = [self setJSONObject:resourceDict
-                                                                    forResource:resourceName
-                                                                         withID:resourceID];
+        // get entity description
+        
+        NSEntityDescription *entity = self.model.entitiesByName[resourceName];
+        
+        // get cached resource
+        
+        __block NSManagedObjectID *objectID;
+        
+        NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:resourceName];
+        
+        fetchRequest.fetchLimit = 1;
+        
+        Class entityClass = NSClassFromString(entity.managedObjectClassName);
+        
+        NSString *resourceIDKey = [entityClass resourceIDKey];
+        
+        // lazily create predicate
+        
+        NSDictionary *variables = @{@"RESOURCEIDKEY": resourceIDKey,
+                                    @"RESOURCEID": resourceID};
+        
+        fetchRequest.predicate = [_resourceIDPredicateTemplate predicateWithSubstitutionVariables:variables];
+        
+        // fetch on background thread
+        
+        NSManagedObjectContext *privateContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+        
+        privateContext.persistentStoreCoordinator = self.context.persistentStoreCoordinator;
+        
+        privateContext.undoManager = nil;
+        
+        [privateContext performBlockAndWait:^{
+            
+            NSError *error;
+            
+            NSArray *results = [privateContext executeFetchRequest:fetchRequest
+                                                             error:&error];
+            
+            if (error) {
+                
+                [NSException raise:@"Error executing NSFetchRequest"
+                            format:@"%@", error.localizedDescription];
+                
+                return;
+            }
+            
+            objectID = results.firstObject;
+            
+        }];
+        
+        // entity on private context
+        
+        __block NSManagedObject *resource;
+        
+        // create if not found...
+        
+        [context performBlockAndWait:^{
+            
+            if (!objectID) {
+                
+                // create new entity
+                
+                resource = [NSEntityDescription insertNewObjectForEntityForName:resourceName
+                                                         inManagedObjectContext:context];
+                
+                // set resource ID
+                
+                [resource setValue:resourceID
+                            forKey:[NSClassFromString(entity.managedObjectClassName) resourceIDKey]];
+                
+            }
+            
+            // get cached object (on private context)
+            else {
+                
+                // fetch
+                                
+                resource = [context objectWithID:objectID];
+            }
+           
+            for (NSString *attributeName in entity.attributesByName) {
+                
+                for (NSString *key in resourceDict) {
+                    
+                    // found matching key (will only run once because dictionaries dont have duplicates)
+                    if ([key isEqualToString:attributeName]) {
+                        
+                        id jsonValue = [resourceDict valueForKey:key];
+                        
+                        id newValue = [resource attributeValueForJSONCompatibleValue:jsonValue
+                                                                        forAttribute:attributeName];
+                        
+                        id value = [resource valueForKey:key];
+                        
+                        NSAttributeDescription *attribute = entity.attributesByName[attributeName];
+                        
+                        // check if new values are different from current values...
+                        
+                        BOOL isNewValue = YES;
+                        
+                        // if both are nil
+                        if (!value && !newValue) {
+                            
+                            isNewValue = NO;
+                        }
+                        
+                        else {
+                            
+                            if (attribute.attributeType == NSStringAttributeType) {
+                                
+                                if ([value isEqualToString:newValue]) {
+                                    
+                                    isNewValue = NO;
+                                }
+                            }
+                            
+                            if (attribute.attributeType == NSDecimalAttributeType ||
+                                attribute.attributeType == NSInteger16AttributeType ||
+                                attribute.attributeType == NSInteger32AttributeType ||
+                                attribute.attributeType == NSInteger64AttributeType ||
+                                attribute.attributeType == NSDoubleAttributeType ||
+                                attribute.attributeType == NSBooleanAttributeType ||
+                                attribute.attributeType == NSFloatAttributeType) {
+                                
+                                if ([value isEqualToNumber:newValue]) {
+                                    
+                                    isNewValue = NO;
+                                }
+                            }
+                            
+                            if (attribute.attributeType == NSDateAttributeType) {
+                                
+                                if ([value isEqualToDate:newValue]) {
+                                    
+                                    isNewValue = NO;
+                                }
+                            }
+                            
+                            if (attribute.attributeType == NSBinaryDataAttributeType) {
+                                
+                                if ([value isEqualToData:newValue]) {
+                                    
+                                    isNewValue = NO;
+                                }
+                            }
+                        }
+                        
+                        // only set newValue if its different from the current value
+                        
+                        if (isNewValue) {
+                            
+                            [resource setValue:newValue
+                                        forKey:attributeName];
+                        }
+                        
+                        break;
+                    }
+                }
+            }
+            
+            for (NSString *relationshipName in entity.relationshipsByName) {
+                
+                NSRelationshipDescription *relationship = entity.relationshipsByName[relationshipName];
+                
+                for (NSString *key in resourceDict) {
+                    
+                    // found matching key (will only run once because dictionaries dont have duplicates)
+                    if ([key isEqualToString:relationshipName]) {
+                        
+                        // destination entity
+                        NSEntityDescription *destinationEntity = relationship.destinationEntity;
+                        
+                        // to-one relationship
+                        if (!relationship.isToMany) {
+                            
+                            // get the resource ID
+                            NSNumber *destinationResourceID = [resourceDict valueForKey:relationshipName];
+                            
+                            NSManagedObject<NOResourceKeysProtocol> *destinationResource = [self resource:destinationEntity.name withID:destinationResourceID.integerValue];
+                            
+                            // dont set value if its the same as current value
+                            
+                            if (destinationResource != [resource valueForKey:relationshipName]) {
+                                
+                                [resource setValue:destinationResource
+                                            forKey:key];
+                            }
+                        }
+                        
+                        // to-many relationship
+                        else {
+                            
+                            // get the resourceIDs
+                            NSArray *destinationResourceIDs = [resourceDict valueForKey:relationshipName];
+                            
+                            NSSet *currentValues = [resource valueForKey:relationshipName];
+                            
+                            NSMutableSet *destinationResources = [[NSMutableSet alloc] init];
+                            
+                            for (NSNumber *destinationResourceID in destinationResourceIDs) {
+                                
+                                NSManagedObject *destinationResource = [self resource:destinationEntity.name withID:destinationResourceID.integerValue];
+                                
+                                [destinationResources addObject:destinationResource];
+                            }
+                            
+                            // set new relationships if they are different from current values
+                            if (![currentValues isEqualToSet:destinationResources]) {
+                                
+                                [resource setValue:destinationResources
+                                            forKey:key];
+                            }
+                            
+                        }
+                        
+                        break;
+                        
+                    }
+                }
+            }
+            
+            
+            
+            NSError *saveError;
+            
+            // save
+            
+            if (![context save:&saveError]) {
+                
+                [NSException raise:NSInternalInconsistencyException
+                            format:@"%@", saveError];
+            }
+            
+            // register for notifications (to merge changes)
+            
+            [[NSNotificationCenter defaultCenter] addObserver:self
+                                                     selector:@selector()
+                                                         name:NSManagedObjectContextDidSaveNotification
+                                                       object:context];
+        }];
         
         // set date cached
         
         [self cachedResource:resourceName
-              withResourceID:resourceID];
+              withResourceID:resourceID.integerValue];
         
-        // optionally process changes
+        // get resource
         
-        if (self.shouldProcessPendingChanges) {
-            
-            [self.context performBlock:^{
-                
-                [self.context processPendingChanges];
-            }];
-        }
-        
-        completionBlock(nil, resource);
+        completionBlock(nil, (NSManagedObject<NOResourceKeysProtocol> *)[self.context objectWithID:resource.objectID]);
     }];
 }
 
@@ -506,7 +753,7 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
 
 @end
 
-@implementation NOAPICachedStore (Cache)
+@implementation NOAPICachedStore (Fetch)
 
 -(NSManagedObjectID *)findResource:(NSString *)resourceName
                     withResourceID:(NSNumber *)resourceID
@@ -529,12 +776,6 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
     NSString *resourceIDKey = [entityClass resourceIDKey];
     
     // lazily create predicate
-    
-    if (!_resourceIDPredicateTemplate) {
-        
-        _resourceIDPredicateTemplate = [NSPredicate predicateWithFormat:@"$RESOURCEIDKEY == $RESOURCEID"];
-        
-    }
     
     NSDictionary *variables = @{@"RESOURCEIDKEY": resourceIDKey,
                                 @"RESOURCEID": resourceID};
@@ -569,188 +810,6 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
     }];
     
     return objectID;
-}
-
--(NSManagedObject<NOResourceKeysProtocol> *)findOrCreateResource:(NSString *)resourceName
-                                                  withResourceID:(NSNumber *)resourceID
-                                                         context:(NSManagedObjectContext *__autoreleasing *)context
-{
-    NSManagedObjectContext *privateContext = *context;
-    
-    if (!resource) {
-        
-        [privateContext performBlockAndWait:^{
-            
-            resource = [NSEntityDescription insertNewObjectForEntityForName:resourceName
-                                                     inManagedObjectContext:self.context];
-            
-            [resource setValue:resourceID
-                        forKey:[NSClassFromString(resource.entity.managedObjectClassName) resourceIDKey]];
-            
-        }];
-    }
-    
-    return resource;
-}
-
--(NSManagedObject<NOResourceKeysProtocol> *)setJSONObject:(NSDictionary *)resourceDict
-                                              forResource:(NSString *)resourceName
-                                                   withID:(NSNumber *)resourceID
-{
-    // update cache...
-    
-    NSManagedObjectContext *context;
-    
-    NSManagedObject<NOResourceKeysProtocol> *resource = [self findOrCreateResource:resourceName
-                                                                    withResourceID:resourceID
-                                                                           context:&context];
-    
-    // set values...
-    
-    NSEntityDescription *entity = self.model.entitiesByName[resourceName];
-    
-    for (NSString *attributeName in entity.attributesByName) {
-        
-        for (NSString *key in resourceDict) {
-            
-            // found matching key (will only run once because dictionaries dont have duplicates)
-            if ([key isEqualToString:attributeName]) {
-                
-                id jsonValue = [resourceDict valueForKey:key];
-                
-                id newValue = [resource attributeValueForJSONCompatibleValue:jsonValue
-                                                                forAttribute:attributeName];
-                
-                id value = [resource valueForKey:key];
-                
-                NSAttributeDescription *attribute = entity.attributesByName[attributeName];
-                
-                // check if new values are different from current values...
-                
-                BOOL isNewValue = YES;
-                
-                // if both are nil
-                if (!value && !newValue) {
-                    
-                    isNewValue = NO;
-                }
-                
-                else {
-                    
-                    if (attribute.attributeType == NSStringAttributeType) {
-                        
-                        if ([value isEqualToString:newValue]) {
-                            
-                            isNewValue = NO;
-                        }
-                    }
-                    
-                    if (attribute.attributeType == NSDecimalAttributeType ||
-                        attribute.attributeType == NSInteger16AttributeType ||
-                        attribute.attributeType == NSInteger32AttributeType ||
-                        attribute.attributeType == NSInteger64AttributeType ||
-                        attribute.attributeType == NSDoubleAttributeType ||
-                        attribute.attributeType == NSBooleanAttributeType ||
-                        attribute.attributeType == NSFloatAttributeType) {
-                        
-                        if ([value isEqualToNumber:newValue]) {
-                            
-                            isNewValue = NO;
-                        }
-                    }
-                    
-                    if (attribute.attributeType == NSDateAttributeType) {
-                        
-                        if ([value isEqualToDate:newValue]) {
-                            
-                            isNewValue = NO;
-                        }
-                    }
-                    
-                    if (attribute.attributeType == NSBinaryDataAttributeType) {
-                        
-                        if ([value isEqualToData:newValue]) {
-                            
-                            isNewValue = NO;
-                        }
-                    }
-                }
-                
-                // only set newValue if its different from the current value
-                
-                if (isNewValue) {
-                    
-                    [resource setValue:newValue
-                                forKey:attributeName];
-                }
-                
-                break;
-            }
-        }
-    }
-    
-    for (NSString *relationshipName in entity.relationshipsByName) {
-        
-        NSRelationshipDescription *relationship = entity.relationshipsByName[relationshipName];
-        
-        for (NSString *key in resourceDict) {
-            
-            // found matching key (will only run once because dictionaries dont have duplicates)
-            if ([key isEqualToString:relationshipName]) {
-                
-                // destination entity
-                NSEntityDescription *destinationEntity = relationship.destinationEntity;
-                
-                // to-one relationship
-                if (!relationship.isToMany) {
-                    
-                    // get the resource ID
-                    NSNumber *destinationResourceID = [resourceDict valueForKey:relationshipName];
-                    
-                    NSManagedObject<NOResourceKeysProtocol> *destinationResource = [self resource:destinationEntity.name withID:destinationResourceID.integerValue];
-                    
-                    // dont set value if its the same as current value
-                    
-                    if (destinationResource != [resource valueForKey:relationshipName]) {
-                        
-                        [resource setValue:destinationResource
-                                    forKey:key];
-                    }
-                }
-                
-                // to-many relationship
-                else {
-                    
-                    // get the resourceIDs
-                    NSArray *destinationResourceIDs = [resourceDict valueForKey:relationshipName];
-                    
-                    NSSet *currentValues = [resource valueForKey:relationshipName];
-                    
-                    NSMutableSet *destinationResources = [[NSMutableSet alloc] init];
-                    
-                    for (NSNumber *destinationResourceID in destinationResourceIDs) {
-                        
-                        NSManagedObject *destinationResource = [self resource:destinationEntity.name withID:destinationResourceID.integerValue];
-                        
-                        [destinationResources addObject:destinationResource];
-                    }
-                    
-                    // set new relationships if they are different from current values
-                    if (![currentValues isEqualToSet:destinationResources]) {
-                        
-                        [resource setValue:destinationResources
-                                    forKey:key];
-                    }
-                    
-                }
-                
-                break;
-                
-            }
-        }
-    }
-    
-    return resource;
 }
 
 @end
