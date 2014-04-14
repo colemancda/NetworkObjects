@@ -36,12 +36,6 @@
 		6E3524E718E293B4004F339F /* NOAPI+CommonErrors.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E3524E318E293B4004F339F /* NOAPI+CommonErrors.m */; };
 		6E3524E818E293B4004F339F /* NOAPI+CommonErrors.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E3524E318E293B4004F339F /* NOAPI+CommonErrors.m */; };
 		6E3524E918E293B4004F339F /* NOAPI+CommonErrors.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E3524E318E293B4004F339F /* NOAPI+CommonErrors.m */; };
-		6E47985B18FC7B6500F5B015 /* NOImporter.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E47985918FC7B6500F5B015 /* NOImporter.h */; };
-		6E47985C18FC7B6500F5B015 /* NOImporter.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E47985918FC7B6500F5B015 /* NOImporter.h */; };
-		6E47985D18FC7B6500F5B015 /* NOImporter.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E47985A18FC7B6500F5B015 /* NOImporter.m */; };
-		6E47985E18FC7B6500F5B015 /* NOImporter.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E47985A18FC7B6500F5B015 /* NOImporter.m */; };
-		6E47985F18FC7B6500F5B015 /* NOImporter.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E47985A18FC7B6500F5B015 /* NOImporter.m */; };
-		6E47986018FC7B6500F5B015 /* NOImporter.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E47985A18FC7B6500F5B015 /* NOImporter.m */; };
 		6E6BB59718385ACB00FAE40E /* NSDate+ISO8601.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EED74791818852200F911BC /* NSDate+ISO8601.m */; };
 		6E6BB59818385AD100FAE40E /* NSManagedObject+CoreDataJSONCompatibility.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EED747B1818852200F911BC /* NSManagedObject+CoreDataJSONCompatibility.m */; };
 		6E79DE39183872770044B78E /* NOAPICachedStore.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E79DE37183872770044B78E /* NOAPICachedStore.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -282,8 +276,6 @@
 		6E2BDA911817341900E9D04C /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		6E3524E218E293B4004F339F /* NOAPI+CommonErrors.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NOAPI+CommonErrors.h"; path = "../../NetworkObjects/NOAPI+CommonErrors.h"; sourceTree = "<group>"; };
 		6E3524E318E293B4004F339F /* NOAPI+CommonErrors.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NOAPI+CommonErrors.m"; path = "../../NetworkObjects/NOAPI+CommonErrors.m"; sourceTree = "<group>"; };
-		6E47985918FC7B6500F5B015 /* NOImporter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NOImporter.h; path = ../../NetworkObjects/NOImporter.h; sourceTree = "<group>"; };
-		6E47985A18FC7B6500F5B015 /* NOImporter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NOImporter.m; path = ../../NetworkObjects/NOImporter.m; sourceTree = "<group>"; };
 		6E79DE37183872770044B78E /* NOAPICachedStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NOAPICachedStore.h; path = ../../NetworkObjects/NOAPICachedStore.h; sourceTree = "<group>"; };
 		6E79DE38183872770044B78E /* NOAPICachedStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NOAPICachedStore.m; path = ../../NetworkObjects/NOAPICachedStore.m; sourceTree = "<group>"; };
 		6E838377183083B0003AE302 /* NOServerConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NOServerConstants.h; path = ../../../NetworkObjects/NOServerConstants.h; sourceTree = "<group>"; };
@@ -521,8 +513,6 @@
 				6EED74651818852200F911BC /* NOAPI.m */,
 				6E79DE37183872770044B78E /* NOAPICachedStore.h */,
 				6E79DE38183872770044B78E /* NOAPICachedStore.m */,
-				6E47985918FC7B6500F5B015 /* NOImporter.h */,
-				6E47985A18FC7B6500F5B015 /* NOImporter.m */,
 			);
 			name = Stores;
 			sourceTree = "<group>";
@@ -811,7 +801,6 @@
 				6EED74F01818852200F911BC /* NSManagedObject+CoreDataJSONCompatibility.h in Headers */,
 				6EED74DC1818852200F911BC /* NOResourceProtocol.h in Headers */,
 				6EED74DA1818852200F911BC /* NOClientProtocol.h in Headers */,
-				6E47985B18FC7B6500F5B015 /* NOImporter.h in Headers */,
 				6EED74E41818852200F911BC /* NOSessionProtocol.h in Headers */,
 				6EED74EA1818852200F911BC /* NOUserProtocol.h in Headers */,
 				6EED74D01818852200F911BC /* NOHTTPServer.h in Headers */,
@@ -869,7 +858,6 @@
 				6EED74E11818852200F911BC /* NOServer.h in Headers */,
 				6EED75651818852200F911BC /* RouteRequest.h in Headers */,
 				6EED74F11818852200F911BC /* NSManagedObject+CoreDataJSONCompatibility.h in Headers */,
-				6E47985C18FC7B6500F5B015 /* NOImporter.h in Headers */,
 				6EED74F51818852200F911BC /* RouteResponse+IPAddress.h in Headers */,
 				6EED75351818852200F911BC /* HTTPServer.h in Headers */,
 				6EED74CD1818852200F911BC /* NOHTTPConnection.h in Headers */,
@@ -1113,7 +1101,6 @@
 				6EED74F61818852200F911BC /* RouteResponse+IPAddress.m in Sources */,
 				6EED753E1818852200F911BC /* MultipartMessageHeader.m in Sources */,
 				6EED75361818852200F911BC /* HTTPServer.m in Sources */,
-				6E47985D18FC7B6500F5B015 /* NOImporter.m in Sources */,
 				6EED74CE1818852200F911BC /* NOHTTPConnection.m in Sources */,
 				6EED75021818852200F911BC /* DDRange.m in Sources */,
 				6EED75161818852200F911BC /* DDTTYLogger.m in Sources */,
@@ -1140,7 +1127,6 @@
 			files = (
 				6E2BD7E31817309E00E9D04C /* NetworkObjectsTests.m in Sources */,
 				6E3524E718E293B4004F339F /* NOAPI+CommonErrors.m in Sources */,
-				6E47985E18FC7B6500F5B015 /* NOImporter.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1171,7 +1157,6 @@
 				6EED75311818852200F911BC /* HTTPMessage.m in Sources */,
 				6EED754F1818852200F911BC /* HTTPDynamicFileResponse.m in Sources */,
 				6EED74D31818852200F911BC /* NOHTTPServer.m in Sources */,
-				6E47985F18FC7B6500F5B015 /* NOImporter.m in Sources */,
 				6EED75731818852200F911BC /* RoutingHTTPServer.m in Sources */,
 				6EED75231818852200F911BC /* GCDAsyncSocket.m in Sources */,
 				6EED75631818852200F911BC /* Route.m in Sources */,
@@ -1198,7 +1183,6 @@
 			files = (
 				6EED73FF1818648F00F911BC /* NetworkObjectsiOSTests.m in Sources */,
 				6E3524E918E293B4004F339F /* NOAPI+CommonErrors.m in Sources */,
-				6E47986018FC7B6500F5B015 /* NOImporter.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
