@@ -14,12 +14,16 @@ NSString *const NOAPICachedStoreDatesCachedOption = @"NOAPICachedStoreDatesCache
 
 @interface NOAPICachedStore (Cache)
 
--(NSManagedObject<NOResourceKeysProtocol> *)resource:(NSString *)resourceName
-                                              withID:(NSUInteger)resourceID;
+-(NSManagedObjectID *)findResource:(NSString *)resourceName
+                    withResourceID:(NSNumber *)resourceID;
+
+-(NSManagedObjectID *)findOrCreateResource:(NSString *)resourceName
+                            withResourceID:(NSNumber *)resourceID;
+
 
 -(NSManagedObject<NOResourceKeysProtocol> *)setJSONObject:(NSDictionary *)jsonObject
                                               forResource:(NSString *)resourceName
-                                                   withID:(NSUInteger)resourceID;
+                                                   withID:(NSNumber *)resourceID;
 
 @end
 
@@ -39,6 +43,10 @@ NSString *const NOAPICachedStoreDatesCachedOption = @"NOAPICachedStoreDatesCache
 @end
 
 @interface NOAPICachedStore ()
+{
+    NSPredicate *_resourceIDPredicateTemplate;
+    
+}
 
 @property NSDictionary *datesCached;
 
@@ -195,8 +203,30 @@ NSString *const NOAPICachedStoreDatesCachedOption = @"NOAPICachedStoreDatesCache
         
         for (NSNumber *resourceID in results) {
             
-            NSManagedObject *resource = [self resource:entity.name
-                                                withID:resourceID.integerValue];
+            NSManagedObjectID *objectID = [self findResource:entity.name
+                                              withResourceID:resourceID];
+            
+            // create object if it doesn't exist
+            
+            if (!objectID) {
+                
+                NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+                
+                [context performBlockAndWait:^{
+                   
+                    NSManagedObject *resource = [NSEntityDescription insertNewObjectForEntityForName:entity.name
+                                                                              inManagedObjectContext:context];
+                    
+                    // set resource ID
+                    
+                    [resource setValue:<#(id)#>
+                                forKey:<#(NSString *)#>]
+                    
+                }];
+                
+            }
+            
+            //
             
             [cachedResults addObject:resource];
         }
@@ -234,7 +264,7 @@ NSString *const NOAPICachedStoreDatesCachedOption = @"NOAPICachedStoreDatesCache
                     
                     NSError *fetchError;
                     
-                    NSArray *results = [_context executeFetchRequest:fetchRequest
+                    NSArray *results = [self.context executeFetchRequest:fetchRequest
                                                                error:&fetchError];
                     
                     NSManagedObject *resource = results.firstObject;
@@ -462,30 +492,53 @@ NSString *const NOAPICachedStoreDatesCachedOption = @"NOAPICachedStoreDatesCache
 
 @implementation NOAPICachedStore (Cache)
 
--(NSManagedObject<NOResourceKeysProtocol> *)resource:(NSString *)resourceName
-                                              withID:(NSUInteger)resourceID;
+-(NSManagedObjectID *)findResource:(NSString *)resourceName
+                    withResourceID:(NSNumber *)resourceID
 {
     // look for resource in cache
     
-    __block NSManagedObject<NOResourceKeysProtocol> *resource;
+    __block NSManagedObjectID *objectID;
     
-    [self.context performBlockAndWait:^{
+    NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:resourceName];
+    
+    fetchRequest.resultType = NSManagedObjectIDResultType;
+    
+    fetchRequest.fetchLimit = 1;
+    
+    // get entity
+    NSEntityDescription *entity = self.model.entitiesByName[resourceName];
+    
+    Class entityClass = NSClassFromString(entity.managedObjectClassName);
+    
+    NSString *resourceIDKey = [entityClass resourceIDKey];
+    
+    // lazily create predicate
+    
+    if (!_resourceIDPredicateTemplate) {
         
-        NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:resourceName];
+        _resourceIDPredicateTemplate = [NSPredicate predicateWithFormat:@"$RESOURCEIDKEY == $RESOURCEID"];
         
-        fetchRequest.fetchLimit = 1;
-        
-        // get entity
-        NSEntityDescription *entity = self.model.entitiesByName[resourceName];
-        
-        Class entityClass = NSClassFromString(entity.managedObjectClassName);
-        
-        fetchRequest.predicate = [NSPredicate predicateWithFormat:@"%K == %d", [entityClass resourceIDKey], resourceID];
+    }
+    
+    NSDictionary *variables = @{@"RESOURCEIDKEY": resourceIDKey,
+                                @"RESOURCEID": resourceID};
+    
+    fetchRequest.predicate = [_resourceIDPredicateTemplate predicateWithSubstitutionVariables:variables];
+    
+    // fetch on background thread
+    
+    NSManagedObjectContext *privateContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+    
+    privateContext.persistentStoreCoordinator = self.context.persistentStoreCoordinator;
+    
+    privateContext.undoManager = nil;
+    
+    [privateContext performBlockAndWait:^{
         
         NSError *error;
         
-        NSArray *results = [self.context executeFetchRequest:fetchRequest
-                                                       error:&error];
+        NSArray *results = [privateContext executeFetchRequest:fetchRequest
+                                                         error:&error];
         
         if (error) {
             
@@ -495,36 +548,46 @@ NSString *const NOAPICachedStoreDatesCachedOption = @"NOAPICachedStoreDatesCache
             return;
         }
         
-        resource = results.firstObject;
+        objectID = results.firstObject;
         
-        // create new object if none exists
-        if (!resource) {
+    }];
+    
+    return objectID;
+}
+
+-(NSManagedObject<NOResourceKeysProtocol> *)findOrCreateResource:(NSString *)resourceName
+                                                  withResourceID:(NSNumber *)resourceID
+                                                         context:(NSManagedObjectContext *__autoreleasing *)context
+{
+    NSManagedObjectContext *privateContext = *context;
+    
+    if (!resource) {
+        
+        [privateContext performBlockAndWait:^{
             
             resource = [NSEntityDescription insertNewObjectForEntityForName:resourceName
                                                      inManagedObjectContext:self.context];
             
-            // set resource ID
-            entityClass = NSClassFromString(resource.entity.managedObjectClassName);
+            [resource setValue:resourceID
+                        forKey:[NSClassFromString(resource.entity.managedObjectClassName) resourceIDKey]];
             
-            NSString *resourceIDKey = [entityClass resourceIDKey];
-            
-            [resource setValue:[NSNumber numberWithInteger:resourceID]
-                        forKey:resourceIDKey];
-            
-        }
-    }];
+        }];
+    }
     
     return resource;
 }
 
 -(NSManagedObject<NOResourceKeysProtocol> *)setJSONObject:(NSDictionary *)resourceDict
                                               forResource:(NSString *)resourceName
-                                                   withID:(NSUInteger)resourceID
+                                                   withID:(NSNumber *)resourceID
 {
     // update cache...
     
-    NSManagedObject<NOResourceKeysProtocol> *resource = [self resource:resourceName
-                                                                withID:resourceID];
+    NSManagedObjectContext *context;
+    
+    NSManagedObject<NOResourceKeysProtocol> *resource = [self findOrCreateResource:resourceName
+                                                                    withResourceID:resourceID
+                                                                           context:&context];
     
     // set values...
     

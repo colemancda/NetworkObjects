@@ -11,12 +11,12 @@
 #import <NetworkObjects/NOAPI.h>
 #import <NetworkObjects/NOResourceProtocol.h>
 
-// Initialization Options
-
 extern NSString *const NOAPICachedStoreDatesCachedOption;
 
+extern NSString *const NOAPICachedStoreContextOption;
+
 /**
- This class uses a NOAPI property behind the scenes to communicate with a NetworkObjects server and cache them to a NSManagedObjectContext. It returns NSManagedObject instances that conform to NOResourceProtocol.
+ This class uses a NOAPI property behind the scenes to communicate with a NetworkObjects server and cache resource them into a @c NSManagedObjectContext.
  */
 
 @interface NOAPICachedStore : NOAPI
@@ -24,12 +24,6 @@ extern NSString *const NOAPICachedStoreDatesCachedOption;
     /** Dictionary of NSOperationQueue for accessing a sub dictionary in @c _datesCached */
     NSDictionary *_dateCachedOperationQueues;
 }
-
-#pragma mark - Settings
-
-/* Whether the reciever should call @c -processPendingChanges on its context when a request finishes. */
-
-@property BOOL shouldProcessPendingChanges;
 
 #pragma mark - Cache
 
