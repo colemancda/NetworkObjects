@@ -12,6 +12,8 @@
 
 NSString *const NOAPICachedStoreDatesCachedOption = @"NOAPICachedStoreDatesCachedOption";
 
+NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption";
+
 @interface NOAPICachedStore (Cache)
 
 -(NSManagedObjectID *)findResource:(NSString *)resourceName
@@ -42,17 +44,30 @@ NSString *const NOAPICachedStoreDatesCachedOption = @"NOAPICachedStoreDatesCache
 
 @end
 
+@interface NOAPICachedStore (MergeContext)
+
+-(void)mergeChangesFromContextDidSaveNotification:(NSNotification *)notification;
+
+@end
+
 @interface NOAPICachedStore ()
 {
     NSPredicate *_resourceIDPredicateTemplate;
     
 }
 
-@property NSDictionary *datesCached;
+@property (nonatomic) NSDictionary *datesCached;
+
+@property (nonatomic) NSManagedObjectContext *context;
 
 @end
 
 @implementation NOAPICachedStore
+
+-(void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
 
 #pragma mark - Initialization
 
@@ -64,9 +79,7 @@ NSString *const NOAPICachedStoreDatesCachedOption = @"NOAPICachedStoreDatesCache
         
         self.datesCached = options[NOAPICachedStoreDatesCachedOption];
         
-        _context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-        
-        _context.undoManager = nil;
+        self.context = options[NOAPICachedStoreContextOption];
         
         // initalize _dateCached & _dateCachedOperationQueues based on self.model
         [self setupDateCached];
@@ -206,27 +219,49 @@ NSString *const NOAPICachedStoreDatesCachedOption = @"NOAPICachedStoreDatesCache
             NSManagedObjectID *objectID = [self findResource:entity.name
                                               withResourceID:resourceID];
             
-            // create object if it doesn't exist
+            // create resource on worker thread if it doesn't exist
             
             if (!objectID) {
                 
                 NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
                 
+                context.persistentStoreCoordinator = self.context.persistentStoreCoordinator;
+                
                 [context performBlockAndWait:^{
+                    
+                    // create new entity
                    
                     NSManagedObject *resource = [NSEntityDescription insertNewObjectForEntityForName:entity.name
                                                                               inManagedObjectContext:context];
                     
                     // set resource ID
                     
-                    [resource setValue:<#(id)#>
-                                forKey:<#(NSString *)#>]
+                    [resource setValue:resourceID
+                                forKey:[NSClassFromString(entity.managedObjectClassName) resourceIDKey]];
                     
+                    
+                    NSError *saveError;
+                    
+                    // save
+                    
+                    if (![context save:&saveError]) {
+                        
+                        [NSException raise:NSInternalInconsistencyException
+                                    format:@"%@", saveError];
+                    }
                 }];
                 
+                // register for notifications (to merge changes)
+                
+                [[NSNotificationCenter defaultCenter] addObserver:self
+                                                         selector:@selector(mergeChangesFromContextDidSaveNotification:)
+                                                             name:NSManagedObjectContextDidSaveNotification
+                                                           object:context];
             }
             
-            //
+            NSManagedObject *resource = [self.context objectWithID:objectID];
+            
+            // add to completion block result array
             
             [cachedResults addObject:resource];
         }
@@ -238,11 +273,11 @@ NSString *const NOAPICachedStoreDatesCachedOption = @"NOAPICachedStoreDatesCache
 
 
 -(NSURLSessionDataTask *)getCachedResource:(NSString *)resourceName
-                                resourceID:(NSUInteger)resourceID
+                                resourceID:(NSNumber *)resourceID
                                 URLSession:(NSURLSession *)urlSession
                                 completion:(void (^)(NSError *, NSManagedObject<NOResourceKeysProtocol> *))completionBlock
 {
-    return [self getResource:resourceName withID:resourceID URLSession:urlSession completion:^(NSError *error, NSDictionary *resourceDict) {
+    return [self getResource:resourceName withID:resourceID.integerValue URLSession:urlSession completion:^(NSError *error, NSDictionary *resourceDict) {
         
         if (error) {
             
@@ -250,39 +285,20 @@ NSString *const NOAPICachedStoreDatesCachedOption = @"NOAPICachedStoreDatesCache
             
             if (error.code == NOAPINotFoundErrorCode) {
                 
-                // get resourceID
+                NSManagedObjectID *objectID = [self findResource:resourceName
+                                                  withResourceID:resourceID];
                 
-                Class entityClass = NSClassFromString([self.context.persistentStoreCoordinator.managedObjectModel.entitiesByName[resourceName] managedObjectClassName]);
-                
-                NSString *resourceIDKey = [entityClass resourceIDKey];
-                
-                NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:resourceName];
-                
-                fetchRequest.predicate = [NSPredicate predicateWithFormat:@"%K == %lu", resourceIDKey, resourceID];
-                
-                [_context performBlockAndWait:^{
+                if (objectID) {
                     
-                    NSError *fetchError;
+                    // delete object on private thread
                     
-                    NSArray *results = [self.context executeFetchRequest:fetchRequest
-                                                               error:&fetchError];
+                    NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
                     
-                    NSManagedObject *resource = results.firstObject;
+                    context.persistentStoreCoordinator = self.context.persistentStoreCoordinator;
                     
-                    // delete resouce of there is one in cache
                     
-                    if (resource) {
-                        
-                        [_context deleteObject:resource];
-                        
-                        // optionally process pending changes
-                        
-                        if (self.shouldProcessPendingChanges) {
-                            
-                            [self.context processPendingChanges];
-                        }
-                    }
-                }];
+                    
+                }
             }
             
             completionBlock(error, nil);
@@ -892,6 +908,15 @@ NSString *const NOAPICachedStoreDatesCachedOption = @"NOAPICachedStoreDatesCache
         resourceDatesCached[[NSNumber numberWithInteger:resourceID]] = [NSDate date];
         
     }]] waitUntilFinished:YES];
+}
+
+@end
+
+@implementation NOAPICachedStore (MergeContext)
+
+-(void)mergeChangesFromContextDidSaveNotification:(NSNotification *)notification
+{
+    [self.context mergeChangesFromContextDidSaveNotification:notification];
 }
 
 @end

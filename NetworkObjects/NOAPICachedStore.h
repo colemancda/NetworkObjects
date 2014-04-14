@@ -36,11 +36,11 @@ extern NSString *const NOAPICachedStoreContextOption;
  
  */
 
-@property (readonly) NSManagedObjectContext *context;
+@property (nonatomic, readonly) NSManagedObjectContext *context;
 
 /** Hierarchy of dictionaries with dates a resource with a particular resource ID was cached. */
 
-@property (readonly) NSDictionary *datesCached;
+@property (nonatomic, readonly) NSDictionary *datesCached;
 
 /** Returns the date when this Resource was cached (either downloaded or created) */
 
@@ -67,7 +67,7 @@ extern NSString *const NOAPICachedStoreContextOption;
                                                       completion:(void (^)(NSError *error, NSArray *results))completionBlock;
 
 -(NSURLSessionDataTask *)getCachedResource:(NSString *)resourceName
-                                resourceID:(NSUInteger)resourceID
+                                resourceID:(NSNumber *)resourceID
                                 URLSession:(NSURLSession *)urlSession
                                 completion:(void (^)(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource))completionBlock;
 
