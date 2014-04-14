@@ -328,9 +328,9 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
         
         NSEntityDescription *entity = self.model.entitiesByName[resourceName];
         
-        // get cached resource
+        // get cached resource...
         
-        __block NSManagedObjectID *objectID;
+        __block NSManagedObject *resource;
         
         NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:resourceName];
         
@@ -340,27 +340,29 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
         
         NSString *resourceIDKey = [entityClass resourceIDKey];
         
-        // lazily create predicate
+        // create predicate
         
         NSDictionary *variables = @{@"RESOURCEIDKEY": resourceIDKey,
                                     @"RESOURCEID": resourceID};
         
         fetchRequest.predicate = [_resourceIDPredicateTemplate predicateWithSubstitutionVariables:variables];
         
+        fetchRequest.returnsObjectsAsFaults = NO;
+        
         // fetch on background thread
         
-        NSManagedObjectContext *privateContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+        NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
         
-        privateContext.persistentStoreCoordinator = self.context.persistentStoreCoordinator;
+        context.persistentStoreCoordinator = self.context.persistentStoreCoordinator;
         
-        privateContext.undoManager = nil;
+        context.undoManager = nil;
         
-        [privateContext performBlockAndWait:^{
+        [context performBlockAndWait:^{
             
             NSError *error;
             
-            NSArray *results = [privateContext executeFetchRequest:fetchRequest
-                                                             error:&error];
+            NSArray *results = [context executeFetchRequest:fetchRequest
+                                                      error:&error];
             
             if (error) {
                 
@@ -370,19 +372,11 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
                 return;
             }
             
-            objectID = results.firstObject;
+            resource = results.firstObject;
             
-        }];
-        
-        // entity on private context
-        
-        __block NSManagedObject *resource;
-        
-        // create if not found...
-        
-        [context performBlockAndWait:^{
+            // create cached resource if not found
             
-            if (!objectID) {
+            if (!resource) {
                 
                 // create new entity
                 
@@ -396,14 +390,8 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
                 
             }
             
-            // get cached object (on private context)
-            else {
-                
-                // fetch
-                                
-                resource = [context objectWithID:objectID];
-            }
-           
+            // set values from JSON...
+            
             for (NSString *attributeName in entity.attributesByName) {
                 
                 for (NSString *key in resourceDict) {
@@ -563,6 +551,7 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
                                                      selector:@selector()
                                                          name:NSManagedObjectContextDidSaveNotification
                                                        object:context];
+            
         }];
         
         // set date cached
@@ -775,7 +764,7 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
     
     NSString *resourceIDKey = [entityClass resourceIDKey];
     
-    // lazily create predicate
+    // create predicate
     
     NSDictionary *variables = @{@"RESOURCEIDKEY": resourceIDKey,
                                 @"RESOURCEID": resourceID};
