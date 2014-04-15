@@ -680,7 +680,7 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
         [self cachedResource:resourceName
               withResourceID:resourceID.integerValue];
         
-        completionBlock(nil, (NSManagedObject<NOResourceKeysProtocol> *)newResource);
+        completionBlock(nil, (NSManagedObject<NOResourceKeysProtocol> *)[self.context objectWithID:newResource.objectID]);
     }];
 }
 
