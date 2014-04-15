@@ -606,13 +606,11 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
 }
 
 -(NSURLSessionDataTask *)createCachedResource:(NSString *)resourceName
-                          initialValues:(NSDictionary *)initialValues
-                             URLSession:(NSURLSession *)urlSession
-                             completion:(void (^)(NSError *, NSManagedObject<NOResourceKeysProtocol> *))completionBlock
+                                initialValues:(NSDictionary *)initialValues
+                                   URLSession:(NSURLSession *)urlSession
+                                   completion:(void (^)(NSError *, NSManagedObject<NOResourceKeysProtocol> *))completionBlock
 {
     NSEntityDescription *entity = self.model.entitiesByName[resourceName];
-    
-    assert(entity);
     
     // convert those Core Data values to JSON
     NSDictionary *jsonValues = [entity jsonObjectFromCoreDataValues:initialValues];
@@ -626,41 +624,46 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
             return;
         }
         
-        NSManagedObject<NOResourceKeysProtocol> *resource = [self resource:resourceName
-                                                                    withID:resourceID.integerValue];
+        NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
         
-        // set values
-        for (NSString *key in initialValues) {
+        context.persistentStoreCoordinator = self.context.persistentStoreCoordinator;
+        
+        context.undoManager = nil;
+        
+        __block NSManagedObject *newResource;
+        
+        [context performBlockAndWait:^{
+           
+            newResource = [NSEntityDescription insertNewObjectForEntityForName:resourceName
+                                                                         inManagedObjectContext:context];
             
-            id value = initialValues[key];
+            [newResource setValue:resourceID
+                           forKey:[NSClassFromString(entity.managedObjectClassName) resourceIDKey]];
             
-            // Core Data cannot hold NSNull
-            
-            if (value == [NSNull null]) {
+            // set values
+            for (NSString *key in initialValues) {
                 
-                value = nil;
+                id value = initialValues[key];
+                
+                // Core Data cannot hold NSNull
+                
+                if (value == [NSNull null]) {
+                    
+                    value = nil;
+                }
+                
+                [newResource setValue:value
+                               forKey:key];
             }
             
-            [resource setValue:value
-                        forKey:key];
-        }
+        }];
         
         // set date cached
         
         [self cachedResource:resourceName
               withResourceID:resourceID.integerValue];
         
-        // optionally process pending changes
-        
-        if (self.shouldProcessPendingChanges) {
-            
-            [self.context performBlock:^{
-                
-                [self.context processPendingChanges];
-            }];
-        }
-        
-        completionBlock(nil, resource);
+        completionBlock(nil, (NSManagedObject<NOResourceKeysProtocol> *)newResource);
     }];
 }
 

@@ -206,7 +206,7 @@ static void *KVOContext = &KVOContext;
             
             if (!dataTask) {
                 
-                dataTask = [[SNCStore sharedStore] getCachedResource:@"Post" resourceID:post.resourceID.integerValue URLSession:self.urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
+                dataTask = [[SNCStore sharedStore] getCachedResource:@"Post" resourceID:post.resourceID URLSession:self.urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
                     
                     // do nothing, NSFetchedResultsController will detect the changes
                     
@@ -503,7 +503,7 @@ static void *KVOContext = &KVOContext;
     // never downloaded / not in cache
     if (!dateCached) {
         
-        NSURLSessionDataTask *dataTask = [[SNCStore sharedStore] getCachedResource:@"Post" resourceID:post.resourceID.integerValue URLSession:self.urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
+        NSURLSessionDataTask *dataTask = [[SNCStore sharedStore] getCachedResource:@"Post" resourceID:post.resourceID URLSession:self.urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
             
             [self removeDataTaskForPost:post];
             
@@ -535,7 +535,7 @@ static void *KVOContext = &KVOContext;
     // cached object was fetched before we started loading this table view
     if ([dateCached compare:_dateLastFetched] == NSOrderedAscending) {
         
-        NSURLSessionDataTask *dataTask = [[SNCStore sharedStore] getCachedResource:@"Post" resourceID:post.resourceID.integerValue URLSession:self.urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
+        NSURLSessionDataTask *dataTask = [[SNCStore sharedStore] getCachedResource:@"Post" resourceID:post.resourceID URLSession:self.urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
             
             [self removeDataTaskForPost:post];
             

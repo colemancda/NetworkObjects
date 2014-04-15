@@ -14,10 +14,6 @@
 
 @property User *user;
 
-@property NSManagedObjectContext *mainContext;
-
--(void)contextObjectsDidChange:(NSNotification *)notification;
-
 @end
 
 @interface SNCStore (Utility)
@@ -50,13 +46,12 @@
                                     NOAPIUserEntityNameOption: @"User",
                                     NOAPIClientEntityNameOption: @"Client",
                                     NOAPILoginPathOption: @"login",
-                                    NOAPISearchPathOption: @"search"}];
+                                    NOAPISearchPathOption: @"search",
+                                    NOAPICachedStoreContextOption : [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType]}];
     
     if (self) {
         
         // configure cache store...
-        
-        self.shouldProcessPendingChanges = YES;
         
         self.prettyPrintJSON = YES;
         
@@ -74,25 +69,9 @@
         
         NSAssert(!error, @"Could not create persistent store for cached store");
         
-        // setup main context
-        
-        self.mainContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
-        
-        self.mainContext.persistentStoreCoordinator = self.context.persistentStoreCoordinator;
-        
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(contextObjectsDidChange:)
-                                                     name:NSManagedObjectContextObjectsDidChangeNotification
-                                                   object:self.context];
-        
     }
     
     return self;
-}
-
--(void)dealloc
-{
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 #pragma mark - Authentication
@@ -125,7 +104,7 @@
         }
         
         // get the user for this session
-        [self getCachedResource:@"User" resourceID:self.userResourceID.integerValue URLSession:urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
+        [self getCachedResource:@"User" resourceID:self.userResourceID URLSession:urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
             
             if (error) {
                 
@@ -215,7 +194,7 @@
 {
     NSAssert(self.user, @"Must already be authenticated to fetch user");
     
-    return [self getCachedResource:self.user.entity.name resourceID:self.user.resourceID.integerValue URLSession:urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
+    return [self getCachedResource:self.user.entity.name resourceID:self.user.resourceID URLSession:urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
         
         if (error) {
             
@@ -255,10 +234,6 @@
     NSLog(@"User logged out");
     
 }
-
-#pragma mark - Notifications
-
-
 
 @end
 
