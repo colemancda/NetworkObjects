@@ -57,7 +57,7 @@
         
         self.context.persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:self.model];
         
-        NSURL *SQLiteURL = [NSURL URLWithString:[self.appSupportFolderPath stringByAppendingPathComponent:@"cache.sqlite"]];
+        NSURL *SQLiteURL = [NSURL fileURLWithPath:[self.appSupportFolderPath stringByAppendingPathComponent:@"cache.sqlite"]];
         
         NSError *error;
         

@@ -207,20 +207,20 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
         
         NSMutableArray *cachedResults = [[NSMutableArray alloc] init];
         
+        NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+        
+        context.persistentStoreCoordinator = self.context.persistentStoreCoordinator;
+        
+        context.undoManager = nil;
+        
         for (NSNumber *resourceID in results) {
             
-            NSManagedObjectID *objectID = [self findResource:entity.name
-                                              withResourceID:resourceID];
+            __block NSManagedObjectID *objectID = [self findResource:entity.name
+                                                      withResourceID:resourceID];
             
             // create resource on worker thread if it doesn't exist
             
             if (!objectID) {
-                
-                NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-                
-                context.persistentStoreCoordinator = self.context.persistentStoreCoordinator;
-                
-                context.undoManager = nil;
                 
                 [context performBlockAndWait:^{
                     
@@ -235,23 +235,25 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
                                 forKey:[NSClassFromString(entity.managedObjectClassName) resourceIDKey]];
                     
                     
-                    NSError *saveError;
+                    // register for notifications (to merge changes)
+                    
+                    [[NSNotificationCenter defaultCenter] addObserver:self
+                                                             selector:@selector(mergeChangesFromContextDidSaveNotification:)
+                                                                 name:NSManagedObjectContextDidSaveNotification
+                                                               object:context];
                     
                     // save
+                    
+                    NSError *saveError;
                     
                     if (![context save:&saveError]) {
                         
                         [NSException raise:NSInternalInconsistencyException
                                     format:@"%@", saveError];
                     }
+                    
+                    objectID = resource.objectID;
                 }];
-                
-                // register for notifications (to merge changes)
-                
-                [[NSNotificationCenter defaultCenter] addObserver:self
-                                                         selector:@selector(mergeChangesFromContextDidSaveNotification:)
-                                                             name:NSManagedObjectContextDidSaveNotification
-                                                           object:context];
             }
             
             NSManagedObject *resource = [self.context objectWithID:objectID];
@@ -297,6 +299,13 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
                        
                         [context deleteObject:[context objectWithID:objectID]];
                         
+                        // merge changes
+                        
+                        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                                 selector:@selector(mergeChangesFromContextDidSaveNotification:)
+                                                                     name:NSManagedObjectContextDidSaveNotification
+                                                                   object:context];
+                        
                         NSError *saveError;
                         
                         // save
@@ -308,13 +317,6 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
                         }
                         
                     }];
-                    
-                    // merge changes
-                    
-                    [[NSNotificationCenter defaultCenter] addObserver:self
-                                                             selector:@selector(mergeChangesFromContextDidSaveNotification:)
-                                                                 name:NSManagedObjectContextDidSaveNotification
-                                                               object:context];
                     
                 }
             }
@@ -575,6 +577,13 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
                 }
             }
             
+            // register for notifications (to merge changes)
+            
+            [[NSNotificationCenter defaultCenter] addObserver:self
+                                                     selector:@selector(mergeChangesFromContextDidSaveNotification:)
+                                                         name:NSManagedObjectContextDidSaveNotification
+                                                       object:context];
+            
             // save
             
             NSError *saveError;
@@ -584,13 +593,6 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
                 [NSException raise:NSInternalInconsistencyException
                             format:@"%@", saveError];
             }
-            
-            // register for notifications (to merge changes)
-            
-            [[NSNotificationCenter defaultCenter] addObserver:self
-                                                     selector:@selector(mergeChangesFromContextDidSaveNotification:)
-                                                         name:NSManagedObjectContextDidSaveNotification
-                                                       object:context];
             
         }];
         
@@ -656,6 +658,13 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
                                forKey:key];
             }
             
+            // register for notifications (to merge changes)
+            
+            [[NSNotificationCenter defaultCenter] addObserver:self
+                                                     selector:@selector(mergeChangesFromContextDidSaveNotification:)
+                                                         name:NSManagedObjectContextDidSaveNotification
+                                                       object:context];
+            
             // save
             
             NSError *saveError;
@@ -665,13 +674,6 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
                 [NSException raise:NSInternalInconsistencyException
                             format:@"%@", saveError];
             }
-            
-            // register for notifications (to merge changes)
-            
-            [[NSNotificationCenter defaultCenter] addObserver:self
-                                                     selector:@selector(mergeChangesFromContextDidSaveNotification:)
-                                                         name:NSManagedObjectContextDidSaveNotification
-                                                       object:context];
             
         }];
         
@@ -733,6 +735,13 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
                             forKey:key];
             }
             
+            // register for notifications (to merge changes)
+            
+            [[NSNotificationCenter defaultCenter] addObserver:self
+                                                     selector:@selector(mergeChangesFromContextDidSaveNotification:)
+                                                         name:NSManagedObjectContextDidSaveNotification
+                                                       object:context];
+            
             // save
             
             NSError *saveError;
@@ -742,13 +751,6 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
                 [NSException raise:NSInternalInconsistencyException
                             format:@"%@", saveError];
             }
-            
-            // register for notifications (to merge changes)
-            
-            [[NSNotificationCenter defaultCenter] addObserver:self
-                                                     selector:@selector(mergeChangesFromContextDidSaveNotification:)
-                                                         name:NSManagedObjectContextDidSaveNotification
-                                                       object:context];
             
         }];
         
@@ -789,6 +791,14 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
            
             [context deleteObject:resource];
             
+            
+            // register for notifications (to merge changes)
+            
+            [[NSNotificationCenter defaultCenter] addObserver:self
+                                                     selector:@selector(mergeChangesFromContextDidSaveNotification:)
+                                                         name:NSManagedObjectContextDidSaveNotification
+                                                       object:context];
+            
             // save
             
             NSError *saveError;
@@ -798,13 +808,6 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
                 [NSException raise:NSInternalInconsistencyException
                             format:@"%@", saveError];
             }
-            
-            // register for notifications (to merge changes)
-            
-            [[NSNotificationCenter defaultCenter] addObserver:self
-                                                     selector:@selector(mergeChangesFromContextDidSaveNotification:)
-                                                         name:NSManagedObjectContextDidSaveNotification
-                                                       object:context];
             
             completionBlock(nil);
         }];
