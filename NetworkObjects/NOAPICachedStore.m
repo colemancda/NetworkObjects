@@ -490,7 +490,28 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
                             // get the resource ID
                             NSNumber *destinationResourceID = [resourceDict valueForKey:relationshipName];
                             
-                            NSManagedObject<NOResourceKeysProtocol> *destinationResource = [self resource:destinationEntity.name withID:destinationResourceID.integerValue];
+                            NSManagedObject *destinationResource;
+                            
+                            // find or create destination resource
+                            
+                            NSManagedObjectID *destinationObjectID = [self findResource:destinationEntity.name
+                                                                         withResourceID:destinationResourceID];
+                            
+                            if (!destinationObjectID) {
+                                
+                                destinationResource = [NSEntityDescription insertNewObjectForEntityForName:destinationEntity.name
+                                                                                    inManagedObjectContext:context];
+                                
+                                // set resource ID
+                                
+                                [destinationResource setValue:destinationResourceID
+                                                       forKey:[NSClassFromString(destinationEntity.managedObjectClassName) resourceIDKey]];
+                                
+                            }
+                            else {
+                                
+                                destinationResource = [context objectWithID:destinationObjectID];
+                            }
                             
                             // dont set value if its the same as current value
                             
@@ -513,7 +534,28 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
                             
                             for (NSNumber *destinationResourceID in destinationResourceIDs) {
                                 
-                                NSManagedObject *destinationResource = [self resource:destinationEntity.name withID:destinationResourceID.integerValue];
+                                NSManagedObject *destinationResource;
+                                
+                                // find or create destination resource
+                                
+                                NSManagedObjectID *destinationObjectID = [self findResource:destinationEntity.name
+                                                                             withResourceID:destinationResourceID];
+                                
+                                if (!destinationObjectID) {
+                                    
+                                    destinationResource = [NSEntityDescription insertNewObjectForEntityForName:destinationEntity.name
+                                                                                        inManagedObjectContext:context];
+                                    
+                                    // set resource ID
+                                    
+                                    [destinationResource setValue:destinationResourceID
+                                                           forKey:[NSClassFromString(destinationEntity.managedObjectClassName) resourceIDKey]];
+                                    
+                                }
+                                else {
+                                    
+                                    destinationResource = [context objectWithID:destinationObjectID];
+                                }
                                 
                                 [destinationResources addObject:destinationResource];
                             }
@@ -533,11 +575,9 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
                 }
             }
             
-            
+            // save
             
             NSError *saveError;
-            
-            // save
             
             if (![context save:&saveError]) {
                 
@@ -548,7 +588,7 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
             // register for notifications (to merge changes)
             
             [[NSNotificationCenter defaultCenter] addObserver:self
-                                                     selector:@selector()
+                                                     selector:@selector(mergeChangesFromContextDidSaveNotification:)
                                                          name:NSManagedObjectContextDidSaveNotification
                                                        object:context];
             
