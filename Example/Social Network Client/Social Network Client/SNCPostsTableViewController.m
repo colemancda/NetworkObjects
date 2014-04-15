@@ -466,10 +466,22 @@ static void *KVOContext = &KVOContext;
     
     void (^configureCell)() = ^void() {
         
+        __block NSString *text;
+        
+        __block NSDate *date;
+        
+        [post.managedObjectContext performBlockAndWait:^{
+           
+            text = post.text;
+            
+            date = post.created;
+            
+        }];
+        
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             
             // Configure the cell...
-            cell.textLabel.text = post.text;
+            cell.textLabel.text = text;
             
             if (!_dateFormatter) {
                 
@@ -477,7 +489,7 @@ static void *KVOContext = &KVOContext;
                 _dateFormatter.dateStyle = NSDateFormatterShortStyle;
             }
             
-            cell.detailTextLabel.text = [_dateFormatter stringFromDate:post.created];
+            cell.detailTextLabel.text = [_dateFormatter stringFromDate:date];
             
         }];
     };
@@ -530,6 +542,8 @@ static void *KVOContext = &KVOContext;
         }];
         
         [self setDataTask:dataTask forPost:post];
+        
+        configurePlaceholderCell();
     }
     
     // cached object was fetched before we started loading this table view
