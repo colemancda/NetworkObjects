@@ -656,6 +656,23 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
                                forKey:key];
             }
             
+            // save
+            
+            NSError *saveError;
+            
+            if (![context save:&saveError]) {
+                
+                [NSException raise:NSInternalInconsistencyException
+                            format:@"%@", saveError];
+            }
+            
+            // register for notifications (to merge changes)
+            
+            [[NSNotificationCenter defaultCenter] addObserver:self
+                                                     selector:@selector(mergeChangesFromContextDidSaveNotification:)
+                                                         name:NSManagedObjectContextDidSaveNotification
+                                                       object:context];
+            
         }];
         
         // set date cached
@@ -692,31 +709,48 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
             return;
         }
         
-        // set values
-        for (NSString *key in values) {
+        NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+        
+        context.persistentStoreCoordinator = self.context.persistentStoreCoordinator;
+        
+        context.undoManager = nil;
+        
+        [context performBlockAndWait:^{
             
-            id value = values[key];
-            
-            // Core Data cannot hold NSNull
-            
-            if (value == [NSNull null]) {
+            // set values
+            for (NSString *key in values) {
                 
-                value = nil;
+                id value = values[key];
+                
+                // Core Data cannot hold NSNull
+                
+                if (value == [NSNull null]) {
+                    
+                    value = nil;
+                }
+                
+                [resource setValue:value
+                            forKey:key];
             }
             
-            [resource setValue:value
-                        forKey:key];
-        }
-        
-        // optionally process pending changes
-        
-        if (self.shouldProcessPendingChanges) {
+            // save
             
-            [self.context performBlock:^{
+            NSError *saveError;
+            
+            if (![context save:&saveError]) {
                 
-                [self.context processPendingChanges];
-            }];
-        }
+                [NSException raise:NSInternalInconsistencyException
+                            format:@"%@", saveError];
+            }
+            
+            // register for notifications (to merge changes)
+            
+            [[NSNotificationCenter defaultCenter] addObserver:self
+                                                     selector:@selector(mergeChangesFromContextDidSaveNotification:)
+                                                         name:NSManagedObjectContextDidSaveNotification
+                                                       object:context];
+            
+        }];
         
         completionBlock(nil);
         
@@ -724,8 +758,8 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
 }
 
 -(NSURLSessionDataTask *)deleteCachedResource:(NSManagedObject<NOResourceKeysProtocol> *)resource
-                             URLSession:(NSURLSession *)urlSession
-           completion:(void (^)(NSError *))completionBlock
+                                   URLSession:(NSURLSession *)urlSession
+                                   completion:(void (^)(NSError *))completionBlock
 {
     // get resourceID
     
@@ -744,17 +778,33 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
             return;
         }
         
+        NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+        
+        context.persistentStoreCoordinator = self.context.persistentStoreCoordinator;
+        
+        context.undoManager = nil;
+        
         // delete
-        [_context performBlock:^{
+        [context performBlock:^{
            
-            [_context deleteObject:resource];
+            [context deleteObject:resource];
             
-            // optionally process pending changes
+            // save
             
-            if (self.shouldProcessPendingChanges) {
+            NSError *saveError;
+            
+            if (![context save:&saveError]) {
                 
-                [self.context processPendingChanges];
+                [NSException raise:NSInternalInconsistencyException
+                            format:@"%@", saveError];
             }
+            
+            // register for notifications (to merge changes)
+            
+            [[NSNotificationCenter defaultCenter] addObserver:self
+                                                     selector:@selector(mergeChangesFromContextDidSaveNotification:)
+                                                         name:NSManagedObjectContextDidSaveNotification
+                                                       object:context];
             
             completionBlock(nil);
         }];
