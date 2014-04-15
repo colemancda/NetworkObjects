@@ -36,12 +36,6 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
 
 @end
 
-@interface NOAPICachedStore (MergeContext)
-
--(void)mergeChangesFromContextDidSaveNotification:(NSNotification *)notification;
-
-@end
-
 @interface NOAPICachedStore ()
 {
     NSPredicate *_resourceIDPredicateTemplate;
@@ -82,14 +76,7 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
         
         self.privateContext.undoManager = nil;
         
-        self.privateContext.persistentStoreCoordinator = self.context.persistentStoreCoordinator;
-        
-        // register for notifications (to merge changes)
-        
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(mergeChangesFromContextDidSaveNotification:)
-                                                     name:NSManagedObjectContextDidSaveNotification
-                                                   object:self.privateContext];
+        self.privateContext.parentContext = self.context;
         
         // initalize _dateCached & _dateCachedOperationQueues based on self.model
         [self setupDateCached];
@@ -985,12 +972,4 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
 
 @end
 
-@implementation NOAPICachedStore (MergeContext)
-
--(void)mergeChangesFromContextDidSaveNotification:(NSNotification *)notification
-{
-    [self.context mergeChangesFromContextDidSaveNotification:notification];
-}
-
-@end
 
