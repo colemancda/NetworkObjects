@@ -89,6 +89,12 @@ static void *KVOContext = &KVOContext;
         _postsDownloadTasksOperationQueue.maxConcurrentOperationCount = 1;
         _postsDownloadTasksOperationQueue.name = [NSString stringWithFormat: @"%@ _postsDownloadTasks Operation Queue", self];
         
+        // KVO
+        [self addObserver:self
+               forKeyPath:NSStringFromSelector(@selector(predicate))
+                  options:NSKeyValueObservingOptionNew
+                  context:KVOContext];
+        
     }
     return self;
 }
@@ -103,12 +109,6 @@ static void *KVOContext = &KVOContext;
     // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
     
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
-    
-    // KVO
-    [self addObserver:self
-           forKeyPath:NSStringFromSelector(@selector(predicate))
-              options:NSKeyValueObservingOptionNew
-              context:KVOContext];
     
     // default predicate
     
