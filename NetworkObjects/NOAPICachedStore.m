@@ -12,8 +12,6 @@
 
 NSString *const NOAPICachedStoreDatesCachedOption = @"NOAPICachedStoreDatesCachedOption";
 
-NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption";
-
 @interface NOAPICachedStore (Fetch)
 
 -(NSManagedObjectID *)findResource:(NSString *)resourceName
@@ -48,8 +46,6 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
 
 @property (nonatomic) NSManagedObjectContext *context;
 
-@property (nonatomic) NSManagedObjectContext *privateContext;
-
 @end
 
 @implementation NOAPICachedStore
@@ -68,18 +64,14 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
     if (self) {
         
         self.datesCached = options[NOAPICachedStoreDatesCachedOption];
-        
-        self.context = options[NOAPICachedStoreContextOption];
-        
+                
         _resourceIDPredicateTemplate = [NSPredicate predicateWithFormat:@"$RESOURCEIDKEY == $RESOURCEID"];
         
         // private context (to have changes serialized)
         
-        self.privateContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+        self.context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
         
-        self.privateContext.undoManager = nil;
-        
-        self.privateContext.parentContext = self.context;
+        self.context.undoManager = nil;
         
         // initalize _dateCached & _dateCachedOperationQueues based on self.model
         [self setupDateCached];
@@ -214,7 +206,7 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
         
         NSMutableArray *cachedObjectIDResults = [[NSMutableArray alloc] init];
         
-        [self.privateContext performBlockAndWait:^{
+        [self.context performBlockAndWait:^{
             
             for (NSNumber *resourceID in results) {
                 
@@ -228,7 +220,7 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
                     // create new entity
                     
                     NSManagedObject *resource = [NSEntityDescription insertNewObjectForEntityForName:entity.name
-                                                                              inManagedObjectContext:self.privateContext];
+                                                                              inManagedObjectContext:self.context];
                     
                     // set resource ID
                     
@@ -239,7 +231,7 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
                     
                     NSError *saveError;
                     
-                    if (![self.privateContext save:&saveError]) {
+                    if (![self.context save:&saveError]) {
                         
                         [NSException raise:NSInternalInconsistencyException
                                     format:@"%@", saveError];
@@ -255,6 +247,16 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
                 [cachedObjectIDResults addObject:objectID];
             }
             
+            // save
+            
+            NSError *saveError;
+            
+            if (![self.context save:&saveError]) {
+                
+                [NSException raise:NSInternalInconsistencyException
+                            format:@"%@", saveError];
+            }
+            
         }];
         
         NSMutableArray *cachedResults = [[NSMutableArray alloc] initWithCapacity:cachedObjectIDResults.count];
@@ -265,7 +267,7 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
             
             [self.context performBlockAndWait:^{
                
-                [self.context objectWithID:objectID];
+                resource = [self.context objectWithID:objectID];
                 
             }];
             
@@ -298,15 +300,15 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
                     
                     // delete object on private thread
                     
-                    [self.privateContext performBlockAndWait:^{
+                    [self.context performBlockAndWait:^{
                        
-                        [self.privateContext deleteObject:[self.privateContext objectWithID:objectID]];
+                        [self.context deleteObject:[self.context objectWithID:objectID]];
                         
                         NSError *saveError;
                         
                         // save
                         
-                        if (![self.privateContext save:&saveError]) {
+                        if (![self.context save:&saveError]) {
                             
                             [NSException raise:NSInternalInconsistencyException
                                         format:@"%@", saveError];
@@ -331,7 +333,7 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
         NSManagedObject *resource = [self findOrCreateResource:resourceName
                                                 withResourceID:resourceID];
         
-        [self.privateContext performBlockAndWait:^{
+        [self.context performBlockAndWait:^{
             
             // set values...
             
@@ -481,7 +483,7 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
             
             NSError *saveError;
             
-            if (![self.privateContext save:&saveError]) {
+            if (![self.context save:&saveError]) {
                 
                 [NSException raise:NSInternalInconsistencyException
                             format:@"%@", saveError];
@@ -521,10 +523,10 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
         
         __block NSManagedObject *newResource;
         
-        [self.privateContext performBlockAndWait:^{
+        [self.context performBlockAndWait:^{
            
             newResource = [NSEntityDescription insertNewObjectForEntityForName:resourceName
-                                                                         inManagedObjectContext:self.privateContext];
+                                                                         inManagedObjectContext:self.context];
             
             [newResource setValue:resourceID
                            forKey:[NSClassFromString(entity.managedObjectClassName) resourceIDKey]];
@@ -549,7 +551,7 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
             
             NSError *saveError;
             
-            if (![self.privateContext save:&saveError]) {
+            if (![self.context save:&saveError]) {
                 
                 [NSException raise:NSInternalInconsistencyException
                             format:@"%@", saveError];
@@ -591,7 +593,7 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
             return;
         }
         
-        [self.privateContext performBlockAndWait:^{
+        [self.context performBlockAndWait:^{
             
             // set values
             for (NSString *key in values) {
@@ -613,7 +615,7 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
             
             NSError *saveError;
             
-            if (![self.privateContext save:&saveError]) {
+            if (![self.context save:&saveError]) {
                 
                 [NSException raise:NSInternalInconsistencyException
                             format:@"%@", saveError];
@@ -648,15 +650,15 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
         }
         
         // delete
-        [self.privateContext performBlock:^{
+        [self.context performBlock:^{
            
-            [self.privateContext deleteObject:resource];
+            [self.context deleteObject:resource];
             
             // save
             
             NSError *saveError;
             
-            if (![self.privateContext save:&saveError]) {
+            if (![self.context save:&saveError]) {
                 
                 [NSException raise:NSInternalInconsistencyException
                             format:@"%@", saveError];
@@ -720,11 +722,11 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
     
     fetchRequest.predicate = [_resourceIDPredicateTemplate predicateWithSubstitutionVariables:variables];
     
-    [self.privateContext performBlockAndWait:^{
+    [self.context performBlockAndWait:^{
         
         NSError *error;
         
-        NSArray *results = [self.privateContext executeFetchRequest:fetchRequest
+        NSArray *results = [self.context executeFetchRequest:fetchRequest
                                                          error:&error];
         
         if (error) {
@@ -770,11 +772,11 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
     
     __block NSManagedObject <NOResourceKeysProtocol> *resource;
     
-    [self.privateContext performBlockAndWait:^{
+    [self.context performBlockAndWait:^{
         
         NSError *error;
         
-        NSArray *results = [self.privateContext executeFetchRequest:fetchRequest
+        NSArray *results = [self.context executeFetchRequest:fetchRequest
                                                               error:&error];
         
         if (error) {
@@ -794,23 +796,13 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
             // create new entity
             
             resource = [NSEntityDescription insertNewObjectForEntityForName:resourceName
-                                                     inManagedObjectContext:self.privateContext];
+                                                     inManagedObjectContext:self.context];
             
             // set resource ID
             
             [resource setValue:resourceID
                         forKey:[NSClassFromString(entity.managedObjectClassName) resourceIDKey]];
             
-        }
-        
-        // save
-        
-        NSError *saveError;
-        
-        if (![self.privateContext save:&saveError]) {
-            
-            [NSException raise:NSInternalInconsistencyException
-                        format:@"%@", saveError];
         }
         
     }];

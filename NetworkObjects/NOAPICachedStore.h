@@ -13,8 +13,6 @@
 
 extern NSString *const NOAPICachedStoreDatesCachedOption;
 
-extern NSString *const NOAPICachedStoreContextOption;
-
 /**
  This class uses a NOAPI property behind the scenes to communicate with a NetworkObjects server and cache resource them into a @c NSManagedObjectContext.
  */
