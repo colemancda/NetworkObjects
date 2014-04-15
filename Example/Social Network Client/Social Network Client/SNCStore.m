@@ -32,6 +32,8 @@
     
     dispatch_once(&onceToken, ^{
         
+        
+        
         sharedStore = [[self alloc] init];
         
     });
@@ -41,33 +43,37 @@
 
 - (id)init
 {
-    self = [super initWithOptions:@{NOAPIModelOption: [NSManagedObjectModel mergedModelFromBundles:nil],
+    NSManagedObjectModel *model = [NSManagedObjectModel mergedModelFromBundles:nil];
+    
+    NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
+    
+    context.persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:model];
+    
+    NSURL *SQLiteURL = [NSURL fileURLWithPath:[self.appSupportFolderPath stringByAppendingPathComponent:@"cache.sqlite"]];
+    
+    NSError *error;
+    
+    [context.persistentStoreCoordinator addPersistentStoreWithType:NSSQLiteStoreType
+                                                     configuration:nil
+                                                               URL:SQLiteURL
+                                                           options:nil
+                                                             error:&error];
+    
+    NSAssert(!error, @"Could not create persistent store for cached store");
+    
+    self = [super initWithOptions:@{NOAPIModelOption: model,
                                     NOAPISessionEntityNameOption: @"Session",
                                     NOAPIUserEntityNameOption: @"User",
                                     NOAPIClientEntityNameOption: @"Client",
                                     NOAPILoginPathOption: @"login",
                                     NOAPISearchPathOption: @"search",
-                                    NOAPICachedStoreContextOption : [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType]}];
+                                    NOAPICachedStoreContextOption : context}];
     
     if (self) {
         
         // configure cache store...
         
         self.prettyPrintJSON = YES;
-        
-        self.context.persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:self.model];
-        
-        NSURL *SQLiteURL = [NSURL fileURLWithPath:[self.appSupportFolderPath stringByAppendingPathComponent:@"cache.sqlite"]];
-        
-        NSError *error;
-        
-        [self.context.persistentStoreCoordinator addPersistentStoreWithType:NSSQLiteStoreType
-                                                              configuration:nil
-                                                                        URL:SQLiteURL
-                                                                    options:nil
-                                                                      error:&error];
-        
-        NSAssert(!error, @"Could not create persistent store for cached store");
         
     }
     

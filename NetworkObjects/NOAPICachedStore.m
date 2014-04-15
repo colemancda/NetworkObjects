@@ -51,6 +51,8 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
 
 @property (nonatomic) NSManagedObjectContext *context;
 
+@property (nonatomic) NSManagedObjectContext *privateContext;
+
 @end
 
 @implementation NOAPICachedStore
@@ -73,6 +75,21 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
         self.context = options[NOAPICachedStoreContextOption];
         
         _resourceIDPredicateTemplate = [NSPredicate predicateWithFormat:@"$RESOURCEIDKEY == $RESOURCEID"];
+        
+        // private context (to have changes serialized)
+        
+        self.privateContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+        
+        self.privateContext.undoManager = nil;
+        
+        self.privateContext.persistentStoreCoordinator = self.context.persistentStoreCoordinator;
+        
+        // register for notifications (to merge changes)
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(mergeChangesFromContextDidSaveNotification:)
+                                                     name:NSManagedObjectContextDidSaveNotification
+                                                   object:self.privateContext];
         
         // initalize _dateCached & _dateCachedOperationQueues based on self.model
         [self setupDateCached];
@@ -207,12 +224,6 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
         
         NSMutableArray *cachedResults = [[NSMutableArray alloc] init];
         
-        NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-        
-        context.persistentStoreCoordinator = self.context.persistentStoreCoordinator;
-        
-        context.undoManager = nil;
-        
         for (NSNumber *resourceID in results) {
             
             __block NSManagedObjectID *objectID = [self findResource:entity.name
@@ -222,31 +233,23 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
             
             if (!objectID) {
                 
-                [context performBlockAndWait:^{
+                [self.privateContext performBlockAndWait:^{
                     
                     // create new entity
                    
                     NSManagedObject *resource = [NSEntityDescription insertNewObjectForEntityForName:entity.name
-                                                                              inManagedObjectContext:context];
+                                                                              inManagedObjectContext:self.privateContext];
                     
                     // set resource ID
                     
                     [resource setValue:resourceID
                                 forKey:[NSClassFromString(entity.managedObjectClassName) resourceIDKey]];
                     
-                    
-                    // register for notifications (to merge changes)
-                    
-                    [[NSNotificationCenter defaultCenter] addObserver:self
-                                                             selector:@selector(mergeChangesFromContextDidSaveNotification:)
-                                                                 name:NSManagedObjectContextDidSaveNotification
-                                                               object:context];
-                    
                     // save
                     
                     NSError *saveError;
                     
-                    if (![context save:&saveError]) {
+                    if (![self.privateContext save:&saveError]) {
                         
                         [NSException raise:NSInternalInconsistencyException
                                     format:@"%@", saveError];
@@ -289,28 +292,15 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
                     
                     // delete object on private thread
                     
-                    NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-                    
-                    context.persistentStoreCoordinator = self.context.persistentStoreCoordinator;
-                    
-                    context.undoManager = nil;
-                    
-                    [context performBlockAndWait:^{
+                    [self.privateContext performBlockAndWait:^{
                        
-                        [context deleteObject:[context objectWithID:objectID]];
-                        
-                        // merge changes
-                        
-                        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                                 selector:@selector(mergeChangesFromContextDidSaveNotification:)
-                                                                     name:NSManagedObjectContextDidSaveNotification
-                                                                   object:context];
+                        [self.privateContext deleteObject:[self.privateContext objectWithID:objectID]];
                         
                         NSError *saveError;
                         
                         // save
                         
-                        if (![context save:&saveError]) {
+                        if (![self.privateContext save:&saveError]) {
                             
                             [NSException raise:NSInternalInconsistencyException
                                         format:@"%@", saveError];
@@ -353,18 +343,12 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
         
         // fetch on background thread
         
-        NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-        
-        context.persistentStoreCoordinator = self.context.persistentStoreCoordinator;
-        
-        context.undoManager = nil;
-        
-        [context performBlockAndWait:^{
+        [self.privateContext performBlockAndWait:^{
             
             NSError *error;
             
-            NSArray *results = [context executeFetchRequest:fetchRequest
-                                                      error:&error];
+            NSArray *results = [self.privateContext executeFetchRequest:fetchRequest
+                                                                  error:&error];
             
             if (error) {
                 
@@ -383,7 +367,7 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
                 // create new entity
                 
                 resource = [NSEntityDescription insertNewObjectForEntityForName:resourceName
-                                                         inManagedObjectContext:context];
+                                                         inManagedObjectContext:self.privateContext];
                 
                 // set resource ID
                 
@@ -502,7 +486,7 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
                             if (!destinationObjectID) {
                                 
                                 destinationResource = [NSEntityDescription insertNewObjectForEntityForName:destinationEntity.name
-                                                                                    inManagedObjectContext:context];
+                                                                                    inManagedObjectContext:self.privateContext];
                                 
                                 // set resource ID
                                 
@@ -512,7 +496,7 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
                             }
                             else {
                                 
-                                destinationResource = [context objectWithID:destinationObjectID];
+                                destinationResource = [self.privateContext objectWithID:destinationObjectID];
                             }
                             
                             // dont set value if its the same as current value
@@ -546,7 +530,7 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
                                 if (!destinationObjectID) {
                                     
                                     destinationResource = [NSEntityDescription insertNewObjectForEntityForName:destinationEntity.name
-                                                                                        inManagedObjectContext:context];
+                                                                                        inManagedObjectContext:self.privateContext];
                                     
                                     // set resource ID
                                     
@@ -556,7 +540,7 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
                                 }
                                 else {
                                     
-                                    destinationResource = [context objectWithID:destinationObjectID];
+                                    destinationResource = [self.privateContext objectWithID:destinationObjectID];
                                 }
                                 
                                 [destinationResources addObject:destinationResource];
@@ -577,18 +561,11 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
                 }
             }
             
-            // register for notifications (to merge changes)
-            
-            [[NSNotificationCenter defaultCenter] addObserver:self
-                                                     selector:@selector(mergeChangesFromContextDidSaveNotification:)
-                                                         name:NSManagedObjectContextDidSaveNotification
-                                                       object:context];
-            
             // save
             
             NSError *saveError;
             
-            if (![context save:&saveError]) {
+            if (![self.privateContext save:&saveError]) {
                 
                 [NSException raise:NSInternalInconsistencyException
                             format:@"%@", saveError];
@@ -626,18 +603,12 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
             return;
         }
         
-        NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-        
-        context.persistentStoreCoordinator = self.context.persistentStoreCoordinator;
-        
-        context.undoManager = nil;
-        
         __block NSManagedObject *newResource;
         
-        [context performBlockAndWait:^{
+        [self.privateContext performBlockAndWait:^{
            
             newResource = [NSEntityDescription insertNewObjectForEntityForName:resourceName
-                                                                         inManagedObjectContext:context];
+                                                                         inManagedObjectContext:self.privateContext];
             
             [newResource setValue:resourceID
                            forKey:[NSClassFromString(entity.managedObjectClassName) resourceIDKey]];
@@ -658,18 +629,11 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
                                forKey:key];
             }
             
-            // register for notifications (to merge changes)
-            
-            [[NSNotificationCenter defaultCenter] addObserver:self
-                                                     selector:@selector(mergeChangesFromContextDidSaveNotification:)
-                                                         name:NSManagedObjectContextDidSaveNotification
-                                                       object:context];
-            
             // save
             
             NSError *saveError;
             
-            if (![context save:&saveError]) {
+            if (![self.privateContext save:&saveError]) {
                 
                 [NSException raise:NSInternalInconsistencyException
                             format:@"%@", saveError];
@@ -711,13 +675,7 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
             return;
         }
         
-        NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-        
-        context.persistentStoreCoordinator = self.context.persistentStoreCoordinator;
-        
-        context.undoManager = nil;
-        
-        [context performBlockAndWait:^{
+        [self.privateContext performBlockAndWait:^{
             
             // set values
             for (NSString *key in values) {
@@ -735,18 +693,11 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
                             forKey:key];
             }
             
-            // register for notifications (to merge changes)
-            
-            [[NSNotificationCenter defaultCenter] addObserver:self
-                                                     selector:@selector(mergeChangesFromContextDidSaveNotification:)
-                                                         name:NSManagedObjectContextDidSaveNotification
-                                                       object:context];
-            
             // save
             
             NSError *saveError;
             
-            if (![context save:&saveError]) {
+            if (![self.privateContext save:&saveError]) {
                 
                 [NSException raise:NSInternalInconsistencyException
                             format:@"%@", saveError];
@@ -780,30 +731,16 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
             return;
         }
         
-        NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-        
-        context.persistentStoreCoordinator = self.context.persistentStoreCoordinator;
-        
-        context.undoManager = nil;
-        
         // delete
-        [context performBlock:^{
+        [self.privateContext performBlock:^{
            
-            [context deleteObject:resource];
-            
-            
-            // register for notifications (to merge changes)
-            
-            [[NSNotificationCenter defaultCenter] addObserver:self
-                                                     selector:@selector(mergeChangesFromContextDidSaveNotification:)
-                                                         name:NSManagedObjectContextDidSaveNotification
-                                                       object:context];
+            [self.privateContext deleteObject:resource];
             
             // save
             
             NSError *saveError;
             
-            if (![context save:&saveError]) {
+            if (![self.privateContext save:&saveError]) {
                 
                 [NSException raise:NSInternalInconsistencyException
                             format:@"%@", saveError];
@@ -867,19 +804,11 @@ NSString *const NOAPICachedStoreContextOption = @"NOAPICachedStoreContextOption"
     
     fetchRequest.predicate = [_resourceIDPredicateTemplate predicateWithSubstitutionVariables:variables];
     
-    // fetch on background thread
-    
-    NSManagedObjectContext *privateContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-    
-    privateContext.persistentStoreCoordinator = self.context.persistentStoreCoordinator;
-    
-    privateContext.undoManager = nil;
-    
-    [privateContext performBlockAndWait:^{
+    [self.privateContext performBlockAndWait:^{
         
         NSError *error;
         
-        NSArray *results = [privateContext executeFetchRequest:fetchRequest
+        NSArray *results = [self.privateContext executeFetchRequest:fetchRequest
                                                          error:&error];
         
         if (error) {
