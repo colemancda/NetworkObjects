@@ -12,7 +12,11 @@
 
 @interface SNCStore ()
 
-@property User *user;
+@property (nonatomic) User *user;
+
+@property (nonatomic) NSManagedObjectContext *mainContext;
+
+
 @end
 
 @implementation SNCStore
@@ -60,6 +64,14 @@
                                                                                   error:&error];
         
         NSAssert(!error, @"Could not create persistent store for cached store");
+        
+        // add main queue context
+        
+        self.mainContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
+        
+        self.mainContext.undoManager = nil;
+        
+        self.mainContext.parentContext = self.context;
         
     }
     
