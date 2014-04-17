@@ -23,6 +23,8 @@
 
 @property (nonatomic) NSComparisonPredicate *predicate;
 
+@property (readonly) NSDate *dateLastFetched;
+
 @property (nonatomic, readonly) NSURLSession *urlSession;
 
 #pragma mark - Actions

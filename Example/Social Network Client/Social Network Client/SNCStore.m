@@ -16,6 +16,8 @@
 
 @property (nonatomic) NSManagedObjectContext *mainContext;
 
+-(void)contextDidSave:(NSNotification *)notification;
+
 @end
 
 @implementation SNCStore
@@ -33,6 +35,11 @@
     });
     
     return sharedStore;
+}
+
+-(void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 - (id)init
@@ -68,11 +75,23 @@
         
         self.mainContext.undoManager = nil;
         
-        self.mainContext.parentContext = self.context;
+        self.mainContext.persistentStoreCoordinator = self.context.persistentStoreCoordinator;
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(contextDidSave:)
+                                                     name:NSManagedObjectContextDidSaveNotification
+                                                   object:self.context];
         
     }
     
     return self;
+}
+
+#pragma mark - Notifications
+
+-(void)contextDidSave:(NSNotification *)notification
+{
+    [self.mainContext mergeChangesFromContextDidSaveNotification:notification];
 }
 
 #pragma mark - Authentication
