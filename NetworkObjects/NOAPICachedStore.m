@@ -201,6 +201,20 @@ NSString *const NOAPICachedStoreDatesCachedOption = @"NOAPICachedStoreDatesCache
             [cachedResults addObject:resource];
         }
         
+        // save
+        
+        [self.context performBlockAndWait:^{
+            
+            NSError *saveError;
+            
+            if (![self.context save:&saveError]) {
+                
+                [NSException raise:NSInternalInconsistencyException
+                            format:@"%@", saveError.localizedDescription];
+            }
+            
+        }];
+        
         completionBlock(nil, cachedResults);
         
     }];
@@ -245,11 +259,14 @@ NSString *const NOAPICachedStoreDatesCachedOption = @"NOAPICachedStoreDatesCache
                         
                         [_context deleteObject:resource];
                         
-                        // optionally process pending changes
+                        // save
                         
-                        if (self.shouldProcessPendingChanges) {
+                        NSError *saveError;
+                        
+                        if (![self.context save:&saveError]) {
                             
-                            [self.context processPendingChanges];
+                            [NSException raise:NSInternalInconsistencyException
+                                        format:@"%@", saveError.localizedDescription];
                         }
                     }
                 }];
@@ -269,16 +286,19 @@ NSString *const NOAPICachedStoreDatesCachedOption = @"NOAPICachedStoreDatesCache
         [self cachedResource:resourceName
               withResourceID:resourceID];
         
-        // optionally process changes
+        // save
         
-        if (self.shouldProcessPendingChanges) {
+        [self.context performBlockAndWait:^{
             
-            [self.context performBlock:^{
+            NSError *saveError;
+            
+            if (![self.context save:&saveError]) {
                 
-                [self.context processPendingChanges];
-            }];
-        }
-        
+                [NSException raise:NSInternalInconsistencyException
+                            format:@"%@", saveError.localizedDescription];
+            }
+            
+        }];
         completionBlock(nil, resource);
     }];
 }
@@ -307,36 +327,40 @@ NSString *const NOAPICachedStoreDatesCachedOption = @"NOAPICachedStoreDatesCache
         NSManagedObject<NOResourceKeysProtocol> *resource = [self resource:resourceName
                                                                     withID:resourceID.integerValue];
         
-        // set values
-        for (NSString *key in initialValues) {
+        [self.context performBlockAndWait:^{
             
-            id value = initialValues[key];
-            
-            // Core Data cannot hold NSNull
-            
-            if (value == [NSNull null]) {
+            // set values
+            for (NSString *key in initialValues) {
                 
-                value = nil;
+                id value = initialValues[key];
+                
+                // Core Data cannot hold NSNull
+                
+                if (value == [NSNull null]) {
+                    
+                    value = nil;
+                }
+                
+                [resource setValue:value
+                            forKey:key];
             }
             
-            [resource setValue:value
-                        forKey:key];
-        }
-        
-        // set date cached
-        
-        [self cachedResource:resourceName
-              withResourceID:resourceID.integerValue];
-        
-        // optionally process pending changes
-        
-        if (self.shouldProcessPendingChanges) {
+            // set date cached
             
-            [self.context performBlock:^{
+            [self cachedResource:resourceName
+                  withResourceID:resourceID.integerValue];
+            
+            // save
+            
+            NSError *saveError;
+            
+            if (![self.context save:&saveError]) {
                 
-                [self.context processPendingChanges];
-            }];
-        }
+                [NSException raise:NSInternalInconsistencyException
+                            format:@"%@", saveError.localizedDescription];
+            }
+
+        }];
         
         completionBlock(nil, resource);
     }];
@@ -383,15 +407,19 @@ NSString *const NOAPICachedStoreDatesCachedOption = @"NOAPICachedStoreDatesCache
                         forKey:key];
         }
         
-        // optionally process pending changes
+        // save
         
-        if (self.shouldProcessPendingChanges) {
+        [self.context performBlockAndWait:^{
+           
+            NSError *saveError;
             
-            [self.context performBlock:^{
+            if (![self.context save:&saveError]) {
                 
-                [self.context processPendingChanges];
-            }];
-        }
+                [NSException raise:NSInternalInconsistencyException
+                            format:@"%@", saveError.localizedDescription];
+            }
+            
+        }];
         
         completionBlock(nil);
         
@@ -424,11 +452,14 @@ NSString *const NOAPICachedStoreDatesCachedOption = @"NOAPICachedStoreDatesCache
            
             [_context deleteObject:resource];
             
-            // optionally process pending changes
+            // save
             
-            if (self.shouldProcessPendingChanges) {
+            NSError *saveError;
+            
+            if (![self.context save:&saveError]) {
                 
-                [self.context processPendingChanges];
+                [NSException raise:NSInternalInconsistencyException
+                            format:@"%@", saveError.localizedDescription];
             }
             
             completionBlock(nil);
