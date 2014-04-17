@@ -25,12 +25,6 @@ extern NSString *const NOAPICachedStoreDatesCachedOption;
     NSDictionary *_dateCachedOperationQueues;
 }
 
-#pragma mark - Settings
-
-/* Whether the reciever should call @c -processPendingChanges on its context when a request finishes. */
-
-@property BOOL shouldProcessPendingChanges;
-
 #pragma mark - Cache
 
 // must initialize the persistent store coordinator

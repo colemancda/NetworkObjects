@@ -12,7 +12,12 @@
 
 @interface SNCStore ()
 
-@property User *user;
+@property (nonatomic) User *user;
+
+@property (nonatomic) NSManagedObjectContext *mainContext;
+
+-(void)contextDidSave:(NSNotification *)notification;
+
 @end
 
 @implementation SNCStore
@@ -32,6 +37,11 @@
     return sharedStore;
 }
 
+-(void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
 - (id)init
 {
     self = [super initWithOptions:@{NOAPIModelOption: [NSManagedObjectModel mergedModelFromBundles:nil],
@@ -44,8 +54,6 @@
     if (self) {
         
         // configure cache store...
-        
-        self.shouldProcessPendingChanges = YES;
         
         self.prettyPrintJSON = YES;
         
@@ -61,9 +69,29 @@
         
         NSAssert(!error, @"Could not create persistent store for cached store");
         
+        // add main queue context
+        
+        self.mainContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
+        
+        self.mainContext.undoManager = nil;
+        
+        self.mainContext.persistentStoreCoordinator = self.context.persistentStoreCoordinator;
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(contextDidSave:)
+                                                     name:NSManagedObjectContextDidSaveNotification
+                                                   object:self.context];
+        
     }
     
     return self;
+}
+
+#pragma mark - Notifications
+
+-(void)contextDidSave:(NSNotification *)notification
+{
+    [self.mainContext mergeChangesFromContextDidSaveNotification:notification];
 }
 
 #pragma mark - Authentication
