@@ -17,21 +17,15 @@
     NSFetchedResultsController *_fetchedResultsController;
     
     NSDateFormatter *_dateFormatter;
-    
-    NSError *_errorDownloadingPost;
-    
-    NSMutableDictionary *_postsDownloadTasks;
-    
-    NSOperationQueue *_postsDownloadTasksOperationQueue;
 }
 
 #pragma mark - Properties
 
-@property NSComparisonPredicate *predicate;
+@property (nonatomic) NSComparisonPredicate *predicate;
 
 @property (readonly) NSDate *dateLastFetched;
 
-@property (readonly) NSURLSession *urlSession;
+@property (nonatomic, readonly) NSURLSession *urlSession;
 
 #pragma mark - Actions
 

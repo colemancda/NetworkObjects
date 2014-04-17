@@ -17,54 +17,11 @@ static void *KVOContext = &KVOContext;
 
 @interface SNCPostsTableViewController ()
 
-@property NSURLSession *urlSession;
+@property (nonatomic) NSURLSession *urlSession;
 
-@property NSDate *dateLastFetched;
-
-@end
-
-@implementation SNCPostsTableViewController (DataTasks)
-
--(void)setDataTask:(NSURLSessionDataTask *)task forPost:(Post *)post
-{
-    [_postsDownloadTasksOperationQueue addOperations:@[[NSBlockOperation blockOperationWithBlock:^{
-        
-        NSString *key = [NSString stringWithFormat:@"%@", post.resourceID];
-        
-        _postsDownloadTasks[key] = task;
-        
-        
-    }]] waitUntilFinished:NO];
-}
-
--(NSURLSessionDataTask *)dataTaskForPost:(Post *)post
-{
-    __block NSURLSessionDataTask *dataTask;
-    
-    [_postsDownloadTasksOperationQueue addOperations:@[[NSBlockOperation blockOperationWithBlock:^{
-        
-        NSString *key = [NSString stringWithFormat:@"%@", post.resourceID];
-        
-        dataTask = _postsDownloadTasks[key];
-        
-    }]] waitUntilFinished:YES];
-    
-    return dataTask;
-}
-
--(void)removeDataTaskForPost:(Post *)post
-{
-    [_postsDownloadTasksOperationQueue addOperations:@[[NSBlockOperation blockOperationWithBlock:^{
-        
-        NSString *key = [NSString stringWithFormat:@"%@", post.resourceID];
-        
-        [_postsDownloadTasks removeObjectForKey:key];
-        
-    }]] waitUntilFinished:NO];
-}
+@property (nonatomic) NSDate *dateLastFetched;
 
 @end
-
 
 @interface SNCPostsTableViewController (ConfigureCell)
 
@@ -81,13 +38,6 @@ static void *KVOContext = &KVOContext;
     if (self) {
         
         self.urlSession = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
-        
-        // serial Queues for mutable collections access
-        
-        _postsDownloadTasks = [[NSMutableDictionary alloc] init];
-        _postsDownloadTasksOperationQueue = [[NSOperationQueue alloc] init];
-        _postsDownloadTasksOperationQueue.maxConcurrentOperationCount = 1;
-        _postsDownloadTasksOperationQueue.name = [NSString stringWithFormat: @"%@ _postsDownloadTasks Operation Queue", self];
         
         // KVO
         [self addObserver:self
@@ -147,7 +97,7 @@ static void *KVOContext = &KVOContext;
             
             _fetchedResultsController.delegate = self;
             
-            [[SNCStore sharedStore].context performBlock:^{
+            [[SNCStore sharedStore].context performBlockAndWait:^{
                 
                 NSError *fetchError;
                 
@@ -178,8 +128,6 @@ static void *KVOContext = &KVOContext;
     
     self.dateLastFetched = [NSDate date];
     
-    _errorDownloadingPost = nil;
-    
     [[SNCStore sharedStore] searchForCachedResourceWithFetchRequest:_fetchedResultsController.fetchRequest URLSession:self.urlSession completion:^(NSError *error, NSArray *results) {
         
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
@@ -200,21 +148,17 @@ static void *KVOContext = &KVOContext;
         
         for (Post *post in posts) {
             
-            // download posts that are not being downloaded (lazily fetched)
+            // download posts
             
-            NSURLSessionDataTask *dataTask = [self dataTaskForPost:post];
-            
-            if (!dataTask) {
-                
-                dataTask = [[SNCStore sharedStore] getCachedResource:@"Post" resourceID:post.resourceID URLSession:self.urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
+            [[SNCStore sharedStore] getCachedResource:@"Post" resourceID:post.resourceID URLSession:self.urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
                     
-                    // do nothing, NSFetchedResultsController will detect the changes
+                if (error) {
                     
-                    // remove data task
-                    [self removeDataTaskForPost:post];
+                    [error presentError];
                     
-                }];
-            }
+                }
+                    
+            }];
         }
     }];
     
@@ -466,34 +410,20 @@ static void *KVOContext = &KVOContext;
     
     void (^configureCell)() = ^void() {
         
-        __block NSString *text;
         
-        __block NSDate *date;
+        // Configure the cell...
+        cell.textLabel.text = post.text;
         
-        [post.managedObjectContext performBlockAndWait:^{
-           
-            text = post.text;
+        if (!_dateFormatter) {
             
-            date = post.created;
-            
-        }];
+            _dateFormatter = [[NSDateFormatter alloc] init];
+            _dateFormatter.dateStyle = NSDateFormatterShortStyle;
+        }
         
-        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-            
-            // Configure the cell...
-            cell.textLabel.text = text;
-            
-            if (!_dateFormatter) {
-                
-                _dateFormatter = [[NSDateFormatter alloc] init];
-                _dateFormatter.dateStyle = NSDateFormatterShortStyle;
-            }
-            
-            cell.detailTextLabel.text = [_dateFormatter stringFromDate:date];
-            
-        }];
+        cell.detailTextLabel.text = [_dateFormatter stringFromDate:post.created];
+        
     };
-    
+
     void (^configurePlaceholderCell)() = ^void() {
         
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
@@ -515,76 +445,16 @@ static void *KVOContext = &KVOContext;
     // never downloaded / not in cache
     if (!dateCached) {
         
-        NSURLSessionDataTask *dataTask = [[SNCStore sharedStore] getCachedResource:@"Post" resourceID:post.resourceID URLSession:self.urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
-            
-            [self removeDataTaskForPost:post];
-            
-            if (_errorDownloadingPost) {
-                
-                // load empty cell
-                configurePlaceholderCell();
-                
-                return;
-            }
-            
-            if (error) {
-                
-                _errorDownloadingPost = error;
-                
-                // load empty cell
-                configurePlaceholderCell();
-                
-                return;
-            }
-            
-            configureCell();
-            
-        }];
-        
-        [self setDataTask:dataTask forPost:post];
-        
         configurePlaceholderCell();
-    }
-    
-    // cached object was fetched before we started loading this table view
-    if ([dateCached compare:_dateLastFetched] == NSOrderedAscending) {
-        
-        NSURLSessionDataTask *dataTask = [[SNCStore sharedStore] getCachedResource:@"Post" resourceID:post.resourceID URLSession:self.urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
-            
-            [self removeDataTaskForPost:post];
-            
-            if (_errorDownloadingPost) {
-                
-                // load the cache
-                configureCell();
-                
-                return;
-            }
-            
-            if (error) {
-                
-                _errorDownloadingPost = error;
-                
-                // load the cache
-                configureCell();
-                
-                return;
-            }
-            
-            configureCell();
-        }];
-        
-        [self setDataTask:dataTask forPost:post];
         
     }
     
-    // cached object was downloaded after we started loading this tableview
+    // downloaded
     else {
         
         configureCell();
         
     }
-    
 }
 
 @end
