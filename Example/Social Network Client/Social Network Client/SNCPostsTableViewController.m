@@ -17,6 +17,8 @@ static void *KVOContext = &KVOContext;
 
 @interface SNCPostsTableViewController ()
 
+@property (nonatomic) NSFetchedResultsController *fetchedResultsController;
+
 @property (nonatomic) NSURLSession *urlSession;
 
 @property (nonatomic) NSDate *dateLastFetched;
@@ -93,22 +95,19 @@ static void *KVOContext = &KVOContext;
             fetchRequest.predicate = self.predicate;
             
             // make nsfetchedresultscontroller
-            _fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest managedObjectContext:[SNCStore sharedStore].mainContext sectionNameKeyPath:nil cacheName:nil];
+            self.fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest managedObjectContext:[SNCStore sharedStore].mainContext sectionNameKeyPath:nil cacheName:nil];
             
-            _fetchedResultsController.delegate = self;
+            self.fetchedResultsController.delegate = self;
             
-            [[SNCStore sharedStore].context performBlockAndWait:^{
+            NSError *fetchError;
+            
+            [_fetchedResultsController performFetch:&fetchError];
+            
+            if (fetchError) {
                 
-                NSError *fetchError;
-                
-                [_fetchedResultsController performFetch:&fetchError];
-                
-                if (fetchError) {
-                    
-                    [NSException raise:NSInternalInconsistencyException
-                                format:@"Error executing fetch request. (%@)", fetchError.localizedDescription];
-                }
-            }];
+                [NSException raise:NSInternalInconsistencyException
+                            format:@"Error executing fetch request. (%@)", fetchError.localizedDescription];
+            }
             
             // fetch
             [self fetchData:nil];
@@ -144,7 +143,7 @@ static void *KVOContext = &KVOContext;
         }
         
         // make copy of fetchedObjects array becuase the values can change any time
-        NSArray *posts = [NSArray arrayWithArray:_fetchedResultsController.fetchedObjects];
+        NSArray *posts = [NSArray arrayWithArray:self.fetchedResultsController.fetchedObjects];
         
         for (Post *post in posts) {
             
@@ -282,10 +281,13 @@ static void *KVOContext = &KVOContext;
             
             Post *post = (Post *)resource;
             
-            post.creator = [SNCStore sharedStore].user;
-            
-            post.created = [NSDate date];
-            
+            [post.managedObjectContext performBlock:^{
+                
+                post.creator = [SNCStore sharedStore].user;
+                
+                post.created = [NSDate date];
+                
+            }];
         }];
         
     }
@@ -391,55 +393,30 @@ static void *KVOContext = &KVOContext;
 
 -(void)configureCell:(UITableViewCell *)cell forPost:(Post *)post
 {
-    // blocks
-    
-    void (^configureCell)() = ^void() {
-        
+    // never downloaded / not in cache
+    if (!post.text) {
         
         // Configure the cell...
-        cell.textLabel.text = post.text;
+        cell.textLabel.text = NSLocalizedString(@"Loading...",
+                                                @"Loading...");
         
-        if (!_dateFormatter) {
-            
-            _dateFormatter = [[NSDateFormatter alloc] init];
-            _dateFormatter.dateStyle = NSDateFormatterShortStyle;
-        }
+        cell.detailTextLabel.text = @"";
         
-        cell.detailTextLabel.text = [_dateFormatter stringFromDate:post.created];
-        
-    };
-
-    void (^configurePlaceholderCell)() = ^void() {
-        
-        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-            
-            // Configure the cell...
-            cell.textLabel.text = NSLocalizedString(@"Loading...",
-                                                    @"Loading...");
-            
-            cell.detailTextLabel.text = @"";
-            
-        }];
-    };
-    
-    // download if not in cache...
-    
-    NSDate *dateCached = [[SNCStore sharedStore] dateCachedForResource:@"Post"
-                                                            resourceID:post.resourceID.integerValue];
-    
-    // never downloaded / not in cache
-    if (!dateCached) {
-        
-        configurePlaceholderCell();
+        return;
         
     }
     
-    // downloaded
-    else {
+    // Configure the cell...
+    cell.textLabel.text = post.text;
+    
+    if (!_dateFormatter) {
         
-        configureCell();
-        
+        _dateFormatter = [[NSDateFormatter alloc] init];
+        _dateFormatter.dateStyle = NSDateFormatterShortStyle;
     }
+    
+    cell.detailTextLabel.text = [_dateFormatter stringFromDate:post.created];
+    
 }
 
 @end

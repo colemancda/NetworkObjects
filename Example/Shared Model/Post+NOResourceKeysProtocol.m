@@ -12,14 +12,12 @@
 
 +(NSString *)resourcePath
 {
-    static NSString *path = @"post";
-    return path;
+    return @"post";
 }
 
 +(NSString *)resourceIDKey
 {
-    static NSString *key = @"resourceID";
-    return key;
+    return @"resourceID";
 }
 
 

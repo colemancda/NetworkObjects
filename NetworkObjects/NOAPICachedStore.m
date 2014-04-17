@@ -10,8 +10,6 @@
 #import "NSManagedObject+CoreDataJSONCompatibility.h"
 #import "NetworkObjectsConstants.h"
 
-NSString *const NOAPICachedStoreDatesCachedOption = @"NOAPICachedStoreDatesCachedOption";
-
 @interface NOAPICachedStore (Cache)
 
 // call these inside -performWithBlock:
@@ -28,15 +26,6 @@ NSString *const NOAPICachedStoreDatesCachedOption = @"NOAPICachedStoreDatesCache
 
 -(NSManagedObject<NOResourceKeysProtocol> *)setJSONObject:(NSDictionary *)jsonObject
                                               forResource:(NSManagedObject <NOResourceKeysProtocol> *)resource;
-
-@end
-
-@interface NOAPICachedStore (DateCached)
-
--(void)cachedResource:(NSString *)resourceName
-       withResourceID:(NSUInteger)resourceID;
-
--(void)setupDateCached;
 
 @end
 
@@ -71,39 +60,12 @@ NSString *const NOAPICachedStoreDatesCachedOption = @"NOAPICachedStoreDatesCache
     
     if (self) {
         
-        self.datesCached = options[NOAPICachedStoreDatesCachedOption];
-        
         _context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
         
         _context.undoManager = nil;
         
-        // initalize _dateCached & _dateCachedOperationQueues based on self.model
-        [self setupDateCached];
-        
     }
     return self;
-}
-
-#pragma mark - Date Cached
-
--(NSDate *)dateCachedForResource:(NSString *)resourceName
-                      resourceID:(NSUInteger)resourceID
-{
-    // get the operation queue editing for the entity's mutable dicitonary of dates
-    NSOperationQueue *operationQueue = _dateCachedOperationQueues[resourceName];
-    
-    // get the mutable dictionary
-    NSMutableDictionary *resourceDatesCached = _datesCached[resourceName];
-    
-    __block NSDate *date;
-    
-    [operationQueue addOperations:@[[NSBlockOperation blockOperationWithBlock:^{
-        
-        date = resourceDatesCached[[NSNumber numberWithInteger:resourceID]];
-        
-    }]] waitUntilFinished:YES];
-    
-    return date;
 }
 
 #pragma mark - Requests
@@ -310,12 +272,6 @@ NSString *const NOAPICachedStoreDatesCachedOption = @"NOAPICachedStoreDatesCache
             
         }];
         
-        // set date cached
-        
-        [self cachedResource:resourceName
-              withResourceID:resourceID.integerValue];
-        
-        
         completionBlock(nil, resource);
     }];
 }
@@ -368,11 +324,6 @@ NSString *const NOAPICachedStoreDatesCachedOption = @"NOAPICachedStoreDatesCache
                 [resource setValue:value
                             forKey:key];
             }
-            
-            // set date cached
-            
-            [self cachedResource:resourceName
-                  withResourceID:resourceID.integerValue];
             
             // save
             
@@ -891,77 +842,3 @@ NSString *const NOAPICachedStoreDatesCachedOption = @"NOAPICachedStoreDatesCache
 }
 
 @end
-
-@implementation NOAPICachedStore (DateCached)
-
--(void)setupDateCached
-{
-    // a mutable dictionary per entity
-    NSMutableDictionary *dateCached;
-    
-    // try to load previously saved dates entities where cached
-    
-    if (self.datesCached) {
-        
-        dateCached = [NSMutableDictionary dictionaryWithDictionary:self.datesCached];
-    }
-    
-    else {
-        
-        dateCached = [[NSMutableDictionary alloc] init];
-    }
-    
-    for (NSString *entityName in self.model.entitiesByName) {
-        
-        NSMutableDictionary *entityDates;
-        
-        // try to load previously saved dates instances of this entity where cached
-        
-        NSDictionary *savedEntityDates = dateCached[entityName];
-        
-        if (savedEntityDates) {
-            
-            entityDates = [NSMutableDictionary dictionaryWithDictionary:savedEntityDates];
-        }
-        
-        else {
-            
-            entityDates = [[NSMutableDictionary alloc] init];
-        }
-        
-        
-        [dateCached addEntriesFromDictionary:@{entityName: entityDates}];
-    }
-    
-    self.datesCached = [NSDictionary dictionaryWithDictionary:dateCached];
-    
-    // a NSOperationQueue per entity
-    NSMutableDictionary *dateCachedOperationQueues = [[NSMutableDictionary alloc] init];
-    
-    for (NSString *entityName in self.model.entitiesByName) {
-        
-        [dateCachedOperationQueues addEntriesFromDictionary:@{entityName: [[NSOperationQueue alloc] init]}];
-    }
-    
-    _dateCachedOperationQueues = [NSDictionary dictionaryWithDictionary:dateCachedOperationQueues];
-    
-}
-
--(void)cachedResource:(NSString *)resourceName
-       withResourceID:(NSUInteger)resourceID
-{
-    // get the operation queue editing for the entity's mutable dicitonary of dates
-    NSOperationQueue *operationQueue = _dateCachedOperationQueues[resourceName];
-    
-    // get the mutable dictionary
-    NSMutableDictionary *resourceDatesCached = _datesCached[resourceName];
-    
-    [operationQueue addOperations:@[[NSBlockOperation blockOperationWithBlock:^{
-        
-        resourceDatesCached[[NSNumber numberWithInteger:resourceID]] = [NSDate date];
-        
-    }]] waitUntilFinished:YES];
-}
-
-@end
-

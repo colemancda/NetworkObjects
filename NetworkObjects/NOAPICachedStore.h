@@ -11,19 +11,11 @@
 #import <NetworkObjects/NOAPI.h>
 #import <NetworkObjects/NOResourceProtocol.h>
 
-// Initialization Options
-
-extern NSString *const NOAPICachedStoreDatesCachedOption;
-
 /**
  This class uses a NOAPI property behind the scenes to communicate with a NetworkObjects server and cache them to a NSManagedObjectContext. It returns NSManagedObject instances that conform to NOResourceProtocol.
  */
 
 @interface NOAPICachedStore : NOAPI
-{
-    /** Dictionary of NSOperationQueue for accessing a sub dictionary in @c _datesCached */
-    NSDictionary *_dateCachedOperationQueues;
-}
 
 #pragma mark - Cache
 
@@ -37,15 +29,6 @@ extern NSString *const NOAPICachedStoreDatesCachedOption;
  */
 
 @property (nonatomic, readonly) NSManagedObjectContext *context;
-
-/** Hierarchy of dictionaries with dates a resource with a particular resource ID was cached. */
-
-@property (nonatomic, readonly) NSDictionary *datesCached;
-
-/** Returns the date when this Resource was cached (either downloaded or created) */
-
--(NSDate *)dateCachedForResource:(NSString *)resourceName
-                      resourceID:(NSUInteger)resourceID;
 
 #pragma mark - Requests
 
