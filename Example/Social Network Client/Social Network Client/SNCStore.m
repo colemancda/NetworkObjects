@@ -124,7 +124,7 @@
         }
         
         // get the user for this session
-        [self getCachedResource:@"User" resourceID:self.userResourceID.integerValue URLSession:urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
+        [self getCachedResource:@"User" resourceID:self.userResourceID URLSession:urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
             
             if (error) {
                 
@@ -214,7 +214,7 @@
 {
     NSAssert(self.user, @"Must already be authenticated to fetch user");
     
-    return [self getCachedResource:self.user.entity.name resourceID:self.user.resourceID.integerValue URLSession:urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
+    return [self getCachedResource:self.user.entity.name resourceID:self.user.resourceID URLSession:urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
         
         if (error) {
             
