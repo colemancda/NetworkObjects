@@ -869,6 +869,12 @@ NSString *const NOAPISearchPathOption = @"NOAPISearchPathOption";
         
         if (httpResponse.statusCode != 200) {
             
+            if (httpResponse.statusCode == NotFoundStatusCode) {
+                
+                completionBlock(self.notFoundError);
+                return;
+            }
+            
             if (httpResponse.statusCode == UnauthorizedStatusCode) {
                 
                 completionBlock(self.unauthorizedError);
