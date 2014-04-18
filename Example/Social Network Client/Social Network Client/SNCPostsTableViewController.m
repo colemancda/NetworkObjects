@@ -26,7 +26,7 @@ static void *KVOContext = &KVOContext;
 @interface SNCPostsTableViewController (ConfigureCell)
 
 -(void)configureCell:(UITableViewCell *)cell
-             forPost:(Post *)post;
+        forIndexPath:(NSIndexPath *)indexPath;
 
 @end
 
@@ -97,18 +97,15 @@ static void *KVOContext = &KVOContext;
             
             _fetchedResultsController.delegate = self;
             
-            [[SNCStore sharedStore].context performBlockAndWait:^{
+            NSError *fetchError;
+            
+            [_fetchedResultsController performFetch:&fetchError];
+            
+            if (fetchError) {
                 
-                NSError *fetchError;
-                
-                [_fetchedResultsController performFetch:&fetchError];
-                
-                if (fetchError) {
-                    
-                    [NSException raise:NSInternalInconsistencyException
-                                format:@"Error executing fetch request. (%@)", fetchError.localizedDescription];
-                }
-            }];
+                [NSException raise:NSInternalInconsistencyException
+                            format:@"Error executing fetch request. (%@)", fetchError.localizedDescription];
+            }
             
             // fetch
             [self fetchData:nil];
@@ -143,23 +140,6 @@ static void *KVOContext = &KVOContext;
             return;
         }
         
-        // make copy of fetchedObjects array becuase the values can change any time
-        NSArray *posts = [NSArray arrayWithArray:_fetchedResultsController.fetchedObjects];
-        
-        for (Post *post in posts) {
-            
-            // download posts
-            
-            [[SNCStore sharedStore] getCachedResource:@"Post" resourceID:post.resourceID URLSession:self.urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
-                    
-                if (error) {
-                    
-                    [error presentError];
-                    
-                }
-                    
-            }];
-        }
     }];
     
 }
@@ -186,10 +166,7 @@ static void *KVOContext = &KVOContext;
     
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
     
-    // get model object
-    Post *post = [_fetchedResultsController objectAtIndexPath:indexPath];
-    
-    [self configureCell:cell forPost:post];
+    [self configureCell:cell forIndexPath:indexPath];
     
     return cell;
 }
@@ -349,7 +326,7 @@ static void *KVOContext = &KVOContext;
                 // setup cell without reloading it...
                 
                 [self configureCell:[self.tableView cellForRowAtIndexPath:indexPath]
-                            forPost:anObject];
+                       forIndexPath:indexPath];
                 
                 break;
                 
@@ -404,23 +381,29 @@ static void *KVOContext = &KVOContext;
 
 @implementation SNCPostsTableViewController (ConfigureCell)
 
--(void)configureCell:(UITableViewCell *)cell forPost:(Post *)post
+-(void)configureCell:(UITableViewCell *)cell
+        forIndexPath:(NSIndexPath *)indexPath
 {
     // blocks
     
+    Post *post = [_fetchedResultsController objectAtIndexPath:indexPath];
+    
     void (^configureCell)() = ^void() {
         
-        
-        // Configure the cell...
-        cell.textLabel.text = post.text;
-        
-        if (!_dateFormatter) {
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                        
+            // Configure the cell...
+            cell.textLabel.text = post.text;
             
-            _dateFormatter = [[NSDateFormatter alloc] init];
-            _dateFormatter.dateStyle = NSDateFormatterShortStyle;
-        }
-        
-        cell.detailTextLabel.text = [_dateFormatter stringFromDate:post.created];
+            if (!_dateFormatter) {
+                
+                _dateFormatter = [[NSDateFormatter alloc] init];
+                _dateFormatter.dateStyle = NSDateFormatterShortStyle;
+            }
+            
+            cell.detailTextLabel.text = [_dateFormatter stringFromDate:post.created];
+            
+        }];
         
     };
 
@@ -447,14 +430,38 @@ static void *KVOContext = &KVOContext;
         
         configurePlaceholderCell();
         
+        // lazily download
+        
+        [[SNCStore sharedStore] getCachedResource:@"Post" resourceID:post.resourceID URLSession:self.urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
+            
+            if (error) {
+                
+                [error presentError];
+                
+            }
+            
+        }];
+        
+        return;
     }
     
-    // downloaded
-    else {
+    // was downloaded before the table was reloaded
+    
+    if ([dateCached compare:self.dateLastFetched] == NSOrderedAscending) {
         
-        configureCell();
+        [[SNCStore sharedStore] getCachedResource:@"Post" resourceID:post.resourceID URLSession:self.urlSession completion:^(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource) {
+            
+            if (error) {
+                
+                [error presentError];
+                
+            }
+            
+        }];
         
     }
+    
+    configureCell();
 }
 
 @end
