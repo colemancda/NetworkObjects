@@ -13,36 +13,31 @@
 // string attribute
 +(NSString *)clientSecretKey
 {
-    static NSString *clientSecretKey = @"secret";
-    return clientSecretKey;
+    return @"secret";
 }
 
 // one to many
 +(NSString *)clientSessionsKey
 {
-    static NSString *clientSessionsKey = @"sessions";
-    return clientSessionsKey;
+    return @"sessions";
 }
 
 // many to many
 +(NSString *)clientAuthorizedUsersKey
 {
-    static NSString *clientAuthorizedUsersKey = @"authorizedUsers";
-    return clientAuthorizedUsersKey;
+    return @"authorizedUsers";
 }
 
 #pragma mark - NOResourceProtocol
 
 +(NSString *)resourcePath
 {
-    static NSString *path = @"client";
-    return path;
+    return @"client";
 }
 
 +(NSString *)resourceIDKey
 {
-    static NSString *key = @"resourceID";
-    return key;
+    return @"resourceID";
 }
 
 @end

@@ -12,34 +12,29 @@
 
 +(NSString *)resourcePath
 {
-    static NSString *path = @"session";
-    return path;
+    return @"session";
 }
 
 +(NSString *)resourceIDKey
 {
-    static NSString *key = @"resourceID";
-    return key;
+    return @"resourceID";
 }
 
-#pragma mark
+#pragma mark - Session Protocol
 
 +(NSString *)sessionTokenKey
 {
-    static NSString *tokenKey = @"token";
-    return tokenKey;
+    return @"token";
 }
 
 +(NSString *)sessionUserKey
 {
-    static NSString *sessionUserKey = @"user";
-    return sessionUserKey;
+    return @"user";
 }
 
 +(NSString *)sessionClientKey
 {
-    static NSString *sessionClientKey = @"client";
-    return sessionClientKey;
+    return @"client";
 }
 
 @end

@@ -12,40 +12,34 @@
 
 +(NSString *)resourcePath
 {
-    static NSString *path = @"user";
-    return path;
+    return @"user";
 }
 
 +(NSString *)resourceIDKey
 {
-    static NSString *key = @"resourceID";
-    return key;
+    return @"resourceID";
 }
 
 #pragma mark
 
 +(NSString *)userAuthorizedClientsKey
 {
-    static NSString *authorizedUserKey = @"authorizedClients";
-    return authorizedUserKey;
+    return @"authorizedClients";
 }
 
 +(NSString *)userSessionsKey
 {
-    static NSString *userSessionsKey = @"sessions";
-    return userSessionsKey;
+    return @"sessions";
 }
 
 +(NSString *)userPasswordKey
 {
-    static NSString *userPasswordKey = @"password";
-    return userPasswordKey;
+    return @"password";
 }
 
 +(NSString *)usernameKey
 {
-    static NSString *usernameKey = @"username";
-    return usernameKey;
+    return @"username";
 }
 
 @end
