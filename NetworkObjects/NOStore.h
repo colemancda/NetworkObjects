@@ -55,11 +55,11 @@ typedef NS_ENUM(NSUInteger, NOStoreSaveErrorCode) {
 -(id)initWithManagedObjectModel:(NSManagedObjectModel *)model
                      lastIDsURL:(NSURL *)lastIDsURL;
 
-@property (readonly) NSManagedObjectContext *context;
+@property (nonatomic, readonly) NSManagedObjectContext *context;
 
-@property (readonly) NSDictionary *lastResourceIDs;
+@property (nonatomic, readonly) NSDictionary *lastResourceIDs;
 
-@property (readonly) NSURL *lastIDsURL;
+@property (nonatomic, readonly) NSURL *lastIDsURL;
 
 /**
  Saves the NSManagedObjectContext @c context and @c lastResourceIDs dictionary.
