@@ -179,7 +179,17 @@ static void *KVOContext = &KVOContext;
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
 {
     // Return NO if you do not want the specified item to be editable.
-    return YES;
+    
+    // get model object
+    Post *post = [_fetchedResultsController objectAtIndexPath:indexPath];
+    
+    // only edit post that belong to user
+    if (post.creator == [SNCStore sharedStore].user) {
+        
+        return YES;
+    }
+    
+    return NO;
 }
 
 // Override to support editing the table view.
@@ -265,7 +275,7 @@ static void *KVOContext = &KVOContext;
             
             [post.managedObjectContext performBlock:^{
                 
-                post.creator = [SNCStore sharedStore].user;
+                post.creator = (User *)[post.managedObjectContext objectWithID:[SNCStore sharedStore].user.objectID];
                 
                 post.created = [NSDate date];
                 

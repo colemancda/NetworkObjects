@@ -142,7 +142,7 @@
             self.serverURL = serverURL;
             self.clientSecret = secret;
             self.clientResourceID = @(clientID);
-            self.user = (User *)resource;
+            self.user = (User *)[self.mainContext objectWithID:resource.objectID];
             
             NSLog(@"Successfully logged in");
             
@@ -190,7 +190,7 @@
                 return;
             }
             
-            User *newUser = (User *)resource;
+            User *newUser = (User *)[self.mainContext objectWithID:resource.objectID];
             
             // login as newly created user
             [self loginWithUsername:newUser.username password:password serverURL:serverURL clientID:clientID clientSecret:secret URLSession:urlSession completion:^(NSError *error) {
@@ -202,6 +202,7 @@
                     return;
                 }
                 
+                self.user = newUser;
                 
                 NSLog(@"Successfully registered");
                 
@@ -228,7 +229,7 @@
             return;
         }
         
-        self.user = (User *)resource;
+        self.user = (User *)[self.mainContext objectWithID:resource.objectID];
         
         completionBlock(nil);
         
