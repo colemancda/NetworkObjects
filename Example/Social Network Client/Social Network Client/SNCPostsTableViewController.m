@@ -263,9 +263,23 @@ static void *KVOContext = &KVOContext;
             
             Post *post = (Post *)resource;
             
-            post.creator = [SNCStore sharedStore].user;
-            
-            post.created = [NSDate date];
+            [post.managedObjectContext performBlock:^{
+                
+                post.creator = [SNCStore sharedStore].user;
+                
+                post.created = [NSDate date];
+                
+                // save
+                
+                NSError *saveError;
+                
+                if (![post.managedObjectContext save:&saveError]) {
+                    
+                    [NSException raise:NSInternalInconsistencyException
+                                format:@"%@", saveError.localizedDescription];
+                }
+                
+            }];
             
         }];
         
@@ -288,7 +302,7 @@ static void *KVOContext = &KVOContext;
      
 }
 
-#pragma mark - Fetched Results Controller Delegate
+#pragma mark - NSFetchedResultsControllerDelegate
 
 - (void)controllerWillChangeContent:(NSFetchedResultsController *)controller {
     

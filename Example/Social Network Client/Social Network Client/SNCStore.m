@@ -91,7 +91,11 @@
 
 -(void)contextDidSave:(NSNotification *)notification
 {
-    [self.mainContext mergeChangesFromContextDidSaveNotification:notification];
+    [self.mainContext performBlock:^{
+        
+        [self.mainContext mergeChangesFromContextDidSaveNotification:notification];
+        
+    }];
 }
 
 #pragma mark - Authentication
