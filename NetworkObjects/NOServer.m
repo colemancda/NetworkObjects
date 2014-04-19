@@ -1544,7 +1544,9 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                 }
                 
                 // let NOResource verify that the new attribute value is a valid new value
-                if (![resource isValidValue:newValue forAttribute:key]) {
+                if (![resource validateValue:&newValue
+                                      forKey:attributeName
+                                       error:nil]) {
                     
                     return BadRequestStatusCode;
                 }
@@ -1585,7 +1587,9 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                     }
                     
                     // must be valid value
-                    if (![resource isValidValue:newValue forRelationship:key]) {
+                    if (![resource validateValue:&newValue
+                                          forKey:key
+                                           error:nil]) {
                         
                         return BadRequestStatusCode;
                     }
@@ -1623,7 +1627,9 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                     }
                     
                     // must be valid new value
-                    if (![resource isValidValue:newValue forRelationship:key]) {
+                    if (![resource validateValue:&newValue
+                                          forKey:key
+                                           error:nil]) {
                         
                         return BadRequestStatusCode;
                     }

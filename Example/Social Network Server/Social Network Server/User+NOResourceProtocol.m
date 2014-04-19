@@ -34,61 +34,49 @@
 
 #pragma mark - Validate New Values
 
--(BOOL)isValidValue:(NSObject *)newValue
-       forAttribute:(NSString *)attributeName
+-(BOOL)validateUsername:(id *)newValue error:(NSError * __autoreleasing *)outError
 {
-    if ([attributeName isEqualToString:@"username"]) {
+    // if there is no username set then these must be the initial values edit request
+    if (!self.username) {
         
-        // if there is no username set then these must be the initial values edit request
-        if (!self.username) {
+        // new value will be string
+        NSString *newUsername = *newValue;
+        
+        // validate that another user doesnt have the same username
+        
+        __block NSArray *result;
+        
+        [self.managedObjectContext performBlockAndWait:^{
             
-            // new value will be string
-            NSString *newUsername = (NSString *)newValue;
+            NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"User"];
             
-            // validate that another user doesnt have the same username
+            fetchRequest.predicate = [NSComparisonPredicate predicateWithLeftExpression:[NSExpression expressionForKeyPath:@"username"] rightExpression:[NSExpression expressionForConstantValue:newUsername] modifier:NSDirectPredicateModifier type:NSEqualToPredicateOperatorType options:NSCaseInsensitivePredicateOption];
             
-            __block NSArray *result;
+            NSError *fetchError;
             
-            [self.managedObjectContext performBlockAndWait:^{
-               
-                NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"User"];
-                
-                fetch.predicate = [NSPredicate predicateWithFormat:@"%K ==[c] %@", @"username", newUsername];
-                
-                NSError *fetchError;
-                result = [self.managedObjectContext executeFetchRequest:fetch
-                                                                  error:&fetchError];
-                
-                if (!result) {
-                    
-                    [NSException raise:@"Fetch Request Failed"
-                                format:@"%@", fetchError.localizedDescription];
-                    return;
-                }
-                
-            }];
+            result = [self.managedObjectContext executeFetchRequest:fetchRequest
+                                                              error:&fetchError];
             
-            // no user with that username exists
-            if (!result.count) {
+            if (!result) {
                 
-                return YES;
+                [NSException raise:@"Fetch Request Failed"
+                            format:@"%@", fetchError.localizedDescription];
+                return;
             }
             
-            return NO;
+        }];
+        
+        // no user with that username exists
+        if (!result.count) {
+            
+            return YES;
         }
         
-        // username is already set, cannot change
         return NO;
     }
     
-    return YES;
-}
-
--(BOOL)isValidValue:(NSObject *)newValue
-    forRelationship:(NSString *)relationshipName
-{
-    
-    return YES;
+    // username is already set, cannot change
+    return NO;
 }
 
 #pragma mark - Permissions
