@@ -12,6 +12,7 @@
 #import "User.h"
 #import "NSError+presentError.h"
 #import "SNCPostViewController.h"
+#import "SNCPostCell.h"
 
 static void *KVOContext = &KVOContext;
 
@@ -25,7 +26,7 @@ static void *KVOContext = &KVOContext;
 
 @interface SNCPostsTableViewController (ConfigureCell)
 
--(void)configureCell:(UITableViewCell *)cell
+-(void)configureCell:(SNCPostCell *)cell
         forIndexPath:(NSIndexPath *)indexPath;
 
 @end
@@ -129,6 +130,8 @@ static void *KVOContext = &KVOContext;
         
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             
+            [self.tableView reloadData];
+            
             [self.refreshControl endRefreshing];
             
         }];
@@ -164,7 +167,8 @@ static void *KVOContext = &KVOContext;
 {
     static NSString *CellIdentifier = @"SNCPostCell";
     
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
+    SNCPostCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier
+                                                            forIndexPath:indexPath];
     
     [self configureCell:cell forIndexPath:indexPath];
     
@@ -290,11 +294,7 @@ static void *KVOContext = &KVOContext;
     
     // The fetch controller is about to start sending change notifications, so prepare the table view for updates.
     
-    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-        
-        [self.tableView beginUpdates];
-
-    }];
+    [self.tableView beginUpdates];
     
 }
 
@@ -305,41 +305,37 @@ static void *KVOContext = &KVOContext;
      forChangeType:(NSFetchedResultsChangeType)type
       newIndexPath:(NSIndexPath *)newIndexPath {
     
-    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-        
-        UITableView *tableView = self.tableView;
-        
-        switch(type) {
-                
-            case NSFetchedResultsChangeInsert:
-                [tableView insertRowsAtIndexPaths:@[newIndexPath]
-                                 withRowAnimation:UITableViewRowAnimationFade];
-                break;
-                
-            case NSFetchedResultsChangeDelete:
-                [tableView deleteRowsAtIndexPaths:@[indexPath]
-                                 withRowAnimation:UITableViewRowAnimationFade];
-                break;
-                
-            case NSFetchedResultsChangeUpdate:
-                
-                // setup cell without reloading it...
-                
-                [self configureCell:[self.tableView cellForRowAtIndexPath:indexPath]
-                       forIndexPath:indexPath];
-                
-                break;
-                
-            case NSFetchedResultsChangeMove:
-                [tableView deleteRowsAtIndexPaths:@[indexPath]
-                                 withRowAnimation:UITableViewRowAnimationFade];
-                
-                [tableView insertRowsAtIndexPaths:@[newIndexPath]
-                                 withRowAnimation:UITableViewRowAnimationFade];
-                break;
-        }
-        
-    }];
+    UITableView *tableView = self.tableView;
+    
+    switch(type) {
+            
+        case NSFetchedResultsChangeInsert:
+            [tableView insertRowsAtIndexPaths:@[newIndexPath]
+                             withRowAnimation:UITableViewRowAnimationFade];
+            break;
+            
+        case NSFetchedResultsChangeDelete:
+            [tableView deleteRowsAtIndexPaths:@[indexPath]
+                             withRowAnimation:UITableViewRowAnimationFade];
+            break;
+            
+        case NSFetchedResultsChangeUpdate:
+            
+            // setup cell without reloading it...
+            
+            [self configureCell:(SNCPostCell *)[self.tableView cellForRowAtIndexPath:indexPath]
+                   forIndexPath:indexPath];
+            
+            break;
+            
+        case NSFetchedResultsChangeMove:
+            [tableView deleteRowsAtIndexPaths:@[indexPath]
+                             withRowAnimation:UITableViewRowAnimationFade];
+            
+            [tableView insertRowsAtIndexPaths:@[newIndexPath]
+                             withRowAnimation:UITableViewRowAnimationFade];
+            break;
+    }
     
 }
 
@@ -349,76 +345,37 @@ static void *KVOContext = &KVOContext;
            atIndex:(NSUInteger)sectionIndex
      forChangeType:(NSFetchedResultsChangeType)type {
     
-    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-        
-        switch(type) {
-                
-            case NSFetchedResultsChangeInsert:
-                [self.tableView insertSections:[NSIndexSet indexSetWithIndex:sectionIndex] withRowAnimation:UITableViewRowAnimationFade];
-                break;
-                
-            case NSFetchedResultsChangeDelete:
-                [self.tableView deleteSections:[NSIndexSet indexSetWithIndex:sectionIndex] withRowAnimation:UITableViewRowAnimationFade];
-                break;
-        }
-        
-    }];
+    switch(type) {
+            
+        case NSFetchedResultsChangeInsert:
+            [self.tableView insertSections:[NSIndexSet indexSetWithIndex:sectionIndex] withRowAnimation:UITableViewRowAnimationFade];
+            break;
+            
+        case NSFetchedResultsChangeDelete:
+            [self.tableView deleteSections:[NSIndexSet indexSetWithIndex:sectionIndex] withRowAnimation:UITableViewRowAnimationFade];
+            break;
+    }
     
 }
 
 
 - (void)controllerDidChangeContent:(NSFetchedResultsController *)controller {
     // The fetch controller has sent all current change notifications, so tell the table view to process all updates.
-    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-        
-        [self.tableView endUpdates];
-
-    }];
+    
+    [self.tableView endUpdates];
 }
 
-    
+
 @end
 
 @implementation SNCPostsTableViewController (ConfigureCell)
 
--(void)configureCell:(UITableViewCell *)cell
+-(void)configureCell:(SNCPostCell *)cell
         forIndexPath:(NSIndexPath *)indexPath
 {
     // blocks
     
     Post *post = [_fetchedResultsController objectAtIndexPath:indexPath];
-    
-    void (^configureCell)() = ^void() {
-        
-        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-                        
-            // Configure the cell...
-            cell.textLabel.text = post.text;
-            
-            if (!_dateFormatter) {
-                
-                _dateFormatter = [[NSDateFormatter alloc] init];
-                _dateFormatter.dateStyle = NSDateFormatterShortStyle;
-            }
-            
-            cell.detailTextLabel.text = [_dateFormatter stringFromDate:post.created];
-            
-        }];
-        
-    };
-
-    void (^configurePlaceholderCell)() = ^void() {
-        
-        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-            
-            // Configure the cell...
-            cell.textLabel.text = NSLocalizedString(@"Loading...",
-                                                    @"Loading...");
-            
-            cell.detailTextLabel.text = @"";
-            
-        }];
-    };
     
     // download if not in cache...
     
@@ -428,7 +385,11 @@ static void *KVOContext = &KVOContext;
     // never downloaded / not in cache
     if (!dateCached) {
         
-        configurePlaceholderCell();
+        // Configure the cell...
+        cell.textContentLabel.text = NSLocalizedString(@"Loading...",
+                                                @"Loading...");
+        
+        cell.dateLabel.text = @"";
         
         // lazily download
         
@@ -461,7 +422,17 @@ static void *KVOContext = &KVOContext;
         
     }
     
-    configureCell();
+    // Configure the cell...
+    cell.textContentLabel.text = post.text;
+    
+    if (!_dateFormatter) {
+        
+        _dateFormatter = [[NSDateFormatter alloc] init];
+        _dateFormatter.dateStyle = NSDateFormatterShortStyle;
+    }
+    
+    cell.dateLabel.text = [_dateFormatter stringFromDate:post.created];
+    
 }
 
 @end
