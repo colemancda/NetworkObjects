@@ -13,17 +13,15 @@
 
 // Initialization Options
 
-extern NSString *const NOAPICachedStoreDatesCachedOption;
+/** A string value that will be used to add a date attribute to all the resources NOAPICachedStore caches. */
+
+extern NSString *const NOAPICachedStoreDateCachedAttributeNameOption;
 
 /**
  This class uses a NOAPI property behind the scenes to communicate with a NetworkObjects server and cache them to a NSManagedObjectContext. It returns NSManagedObject instances that conform to NOResourceProtocol.
  */
 
 @interface NOAPICachedStore : NOAPI
-{
-    /** Dictionary of NSOperationQueue for accessing a sub dictionary in @c _datesCached */
-    NSDictionary *_dateCachedOperationQueues;
-}
 
 #pragma mark - Cache
 
@@ -38,14 +36,9 @@ extern NSString *const NOAPICachedStoreDatesCachedOption;
 
 @property (nonatomic, readonly) NSManagedObjectContext *context;
 
-/** Hierarchy of dictionaries with dates a resource with a particular resource ID was cached. */
+/** The string value that will be used to add a date attribute to all the resources NOAPICachedStore caches. */
 
-@property (nonatomic, readonly) NSDictionary *datesCached;
-
-/** Returns the date when this Resource was cached (either downloaded or created) */
-
--(NSDate *)dateCachedForResource:(NSString *)resourceName
-                      resourceID:(NSUInteger)resourceID;
+@property (nonatomic, readonly) NSString *dateCachedAttributeName;
 
 #pragma mark - Requests
 

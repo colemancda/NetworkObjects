@@ -393,8 +393,7 @@ static void *KVOContext = &KVOContext;
     
     // download if not in cache...
     
-    NSDate *dateCached = [[SNCStore sharedStore] dateCachedForResource:@"Post"
-                                                            resourceID:post.resourceID.integerValue];
+    NSDate *dateCached = [post valueForKey:[SNCStore sharedStore].dateCachedAttributeName];
     
     // never downloaded / not in cache
     if (!dateCached) {

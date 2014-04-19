@@ -49,7 +49,8 @@
                                     NOAPIUserEntityNameOption: @"User",
                                     NOAPIClientEntityNameOption: @"Client",
                                     NOAPILoginPathOption: @"login",
-                                    NOAPISearchPathOption: @"search"}];
+                                    NOAPISearchPathOption: @"search",
+                                    NOAPICachedStoreDateCachedAttributeNameOption : @"dateCached"}];
     
     if (self) {
         
