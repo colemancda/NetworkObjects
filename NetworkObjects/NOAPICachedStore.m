@@ -52,8 +52,6 @@ NSString *const NOAPICachedStoreDatesCachedOption = @"NOAPICachedStoreDatesCache
 
 @property (nonatomic) NSDictionary *datesCached;
 
--(void)mergeFromContextDidSaveNotification:(NSNotification *)notification;
-
 @end
 
 @implementation NOAPICachedStore
