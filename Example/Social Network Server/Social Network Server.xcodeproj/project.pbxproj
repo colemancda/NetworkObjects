@@ -42,14 +42,14 @@
 		6E11BE2218B030A000FF75FB /* SNSLogViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E11BE2118B030A000FF75FB /* SNSLogViewController.m */; };
 		6E11BE2318B030A000FF75FB /* SNSLogViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E11BE2118B030A000FF75FB /* SNSLogViewController.m */; };
 		6E11BE2418B042A700FF75FB /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6E11BCFB18AFD13A00FF75FB /* MainMenu.xib */; };
-		6E11BE3318B0453100FF75FB /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 6E11BE3118B0453100FF75FB /* Model.xcdatamodeld */; };
-		6E11BE3418B0453100FF75FB /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 6E11BE3118B0453100FF75FB /* Model.xcdatamodeld */; };
 		6E11BE3618B04EDD00FF75FB /* SNSBrowserViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6E11BE3518B04EDD00FF75FB /* SNSBrowserViewController.xib */; };
 		6E11BE3718B04EDD00FF75FB /* SNSBrowserViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6E11BE3518B04EDD00FF75FB /* SNSBrowserViewController.xib */; };
 		6E11BE3918B04F4400FF75FB /* SNSLogViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6E11BE3818B04F4400FF75FB /* SNSLogViewController.xib */; };
 		6E11BE3A18B04F4400FF75FB /* SNSLogViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6E11BE3818B04F4400FF75FB /* SNSLogViewController.xib */; };
 		6E22C40D18D8CC5200D72842 /* NetworkObjects.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E78580118D2794E006142EC /* NetworkObjects.framework */; };
 		6E22C40E18D8CC5900D72842 /* NetworkObjects.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 6E78580118D2794E006142EC /* NetworkObjects.framework */; };
+		6E44BCD91902E40400EF0AD8 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 6E44BCD71902E40400EF0AD8 /* Model.xcdatamodeld */; };
+		6E44BCDA1902E40400EF0AD8 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 6E44BCD71902E40400EF0AD8 /* Model.xcdatamodeld */; };
 		6E46EF7918B179190065D5D0 /* SNSSessionWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E46EF7718B179190065D5D0 /* SNSSessionWindowController.m */; };
 		6E46EF7A18B179190065D5D0 /* SNSSessionWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6E46EF7818B179190065D5D0 /* SNSSessionWindowController.xib */; };
 		6E46EF8218B17F200065D5D0 /* SNSUserWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E46EF8018B17F200065D5D0 /* SNSUserWindowController.m */; };
@@ -169,9 +169,9 @@
 		6E11BE1D18B02EB300FF75FB /* SNSBrowserViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SNSBrowserViewController.m; sourceTree = "<group>"; };
 		6E11BE2018B030A000FF75FB /* SNSLogViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SNSLogViewController.h; sourceTree = "<group>"; };
 		6E11BE2118B030A000FF75FB /* SNSLogViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SNSLogViewController.m; sourceTree = "<group>"; };
-		6E11BE3218B0453100FF75FB /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
 		6E11BE3518B04EDD00FF75FB /* SNSBrowserViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SNSBrowserViewController.xib; sourceTree = "<group>"; };
 		6E11BE3818B04F4400FF75FB /* SNSLogViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SNSLogViewController.xib; sourceTree = "<group>"; };
+		6E44BCD81902E40400EF0AD8 /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
 		6E46EF7618B179190065D5D0 /* SNSSessionWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SNSSessionWindowController.h; sourceTree = "<group>"; };
 		6E46EF7718B179190065D5D0 /* SNSSessionWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SNSSessionWindowController.m; sourceTree = "<group>"; };
 		6E46EF7818B179190065D5D0 /* SNSSessionWindowController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SNSSessionWindowController.xib; sourceTree = "<group>"; };
@@ -297,8 +297,8 @@
 				6E11BCF818AFD13900FF75FB /* SNSAppDelegate.h */,
 				6E11BCF918AFD13900FF75FB /* SNSAppDelegate.m */,
 				6E11BD8418AFDD8B00FF75FB /* SNSConstants.h */,
+				6E44BCD71902E40400EF0AD8 /* Model.xcdatamodeld */,
 				6E11BCFB18AFD13A00FF75FB /* MainMenu.xib */,
-				6E11BE3118B0453100FF75FB /* Model.xcdatamodeld */,
 				6E11BCFE18AFD13A00FF75FB /* Images.xcassets */,
 				6E11BE1B18B02E4200FF75FB /* Controllers */,
 				6E11BDDC18AFDF1D00FF75FB /* Model */,
@@ -570,12 +570,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				6E46EF8218B17F200065D5D0 /* SNSUserWindowController.m in Sources */,
+				6E44BCD91902E40400EF0AD8 /* Model.xcdatamodeld in Sources */,
 				6E11BCF318AFD13900FF75FB /* main.m in Sources */,
 				6E11BE2218B030A000FF75FB /* SNSLogViewController.m in Sources */,
 				6E7F4B4718B071C300508181 /* SNSRepresentedObjectWindowController.m in Sources */,
 				6E62514118CAEA2300A30CA0 /* Session+NOSessionKeysProtocol.m in Sources */,
 				6E62513F18CAEA2300A30CA0 /* Client+NOClientKeysProtocol.m in Sources */,
-				6E11BE3318B0453100FF75FB /* Model.xcdatamodeld in Sources */,
 				6E11BDFE18AFDF8F00FF75FB /* Client+NOClientProtocol.m in Sources */,
 				6E11BDDA18AFDF1800FF75FB /* NSString+RandomString.m in Sources */,
 				6E11BDFC18AFDF8F00FF75FB /* Session+NOSessionProtocol.m in Sources */,
@@ -605,12 +605,12 @@
 				6E11BD1118AFD13A00FF75FB /* Social_Network_ServerTests.m in Sources */,
 				6E11BDED18AFDF4A00FF75FB /* Session.m in Sources */,
 				6E11BE2318B030A000FF75FB /* SNSLogViewController.m in Sources */,
-				6E11BE3418B0453100FF75FB /* Model.xcdatamodeld in Sources */,
 				6E11BDE718AFDF4A00FF75FB /* Post.m in Sources */,
 				6E11BDFB18AFDF8F00FF75FB /* User+NOResourceProtocol.m in Sources */,
 				6E11BDFD18AFDF8F00FF75FB /* Session+NOSessionProtocol.m in Sources */,
 				6E11BDE918AFDF4A00FF75FB /* Client.m in Sources */,
 				6E11BDDB18AFDF1800FF75FB /* NSString+RandomString.m in Sources */,
+				6E44BCDA1902E40400EF0AD8 /* Model.xcdatamodeld in Sources */,
 				6E11BE1F18B02EB300FF75FB /* SNSBrowserViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -845,13 +845,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCVersionGroup section */
-		6E11BE3118B0453100FF75FB /* Model.xcdatamodeld */ = {
+		6E44BCD71902E40400EF0AD8 /* Model.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
-				6E11BE3218B0453100FF75FB /* Model.xcdatamodel */,
+				6E44BCD81902E40400EF0AD8 /* Model.xcdatamodel */,
 			);
-			currentVersion = 6E11BE3218B0453100FF75FB /* Model.xcdatamodel */;
-			path = Model.xcdatamodeld;
+			currentVersion = 6E44BCD81902E40400EF0AD8 /* Model.xcdatamodel */;
+			name = Model.xcdatamodeld;
+			path = "../../Shared Model/Model.xcdatamodeld";
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
 		};

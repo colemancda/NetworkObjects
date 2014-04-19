@@ -23,12 +23,15 @@
 		6E1F7DEE18B8456800CF1369 /* SNCStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E1F7DED18B8456800CF1369 /* SNCStore.m */; };
 		6E1F7E5418B84E4200CF1369 /* SNCKeyboardViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E1F7E5318B84E4200CF1369 /* SNCKeyboardViewController.m */; };
 		6E1F7E5718B8529F00CF1369 /* SNCLoginViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E1F7E5618B8529F00CF1369 /* SNCLoginViewController.m */; };
+		6E44BCD11902E3C100EF0AD8 /* SNCPostCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E44BCD01902E3C100EF0AD8 /* SNCPostCell.m */; };
+		6E44BCD21902E3C100EF0AD8 /* SNCPostCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E44BCD01902E3C100EF0AD8 /* SNCPostCell.m */; };
+		6E44BCDD1902E40F00EF0AD8 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 6E44BCDB1902E40F00EF0AD8 /* Model.xcdatamodeld */; };
+		6E44BCDE1902E40F00EF0AD8 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 6E44BCDB1902E40F00EF0AD8 /* Model.xcdatamodeld */; };
 		6E62515818CAEA9C00A30CA0 /* Client+NOClientKeysProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E62515118CAEA9C00A30CA0 /* Client+NOClientKeysProtocol.m */; };
 		6E62515918CAEA9C00A30CA0 /* Post+NOResourceKeysProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E62515318CAEA9C00A30CA0 /* Post+NOResourceKeysProtocol.m */; };
 		6E62515A18CAEA9C00A30CA0 /* Session+NOSessionKeysProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E62515518CAEA9C00A30CA0 /* Session+NOSessionKeysProtocol.m */; };
 		6E62515B18CAEA9C00A30CA0 /* User+NOUserKeysProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E62515718CAEA9C00A30CA0 /* User+NOUserKeysProtocol.m */; };
 		6E671F0618B9652900BABA73 /* NSError+presentError.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E671F0518B9652900BABA73 /* NSError+presentError.m */; };
-		6E671F0D18B9784800BABA73 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 6E671F0B18B9784800BABA73 /* Model.xcdatamodeld */; };
 		6E98312818C947F80063129E /* SNCPostViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E98312718C947F80063129E /* SNCPostViewController.m */; };
 		6E999C7018CADC2100583901 /* Client.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E999C6918CADC2100583901 /* Client.m */; };
 		6E999C7118CADC2100583901 /* Post.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E999C6B18CADC2100583901 /* Post.m */; };
@@ -109,6 +112,9 @@
 		6E1F7E5318B84E4200CF1369 /* SNCKeyboardViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SNCKeyboardViewController.m; sourceTree = "<group>"; };
 		6E1F7E5518B8529F00CF1369 /* SNCLoginViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SNCLoginViewController.h; sourceTree = "<group>"; };
 		6E1F7E5618B8529F00CF1369 /* SNCLoginViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SNCLoginViewController.m; sourceTree = "<group>"; };
+		6E44BCCF1902E3C100EF0AD8 /* SNCPostCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SNCPostCell.h; sourceTree = "<group>"; };
+		6E44BCD01902E3C100EF0AD8 /* SNCPostCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SNCPostCell.m; sourceTree = "<group>"; };
+		6E44BCDC1902E40F00EF0AD8 /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
 		6E62515018CAEA9C00A30CA0 /* Client+NOClientKeysProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "Client+NOClientKeysProtocol.h"; path = "../../Shared Model/Client+NOClientKeysProtocol.h"; sourceTree = "<group>"; };
 		6E62515118CAEA9C00A30CA0 /* Client+NOClientKeysProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "Client+NOClientKeysProtocol.m"; path = "../../Shared Model/Client+NOClientKeysProtocol.m"; sourceTree = "<group>"; };
 		6E62515218CAEA9C00A30CA0 /* Post+NOResourceKeysProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "Post+NOResourceKeysProtocol.h"; path = "../../Shared Model/Post+NOResourceKeysProtocol.h"; sourceTree = "<group>"; };
@@ -119,7 +125,6 @@
 		6E62515718CAEA9C00A30CA0 /* User+NOUserKeysProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "User+NOUserKeysProtocol.m"; path = "../../Shared Model/User+NOUserKeysProtocol.m"; sourceTree = "<group>"; };
 		6E671F0418B9652900BABA73 /* NSError+presentError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSError+presentError.h"; sourceTree = "<group>"; };
 		6E671F0518B9652900BABA73 /* NSError+presentError.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSError+presentError.m"; sourceTree = "<group>"; };
-		6E671F0C18B9784800BABA73 /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
 		6E98312618C947F80063129E /* SNCPostViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SNCPostViewController.h; sourceTree = "<group>"; };
 		6E98312718C947F80063129E /* SNCPostViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SNCPostViewController.m; sourceTree = "<group>"; };
 		6E999C6818CADC2100583901 /* Client.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Client.h; path = "Social Network Client/Client.h"; sourceTree = SOURCE_ROOT; };
@@ -197,9 +202,10 @@
 			children = (
 				6E11BD3918AFD1FE00FF75FB /* SNCAppDelegate.h */,
 				6E11BD3A18AFD1FE00FF75FB /* SNCAppDelegate.m */,
-				6E671F0B18B9784800BABA73 /* Model.xcdatamodeld */,
+				6E44BCDB1902E40F00EF0AD8 /* Model.xcdatamodeld */,
 				6E1F7DEA18B8447C00CF1369 /* Storyboard.storyboard */,
 				6E11BD3C18AFD1FE00FF75FB /* Images.xcassets */,
+				6E44BCCA1902E3A700EF0AD8 /* Views */,
 				6E1F7DF118B84C2000CF1369 /* Controller */,
 				6E1F7DEF18B8456C00CF1369 /* Store */,
 				6E1F7DF018B8461E00CF1369 /* Model */,
@@ -279,6 +285,15 @@
 				6E671F0518B9652900BABA73 /* NSError+presentError.m */,
 			);
 			name = Categories;
+			sourceTree = "<group>";
+		};
+		6E44BCCA1902E3A700EF0AD8 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				6E44BCCF1902E3C100EF0AD8 /* SNCPostCell.h */,
+				6E44BCD01902E3C100EF0AD8 /* SNCPostCell.m */,
+			);
+			name = Views;
 			sourceTree = "<group>";
 		};
 		6E62515C18CAEAFF00A30CA0 /* NSManagedObject */ = {
@@ -474,7 +489,6 @@
 			files = (
 				6E11BD3718AFD1FE00FF75FB /* main.m in Sources */,
 				6E11BD3B18AFD1FE00FF75FB /* SNCAppDelegate.m in Sources */,
-				6E671F0D18B9784800BABA73 /* Model.xcdatamodeld in Sources */,
 				6E999C7218CADC2100583901 /* Session.m in Sources */,
 				6E1F7E5418B84E4200CF1369 /* SNCKeyboardViewController.m in Sources */,
 				6E1F7E5718B8529F00CF1369 /* SNCLoginViewController.m in Sources */,
@@ -490,6 +504,8 @@
 				6E98312818C947F80063129E /* SNCPostViewController.m in Sources */,
 				6E999C7018CADC2100583901 /* Client.m in Sources */,
 				6E671F0618B9652900BABA73 /* NSError+presentError.m in Sources */,
+				6E44BCDD1902E40F00EF0AD8 /* Model.xcdatamodeld in Sources */,
+				6E44BCD11902E3C100EF0AD8 /* SNCPostCell.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -497,7 +513,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6E44BCD21902E3C100EF0AD8 /* SNCPostCell.m in Sources */,
 				6E11BD5018AFD1FE00FF75FB /* Social_Network_ClientTests.m in Sources */,
+				6E44BCDE1902E40F00EF0AD8 /* Model.xcdatamodeld in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -713,13 +731,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCVersionGroup section */
-		6E671F0B18B9784800BABA73 /* Model.xcdatamodeld */ = {
+		6E44BCDB1902E40F00EF0AD8 /* Model.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
-				6E671F0C18B9784800BABA73 /* Model.xcdatamodel */,
+				6E44BCDC1902E40F00EF0AD8 /* Model.xcdatamodel */,
 			);
-			currentVersion = 6E671F0C18B9784800BABA73 /* Model.xcdatamodel */;
-			path = Model.xcdatamodeld;
+			currentVersion = 6E44BCDC1902E40F00EF0AD8 /* Model.xcdatamodel */;
+			name = Model.xcdatamodeld;
+			path = "../../Shared Model/Model.xcdatamodeld";
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
 		};
