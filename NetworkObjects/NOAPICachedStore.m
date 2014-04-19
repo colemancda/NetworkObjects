@@ -58,11 +58,6 @@ NSString *const NOAPICachedStoreDatesCachedOption = @"NOAPICachedStoreDatesCache
 
 @implementation NOAPICachedStore
 
--(void)dealloc
-{
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
-}
-
 #pragma mark - Initialization
 
 -(instancetype)initWithOptions:(NSDictionary *)options
@@ -520,17 +515,6 @@ NSString *const NOAPICachedStoreDatesCachedOption = @"NOAPICachedStoreDatesCache
                   withJSONObject:jsonObject
                       URLSession:urlSession
                       completion:completionBlock];
-}
-
-#pragma mark - Notifications
-
--(void)mergeFromContextDidSaveNotification:(NSNotification *)notification
-{
-    [self.context performBlockAndWait:^{
-        
-        [self.context mergeChangesFromContextDidSaveNotification:notification];
-        
-    }];
 }
 
 @end
