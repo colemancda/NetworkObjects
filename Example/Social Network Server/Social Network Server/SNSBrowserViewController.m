@@ -11,7 +11,7 @@
 #import "SNSClientWindowController.h"
 #import "SNSRepresentedObjectWindowController.h"
 
-static void *KVOContext;
+static void *KVOContext = &KVOContext;
 
 @interface SNSBrowserViewController ()
 
