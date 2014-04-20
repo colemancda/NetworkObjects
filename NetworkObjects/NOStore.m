@@ -52,13 +52,14 @@
             }
         }
         
-        
+        // setup last resource IDs dictionary
         
         _createResourcesQueues = [NSDictionary dictionaryWithDictionary:creationQueuesDict];
         
         _lastResourceIDs = [[NSMutableDictionary alloc] init];
         
         // load previously saved last resourceIDs
+        
         if (lastIDsURL) {
             
             _lastIDsURL = lastIDsURL;
@@ -256,5 +257,6 @@
     
     return newResource;
 }
+
 
 @end
