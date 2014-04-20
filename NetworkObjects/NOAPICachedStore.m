@@ -887,8 +887,11 @@ NSString *const NOAPICachedStoreDateCachedAttributeNameOption = @"NOAPICachedSto
 
 -(void)didCacheResource:(NSManagedObject<NOResourceKeysProtocol> *)resource
 {
-    [resource setValue:[NSDate date]
-                forKey:self.dateCachedAttributeName];
+    if (_dateCachedAttributeName) {
+        
+        [resource setValue:[NSDate date]
+                    forKey:self.dateCachedAttributeName];
+    }
 }
 
 @end
