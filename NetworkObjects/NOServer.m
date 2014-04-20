@@ -456,6 +456,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
             [self handleFunction:functionName
               recievedJsonObject:jsonObject
                         resource:resource
+                         context:resourceContext
                          session:resourceContextSession
                         response:response];
             
@@ -474,6 +475,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
             }
             
             [self handleEditResource:resource
+                             context:resourceContext
                   recievedJsonObject:jsonObject
                              session:resourceContextSession
                             response:response];
@@ -484,6 +486,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         if ([request.method isEqualToString:@"GET"]) {
             
             [self handleGetResource:resource
+                            context:resourceContext
                             session:resourceContextSession
                            response:response];
             
@@ -493,6 +496,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         if ([request.method isEqualToString:@"DELETE"]) {
             
             [self handleDeleteResource:resource
+                               context:resourceContext
                                session:resourceContextSession
                               response:response];
             
@@ -505,12 +509,13 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
 }
 
 -(void)handleGetResource:(NSManagedObject<NOResourceProtocol> *)resource
+                 context:(NSManagedObjectContext *)context
                  session:(NSManagedObject<NOSessionProtocol> *)session
                 response:(RouteResponse *)response
 {
     __block NOResourcePermission resourcePermission;
     
-    [resource.managedObjectContext performBlockAndWait:^{
+    [context performBlockAndWait:^{
         
         resourcePermission = [resource permissionForSession:session];
         
@@ -527,7 +532,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     // build json object
     __block NSDictionary *jsonObject;
     
-    [resource.managedObjectContext performBlockAndWait:^{
+    [context performBlockAndWait:^{
        
        jsonObject = [self JSONRepresentationOfResource:resource
                                             forSession:session];
@@ -555,6 +560,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
 }
 
 -(void)handleEditResource:(NSManagedObject<NOResourceProtocol> *)resource
+                  context:(NSManagedObjectContext *)context
        recievedJsonObject:(NSDictionary *)recievedJsonObject
                   session:(NSManagedObject<NOSessionProtocol> *)session
                  response:(RouteResponse *)response
@@ -563,9 +569,10 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     __block NOServerStatusCode editStatusCode;
     
-    [resource.managedObjectContext performBlockAndWait:^{
+    [context performBlockAndWait:^{
         
         editStatusCode = [self verifyEditResource:resource
+                                          context:context
                                recievedJsonObject:recievedJsonObject
                                           session:session];
     }];
@@ -582,9 +589,10 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     __block NSError *error;
     
-    [resource.managedObjectContext performBlockAndWait:^{
+    [context performBlockAndWait:^{
         
         [self setValuesForResource:resource
+                           context:context
                     fromJSONObject:recievedJsonObject
                            session:session
                              error:&error];
@@ -603,6 +611,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
 }
 
 -(void)handleDeleteResource:(NSManagedObject<NOResourceProtocol> *)resource
+                    context:(NSManagedObjectContext *)context
                     session:(NSManagedObject<NOSessionProtocol> *)session
                    response:(RouteResponse *)response
 {
@@ -610,7 +619,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     __block BOOL cannotDelete;
     
-    [resource.managedObjectContext performBlockAndWait:^{
+    [context performBlockAndWait:^{
         
         cannotDelete = ([resource permissionForSession:session] < EditPermission || ![resource canDeleteFromSession:session]);
         
@@ -692,6 +701,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         NSManagedObject<NOResourceProtocol> *tempResource = [NSEntityDescription insertNewObjectForEntityForName:entityDescription.name inManagedObjectContext:context];
         
         applyInitialValuesStatusCode = [self verifyEditResource:tempResource
+                                                        context:context
                                              recievedJsonObject:initialValues
                                                         session:(NSManagedObject<NOSessionProtocol> *)[context objectWithID:session.objectID]];
     }];
@@ -712,7 +722,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     __block NSError *error;
     
     NSManagedObject<NOResourceProtocol> *newResource = [_store newResourceWithEntityDescription:entityDescription
-                                                                                          error:&error];
+                                                                                        context:&context                                                                                          error:&error];
     
     if (!newResource) {
         
@@ -728,7 +738,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     __block NSNumber *resourceID;
     
-    [newResource.managedObjectContext performBlockAndWait:^{
+    [context performBlockAndWait:^{
         
         // notify
         
@@ -737,6 +747,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         // set initial values
         
         [self setValuesForResource:newResource
+                           context:context
                     fromJSONObject:initialValues
                            session:(NSManagedObject<NOSessionProtocol> *)[newResource.managedObjectContext objectWithID:session.objectID]
                              error:&error];
@@ -774,12 +785,13 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
 -(void)handleFunction:(NSString *)functionName
    recievedJsonObject:(NSDictionary *)recievedJsonObject
              resource:(NSManagedObject<NOResourceProtocol> *)resource
+              context:(NSManagedObjectContext *)context
               session:(NSManagedObject<NOSessionProtocol> *)session
              response:(RouteResponse *)response
 {
     __block BOOL canPerformFunction;
     
-    [resource.managedObjectContext performBlockAndWait:^{
+    [context performBlockAndWait:^{
        
         canPerformFunction = [resource canPerformFunction:functionName
                                                   session:session];
@@ -799,7 +811,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     __block NOResourceFunctionCode functionCode;
     
-    [resource.managedObjectContext performBlockAndWait:^{
+    [context performBlockAndWait:^{
         
         functionCode = [resource performFunction:functionName
                                     withSession:session
@@ -1187,6 +1199,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                 NSManagedObject *fetchedResource = [self.store resourceWithEntityDescription:entityDescription
                                                                                   resourceID:resourceID
                                                                               shouldPrefetch:NO
+                                                                                     context:nil
                                                                                        error:&error];
                 
                 if (error) {
@@ -1245,6 +1258,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                     NSManagedObject *fetchedResource = [self.store resourceWithEntityDescription:entityDescription
                                                                                       resourceID:resourceID
                                                                                   shouldPrefetch:NO
+                                                                                         context:nil
                                                                                            error:&error];
                     
                     if (error) {
@@ -1733,6 +1747,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
 }
 
 -(BOOL)setValuesForResource:(NSManagedObject<NOResourceProtocol> *)resource
+                    context:(NSManagedObjectContext *)context
              fromJSONObject:(NSDictionary *)jsonObject
                     session:(NSManagedObject<NOSessionProtocol> *)session
                       error:(NSError **)error
@@ -1767,14 +1782,14 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                 
                 // get the destination resource
                 
-                NSManagedObject<NOResourceProtocol> *destinationResource = [_store resourceWithEntityDescription:relationshipDescription.destinationEntity resourceID:destinationResourceID shouldPrefetch:NO error:error];
+                NSManagedObject<NOResourceProtocol> *destinationResource = [_store resourceWithEntityDescription:relationshipDescription.destinationEntity resourceID:destinationResourceID shouldPrefetch:NO context:nil error:error];
                 
                 if (*error) {
                     
                     return NO;
                 }
                 
-                [resource setValue:[resource.managedObjectContext objectWithID:destinationResource.objectID]
+                [resource setValue:[context objectWithID:destinationResource.objectID]
                             forKey:key];
                 
             }
@@ -1791,14 +1806,14 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                     
                     // get the destination resource
                     
-                    NSManagedObject<NOResourceProtocol> *destinationResource = [_store resourceWithEntityDescription:relationshipDescription.destinationEntity resourceID:destinationResourceID shouldPrefetch:NO error:error];
+                    NSManagedObject<NOResourceProtocol> *destinationResource = [_store resourceWithEntityDescription:relationshipDescription.destinationEntity resourceID:destinationResourceID shouldPrefetch:NO context:nil error:error];
                     
                     if (*error) {
                         
                         return NO;
                     }
                     
-                    [newRelationshipValues addObject:[resource.managedObjectContext objectWithID:destinationResource.objectID]];
+                    [newRelationshipValues addObject:[context objectWithID:destinationResource.objectID]];
                 }
                 
                 // replace collection
@@ -1817,7 +1832,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     // save
     
-    if (![resource.managedObjectContext save:error]) {
+    if (![context save:error]) {
         
         return NO;
     }
@@ -1826,6 +1841,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
 }
 
 -(NOServerStatusCode)verifyEditResource:(NSManagedObject<NOResourceProtocol> *)resource
+                                context:(NSManagedObjectContext *)context
                      recievedJsonObject:(NSDictionary *)recievedJsonObject
                                 session:(NSManagedObject<NOSessionProtocol> *)session
 {
@@ -1917,7 +1933,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                     
                     NSError *error;
                     
-                    NSManagedObject<NOResourceProtocol> *newValue = [_store resourceWithEntityDescription:relationshipDescription.entity resourceID:destinationResourceID shouldPrefetch:NO error:&error];
+                    NSManagedObject<NOResourceProtocol> *newValue = [_store resourceWithEntityDescription:relationshipDescription.entity resourceID:destinationResourceID shouldPrefetch:NO context:nil error:&error];
                     
                     if (error) {
                         
@@ -1936,6 +1952,9 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                     }
                     
                     // must be valid value
+                    
+                    newValue = (NSManagedObject<NOResourceProtocol> *)[context objectWithID:newValue.objectID];
+                    
                     if (![resource validateValue:&newValue
                                           forKey:key
                                            error:nil]) {
@@ -1962,7 +1981,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                         
                         NSError *error;
                         
-                        NSManagedObject<NOResourceProtocol> *destinationResource = [_store resourceWithEntityDescription:relationshipDescription.entity resourceID:destinationResourceID shouldPrefetch:NO error:&error];
+                        NSManagedObject<NOResourceProtocol> *destinationResource = [_store resourceWithEntityDescription:relationshipDescription.entity resourceID:destinationResourceID shouldPrefetch:NO context:nil error:&error];
                         
                         if (error) {
                             
@@ -1980,6 +1999,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                             return ForbiddenStatusCode;
                         }
                         
+                        [newValue addObject:[context objectWithID:destinationResource.objectID]];
                     }
                     
                     // must be valid new value

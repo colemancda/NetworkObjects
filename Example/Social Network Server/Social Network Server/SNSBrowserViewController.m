@@ -122,6 +122,7 @@ static void *KVOContext = &KVOContext;
     NSError *error;
     
     if (![appDelegate.store newResourceWithEntityDescription:self.selectedEntity
+                                                     context:nil
                                                       error:&error]) {
         
         [NSApp presentError:error];

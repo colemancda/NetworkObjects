@@ -280,6 +280,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
  */
 
 -(NOServerStatusCode)verifyEditResource:(NSManagedObject<NOResourceProtocol> *)resource
+                                context:(NSManagedObjectContext *)context
                      recievedJsonObject:(NSDictionary *)recievedJsonObject
                                 session:(NSManagedObject<NOSessionProtocol> *)session;
 
@@ -289,6 +290,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
  */
 
 -(BOOL)setValuesForResource:(NSManagedObject<NOResourceProtocol> *)resource
+                    context:(NSManagedObjectContext *)context
              fromJSONObject:(NSDictionary *)jsonObject
                     session:(NSManagedObject<NOSessionProtocol> *)session
                       error:(NSError **)error;
