@@ -174,6 +174,7 @@
 -(NSManagedObject<NOResourceProtocol> *)resourceWithEntityDescription:(NSEntityDescription *)entityDescription
                                                            resourceID:(NSNumber *)resourceID
                                                        shouldPrefetch:(BOOL)shouldPrefetch
+                                                              context:(NSManagedObjectContext *__autoreleasing *)contextPointer
                                                                 error:(NSError *__autoreleasing *)error;
 {
     // get the key of the resourceID attribute
@@ -198,6 +199,8 @@
     // create temp context
     
     NSManagedObjectContext *context = [self newContext];
+    
+    *contextPointer = context;
     
     __block NSArray *result;
     
@@ -242,6 +245,7 @@
 }
 
 -(NSManagedObject<NOResourceProtocol> *)newResourceWithEntityDescription:(NSEntityDescription *)entityDescription
+                                                                 context:(NSManagedObjectContext *__autoreleasing *)contextPointer
                                                                    error:(NSError *__autoreleasing *)error
 {
     // use the operationQueue for this resource
@@ -255,6 +259,8 @@
     // temp context
     
     NSManagedObjectContext *context = [self newContext];
+    
+    *contextPointer = context;
     
     // get resourceID attribute
     

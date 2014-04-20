@@ -186,6 +186,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
 -(void)handleFunction:(NSString *)functionName
    recievedJsonObject:(NSDictionary *)recievedJsonObject
              resource:(NSManagedObject<NOResourceProtocol> *)resource
+              context:(NSManagedObjectContext *)context
               session:(NSManagedObject<NOSessionProtocol> *)session
              response:(RouteResponse *)response;
 
@@ -194,6 +195,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
  
  */
 -(void)handleEditResource:(NSManagedObject <NOResourceProtocol> *)resource
+                  context:(NSManagedObjectContext *)context
        recievedJsonObject:(NSDictionary *)recievedJsonObject
                   session:(NSManagedObject <NOSessionProtocol> *)session
                  response:(RouteResponse *)response;
@@ -203,6 +205,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
  
  */
 -(void)handleGetResource:(NSManagedObject <NOResourceProtocol> *)resource
+                 context:(NSManagedObjectContext *)context
                  session:(NSManagedObject <NOSessionProtocol> *)session
                 response:(RouteResponse *)response;
 
@@ -211,6 +214,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
  
  */
 -(void)handleDeleteResource:(NSManagedObject <NOResourceProtocol> *)resource
+                    context:(NSManagedObjectContext *)context
                     session:(NSManagedObject <NOSessionProtocol> *)session
                    response:(RouteResponse *)response;
 

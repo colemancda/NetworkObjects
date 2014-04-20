@@ -413,18 +413,21 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         
         NSError *fetchError;
         
+        NSManagedObjectContext *resourceContext;
+        
         // get the resource
         NSManagedObject<NOResourceProtocol> *resource = [self.store resourceWithEntityDescription:entityDescription
                                                                                        resourceID:resourceID
                                                                                    shouldPrefetch:shouldPrefetch
+                                                                                          context:&resourceContext
                                                                                             error:&fetchError];
         // get session object for resource context
         
         __block NSManagedObject <NOSessionProtocol> *resourceContextSession;
         
-        [resource.managedObjectContext performBlockAndWait:^{
+        [resourceContext performBlockAndWait:^{
             
-            resourceContextSession = (NSManagedObject<NOSessionProtocol> *)[resource.managedObjectContext objectWithID:session.objectID];
+            resourceContextSession = (NSManagedObject<NOSessionProtocol> *)[resourceContext objectWithID:session.objectID];
         }];
         
         // internal error
@@ -888,7 +891,9 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     NSError *error;
     
-    NSManagedObject<NOClientProtocol> *client = (NSManagedObject<NOClientProtocol> *)[_store resourceWithEntityDescription:clientEntityDescription resourceID:clientResourceID shouldPrefetch:YES error:&error];
+    NSManagedObjectContext *context;
+    
+    NSManagedObject<NOClientProtocol> *client = (NSManagedObject<NOClientProtocol> *)[_store resourceWithEntityDescription:clientEntityDescription resourceID:clientResourceID shouldPrefetch:YES context:&context error:&error];
     
     if (error) {
         
@@ -908,7 +913,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     __block BOOL validSecret;
     
-    [client.managedObjectContext performBlockAndWait:^{
+    [context performBlockAndWait:^{
         
         validSecret = [[client valueForKey:clientSecretKey] isEqualToString:clientSecret];
     }];
@@ -921,7 +926,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     }
     
     // create new session with client
-    __block NSManagedObject<NOSessionProtocol> *session = (NSManagedObject<NOSessionProtocol> *)[_store newResourceWithEntityDescription:sessionEntityDescription error:&error];
+    __block NSManagedObject<NOSessionProtocol> *session = (NSManagedObject<NOSessionProtocol> *)[_store newResourceWithEntityDescription:sessionEntityDescription context:nil error:&error];
     
     if (error) {
         
@@ -930,9 +935,9 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         return;
     }
     
-    [client.managedObjectContext performBlockAndWait:^{
+    [context performBlockAndWait:^{
         
-        session = (NSManagedObject<NOSessionProtocol> *)[client.managedObjectContext objectWithID:session.objectID];
+        session = (NSManagedObject<NOSessionProtocol> *)[context objectWithID:session.objectID];
         
         // generate token
         [session generateToken];
@@ -966,7 +971,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         NSFetchRequest *userFetchRequest = [NSFetchRequest fetchRequestWithEntityName:self.userEntityName];
         
         userFetchRequest.fetchLimit = 1;
-        
+                
         // create predicate
         
         NSPredicate *usernamePredicate = [NSComparisonPredicate predicateWithLeftExpression:[NSExpression expressionForKeyPath:usernameKey] rightExpression:[NSExpression expressionForConstantValue:username] modifier:NSDirectPredicateModifier type:NSEqualToPredicateOperatorType options:NSCaseInsensitivePredicateOption];
@@ -1442,8 +1447,6 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     // prefetch resourceID
     
-    fetchRequest.propertiesToFetch = @[entityDescription.propertiesByName[[NSClassFromString(entityDescription.managedObjectClassName) resourceIDKey]]];
-    
     fetchRequest.returnsObjectsAsFaults = NO;
     
     // execute fetch request...
@@ -1590,8 +1593,6 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     sessionWithTokenFetchRequest.predicate = [NSComparisonPredicate predicateWithLeftExpression:[NSExpression expressionForKeyPath:tokenKey] rightExpression:[NSExpression expressionForConstantValue:tokenKey] modifier:NSDirectPredicateModifier type:NSEqualToPredicateOperatorType options:NSNormalizedPredicateOption];
     
     sessionWithTokenFetchRequest.fetchLimit = 1;
-    
-    sessionWithTokenFetchRequest.propertiesToFetch = nil;
     
     // create context
     

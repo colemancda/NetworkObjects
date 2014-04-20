@@ -68,11 +68,13 @@ typedef NS_ENUM(NSUInteger, NOStoreErrorCode) {
 // e.g. you want to create a new resource but dont wanna write the glue code for assigning it a proper resource ID
 
 -(NSManagedObject<NOResourceProtocol> *)newResourceWithEntityDescription:(NSEntityDescription *)entityDescription
+                                                                 context:(NSManagedObjectContext **)context
                                                                    error:(NSError **)error;
 
 -(NSManagedObject<NOResourceProtocol> *)resourceWithEntityDescription:(NSEntityDescription *)entityDescription
                                                            resourceID:(NSNumber *)resourceID
                                                        shouldPrefetch:(BOOL)shouldPrefetch
+                                                              context:(NSManagedObjectContext **)context
                                                                 error:(NSError **)error;
 
 -(BOOL)deleteResource:(NSManagedObject<NOResourceProtocol> *)resource
