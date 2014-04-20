@@ -271,6 +271,10 @@
     
     _context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
     
+    _context.persistentStoreCoordinator = self.store.persistentStoreCoordinator;
+    
+    // setup server
+    
     _server = [[NOServer alloc] initWithOptions:@{NOServerStoreOption: _store,
                                                   NOServerUserEntityNameOption: @"User",
                                                   NOServerSessionEntityNameOption: @"Session",
