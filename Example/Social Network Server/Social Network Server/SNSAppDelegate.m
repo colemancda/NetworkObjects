@@ -76,23 +76,6 @@
     return !self.server.httpServer.isRunning;
 }
 
--(void)applicationWillTerminate:(NSNotification *)notification
-{
-    NSError *error;
-    
-    if (![self.store save:&error]) {
-        
-        [NSApp presentError:error];
-        
-        NSLog(@"Couldn't save server context");
-        
-        return;
-    }
-    
-    NSLog(@"Saved server context");
-
-}
-
 -(BOOL)applicationShouldHandleReopen:(NSApplication *)sender
                    hasVisibleWindows:(BOOL)flag
 {
@@ -204,27 +187,16 @@
 {
     NSError *error;
     
-    if (![self.context save:&error]) {
+    if (![self.store save:&error]) {
         
         [NSApp presentError:error];
         
-        NSLog(@"Couldn't save app context");
+        NSLog(@"Couldn't save server context");
         
         return;
     }
     
     NSLog(@"Saved");
-}
-
-#pragma mark - Notification
-
--(void)mergeChangesFromContextDidSaveNotification:(NSNotification *)notification
-{
-    [self.context performBlockAndWait:^{
-        
-        [self.context mergeChangesFromContextDidSaveNotification:notification];
-        
-    }];
 }
 
 @end
@@ -298,6 +270,7 @@
     // add persistance
     
     NSError *addPersistentStoreError;
+    
     [_store.context.persistentStoreCoordinator addPersistentStoreWithType:NSSQLiteStoreType
                                                             configuration:nil
                                                                       URL:sqlURL
@@ -310,21 +283,6 @@
         
         [NSApp terminate:nil];
     }
-    
-    // create context
-    
-    _context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
-    
-    _context.persistentStoreCoordinator = self.store.context.persistentStoreCoordinator;
-    
-    _context.undoManager = nil;
-    
-    // observer changes
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(mergeChangesFromContextDidSaveNotification:)
-                                                 name:NSManagedObjectContextDidSaveNotification
-                                               object:self.store.context];
     
     // setup server
     

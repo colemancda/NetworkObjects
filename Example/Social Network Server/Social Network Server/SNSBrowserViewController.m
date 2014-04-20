@@ -56,7 +56,7 @@ static void *KVOContext = &KVOContext;
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(contextDidChange:)
                                                  name:NSManagedObjectContextObjectsDidChangeNotification
-                                               object:appDelegate.context];
+                                               object:appDelegate.store.context];
     
 }
 
@@ -152,7 +152,7 @@ static void *KVOContext = &KVOContext;
     SNSAppDelegate *appDelegate = [NSApp delegate];
     
     // populate with names of entities
-    _sortedComboBox = [appDelegate.context.persistentStoreCoordinator.managedObjectModel.entitiesByName.allKeys sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)];
+    _sortedComboBox = [appDelegate.store.context.persistentStoreCoordinator.managedObjectModel.entitiesByName.allKeys sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)];
     
     return _sortedComboBox.count;
 }
@@ -172,7 +172,7 @@ static void *KVOContext = &KVOContext;
     
     SNSAppDelegate *appDelegate = [NSApp delegate];
     
-    self.selectedEntity = appDelegate.context.persistentStoreCoordinator.managedObjectModel.entitiesByName[selectedEntityName];
+    self.selectedEntity = appDelegate.store.context.persistentStoreCoordinator.managedObjectModel.entitiesByName[selectedEntityName];
     
     self.arrayController.entityName = self.selectedEntity.name;
     
@@ -244,26 +244,6 @@ static void *KVOContext = &KVOContext;
     // show window
     [wc.window makeKeyAndOrderFront:nil];
     
-}
-
--(void)fetch:(id)sender
-{
-    SNSAppDelegate *appDelegate = [NSApp delegate];
-    
-    NSError *error;
-    
-    if (![appDelegate.store save:&error]) {
-        
-        [NSApp presentError:error];
-        
-        NSLog(@"Couldn't save server context");
-        
-        return;
-    }
-    
-    NSLog(@"Saved server context");
-    
-    [self.arrayController fetch:sender];
 }
 
 #pragma mark - Table View Delegate

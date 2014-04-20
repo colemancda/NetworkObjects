@@ -135,7 +135,7 @@
                         <font key="font" metaFont="system"/>
                     </buttonCell>
                     <connections>
-                        <action selector="fetch:" target="-2" id="lwO-Tr-0TN"/>
+                        <action selector="fetch:" target="2CK-Zu-wXT" id="SpR-Bq-8Lf"/>
                     </connections>
                 </button>
             </subviews>
@@ -165,7 +165,7 @@
         </view>
         <arrayController mode="entity" entityName="Client" automaticallyPreparesContent="YES" id="2CK-Zu-wXT">
             <connections>
-                <binding destination="-3" name="managedObjectContext" keyPath="delegate.context" id="06h-ef-Cpr"/>
+                <binding destination="-3" name="managedObjectContext" keyPath="delegate.store.context" id="w09-Oz-xBW"/>
             </connections>
         </arrayController>
     </objects>

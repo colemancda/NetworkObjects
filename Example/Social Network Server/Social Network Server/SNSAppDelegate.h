@@ -21,8 +21,6 @@
 
 @property (nonatomic, readonly) NOStore *store;
 
-@property (nonatomic, readonly) NSManagedObjectContext *context;
-
 #pragma mark - View Controllers
 
 @property (readonly) SNSBrowserViewController *browserVC;
