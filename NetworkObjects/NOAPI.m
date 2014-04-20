@@ -216,14 +216,14 @@ NSString *const NOAPISearchPathOption = @"NOAPISearchPathOption";
         
         if (httpResponse.statusCode != 200) {
             
-            if (httpResponse.statusCode == BadRequestStatusCode) {
+            if (httpResponse.statusCode == NOServerBadRequestStatusCode) {
                 
                 completionBlock(self.badRequestError);
                 
                 return;
             }
             
-            if (httpResponse.statusCode == ForbiddenStatusCode) {
+            if (httpResponse.statusCode == NOServerForbiddenStatusCode) {
                 
                 NSString *errorDescription = NSLocalizedString(@"The login failed",
                                                                @"The login failed");
@@ -356,15 +356,15 @@ NSString *const NOAPISearchPathOption = @"NOAPISearchPathOption";
         
         // error codes
         
-        if (httpResponse.statusCode != OKStatusCode) {
+        if (httpResponse.statusCode != NOServerOKStatusCode) {
             
-            if (httpResponse.statusCode == UnauthorizedStatusCode) {
+            if (httpResponse.statusCode == NOServerUnauthorizedStatusCode) {
                 
                 completionBlock(self.unauthorizedError, nil);
                 return;
             }
             
-            if (httpResponse.statusCode == ForbiddenStatusCode) {
+            if (httpResponse.statusCode == NOServerForbiddenStatusCode) {
                 
                 NSString *errorDescription = NSLocalizedString(@"Permission to perform search is denied",
                                                                @"Permission to perform search is denied");
@@ -378,14 +378,14 @@ NSString *const NOAPISearchPathOption = @"NOAPISearchPathOption";
                 return;
             }
             
-            if (httpResponse.statusCode == InternalServerErrorStatusCode) {
+            if (httpResponse.statusCode == NOServerInternalServerErrorStatusCode) {
                 
                 completionBlock(self.serverError, nil);
                 
                 return;
             }
             
-            if (httpResponse.statusCode == BadRequestStatusCode) {
+            if (httpResponse.statusCode == NOServerBadRequestStatusCode) {
                 
                 completionBlock(self.badRequestError, nil);
                 
@@ -483,13 +483,13 @@ NSString *const NOAPISearchPathOption = @"NOAPISearchPathOption";
         
         if (httpResponse.statusCode != 200) {
             
-            if (httpResponse.statusCode == UnauthorizedStatusCode) {
+            if (httpResponse.statusCode == NOServerUnauthorizedStatusCode) {
                 
                 completionBlock(self.unauthorizedError, nil);
                 return;
             }
             
-            if (httpResponse.statusCode == ForbiddenStatusCode) {
+            if (httpResponse.statusCode == NOServerForbiddenStatusCode) {
                 
                 NSString *errorDescription = NSLocalizedString(@"Access to resource is denied",
                                                                @"Access to resource is denied");
@@ -503,21 +503,21 @@ NSString *const NOAPISearchPathOption = @"NOAPISearchPathOption";
                 return;
             }
             
-            if (httpResponse.statusCode == InternalServerErrorStatusCode) {
+            if (httpResponse.statusCode == NOServerInternalServerErrorStatusCode) {
                 
                 completionBlock(self.serverError, nil);
                 
                 return;
             }
             
-            if (httpResponse.statusCode == BadRequestStatusCode) {
+            if (httpResponse.statusCode == NOServerBadRequestStatusCode) {
                 
                 completionBlock(self.badRequestError, nil);
                 
                 return;
             }
             
-            if (httpResponse.statusCode == NotFoundStatusCode) {
+            if (httpResponse.statusCode == NOServerNotFoundStatusCode) {
                 
                 completionBlock([self notFoundError], nil);
                 
@@ -618,13 +618,13 @@ NSString *const NOAPISearchPathOption = @"NOAPISearchPathOption";
         
         if (httpResponse.statusCode != 200) {
             
-            if (httpResponse.statusCode == UnauthorizedStatusCode) {
+            if (httpResponse.statusCode == NOServerUnauthorizedStatusCode) {
                 
                 completionBlock(self.unauthorizedError, nil);
                 return;
             }
             
-            if (httpResponse.statusCode == ForbiddenStatusCode) {
+            if (httpResponse.statusCode == NOServerForbiddenStatusCode) {
                 
                 NSString *errorDescription = NSLocalizedString(@"Permission to create new resource is denied",
                                                                @"Permission to create new resource is denied");
@@ -638,14 +638,14 @@ NSString *const NOAPISearchPathOption = @"NOAPISearchPathOption";
                 return;
             }
             
-            if (httpResponse.statusCode == InternalServerErrorStatusCode) {
+            if (httpResponse.statusCode == NOServerInternalServerErrorStatusCode) {
                 
                 completionBlock(self.serverError, nil);
                 
                 return;
             }
             
-            if (httpResponse.statusCode == BadRequestStatusCode) {
+            if (httpResponse.statusCode == NOServerBadRequestStatusCode) {
                 
                 completionBlock(self.badRequestError, nil);
                 
@@ -768,13 +768,13 @@ NSString *const NOAPISearchPathOption = @"NOAPISearchPathOption";
         
         if (httpResponse.statusCode != 200) {
             
-            if (httpResponse.statusCode == UnauthorizedStatusCode) {
+            if (httpResponse.statusCode == NOServerUnauthorizedStatusCode) {
                 
                 completionBlock(self.unauthorizedError);
                 return;
             }
             
-            if (httpResponse.statusCode == ForbiddenStatusCode) {
+            if (httpResponse.statusCode == NOServerForbiddenStatusCode) {
                 
                 NSString *errorDescription = NSLocalizedString(@"Permission to edit resource is denied",
                                                                @"Permission to edit resource is denied");
@@ -788,14 +788,14 @@ NSString *const NOAPISearchPathOption = @"NOAPISearchPathOption";
                 return;
             }
             
-            if (httpResponse.statusCode == InternalServerErrorStatusCode) {
+            if (httpResponse.statusCode == NOServerInternalServerErrorStatusCode) {
                 
                 completionBlock(self.serverError);
                 
                 return;
             }
             
-            if (httpResponse.statusCode == BadRequestStatusCode) {
+            if (httpResponse.statusCode == NOServerBadRequestStatusCode) {
                 
                 completionBlock(self.badRequestError);
                 
@@ -869,19 +869,19 @@ NSString *const NOAPISearchPathOption = @"NOAPISearchPathOption";
         
         if (httpResponse.statusCode != 200) {
             
-            if (httpResponse.statusCode == NotFoundStatusCode) {
+            if (httpResponse.statusCode == NOServerNotFoundStatusCode) {
                 
                 completionBlock(self.notFoundError);
                 return;
             }
             
-            if (httpResponse.statusCode == UnauthorizedStatusCode) {
+            if (httpResponse.statusCode == NOServerUnauthorizedStatusCode) {
                 
                 completionBlock(self.unauthorizedError);
                 return;
             }
             
-            if (httpResponse.statusCode == ForbiddenStatusCode) {
+            if (httpResponse.statusCode == NOServerForbiddenStatusCode) {
                 
                 NSString *errorDescription = NSLocalizedString(@"Permission to delete resource is denied",
                                                                @"Permission to delete resource is denied");
@@ -895,14 +895,14 @@ NSString *const NOAPISearchPathOption = @"NOAPISearchPathOption";
                 return;
             }
             
-            if (httpResponse.statusCode == InternalServerErrorStatusCode) {
+            if (httpResponse.statusCode == NOServerInternalServerErrorStatusCode) {
                 
                 completionBlock(self.serverError);
                 
                 return;
             }
             
-            if (httpResponse.statusCode == BadRequestStatusCode) {
+            if (httpResponse.statusCode == NOServerBadRequestStatusCode) {
                 
                 completionBlock(self.badRequestError);
                 

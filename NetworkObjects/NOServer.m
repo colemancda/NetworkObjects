@@ -337,7 +337,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
             [_errorDelegate server:self didEncounterInternalError:error forRequestType:NOServerUndeterminedRequestType];
         }
         
-        response.statusCode = InternalServerErrorStatusCode;
+        response.statusCode = NOServerInternalServerErrorStatusCode;
         
         return;
     }
@@ -345,7 +345,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     // check if the resource requires sessions
     if (!session && [NSClassFromString(entityDescription.managedObjectClassName) requireSession]) {
         
-        response.statusCode = UnauthorizedStatusCode;
+        response.statusCode = NOServerUnauthorizedStatusCode;
         
         return;
     }
@@ -439,7 +439,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                 [_errorDelegate server:self didEncounterInternalError:error forRequestType:NOServerUndeterminedRequestType];
             }
             
-            response.statusCode = InternalServerErrorStatusCode;
+            response.statusCode = NOServerInternalServerErrorStatusCode;
             
             return;
         }
@@ -448,7 +448,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         
         if (!resource) {
             
-            response.statusCode = NotFoundStatusCode;
+            response.statusCode = NOServerNotFoundStatusCode;
             
             return;
         }
@@ -472,7 +472,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
             // bad request if no JSON body is attached to request
             if (!jsonObject) {
                 
-                response.statusCode = BadRequestStatusCode;
+                response.statusCode = NOServerBadRequestStatusCode;
                 
                 return;
             }
@@ -505,7 +505,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     }
     
     // no recognized request was recieved
-    response.statusCode = MethodNotAllowedStatusCode;
+    response.statusCode = NOServerMethodNotAllowedStatusCode;
 }
 
 -(void)handleGetResource:(NSManagedObject<NOResourceProtocol> *)resource
@@ -525,7 +525,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     // resource is invisible to session
     if (resourcePermission < ReadOnlyPermission) {
         
-        response.statusCode = ForbiddenStatusCode;
+        response.statusCode = NOServerForbiddenStatusCode;
         
         return;
     }
@@ -554,7 +554,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
             [_errorDelegate server:self didEncounterInternalError:error forRequestType:NOServerGETRequestType];
         }
         
-        response.statusCode = InternalServerErrorStatusCode;
+        response.statusCode = NOServerInternalServerErrorStatusCode;
         
         return;
     }
@@ -585,9 +585,9 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     }];
     
     // return HTTP error code if recieved JSON data is invalid
-    if (editStatusCode != OKStatusCode) {
+    if (editStatusCode != NOServerOKStatusCode) {
         
-        if (editStatusCode == InternalServerErrorStatusCode) {
+        if (editStatusCode == NOServerInternalServerErrorStatusCode) {
             
             if (_errorDelegate) {
                 
@@ -619,13 +619,13 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
             [_errorDelegate server:self didEncounterInternalError:error forRequestType:NOServerPUTRequestType];
         }
         
-        response.statusCode = InternalServerErrorStatusCode;
+        response.statusCode = NOServerInternalServerErrorStatusCode;
         
         return;
     }
     
     // return 200
-    response.statusCode = OKStatusCode;
+    response.statusCode = NOServerOKStatusCode;
 }
 
 -(void)handleDeleteResource:(NSManagedObject<NOResourceProtocol> *)resource
@@ -644,14 +644,14 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     if (cannotDelete) {
         
-        response.statusCode = ForbiddenStatusCode;
+        response.statusCode = NOServerForbiddenStatusCode;
         
         return;
     }
     
     [_store deleteResource:resource];
     
-    response.statusCode = OKStatusCode;
+    response.statusCode = NOServerOKStatusCode;
 }
 
 -(void)handleCreateResourceWithEntityDescription:(NSEntityDescription *)entityDescription
@@ -664,7 +664,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     // check permissions
     if (![entityClass canCreateNewInstanceFromSession:session]) {
         
-        response.statusCode = ForbiddenStatusCode;
+        response.statusCode = NOServerForbiddenStatusCode;
         
         return;
     }
@@ -686,7 +686,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
             
             if (!foundInitialProperty) {
                 
-                response.statusCode = BadRequestStatusCode;
+                response.statusCode = NOServerBadRequestStatusCode;
                 
                 return;
             }
@@ -708,7 +708,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
             [_errorDelegate server:self didEncounterInternalError:error forRequestType:NOServerPOSTRequestType];
         }
         
-        response.statusCode = InternalServerErrorStatusCode;
+        response.statusCode = NOServerInternalServerErrorStatusCode;
         
         return;
     }
@@ -731,13 +731,13 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                                                           error:&error];
     }];
     
-    if (applyInitialValuesStatusCode != OKStatusCode) {
+    if (applyInitialValuesStatusCode != NOServerOKStatusCode) {
         
         // delete created object
         
         [self.store deleteResource:newResource];
         
-        if (applyInitialValuesStatusCode == InternalServerErrorStatusCode) {
+        if (applyInitialValuesStatusCode == NOServerInternalServerErrorStatusCode) {
             
             if (_errorDelegate) {
                 
@@ -781,7 +781,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
             [_errorDelegate server:self didEncounterInternalError:error forRequestType:NOServerGETRequestType];
         }
         
-        response.statusCode = InternalServerErrorStatusCode;
+        response.statusCode = NOServerInternalServerErrorStatusCode;
         
         return;
     }
@@ -799,14 +799,14 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
             [_errorDelegate server:self didEncounterInternalError:error forRequestType:NOServerGETRequestType];
         }
         
-        response.statusCode = InternalServerErrorStatusCode;
+        response.statusCode = NOServerInternalServerErrorStatusCode;
         
         return;
     }
     
     [response respondWithData:jsonData];
     
-    response.statusCode = OKStatusCode;
+    response.statusCode = NOServerOKStatusCode;
 }
 
 -(void)handleFunction:(NSString *)functionName
@@ -829,7 +829,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     // check for permission
     if (!canPerformFunction)
     {
-        response.statusCode = ForbiddenStatusCode;
+        response.statusCode = NOServerForbiddenStatusCode;
         
         return;
     }
@@ -862,7 +862,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                 [_errorDelegate server:self didEncounterInternalError:error forRequestType:NOServerFunctionRequestType];
             }
             
-            response.statusCode = InternalServerErrorStatusCode;
+            response.statusCode = NOServerInternalServerErrorStatusCode;
             
             return;
         }
@@ -884,7 +884,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     // validate jsonObject
     if (![recievedJSONObject isKindOfClass:[NSDictionary class]]) {
         
-        response.statusCode = BadRequestStatusCode;
+        response.statusCode = NOServerBadRequestStatusCode;
         
         return;
     }
@@ -915,7 +915,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     // validate jsonObject
     if (![clientJSONObject isKindOfClass:[NSDictionary class]]) {
         
-        response.statusCode = BadRequestStatusCode;
+        response.statusCode = NOServerBadRequestStatusCode;
         
         return;
     }
@@ -929,7 +929,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     if (!clientSecret ||
         !clientResourceID) {
         
-        response.statusCode = BadRequestStatusCode;
+        response.statusCode = NOServerBadRequestStatusCode;
         
         return;
     }
@@ -949,14 +949,14 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
             [_errorDelegate server:self didEncounterInternalError:error forRequestType:NOServerLoginRequestType];
         }
         
-        response.statusCode = InternalServerErrorStatusCode;
+        response.statusCode = NOServerInternalServerErrorStatusCode;
         
         return;
     }
     
     if (!client) {
         
-        response.statusCode = ForbiddenStatusCode;
+        response.statusCode = NOServerForbiddenStatusCode;
         
         return;
     }
@@ -972,7 +972,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     if (!validSecret) {
         
-        response.statusCode = ForbiddenStatusCode;
+        response.statusCode = NOServerForbiddenStatusCode;
         
         return;
     }
@@ -1045,7 +1045,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                 [_errorDelegate server:self didEncounterInternalError:error forRequestType:NOServerLoginRequestType];
             }
             
-            response.statusCode = InternalServerErrorStatusCode;
+            response.statusCode = NOServerInternalServerErrorStatusCode;
             
             return;
         }
@@ -1053,7 +1053,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         // username and password were provided in the request, but did not match anything in store
         if (!user) {
             
-            response.statusCode = ForbiddenStatusCode;
+            response.statusCode = NOServerForbiddenStatusCode;
             
             return;
         }
@@ -1112,7 +1112,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
             [_errorDelegate server:self didEncounterInternalError:error forRequestType:NOServerLoginRequestType];
         }
         
-        response.statusCode = InternalServerErrorStatusCode;
+        response.statusCode = NOServerInternalServerErrorStatusCode;
         
         return;
     }
@@ -1129,7 +1129,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     if (![NSClassFromString(entityDescription.managedObjectClassName) canSearchFromSession:session]) {
         
-        response.statusCode = ForbiddenStatusCode;
+        response.statusCode = NOServerForbiddenStatusCode;
         
         return;
     }
@@ -1182,7 +1182,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         if (!validComparator ||
             predicateOperator.integerValue == NSCustomSelectorPredicateOperatorType) {
             
-            response.statusCode = BadRequestStatusCode;
+            response.statusCode = NOServerBadRequestStatusCode;
             
             return;
         }
@@ -1200,7 +1200,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         // validate that key is attribute or relationship
         if (!relationshipDescription && !attributeDescription) {
             
-            response.statusCode = BadRequestStatusCode;
+            response.statusCode = NOServerBadRequestStatusCode;
             
             return;
         }
@@ -1224,7 +1224,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                 // verify
                 if (![jsonPredicateValue isKindOfClass:[NSNumber class]]) {
                     
-                    response.statusCode = BadRequestStatusCode;
+                    response.statusCode = NOServerBadRequestStatusCode;
                     
                     return;
                 }
@@ -1245,14 +1245,14 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                         [_errorDelegate server:self didEncounterInternalError:error forRequestType:NOServerSearchRequestType];
                     }
                     
-                    response.statusCode = InternalServerErrorStatusCode;
+                    response.statusCode = NOServerInternalServerErrorStatusCode;
                     
                     return;
                 }
                 
                 if (!fetchedResource) {
                     
-                    response.statusCode = BadRequestStatusCode;
+                    response.statusCode = NOServerBadRequestStatusCode;
                     
                     return;
                 }
@@ -1278,7 +1278,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                 // verify
                 if (![jsonPredicateValue isKindOfClass:[NSArray class]]) {
                     
-                    response.statusCode = BadRequestStatusCode;
+                    response.statusCode = NOServerBadRequestStatusCode;
                     
                     return;
                 }
@@ -1289,7 +1289,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                     
                     if (![resourceID isKindOfClass:[NSNumber class]]) {
                         
-                        response.statusCode = BadRequestStatusCode;
+                        response.statusCode = NOServerBadRequestStatusCode;
                         
                         return;
                     }
@@ -1308,14 +1308,14 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                             [_errorDelegate server:self didEncounterInternalError:error forRequestType:NOServerSearchRequestType];
                         }
                         
-                        response.statusCode = InternalServerErrorStatusCode;
+                        response.statusCode = NOServerInternalServerErrorStatusCode;
                         
                         return;
                     }
                     
                     if (!resource) {
                         
-                        response.statusCode = BadRequestStatusCode;
+                        response.statusCode = NOServerBadRequestStatusCode;
                         
                         return;
                     }
@@ -1371,7 +1371,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         
         if (!predicate) {
             
-            response.statusCode = BadRequestStatusCode;
+            response.statusCode = NOServerBadRequestStatusCode;
             
             return;
         }
@@ -1390,14 +1390,14 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         
         if (![sortDescriptorsJSONArray isKindOfClass:[NSArray class]]) {
             
-            response.statusCode = BadRequestStatusCode;
+            response.statusCode = NOServerBadRequestStatusCode;
             
             return;
         }
         
         if (!sortDescriptorsJSONArray.count) {
             
-            response.statusCode = BadRequestStatusCode;
+            response.statusCode = NOServerBadRequestStatusCode;
             
             return;
         }
@@ -1410,14 +1410,14 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
             
             if (![sortDescriptorJSON isKindOfClass:[NSDictionary class]]) {
                 
-                response.statusCode = BadRequestStatusCode;
+                response.statusCode = NOServerBadRequestStatusCode;
                 
                 return;
             }
             
             if (sortDescriptorJSON.allKeys.count != 1) {
                 
-                response.statusCode = BadRequestStatusCode;
+                response.statusCode = NOServerBadRequestStatusCode;
                 
                 return;
             }
@@ -1431,7 +1431,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
             if (![key isKindOfClass:[NSString class]] ||
                 ![ascending isKindOfClass:[NSNumber class]]) {
                 
-                response.statusCode = BadRequestStatusCode;
+                response.statusCode = NOServerBadRequestStatusCode;
                 
                 return;
             }
@@ -1455,7 +1455,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         
         if (![fetchLimitNumber isKindOfClass:[NSNumber class]]) {
             
-            response.statusCode = BadRequestStatusCode;
+            response.statusCode = NOServerBadRequestStatusCode;
             
             return;
         }
@@ -1471,7 +1471,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         
         if (![fetchOffsetNumber isKindOfClass:[NSNumber class]]) {
             
-            response.statusCode = BadRequestStatusCode;
+            response.statusCode = NOServerBadRequestStatusCode;
             
             return;
         }
@@ -1486,7 +1486,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         
         if (![includeSubEntitites isKindOfClass:[NSNumber class]]) {
             
-            response.statusCode = BadRequestStatusCode;
+            response.statusCode = NOServerBadRequestStatusCode;
             
             return;
         }
@@ -1517,7 +1517,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     if (fetchError) {
         
-        response.statusCode = BadRequestStatusCode;
+        response.statusCode = NOServerBadRequestStatusCode;
         
         return;
     }
@@ -1614,7 +1614,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
             [_errorDelegate server:self didEncounterInternalError:error forRequestType:NOServerSearchRequestType];
         }
         
-        response.statusCode = InternalServerErrorStatusCode;
+        response.statusCode = NOServerInternalServerErrorStatusCode;
         
         return;
     }
@@ -1868,7 +1868,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
 {
     if ([resource permissionForSession:session] < EditPermission) {
         
-        return ForbiddenStatusCode;
+        return NOServerForbiddenStatusCode;
     }
     
     for (NSString *key in recievedJsonObject) {
@@ -1879,7 +1879,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         
         if (![NSJSONSerialization isValidJSONObject:recievedJsonObject]) {
             
-            return BadRequestStatusCode;
+            return NOServerBadRequestStatusCode;
         }
         
         BOOL isAttribute;
@@ -1898,7 +1898,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                 // resourceID cannot be edited by anyone
                 if ([key isEqualToString:resourceIDKey]) {
                     
-                    return ForbiddenStatusCode;
+                    return NOServerForbiddenStatusCode;
                 }
                 
                 NSAttributeDescription *attribute = resource.entity.attributesByName[attributeName];
@@ -1907,7 +1907,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                 if (attribute.attributeType == NSTransformableAttributeType ||
                     attribute.attributeType == NSUndefinedAttributeType) {
                     
-                    return BadRequestStatusCode;
+                    return NOServerBadRequestStatusCode;
                 }
                 
                 // get pre-edit value
@@ -1919,7 +1919,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                 if (![resource isValidConvertedValue:newValue
                                         forAttribute:attributeName]) {
                     
-                    return BadRequestStatusCode;
+                    return NOServerBadRequestStatusCode;
                 }
                 
                 // let NOResource verify that the new attribute value is a valid new value
@@ -1927,7 +1927,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                                       forKey:attributeName
                                        error:nil]) {
                     
-                    return BadRequestStatusCode;
+                    return NOServerBadRequestStatusCode;
                 }
             }
         }
@@ -1947,7 +1947,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                     // must be number
                     if (![jsonValue isKindOfClass:[NSNumber class]]) {
                         
-                        return BadRequestStatusCode;
+                        return NOServerBadRequestStatusCode;
                     }
                     
                     NSNumber *destinationResourceID = (NSNumber *)jsonValue;
@@ -1956,18 +1956,18 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                     
                     if (*error) {
                         
-                        return InternalServerErrorStatusCode;
+                        return NOServerInternalServerErrorStatusCode;
                     }
                     
                     if (!newValue) {
                         
-                        return BadRequestStatusCode;
+                        return NOServerBadRequestStatusCode;
                     }
                     
                     // destination resource must be visible
                     if ([newValue permissionForSession:session] < ReadOnlyPermission) {
                         
-                        return ForbiddenStatusCode;
+                        return NOServerForbiddenStatusCode;
                     }
                     
                     // must be valid value
@@ -1976,7 +1976,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                                           forKey:key
                                            error:nil]) {
                         
-                        return BadRequestStatusCode;
+                        return NOServerBadRequestStatusCode;
                     }
                 }
                 
@@ -1986,7 +1986,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                     // must be array
                     if (![jsonValue isKindOfClass:[NSArray class]]) {
                         
-                        return BadRequestStatusCode;
+                        return NOServerBadRequestStatusCode;
                     }
                     
                     NSArray *jsonReplacementCollection = (NSArray *)jsonValue;
@@ -2000,18 +2000,18 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                         
                         if (*error) {
                             
-                            return InternalServerErrorStatusCode;
+                            return NOServerInternalServerErrorStatusCode;
                         }
                         
                         if (!destinationResource) {
                             
-                            return BadRequestStatusCode;
+                            return NOServerBadRequestStatusCode;
                         }
                         
                         // check permissions
                         if ([destinationResource permissionForSession:session] < ReadOnlyPermission) {
                             
-                            return ForbiddenStatusCode;
+                            return NOServerForbiddenStatusCode;
                         }
                         
                         [newValue addObject:destinationResource];
@@ -2022,7 +2022,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                                           forKey:key
                                            error:nil]) {
                         
-                        return BadRequestStatusCode;
+                        return NOServerBadRequestStatusCode;
                     }
                 }
             }
@@ -2031,11 +2031,11 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         // no attribute or relationship with that name found
         if (!isAttribute && !isRelationship) {
             
-            return BadRequestStatusCode;
+            return NOServerBadRequestStatusCode;
         }
     }
     
-    return OKStatusCode;
+    return NOServerOKStatusCode;
 }
 
 
