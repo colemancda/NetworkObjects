@@ -80,4 +80,12 @@ static void *SNSRepresentedObjectWindowControllerKVOContext;
     }
 }
 
+#pragma mark - NSWindowDelegate
+
+-(void)windowDidBecomeKey:(NSNotification *)notification
+{
+    
+    
+}
+
 @end

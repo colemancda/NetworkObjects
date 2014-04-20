@@ -135,7 +135,7 @@
                         <font key="font" metaFont="system"/>
                     </buttonCell>
                     <connections>
-                        <action selector="fetch:" target="2CK-Zu-wXT" id="Xz7-dF-tHc"/>
+                        <action selector="fetch:" target="-2" id="lwO-Tr-0TN"/>
                     </connections>
                 </button>
             </subviews>

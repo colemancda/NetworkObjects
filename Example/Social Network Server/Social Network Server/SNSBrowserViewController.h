@@ -45,6 +45,8 @@
 
 -(IBAction)delete:(id)sender;
 
+-(IBAction)fetch:(id)sender;
+
 #pragma mark - Notifications
 
 -(void)contextDidChange:(NSNotification *)notification;

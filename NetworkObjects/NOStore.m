@@ -218,12 +218,15 @@
         
         if (!savedLastIDs) {
             
-            NSString *localizedDescription = NSLocalizedString(@"Could not backup previous lastIDs archived dictionary",
-                                                               @"NOStore Save Backup Error Description");
-            
-            *error = [NSError errorWithDomain:NetworkObjectsErrorDomain
-                                         code:NOStoreBackupLastIDsSaveError
-                                     userInfo:@{NSLocalizedDescriptionKey: localizedDescription}];
+            if (error) {
+                
+                NSString *localizedDescription = NSLocalizedString(@"Could not backup previous lastIDs archived dictionary",
+                                                                   @"NOStore Save Backup Error Description");
+                
+                *error = [NSError errorWithDomain:NetworkObjectsErrorDomain
+                                             code:NOStoreBackupLastIDsSaveError
+                                         userInfo:@{NSLocalizedDescriptionKey: localizedDescription}];
+            }
             
             return NO;
         }
@@ -247,18 +250,34 @@
         
         if (!restoreLastIDs) {
             
-            NSString *localizedDescription = NSLocalizedString(@"Could not restore lastIDs file to value before failed context save operation.", @"NOStore Restore Backup Error Description");
-            
-            *error = [NSError errorWithDomain:NetworkObjectsErrorDomain
-                                         code:NOStoreRestoreLastIDsSaveError
-                                     userInfo:@{NSLocalizedDescriptionKey: localizedDescription,
-                                                NSUnderlyingErrorKey: saveContextError}];
+            if (error) {
+                
+                NSString *localizedDescription = NSLocalizedString(@"Could not restore lastIDs file to value before failed context save operation.", @"NOStore Restore Backup Error Description");
+                
+                *error = [NSError errorWithDomain:NetworkObjectsErrorDomain
+                                             code:NOStoreRestoreLastIDsSaveError
+                                         userInfo:@{NSLocalizedDescriptionKey: localizedDescription,
+                                                    NSUnderlyingErrorKey: saveContextError}];
+            }
             
             return NO;
             
         }
         
-        *error = saveContextError;
+        if (error) {
+            
+            *error = saveContextError;
+        }
+        
+        return NO;
+    }
+    
+    if (saveContextError) {
+        
+        if (error) {
+            
+            *error = saveContextError;
+        }
         
         return NO;
     }

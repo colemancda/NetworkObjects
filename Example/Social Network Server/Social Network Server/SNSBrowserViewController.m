@@ -132,7 +132,15 @@ static void *KVOContext = &KVOContext;
     
     NSManagedObject *selectedItem = self.arrayController.arrangedObjects[self.tableView.selectedRow];
     
-    [appDelegate.store deleteResource:(NSManagedObject<NOResourceProtocol> *)selectedItem];
+    __block NSManagedObject <NOResourceProtocol> *resource;
+    
+    [appDelegate.store.context performBlockAndWait:^{
+        
+        resource = (NSManagedObject <NOResourceProtocol> *)[appDelegate.store.context objectWithID:selectedItem.objectID];
+        
+    }];
+    
+    [appDelegate.store deleteResource:resource];
     
     [self.arrayController fetch:nil];
 }
@@ -236,6 +244,26 @@ static void *KVOContext = &KVOContext;
     // show window
     [wc.window makeKeyAndOrderFront:nil];
     
+}
+
+-(void)fetch:(id)sender
+{
+    SNSAppDelegate *appDelegate = [NSApp delegate];
+    
+    NSError *error;
+    
+    if (![appDelegate.store save:&error]) {
+        
+        [NSApp presentError:error];
+        
+        NSLog(@"Couldn't save server context");
+        
+        return;
+    }
+    
+    NSLog(@"Saved server context");
+    
+    [self.arrayController fetch:sender];
 }
 
 #pragma mark - Table View Delegate

@@ -8,7 +8,7 @@
 
 #import <Cocoa/Cocoa.h>
 
-@interface SNSRepresentedObjectWindowController : NSWindowController
+@interface SNSRepresentedObjectWindowController : NSWindowController <NSWindowDelegate>
 
 @property NSManagedObject *representedObject;
 
