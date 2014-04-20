@@ -743,6 +743,13 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         
     }];
     
+    if (error) {
+        
+        response.statusCode = InternalServerErrorStatusCode;
+        
+        return;
+    }
+    
     NSDictionary *jsonObject = @{resourceIDKey: resourceID};
     
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonObject
@@ -785,12 +792,17 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     }
     
     // perform function
-    NSDictionary *jsonResponse;
+    __block NSDictionary *jsonResponse;
     
-    response.statusCode = [resource performFunction:functionName
-                                        withSession:session
-                                 recievedJsonObject:recievedJsonObject
-                                           response:&jsonResponse];
+    __block NOResourceFunctionCode functionCode;
+    
+    [resource.managedObjectContext performBlockAndWait:^{
+        
+        functionCode = [resource performFunction:functionName
+                                    withSession:session
+                              recievedJsonObject:recievedJsonObject
+                                        response:&jsonResponse];
+    }];
     
     if (jsonResponse) {
         
@@ -808,7 +820,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         [response respondWithData:jsonData];
     }
     
-    response.statusCode = OKStatusCode;
+    response.statusCode = functionCode;
 }
 
 -(void)handleLoginWithRequest:(RouteRequest *)request
@@ -1801,6 +1813,13 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     // notify
     [resource wasEditedBySession:session];
+    
+    // save
+    
+    if (![resource.managedObjectContext save:error]) {
+        
+        return NO;
+    }
     
     return YES;
 }
