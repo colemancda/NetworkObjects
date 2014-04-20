@@ -32,20 +32,10 @@
 
 #pragma mark - Validate New Values
 
--(BOOL)isValidValue:(NSObject *)newValue
-       forAttribute:(NSString *)attributeName
+-(BOOL)validateText:(id *)newValue error:(NSError **)error
 {
-    
     return YES;
 }
-
--(BOOL)isValidValue:(NSObject *)newValue
-    forRelationship:(NSString *)relationshipName
-{
-    
-    return YES;
-}
-
 
 #pragma mark - Permissions
 
@@ -173,8 +163,8 @@ wasAccessedBySession:(NSManagedObject<NOSessionProtocol> *)session
 
 -(NOResourceFunctionCode)performFunction:(NSString *)functionName
                              withSession:(NSManagedObject<NOSessionProtocol> *)session
-          recievedJsonObject:(NSDictionary *)recievedJsonObject
-                    response:(NSDictionary *__autoreleasing *)jsonObjectResponse
+                      recievedJsonObject:(NSDictionary *)recievedJsonObject
+                                response:(NSDictionary *__autoreleasing *)jsonObjectResponse
 {
     if ([functionName isEqualToString:@"like"]) {
         
