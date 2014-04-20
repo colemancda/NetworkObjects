@@ -42,4 +42,32 @@ typedef NS_ENUM(NSUInteger, NOServerStatusCode) {
     
 };
 
+typedef NS_ENUM(NSInteger, NOServerRequestType) {
+    
+    /** GET request */
+    NOServerGETRequestType,
+    
+    /** PUT (edit) request */
+    NOServerPUTRequestType,
+    
+    /** DELETE request */
+    NOServerDELETERequestType,
+    
+    /** POST (create new) request */
+    NOServerPOSTRequestType,
+    
+    /** Login request */
+    NOServerLoginRequestType,
+    
+    /** Search request */
+    NOServerSearchRequestType,
+    
+    /** Search request */
+    NOServerFunctionRequestType,
+    
+    /** Undetermined request */
+    NOServerUndeterminedRequestType
+    
+};
+
 #endif

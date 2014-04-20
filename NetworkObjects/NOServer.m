@@ -332,6 +332,11 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     if (error) {
         
+        if (_errorDelegate) {
+            
+            [_errorDelegate server:self didEncounterInternalError:error forRequestType:NOServerUndeterminedRequestType];
+        }
+        
         response.statusCode = InternalServerErrorStatusCode;
         
         return;
@@ -429,7 +434,10 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         // internal error
         if (fetchError) {
             
-            // TODO LOG
+            if (_errorDelegate) {
+                
+                [_errorDelegate server:self didEncounterInternalError:error forRequestType:NOServerUndeterminedRequestType];
+            }
             
             response.statusCode = InternalServerErrorStatusCode;
             
@@ -541,7 +549,10 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                                                          error:&error];
     if (!jsonData) {
         
-        NSLog(@"Error writing JSON representation of %@ (%@)", resource, error.localizedDescription);
+        if (_errorDelegate) {
+            
+            [_errorDelegate server:self didEncounterInternalError:error forRequestType:NOServerGETRequestType];
+        }
         
         response.statusCode = InternalServerErrorStatusCode;
         
@@ -563,15 +574,27 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     __block NOServerStatusCode editStatusCode;
     
+    __block NSError *error;
+    
     [context performBlockAndWait:^{
         
         editStatusCode = [self verifyEditResource:resource
                                recievedJsonObject:recievedJsonObject
-                                          session:session];
+                                          session:session
+                                            error:&error];
     }];
     
     // return HTTP error code if recieved JSON data is invalid
     if (editStatusCode != OKStatusCode) {
+        
+        if (editStatusCode == InternalServerErrorStatusCode) {
+            
+            if (_errorDelegate) {
+                
+                [_errorDelegate server:self didEncounterInternalError:error forRequestType:NOServerPUTRequestType];
+            }
+
+        }
         
         response.statusCode = editStatusCode;
         
@@ -579,8 +602,6 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     }
     
     // since we verified the validity and access permissions of the recievedJsonObject, we then apply the edits...
-    
-    __block NSError *error;
     
     [context performBlockAndWait:^{
         
@@ -592,6 +613,11 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     }];
     
     if (error) {
+        
+        if (_errorDelegate) {
+            
+            [_errorDelegate server:self didEncounterInternalError:error forRequestType:NOServerPUTRequestType];
+        }
         
         response.statusCode = InternalServerErrorStatusCode;
         
@@ -677,7 +703,10 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     if (!newResource) {;
         
-        // TODO LOG
+        if (_errorDelegate) {
+            
+            [_errorDelegate server:self didEncounterInternalError:error forRequestType:NOServerPOSTRequestType];
+        }
         
         response.statusCode = InternalServerErrorStatusCode;
         
@@ -698,7 +727,8 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         
         applyInitialValuesStatusCode = [self verifyEditResource:newResource
                                              recievedJsonObject:initialValues
-                                                        session:session];
+                                                        session:session
+                                                          error:&error];
     }];
     
     if (applyInitialValuesStatusCode != OKStatusCode) {
@@ -706,6 +736,14 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         // delete created object
         
         [self.store deleteResource:newResource];
+        
+        if (applyInitialValuesStatusCode == InternalServerErrorStatusCode) {
+            
+            if (_errorDelegate) {
+                
+                [_errorDelegate server:self didEncounterInternalError:error forRequestType:NOServerPOSTRequestType];
+            }
+        }
         
         response.statusCode = applyInitialValuesStatusCode;
         
@@ -738,6 +776,11 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     if (error) {
         
+        if (_errorDelegate) {
+            
+            [_errorDelegate server:self didEncounterInternalError:error forRequestType:NOServerGETRequestType];
+        }
+        
         response.statusCode = InternalServerErrorStatusCode;
         
         return;
@@ -750,6 +793,11 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                                                          error:&error];
     
     if (!jsonData) {
+        
+        if (_errorDelegate) {
+            
+            [_errorDelegate server:self didEncounterInternalError:error forRequestType:NOServerGETRequestType];
+        }
         
         response.statusCode = InternalServerErrorStatusCode;
         
@@ -801,11 +849,18 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     if (jsonResponse) {
         
+        NSError *error;
+        
         NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonResponse
                                                            options:self.jsonWritingOption
-                                                             error:nil];
+                                                             error:&error];
         
         if (!jsonData) {
+            
+            if (_errorDelegate) {
+                
+                [_errorDelegate server:self didEncounterInternalError:error forRequestType:NOServerFunctionRequestType];
+            }
             
             response.statusCode = InternalServerErrorStatusCode;
             
@@ -889,6 +944,11 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     if (error) {
         
+        if (_errorDelegate) {
+            
+            [_errorDelegate server:self didEncounterInternalError:error forRequestType:NOServerLoginRequestType];
+        }
+        
         response.statusCode = InternalServerErrorStatusCode;
         
         return;
@@ -919,13 +979,6 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     // create new session with client
     __block NSManagedObject<NOSessionProtocol> *session = (NSManagedObject<NOSessionProtocol> *)[_store newResourceWithEntityDescription:sessionEntityDescription];
-    
-    if (error) {
-        
-        response.statusCode = InternalServerErrorStatusCode;
-        
-        return;
-    }
     
     [context performBlockAndWait:^{;
         
@@ -985,6 +1038,18 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
             
         }];
         
+        if (fetchError) {
+            
+            if (_errorDelegate) {
+                
+                [_errorDelegate server:self didEncounterInternalError:error forRequestType:NOServerLoginRequestType];
+            }
+            
+            response.statusCode = InternalServerErrorStatusCode;
+            
+            return;
+        }
+        
         // username and password were provided in the request, but did not match anything in store
         if (!user) {
             
@@ -1038,9 +1103,14 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonObject
                                                        options:self.prettyPrintJSON
-                                                         error:nil];
+                                                         error:&error];
     
     if (!jsonData) {
+        
+        if (_errorDelegate) {
+            
+            [_errorDelegate server:self didEncounterInternalError:error forRequestType:NOServerLoginRequestType];
+        }
         
         response.statusCode = InternalServerErrorStatusCode;
         
@@ -1170,6 +1240,11 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                 
                 if (error) {
                     
+                    if (_errorDelegate) {
+                        
+                        [_errorDelegate server:self didEncounterInternalError:error forRequestType:NOServerSearchRequestType];
+                    }
+                    
                     response.statusCode = InternalServerErrorStatusCode;
                     
                     return;
@@ -1227,6 +1302,11 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                                                                                            error:&error];
                     
                     if (error) {
+                        
+                        if (_errorDelegate) {
+                            
+                            [_errorDelegate server:self didEncounterInternalError:error forRequestType:NOServerSearchRequestType];
+                        }
                         
                         response.statusCode = InternalServerErrorStatusCode;
                         
@@ -1521,11 +1601,18 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     // return the resource IDs of filtered objects
     
+    NSError *error;
+    
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:filteredResultsResourceIDs
                                                        options:self.jsonWritingOption
-                                                         error:nil];
+                                                         error:&error];
     
     if (!jsonData) {
+        
+        if (_errorDelegate) {
+            
+            [_errorDelegate server:self didEncounterInternalError:error forRequestType:NOServerSearchRequestType];
+        }
         
         response.statusCode = InternalServerErrorStatusCode;
         
@@ -1777,6 +1864,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
 -(NOServerStatusCode)verifyEditResource:(NSManagedObject<NOResourceProtocol> *)resource
                      recievedJsonObject:(NSDictionary *)recievedJsonObject
                                 session:(NSManagedObject<NOSessionProtocol> *)session
+                                  error:(NSError **)error
 {
     if ([resource permissionForSession:session] < EditPermission) {
         
@@ -1864,11 +1952,9 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                     
                     NSNumber *destinationResourceID = (NSNumber *)jsonValue;
                     
-                    NSError *error;
+                    NSManagedObject<NOResourceProtocol> *newValue = [_store resourceWithEntityDescription:relationshipDescription.entity resourceID:destinationResourceID shouldPrefetch:NO error:error];
                     
-                    NSManagedObject<NOResourceProtocol> *newValue = [_store resourceWithEntityDescription:relationshipDescription.entity resourceID:destinationResourceID shouldPrefetch:NO error:&error];
-                    
-                    if (error) {
+                    if (*error) {
                         
                         return InternalServerErrorStatusCode;
                     }
@@ -1910,11 +1996,9 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                     
                     for (NSNumber *destinationResourceID in jsonReplacementCollection) {
                         
-                        NSError *error;
+                        NSManagedObject<NOResourceProtocol> *destinationResource = [_store resourceWithEntityDescription:relationshipDescription.entity resourceID:destinationResourceID shouldPrefetch:NO error:error];
                         
-                        NSManagedObject<NOResourceProtocol> *destinationResource = [_store resourceWithEntityDescription:relationshipDescription.entity resourceID:destinationResourceID shouldPrefetch:NO error:&error];
-                        
-                        if (error) {
+                        if (*error) {
                             
                             return InternalServerErrorStatusCode;
                         }

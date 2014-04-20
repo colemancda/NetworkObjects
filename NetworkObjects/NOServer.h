@@ -14,6 +14,7 @@
 
 @protocol NOResourceProtocol;
 @protocol NOSessionProtocol;
+@protocol NOServerInternalErrorDelegate;
 
 // Initialization Options
 
@@ -129,6 +130,10 @@ extern NSString *const NOServerSearchPathOption;
 /** Set of NSNumbers containing the value of a NSPredicateOperatorType that are valid comparators for the server's search capabilities. This can be used to disable conputationally intensive tasks, like string comparators. */
 
 @property (nonatomic) NSSet *allowedOperatorsForSearch;
+
+/** Delegate that conforms to @c NOServerInternalErrorDelegate that will be called when internal errors occur */
+
+@property (nonatomic) id<NOServerInternalErrorDelegate> errorDelegate;
 
 /**
  Start the HTTP REST server on the specified port.
@@ -277,7 +282,8 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
 
 -(NOServerStatusCode)verifyEditResource:(NSManagedObject<NOResourceProtocol> *)resource
                      recievedJsonObject:(NSDictionary *)recievedJsonObject
-                                session:(NSManagedObject<NOSessionProtocol> *)session;
+                                session:(NSManagedObject<NOSessionProtocol> *)session
+                                  error:(NSError **)error;
 
 /**
  Applies the the edits to a Resource instance from a valid JSON object. The JSON object should be verified first to avoid errors.
@@ -289,5 +295,13 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                     session:(NSManagedObject<NOSessionProtocol> *)session
                       error:(NSError **)error;
 
+
+@end
+
+#pragma mark - NOServerInternalErrorDelegate
+
+@protocol NOServerInternalErrorDelegate <NSObject>
+
+-(void)server:(NOServer *)server didEncounterInternalError:(NSError *)error forRequestType:(NOServerRequestType)requestType;
 
 @end
