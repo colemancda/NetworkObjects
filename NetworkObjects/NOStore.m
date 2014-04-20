@@ -107,7 +107,15 @@
     self = [super init];
     if (self) {
         
-        _persistentStoreCoordinator = persistentStoreCoordinator;
+        if (persistentStoreCoordinator) {
+            
+            _persistentStoreCoordinator = persistentStoreCoordinator;
+        }
+        else {
+            
+            _persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:[NSManagedObjectModel mergedModelFromBundles:nil]];
+        }
+        
         
         // create a creation queue per NSManagedObject subclass that conforms to NOResourceProtocol
         
@@ -157,10 +165,8 @@
 
 - (id)init
 {
-    [NSException raise:@"Wrong initialization method"
-                format:@"You cannot use %@ with %@, you have to use %@",
-     NSStringFromSelector(_cmd), self, NSStringFromSelector(@selector(initWithPersistentStoreCoordinator:lastIDsURL:))];
-    return nil;
+    return [[NOStore alloc] initWithPersistentStoreCoordinator:nil
+                                                    lastIDsURL:nil];
 }
 
 #pragma mark - Manipulate Resources
