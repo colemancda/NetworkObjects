@@ -55,11 +55,15 @@ typedef NS_ENUM(NSUInteger, NOStoreErrorCode) {
 -(id)initWithPersistentStoreCoordinator:(NSPersistentStoreCoordinator *)persistentStoreCoordinator
                              lastIDsURL:(NSURL *)lastIDsURL;
 
-@property (nonatomic, readonly) NSPersistentStoreCoordinator *persistentStoreCoordinator;
+@property (nonatomic, readonly) NSManagedObjectContext *context;
 
 @property (nonatomic, readonly) NSDictionary *lastResourceIDs;
 
 @property (nonatomic, readonly) NSURL *lastIDsURL;
+
+#pragma mark - Actions
+
+-(BOOL)save:(NSError **)error;
 
 #pragma mark - Manage Resource Instances
 
@@ -67,17 +71,13 @@ typedef NS_ENUM(NSUInteger, NOStoreErrorCode) {
 
 // e.g. you want to create a new resource but dont wanna write the glue code for assigning it a proper resource ID
 
--(NSManagedObject<NOResourceProtocol> *)newResourceWithEntityDescription:(NSEntityDescription *)entityDescription
-                                                                 context:(NSManagedObjectContext **)context
-                                                                   error:(NSError **)error;
-
 -(NSManagedObject<NOResourceProtocol> *)resourceWithEntityDescription:(NSEntityDescription *)entityDescription
                                                            resourceID:(NSNumber *)resourceID
                                                        shouldPrefetch:(BOOL)shouldPrefetch
-                                                              context:(NSManagedObjectContext **)context
                                                                 error:(NSError **)error;
 
--(BOOL)deleteResource:(NSManagedObject<NOResourceProtocol> *)resource
-                error:(NSError **)error;
+-(NSManagedObject<NOResourceProtocol> *)newResourceWithEntityDescription:(NSEntityDescription *)entityDescription;
+
+-(void)deleteResource:(NSManagedObject<NOResourceProtocol> *)resource;
 
 @end

@@ -187,7 +187,7 @@
 {
     NSError *error;
     
-    if (![self.context save:&error]) {
+    if (![self.store.context save:&error]) {
         
         [NSApp presentError:error];
     }
@@ -266,7 +266,7 @@
     // add persistance
     
     NSError *addPersistentStoreError;
-    [_store.persistentStoreCoordinator addPersistentStoreWithType:NSSQLiteStoreType
+    [_store.context.persistentStoreCoordinator addPersistentStoreWithType:NSSQLiteStoreType
                                                             configuration:nil
                                                                       URL:sqlURL
                                                                   options:nil
@@ -283,7 +283,7 @@
     
     _context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
     
-    _context.persistentStoreCoordinator = self.store.persistentStoreCoordinator;
+    _context.persistentStoreCoordinator = self.store.context.persistentStoreCoordinator;
     
     // setup server
     

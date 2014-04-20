@@ -186,7 +186,6 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
 -(void)handleFunction:(NSString *)functionName
    recievedJsonObject:(NSDictionary *)recievedJsonObject
              resource:(NSManagedObject<NOResourceProtocol> *)resource
-              context:(NSManagedObjectContext *)context
               session:(NSManagedObject<NOSessionProtocol> *)session
              response:(RouteResponse *)response;
 
@@ -195,7 +194,6 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
  
  */
 -(void)handleEditResource:(NSManagedObject <NOResourceProtocol> *)resource
-                  context:(NSManagedObjectContext *)context
        recievedJsonObject:(NSDictionary *)recievedJsonObject
                   session:(NSManagedObject <NOSessionProtocol> *)session
                  response:(RouteResponse *)response;
@@ -205,7 +203,6 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
  
  */
 -(void)handleGetResource:(NSManagedObject <NOResourceProtocol> *)resource
-                 context:(NSManagedObjectContext *)context
                  session:(NSManagedObject <NOSessionProtocol> *)session
                 response:(RouteResponse *)response;
 
@@ -214,7 +211,6 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
  
  */
 -(void)handleDeleteResource:(NSManagedObject <NOResourceProtocol> *)resource
-                    context:(NSManagedObjectContext *)context
                     session:(NSManagedObject <NOSessionProtocol> *)session
                    response:(RouteResponse *)response;
 
@@ -243,7 +239,6 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
  
  */
 -(NSManagedObject<NOSessionProtocol> *)sessionWithToken:(NSString *)token
-                                                context:(NSManagedObjectContext **)context
                                                   error:(NSError **)error;
 
 /**
@@ -281,7 +276,6 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
  */
 
 -(NOServerStatusCode)verifyEditResource:(NSManagedObject<NOResourceProtocol> *)resource
-                                context:(NSManagedObjectContext *)context
                      recievedJsonObject:(NSDictionary *)recievedJsonObject
                                 session:(NSManagedObject<NOSessionProtocol> *)session;
 
@@ -291,7 +285,6 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
  */
 
 -(BOOL)setValuesForResource:(NSManagedObject<NOResourceProtocol> *)resource
-                    context:(NSManagedObjectContext *)context
              fromJSONObject:(NSDictionary *)jsonObject
                     session:(NSManagedObject<NOSessionProtocol> *)session
                       error:(NSError **)error;
