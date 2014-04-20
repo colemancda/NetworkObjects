@@ -616,6 +616,19 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         return;
     }
     
+    [context performBlockAndWait:^{
+        
+        [context save:&error];
+        
+    }];
+    
+    if (error) {
+        
+        response.statusCode = InternalServerErrorStatusCode;
+        
+        return;
+    }
+    
     // return 200
     response.statusCode = OKStatusCode;
 }
@@ -765,6 +778,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         // get resourceID
         resourceID = [newResource valueForKey:resourceIDKey];
         
+        [context save:&error];
     }];
     
     if (error) {
@@ -1855,13 +1869,6 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     // notify
     [resource wasEditedBySession:session];
     
-    // save
-    
-    if (![context save:error]) {
-        
-        return NO;
-    }
-    
     return YES;
 }
 
@@ -1970,6 +1977,8 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                         return BadRequestStatusCode;
                     }
                     
+                    newValue = (NSManagedObject<NOResourceProtocol> *)[context objectWithID:newValue.objectID];
+                    
                     // destination resource must be visible
                     if ([newValue permissionForSession:session] < ReadOnlyPermission) {
                         
@@ -1977,8 +1986,6 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                     }
                     
                     // must be valid value
-                    
-                    newValue = (NSManagedObject<NOResourceProtocol> *)[context objectWithID:newValue.objectID];
                     
                     if (![resource validateValue:&newValue
                                           forKey:key
@@ -2018,13 +2025,15 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                             return BadRequestStatusCode;
                         }
                         
+                        destinationResource = (NSManagedObject<NOResourceProtocol> *)[context objectWithID:destinationResource.objectID];
+                        
                         // check permissions
                         if ([destinationResource permissionForSession:session] < ReadOnlyPermission) {
                             
                             return ForbiddenStatusCode;
                         }
                         
-                        [newValue addObject:[context objectWithID:destinationResource.objectID]];
+                        [newValue addObject:destinationResource];
                     }
                     
                     // must be valid new value
