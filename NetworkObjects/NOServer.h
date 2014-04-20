@@ -238,7 +238,8 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
  @return Returns an NSManagedObject subclass that conforms to NOSessionProtocol for the specified token or @c nil if none was found.
  
  */
--(NSManagedObject<NOSessionProtocol> *)sessionWithToken:(NSString *)token;
+-(NSManagedObject<NOSessionProtocol> *)sessionWithToken:(NSString *)token
+                                                  error:(NSError **)error;
 
 /**
  Generates a JSON representation of a Resource based on the session requesting the Resource instance.

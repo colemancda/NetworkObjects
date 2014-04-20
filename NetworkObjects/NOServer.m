@@ -158,7 +158,7 @@ NSString *const NOServerSearchPathOption = @"NOServerSearchPathOption";
     if (!_resourcePaths) {
         
         // scan through entity descriptions and get urls of NOResources
-        NSManagedObjectModel *model = self.store.context.persistentStoreCoordinator.managedObjectModel;
+        NSManagedObjectModel *model = self.store.persistentStoreCoordinator.managedObjectModel;
         
         NSMutableDictionary *urlsDict = [[NSMutableDictionary alloc] init];
         
@@ -325,7 +325,17 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     NSString *token = request.headers[@"Authorization"];
     
-    NSManagedObject<NOSessionProtocol> *session = [self sessionWithToken:token];
+    NSError *error;
+    
+    NSManagedObject<NOSessionProtocol> *session = [self sessionWithToken:token
+                                                                   error:&error];
+    
+    if (error) {
+        
+        response.statusCode = InternalServerErrorStatusCode;
+        
+        return;
+    }
     
     // check if the resource requires sessions
     if (!session && [NSClassFromString(entityDescription.managedObjectClassName) requireSession]) {
@@ -407,6 +417,10 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                                                                                        resourceID:resourceID
                                                                                    shouldPrefetch:shouldPrefetch
                                                                                             error:&fetchError];
+        // get session object for resource context
+        
+        session = (NSManagedObject<NOSessionProtocol> *)[resource.managedObjectContext objectWithID:session.objectID];
+        
         // internal error
         if (fetchError) {
             
@@ -540,10 +554,15 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     NSError *error;
     
-    [self setValuesForResource:resource
-                fromJSONObject:recievedJsonObject
-                       session:session
-                         error:&error];
+    if ([self setValuesForResource:resource
+                    fromJSONObject:recievedJsonObject
+                           session:session
+                             error:&error]) {
+        
+        response.statusCode = InternalServerErrorStatusCode;
+        
+        return;
+    }
     
     
     // return 200
@@ -680,7 +699,14 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonObject
                                                        options:self.jsonWritingOption
-                                                         error:nil];
+                                                         error:&error];
+    
+    if (!jsonData) {
+        
+        response.statusCode = InternalServerErrorStatusCode;
+        
+        return;
+    }
     
     [response respondWithData:jsonData];
     
@@ -737,8 +763,8 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     }
     
     // session class
-    NSEntityDescription *sessionEntityDescription = [NSEntityDescription entityForName:self.sessionEntityName inManagedObjectContext:_store.context];
-    
+    NSEntityDescription *sessionEntityDescription = self.store.persistentStoreCoordinator.managedObjectModel.entitiesByName[self.sessionEntityName];
+
     Class sessionEntityClass = NSClassFromString(sessionEntityDescription.managedObjectClassName);
     
     NSString *sessionUserKey = [sessionEntityClass sessionUserKey];
@@ -746,8 +772,8 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     NSString *sessionClientKey = [sessionEntityClass sessionClientKey];
     
     // client class
-    NSEntityDescription *clientEntityDescription = [NSEntityDescription entityForName:self.clientEntityName
-                                                               inManagedObjectContext:_store.context];
+    NSEntityDescription *clientEntityDescription = self.store.persistentStoreCoordinator.managedObjectModel.entitiesByName[self.clientEntityName];
+
     
     Class clientEntityClass = NSClassFromString(clientEntityDescription.managedObjectClassName);
     
@@ -827,9 +853,8 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                forKey:sessionClientKey];
     
     // user entity class
-    NSEntityDescription *userEntityDescription = [NSEntityDescription entityForName:self.userEntityName
-                                                             inManagedObjectContext:_store.context];
-    
+    NSEntityDescription *userEntityDescription = self.store.persistentStoreCoordinator.managedObjectModel.entitiesByName[self.userEntityName];
+
     Class userEntityClass = NSClassFromString(userEntityDescription.managedObjectClassName);
     
     NSString *usernameKey = [userEntityClass usernameKey];
@@ -849,28 +874,34 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         // search for user with username and password
         NSFetchRequest *userFetchRequest = [NSFetchRequest fetchRequestWithEntityName:self.userEntityName];
         
-        userFetchRequest.predicate = [NSPredicate predicateWithFormat:@"%K ==[c] %@ AND %K == %@", usernameKey, username, passwordKey, userPassword];
+        // create predicate
+        
+        NSPredicate *usernamePredicate = [NSComparisonPredicate predicateWithLeftExpression:[NSExpression expressionForKeyPath:usernameKey] rightExpression:[NSExpression expressionForConstantValue:username] modifier:NSDirectPredicateModifier type:NSEqualToPredicateOperatorType options:NSCaseInsensitivePredicateOption];
+        
+        NSPredicate *passwordPredicate = [NSComparisonPredicate predicateWithLeftExpression:[NSExpression expressionForKeyPath:passwordKey] rightExpression:[NSExpression expressionForConstantValue:userPassword] modifier:NSDirectPredicateModifier type:NSEqualToPredicateOperatorType options:NSNormalizedPredicateOption];
+        
+        userFetchRequest.predicate = [[NSCompoundPredicate alloc] initWithType:NSAndPredicateType
+                                                                 subpredicates:@[usernamePredicate, passwordPredicate]];
+        
+        // create context
+        
+        NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+        
+        context.persistentStoreCoordinator = self.store.persistentStoreCoordinator;
+        
+        context.undoManager = nil;
+        
+        // fetch user
         
         __block NSManagedObject<NOUserProtocol> *user;
         
-        [_store.context performBlockAndWait:^{
+        __block NSError *fetchError;
+        
+        [context performBlockAndWait:^{
             
-            NSError *fetchError;
-            NSArray *result = [_store.context executeFetchRequest:userFetchRequest
-                                                            error:&fetchError];
-            
-            if (!result) {
-                
-                [NSException raise:@"Fetch Request Failed"
-                            format:@"%@", fetchError.localizedDescription];
-                return;
-            }
-            
-            if (!result.count) {
-                return;
-            }
-            
-            user = result[0];
+            NSArray *result = [context executeFetchRequest:userFetchRequest
+                                                     error:&fetchError];
+            user = result.firstObject;
             
         }];
         
@@ -1255,16 +1286,24 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     fetchRequest.propertiesToFetch = @[[NSClassFromString(entityDescription.managedObjectClassName) resourceIDKey]];
     
+    // create context
+    
+    NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+    
+    context.persistentStoreCoordinator = self.store.persistentStoreCoordinator;
+    
+    context.undoManager = nil;
+    
     // execute fetch request...
     
     __block NSError *fetchError;
     
     __block NSArray *result;
     
-    [self.store.context performBlockAndWait:^{
+    [context performBlockAndWait:^{
         
-        result = [self.store.context executeFetchRequest:fetchRequest
-                                                   error:&fetchError];
+        result = [context executeFetchRequest:fetchRequest
+                                        error:&fetchError];
         
     }];
     
@@ -1368,12 +1407,11 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
 
 #pragma mark - Common methods for handlers
 
--(NSManagedObject<NOSessionProtocol> *)sessionWithToken:(NSString *)token
+-(NSManagedObject<NOSessionProtocol> *)sessionWithToken:(NSString *)token error:(NSError **)error
 {
     // determine the attribute name the entity uses for storing tokens
     
-    NSEntityDescription *sessionEntityDescription = [NSEntityDescription entityForName:self.sessionEntityName
-                                                                inManagedObjectContext:_store.context];
+    NSEntityDescription *sessionEntityDescription = self.store.persistentStoreCoordinator.managedObjectModel.entitiesByName[self.sessionEntityName];
     
     Class sessionEntityClass = NSClassFromString(sessionEntityDescription.managedObjectClassName);
     
@@ -1383,30 +1421,39 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     NSFetchRequest *sessionWithTokenFetchRequest = [NSFetchRequest fetchRequestWithEntityName:self.sessionEntityName];
     
-    sessionWithTokenFetchRequest.predicate = [NSPredicate predicateWithFormat:@"%K == %@", tokenKey, token];
+    sessionWithTokenFetchRequest.predicate = [NSComparisonPredicate predicateWithLeftExpression:[NSExpression expressionForKeyPath:tokenKey] rightExpression:[NSExpression expressionForConstantValue:tokenKey] modifier:NSDirectPredicateModifier type:NSEqualToPredicateOperatorType options:NSNormalizedPredicateOption];
     
-    __block id<NOSessionProtocol> session;
+    sessionWithTokenFetchRequest.fetchLimit = 1;
     
-    [self.store.context performBlockAndWait:^{
+    sessionWithTokenFetchRequest.returnsObjectsAsFaults = YES;
+    
+    sessionWithTokenFetchRequest.propertiesToFetch = nil;
+    
+    // create context
+    
+    NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+    
+    context.persistentStoreCoordinator = self.store.persistentStoreCoordinator;
+    
+    context.undoManager = nil;
+    
+    __block NSManagedObject <NOSessionProtocol> *session;
+    
+    __block NSError *fetchError;
+    
+    [context performBlockAndWait:^{
         
-        NSError *fetchError;
-        NSArray *result = [self.store.context executeFetchRequest:sessionWithTokenFetchRequest
-                                                            error:&fetchError];
-        
-        if (!result) {
-            
-            [NSException raise:@"Fetch Request Failed"
-                        format:@"%@", fetchError.localizedDescription];
-            return;
-        }
-        
-        if (!result.count) {
-            return;
-        }
+        NSArray *result = [context executeFetchRequest:sessionWithTokenFetchRequest
+                                                 error:&fetchError];
         
         session = result.firstObject;
         
     }];
+    
+    if (fetchError) {
+        
+        return nil;
+    }
     
     return session;
 }
@@ -1562,7 +1609,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                     return NO;
                 }
                 
-                [resource setValue:destinationResource
+                [resource setValue:[resource.managedObjectContext objectWithID:destinationResource.objectID]
                             forKey:key];
                 
             }
@@ -1586,7 +1633,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                         return NO;
                     }
                     
-                    [newRelationshipValues addObject:destinationResource];
+                    [newRelationshipValues addObject:[resource.managedObjectContext objectWithID:destinationResource.objectID]];
                 }
                 
                 // replace collection
