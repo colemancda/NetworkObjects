@@ -200,7 +200,10 @@
     
     NSManagedObjectContext *context = [self newContext];
     
-    *contextPointer = context;
+    if (contextPointer) {
+        
+        *contextPointer = context;
+    }
     
     __block NSArray *result;
     
@@ -260,7 +263,10 @@
     
     NSManagedObjectContext *context = [self newContext];
     
-    *contextPointer = context;
+    if (contextPointer) {
+        
+        *contextPointer = context;
+    }
     
     // get resourceID attribute
     
