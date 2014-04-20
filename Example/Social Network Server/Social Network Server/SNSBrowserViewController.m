@@ -119,16 +119,7 @@ static void *KVOContext = &KVOContext;
 {
     SNSAppDelegate *appDelegate = [NSApp delegate];
     
-    NSError *error;
-    
-    if (![appDelegate.store newResourceWithEntityDescription:self.selectedEntity
-                                                     context:nil
-                                                      error:&error]) {
-        
-        [NSApp presentError:error];
-        
-        return;
-    }
+    [appDelegate.store newResourceWithEntityDescription:self.selectedEntity];
     
     [self.arrayController fetch:nil];
 }
@@ -141,18 +132,9 @@ static void *KVOContext = &KVOContext;
     
     NSManagedObject *selectedItem = self.arrayController.arrangedObjects[self.tableView.selectedRow];
     
-    NSError *error;
-    
-    if (![appDelegate.store deleteResource:(id)selectedItem
-                                        error:&error]) {
-        
-        [NSApp presentError:error];
-        
-        return;
-    }
+    [appDelegate.store deleteResource:(NSManagedObject<NOResourceProtocol> *)selectedItem];
     
     [self.arrayController fetch:nil];
-    
 }
 
 #pragma mark - ComboBox Data Source
