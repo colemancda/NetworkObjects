@@ -17,9 +17,11 @@
 
 #pragma mark - Properties
 
-@property (readonly) NOServer *server;
+@property (nonatomic, readonly) NOServer *server;
 
-@property (readonly) NOStore *store;
+@property (nonatomic, readonly) NOStore *store;
+
+@property (nonatomic, readonly) NSManagedObjectContext *context;
 
 #pragma mark - View Controllers
 

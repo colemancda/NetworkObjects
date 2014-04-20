@@ -70,24 +70,6 @@
     
 }
 
--(void)applicationWillTerminate:(NSNotification *)notification
-{
-    NSLog(@"Terminating...");
-    
-    NSError *error;
-    
-    BOOL saved = [self.store save:&error];
-    
-    if (saved) {
-        
-        NSLog(@"Saved data successfully");
-    }
-    else {
-        
-        NSLog(@"Could not save data. (%@)", error.localizedDescription);
-    }
-}
-
 -(BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)sender
 {
     // intelligently terminate if the server is not running
@@ -199,7 +181,19 @@
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
+#pragma mark - First Responder
 
+-(void)saveDocument:(id)sender
+{
+    NSError *error;
+    
+    if (![self.store.context save:&error]) {
+        
+        [NSApp presentError:error];
+    }
+    
+    NSLog(@"Main Context saved");
+}
 
 @end
 
@@ -263,8 +257,10 @@
     
     // setup store
     
-    _store = [[NOStore alloc] initWithManagedObjectModel:nil
-                                              lastIDsURL:lastIDsURL];
+    
+    
+    _store = [[NOStore alloc] initWithPersistentStoreCoordinator:[[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:[NSManagedObjectModel mergedModelFromBundles:nil]]
+                                                      lastIDsURL:lastIDsURL];
     
     
     // add persistance
@@ -282,6 +278,14 @@
         
         [NSApp terminate:nil];
     }
+    
+    // create context
+    
+    _context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
+    
+    _context.persistentStoreCoordinator = self.store.context.persistentStoreCoordinator;
+    
+    // setup server
     
     _server = [[NOServer alloc] initWithOptions:@{NOServerStoreOption: _store,
                                                   NOServerUserEntityNameOption: @"User",
