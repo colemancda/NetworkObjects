@@ -62,7 +62,7 @@ extern NSString *const NOServerSearchPathOption;
  @see NOStore
  */
 
-@property (readonly) NOStore *store;
+@property (nonatomic, readonly) NOStore *store;
 
 /**
  The underlying HTTP server that accepts incoming connections.
@@ -71,36 +71,36 @@ extern NSString *const NOServerSearchPathOption;
  
  */
 
-@property (readonly) NOHTTPServer *httpServer;
+@property (nonatomic, readonly) NOHTTPServer *httpServer;
 
 /**
  The name of the entity in NOStore's Managed Object Model that conforms to NOSessionProtocol. There should only be only entity that conforms to NOSessionProtocol in the NOStore's Managed Object Model.
  */
 
-@property (readonly) NSString *sessionEntityName;
+@property (nonatomic, readonly) NSString *sessionEntityName;
 
 /**
  The name of the entity in NOStore's Managed Object Model that conforms to NOUserProtocol. There should only be only entity that conforms to NOUserProtocol in the NOStore's Managed Object Model.
  */
 
-@property (readonly) NSString *userEntityName;
+@property (nonatomic, readonly) NSString *userEntityName;
 
 /**
  The name of the entity in NOStore's Managed Object Model that conforms to NOClientProtocol. There should only be only entity that conforms to NOClientProtocol in the NOStore's Managed Object Model.
  */
 
-@property (readonly) NSString *clientEntityName;
+@property (nonatomic, readonly) NSString *clientEntityName;
 
 /**
  This will be the URL that clients will use to authenticate. This string must be different from the values that NOStore's Resources return in @c +(NSString *)resourcePath.
  */
 
-@property (readonly) NSString *loginPath;
+@property (nonatomic, readonly) NSString *loginPath;
 
 /** The URL that clients will use to perform a remote fetch request. This string must be different from the values that NOStore's Resources return in @c +(NSString *)resourcePath
  */
 
-@property (readonly) NSString *searchPath;
+@property (nonatomic, readonly) NSString *searchPath;
 
 /**
  This dictionary is lazily initialized and maps NSEntityDescriptions to resourcePaths for REST URL generation.
@@ -108,7 +108,7 @@ extern NSString *const NOServerSearchPathOption;
  @see NOResourceProtocol
  */
 
-@property (readonly) NSDictionary *resourcePaths;
+@property (nonatomic, readonly) NSDictionary *resourcePaths;
 
 /**
  This setting defines whether the JSON output generated should be pretty printed (contain whitespacing for human readablility) or not.
@@ -117,18 +117,18 @@ extern NSString *const NOServerSearchPathOption;
  
  */
 
-@property BOOL prettyPrintJSON;
+@property (nonatomic) BOOL prettyPrintJSON;
 
 /**
  * To enable HTTPS for all incoming connections set this value to an array appropriate for use in kCFStreamSSLCertificates SSL Settings.
  * It should be an array of SecCertificateRefs except for the first element in the array, which is a SecIdentityRef.
  **/
 
-@property NSArray *sslIdentityAndCertificates;
+@property (nonatomic) NSArray *sslIdentityAndCertificates;
 
 /** Set of NSNumbers containing the value of a NSPredicateOperatorType that are valid comparators for the server's search capabilities. This can be used to disable conputationally intensive tasks, like string comparators. */
 
-@property NSSet *allowedOperatorsForSearch;
+@property (nonatomic) NSSet *allowedOperatorsForSearch;
 
 /**
  Start the HTTP REST server on the specified port.
