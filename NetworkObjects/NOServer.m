@@ -170,7 +170,7 @@ NSString *const NOServerSearchPathOption = @"NOServerSearchPathOption";
             
             BOOL conformsToNOResourceProtocol = [entityClass conformsToProtocol:@protocol(NOResourceProtocol)];
             
-            if (conformsToNOResourceProtocol) {
+            if (conformsToNOResourceProtocol && !entityDescription.isAbstract) {
                 
                 // map enitity to url path
                 NSString *path = [entityClass resourcePath];
