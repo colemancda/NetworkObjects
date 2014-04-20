@@ -327,8 +327,11 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     NSError *error;
     
-    NSManagedObject<NOSessionProtocol> *session = [self sessionWithToken:token
-                                                                   error:&error];
+    NSManagedObjectContext *sessionContext;
+    
+    __block NSManagedObject<NOSessionProtocol> *session = [self sessionWithToken:token
+                                                                         context:&sessionContext
+                                                                           error:&error];
     
     if (error) {
         
@@ -347,18 +350,25 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     if (session) {
         
-        if ([session canUseSessionFromIP:response.ipAddress
-                          requestHeaders:request.headers]) {
-            
-            [session usedSessionFromIP:response.ipAddress
-                        requestHeaders:request.headers];
-        }
+        NSString *ipAddress = response.ipAddress.copy;
         
-        // cant use the session
-        else {
+        NSDictionary *headers = response.headers.copy;
+        
+        [sessionContext performBlockAndWait:^{
             
-            session = nil;
-        }
+            if ([session canUseSessionFromIP:ipAddress
+                              requestHeaders:headers]) {
+                
+                [session usedSessionFromIP:ipAddress
+                            requestHeaders:headers];
+            }
+            
+            // cant use the session
+            else {
+                
+                session = nil;
+            }
+        }];
     }
     
     // determine what handler to call
@@ -749,7 +759,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         [self setValuesForResource:newResource
                            context:context
                     fromJSONObject:initialValues
-                           session:(NSManagedObject<NOSessionProtocol> *)[newResource.managedObjectContext objectWithID:session.objectID]
+                           session:(NSManagedObject<NOSessionProtocol> *)[context objectWithID:session.objectID]
                              error:&error];
         
         // get resourceID
@@ -901,7 +911,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     // get client with resource ID
     
-    NSError *error;
+    __block NSError *error;
     
     NSManagedObjectContext *context;
     
@@ -993,14 +1003,6 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         userFetchRequest.predicate = [[NSCompoundPredicate alloc] initWithType:NSAndPredicateType
                                                                  subpredicates:@[usernamePredicate, passwordPredicate]];
         
-        // create context
-        
-        NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-        
-        context.persistentStoreCoordinator = self.store.persistentStoreCoordinator;
-        
-        context.undoManager = nil;
-        
         // fetch user
         
         __block NSManagedObject<NOUserProtocol> *user;
@@ -1025,24 +1027,40 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         
         // set session user
         
-        [client.managedObjectContext performBlockAndWait:^{
+        [context performBlockAndWait:^{
             
-            [session setValue:[client.managedObjectContext objectWithID:user.objectID]
+            [session setValue:user
                        forKey:sessionUserKey];
             
         }];
     }
     
     // get session token
+    
     NSString *sessionTokenKey = [sessionEntityClass sessionTokenKey];
     
     __block NSString *sessionToken;
     
-    [client.managedObjectContext performBlockAndWait:^{
+    [context performBlockAndWait:^{
        
         sessionToken = [session valueForKey:sessionTokenKey];
         
     }];
+    
+    // save session
+    
+    [context performBlockAndWait:^{
+        
+        [context save:&error];
+        
+    }];
+    
+    if (error) {
+        
+        response.statusCode = InternalServerErrorStatusCode;
+        
+        return;
+    }
     
     // respond with token
     NSMutableDictionary *jsonObject = [NSMutableDictionary dictionaryWithDictionary:@{sessionTokenKey : sessionToken}];
@@ -1056,7 +1074,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         
         __block NSNumber *userResourceID;
         
-        [client.managedObjectContext performBlockAndWait:^{
+        [context performBlockAndWait:^{
            
             userResourceID = [user valueForKey:userResourceIDKey];
             
@@ -1590,7 +1608,9 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
 
 #pragma mark - Common methods for handlers
 
--(NSManagedObject<NOSessionProtocol> *)sessionWithToken:(NSString *)token error:(NSError **)error
+-(NSManagedObject<NOSessionProtocol> *)sessionWithToken:(NSString *)token
+                                                context:(NSManagedObjectContext **)contextPointer
+                                                  error:(NSError **)error
 {
     // determine the attribute name the entity uses for storing tokens
     
@@ -1604,7 +1624,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     NSFetchRequest *sessionWithTokenFetchRequest = [NSFetchRequest fetchRequestWithEntityName:self.sessionEntityName];
     
-    sessionWithTokenFetchRequest.predicate = [NSComparisonPredicate predicateWithLeftExpression:[NSExpression expressionForKeyPath:tokenKey] rightExpression:[NSExpression expressionForConstantValue:tokenKey] modifier:NSDirectPredicateModifier type:NSEqualToPredicateOperatorType options:NSNormalizedPredicateOption];
+    sessionWithTokenFetchRequest.predicate = [NSComparisonPredicate predicateWithLeftExpression:[NSExpression expressionForKeyPath:tokenKey] rightExpression:[NSExpression expressionForConstantValue:token] modifier:NSDirectPredicateModifier type:NSEqualToPredicateOperatorType options:NSNormalizedPredicateOption];
     
     sessionWithTokenFetchRequest.fetchLimit = 1;
     
@@ -1615,6 +1635,11 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     context.persistentStoreCoordinator = self.store.persistentStoreCoordinator;
     
     context.undoManager = nil;
+    
+    if (contextPointer) {
+        
+        *contextPointer = context;
+    }
     
     __block NSManagedObject <NOSessionProtocol> *session;
     

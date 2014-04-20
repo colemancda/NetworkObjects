@@ -243,6 +243,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
  
  */
 -(NSManagedObject<NOSessionProtocol> *)sessionWithToken:(NSString *)token
+                                                context:(NSManagedObjectContext **)context
                                                   error:(NSError **)error;
 
 /**
