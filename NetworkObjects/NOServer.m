@@ -505,8 +505,16 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                  session:(NSManagedObject<NOSessionProtocol> *)session
                 response:(RouteResponse *)response
 {
+    __block NOResourcePermission resourcePermission;
+    
+    [resource.managedObjectContext performBlockAndWait:^{
+        
+        resourcePermission = [resource permissionForSession:session];
+        
+    }];
+    
     // resource is invisible to session
-    if ([resource permissionForSession:session] < ReadOnlyPermission) {
+    if (resourcePermission < ReadOnlyPermission) {
         
         response.statusCode = ForbiddenStatusCode;
         
@@ -514,8 +522,14 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     }
     
     // build json object
-    NSDictionary *jsonObject = [self JSONRepresentationOfResource:resource
-                                                       forSession:session];
+    __block NSDictionary *jsonObject;
+    
+    [resource.managedObjectContext performBlockAndWait:^{
+       
+       jsonObject = [self JSONRepresentationOfResource:resource
+                                            forSession:session];
+        
+    }];
     
     // serialize JSON data
     
@@ -544,9 +558,14 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
 {
     // check if jsonObject has keys that dont exist in this resource or lacks permission to edit...
     
-    NOServerStatusCode editStatusCode = [self verifyEditResource:resource
-                                              recievedJsonObject:recievedJsonObject
-                                                         session:session];
+    __block NOServerStatusCode editStatusCode;
+    
+    [resource.managedObjectContext performBlockAndWait:^{
+        
+        editStatusCode = [self verifyEditResource:resource
+                               recievedJsonObject:recievedJsonObject
+                                          session:session];
+    }];
     
     // return HTTP error code if recieved JSON data is invalid
     if (editStatusCode != OKStatusCode) {
@@ -558,18 +577,23 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     // since we verified the validity and access permissions of the recievedJsonObject, we then apply the edits...
     
-    NSError *error;
+    __block NSError *error;
     
-    if ([self setValuesForResource:resource
+    [resource.managedObjectContext performBlockAndWait:^{
+        
+        [self setValuesForResource:resource
                     fromJSONObject:recievedJsonObject
                            session:session
-                             error:&error]) {
+                             error:&error];
+        
+    }];
+    
+    if (error) {
         
         response.statusCode = InternalServerErrorStatusCode;
         
         return;
     }
-    
     
     // return 200
     response.statusCode = OKStatusCode;
@@ -580,17 +604,26 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                    response:(RouteResponse *)response
 {
     // check permissions
-    if ([resource permissionForSession:session] < EditPermission ||
-        ![resource canDeleteFromSession:session]) {
+    
+    __block BOOL cannotDelete;
+    
+    [resource.managedObjectContext performBlockAndWait:^{
+        
+        cannotDelete = ([resource permissionForSession:session] < EditPermission || ![resource canDeleteFromSession:session]);
+        
+    }];
+    
+    if (cannotDelete) {
         
         response.statusCode = ForbiddenStatusCode;
+        
         return;
     }
     
     NSError *error;
     
     if (![_store deleteResource:resource
-                         error:&error]) {
+                          error:&error]) {
         
         // TODO LOG
         
@@ -617,7 +650,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         return;
     }
     
-    // check whether inital values are required
+    // check whether initial values are required
     if ([entityClass requiredInitialProperties]) {
         
         for (NSString *initialPropertyName in [entityClass requiredInitialProperties]) {
@@ -734,9 +767,17 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
               session:(NSManagedObject<NOSessionProtocol> *)session
              response:(RouteResponse *)response
 {
+    __block BOOL canPerformFunction;
+    
+    [resource.managedObjectContext performBlockAndWait:^{
+       
+        canPerformFunction = [resource canPerformFunction:functionName
+                                                  session:session];
+        
+    }];
+    
     // check for permission
-    if (![resource canPerformFunction:functionName
-                              session:session])
+    if (!canPerformFunction)
     {
         response.statusCode = ForbiddenStatusCode;
         
@@ -745,6 +786,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     // perform function
     NSDictionary *jsonResponse;
+    
     response.statusCode = [resource performFunction:functionName
                                         withSession:session
                                  recievedJsonObject:recievedJsonObject
@@ -756,9 +798,17 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                                                            options:self.jsonWritingOption
                                                              error:nil];
         
+        if (!jsonData) {
+            
+            response.statusCode = InternalServerErrorStatusCode;
+            
+            return;
+        }
+        
         [response respondWithData:jsonData];
     }
     
+    response.statusCode = OKStatusCode;
 }
 
 -(void)handleLoginWithRequest:(RouteRequest *)request

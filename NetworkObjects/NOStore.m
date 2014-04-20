@@ -225,9 +225,9 @@
     
     NSManagedObjectContext *context = [self newContext];
     
-    [context performBlock:^{
+    [context performBlockAndWait:^{
         
-        [context deleteObject:resource];
+        [context deleteObject:[context objectWithID:resource.objectID]];
         
         [context save:error];
         
