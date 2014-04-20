@@ -213,7 +213,9 @@
         return nil;
     }
     
-    return result.firstObject;
+    NSManagedObject<NOResourceProtocol> *resource = result.firstObject;
+    
+    return resource;
 }
 
 -(BOOL)deleteResource:(NSManagedObject<NOResourceProtocol> *)resource

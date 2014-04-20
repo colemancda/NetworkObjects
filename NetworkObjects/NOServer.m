@@ -370,6 +370,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     // make sure jsonObject is a dictionary
     if (jsonObject && ![jsonObject isKindOfClass:[NSDictionary class]]) {
+        
         jsonObject = nil;
     }
     
@@ -419,7 +420,12 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                                                                                             error:&fetchError];
         // get session object for resource context
         
-        session = (NSManagedObject<NOSessionProtocol> *)[resource.managedObjectContext objectWithID:session.objectID];
+        __block NSManagedObject <NOSessionProtocol> *resourceContextSession;
+        
+        [resource.managedObjectContext performBlockAndWait:^{
+            
+            resourceContextSession = (NSManagedObject<NOSessionProtocol> *)[resource.managedObjectContext objectWithID:session.objectID];
+        }];
         
         // internal error
         if (fetchError) {
@@ -447,7 +453,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
             [self handleFunction:functionName
               recievedJsonObject:jsonObject
                         resource:resource
-                         session:session
+                         session:resourceContextSession
                         response:response];
             
             return;
@@ -466,7 +472,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
             
             [self handleEditResource:resource
                   recievedJsonObject:jsonObject
-                             session:session
+                             session:resourceContextSession
                             response:response];
             
             return;
@@ -475,7 +481,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         if ([request.method isEqualToString:@"GET"]) {
             
             [self handleGetResource:resource
-                            session:session
+                            session:resourceContextSession
                            response:response];
             
             return;
@@ -484,7 +490,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         if ([request.method isEqualToString:@"DELETE"]) {
             
             [self handleDeleteResource:resource
-                               session:session
+                               session:resourceContextSession
                               response:response];
             
             return;
@@ -635,9 +641,39 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         }
     }
     
+    // validate initial values
+    
+    NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+    
+    context.persistentStoreCoordinator = self.store.persistentStoreCoordinator;
+    
+    context.undoManager = nil;
+    
+    __block NOServerStatusCode applyInitialValuesStatusCode;
+    
+    [context performBlockAndWait:^{
+        
+        NSManagedObject<NOResourceProtocol> *tempResource = [NSEntityDescription insertNewObjectForEntityForName:entityDescription.name inManagedObjectContext:context];
+        
+        applyInitialValuesStatusCode = [self verifyEditResource:tempResource
+                                             recievedJsonObject:initialValues
+                                                        session:(NSManagedObject<NOSessionProtocol> *)[context objectWithID:session.objectID]];
+    }];
+    
+    // reduce memory
+    
+    context = nil;
+    
+    if (applyInitialValuesStatusCode != OKStatusCode) {
+        
+        response.statusCode = applyInitialValuesStatusCode;
+        
+        return;
+    }
+    
     // create new instance
     
-    NSError *error;
+    __block NSError *error;
     
     NSManagedObject<NOResourceProtocol> *newResource = [_store newResourceWithEntityDescription:entityDescription
                                                                                           error:&error];
@@ -651,49 +687,28 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         return;
     }
     
-    // notify
-    [newResource wasCreatedBySession:session];
-    
-    // validate initial values
-    NOServerStatusCode applyInitialValuesStatusCode = [self verifyEditResource:newResource
-                                                            recievedJsonObject:initialValues
-                                                                       session:session];
-    
-    if (applyInitialValuesStatusCode != OKStatusCode) {
-        
-        response.statusCode = applyInitialValuesStatusCode;
-        
-        // delete created resource
-        if (![_store deleteResource:newResource
-                             error:&error]) {
-            
-            // TODO log
-            
-            response.statusCode = InternalServerErrorStatusCode;
-            
-            return;
-        }
-        
-        return;
-    }
-    
-    // set initial values
-    
-    if (![self setValuesForResource:newResource
-                fromJSONObject:initialValues
-                           session:session
-                              error:&error]) {
-        
-        response.statusCode = InternalServerErrorStatusCode;
-        
-        return;
-    }
-    
     // get the resourceIDKey
     NSString *resourceIDKey = [[newResource class] resourceIDKey];
     
-    // get resourceID
-    NSNumber *resourceID = [newResource valueForKey:resourceIDKey];
+    __block NSNumber *resourceID;
+    
+    [newResource.managedObjectContext performBlockAndWait:^{
+        
+        // notify
+        
+        [newResource wasCreatedBySession:session];
+        
+        // set initial values
+        
+        [self setValuesForResource:newResource
+                    fromJSONObject:initialValues
+                           session:(NSManagedObject<NOSessionProtocol> *)[newResource.managedObjectContext objectWithID:session.objectID]
+                             error:&error];
+        
+        // get resourceID
+        resourceID = [newResource valueForKey:resourceIDKey];
+        
+    }];
     
     NSDictionary *jsonObject = @{resourceIDKey: resourceID};
     
@@ -828,7 +843,15 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     }
     
     // validate secret
-    if (![[client valueForKey:clientSecretKey] isEqualToString:clientSecret]) {
+    
+    __block BOOL validSecret;
+    
+    [client.managedObjectContext performBlockAndWait:^{
+        
+        validSecret = [[client valueForKey:clientSecretKey] isEqualToString:clientSecret];
+    }];
+    
+    if (!validSecret) {
         
         response.statusCode = ForbiddenStatusCode;
         
@@ -836,7 +859,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     }
     
     // create new session with client
-    NSManagedObject<NOSessionProtocol> *session = (NSManagedObject<NOSessionProtocol> *)[_store newResourceWithEntityDescription:sessionEntityDescription error:&error];
+    __block NSManagedObject<NOSessionProtocol> *session = (NSManagedObject<NOSessionProtocol> *)[_store newResourceWithEntityDescription:sessionEntityDescription error:&error];
     
     if (error) {
         
@@ -845,12 +868,18 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         return;
     }
     
-    // generate token
-    [session generateToken];
-    
-    // set client
-    [session setValue:client
-               forKey:sessionClientKey];
+    [client.managedObjectContext performBlockAndWait:^{
+        
+        session = (NSManagedObject<NOSessionProtocol> *)[client.managedObjectContext objectWithID:session.objectID];
+        
+        // generate token
+        [session generateToken];
+        
+        // set client
+        [session setValue:client
+                   forKey:sessionClientKey];
+        
+    }];
     
     // user entity class
     NSEntityDescription *userEntityDescription = self.store.persistentStoreCoordinator.managedObjectModel.entitiesByName[self.userEntityName];
@@ -873,6 +902,8 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         
         // search for user with username and password
         NSFetchRequest *userFetchRequest = [NSFetchRequest fetchRequestWithEntityName:self.userEntityName];
+        
+        userFetchRequest.fetchLimit = 1;
         
         // create predicate
         
@@ -915,15 +946,27 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         
         // set session user
         
-        [session setValue:user
-                   forKey:sessionUserKey];
+        [client.managedObjectContext performBlockAndWait:^{
+            
+            [session setValue:[client.managedObjectContext objectWithID:user.objectID]
+                       forKey:sessionUserKey];
+            
+        }];
     }
     
     // get session token
     NSString *sessionTokenKey = [sessionEntityClass sessionTokenKey];
     
+    __block NSString *sessionToken;
+    
+    [client.managedObjectContext performBlockAndWait:^{
+       
+        sessionToken = [session valueForKey:sessionTokenKey];
+        
+    }];
+    
     // respond with token
-    NSMutableDictionary *jsonObject = [NSMutableDictionary dictionaryWithDictionary:@{sessionTokenKey : [session valueForKey:sessionTokenKey]}];
+    NSMutableDictionary *jsonObject = [NSMutableDictionary dictionaryWithDictionary:@{sessionTokenKey : sessionToken}];
     
     // add user resourceID if the session has a user
     NSManagedObject *user = [session valueForKey:sessionUserKey];
@@ -932,7 +975,13 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         
         NSString *userResourceIDKey = [[user class] resourceIDKey];
         
-        NSNumber *userResourceID = [user valueForKey:userResourceIDKey];
+        __block NSNumber *userResourceID;
+        
+        [client.managedObjectContext performBlockAndWait:^{
+           
+            userResourceID = [user valueForKey:userResourceIDKey];
+            
+        }];
         
         [jsonObject addEntriesFromDictionary:@{sessionUserKey: userResourceID}];
     }
@@ -940,6 +989,13 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonObject
                                                        options:self.prettyPrintJSON
                                                          error:nil];
+    
+    if (!jsonData) {
+        
+        response.statusCode = InternalServerErrorStatusCode;
+        
+        return;
+    }
     
     [response respondWithData:jsonData];
 }
@@ -970,6 +1026,14 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     fetchRequest.sortDescriptors = @[defaultSortDescriptor];
     
+    
+    // create context
+    
+    NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+    
+    context.persistentStoreCoordinator = self.store.persistentStoreCoordinator;
+    
+    context.undoManager = nil;
     
     // add search parameters...
     
@@ -1053,10 +1117,10 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                 
                 NSError *error;
                 
-                value = [self.store resourceWithEntityDescription:entityDescription
-                                                       resourceID:resourceID
-                                                   shouldPrefetch:NO
-                                                            error:&error];
+                NSManagedObject *fetchedResource = [self.store resourceWithEntityDescription:entityDescription
+                                                                                  resourceID:resourceID
+                                                                              shouldPrefetch:NO
+                                                                                       error:&error];
                 
                 if (error) {
                     
@@ -1064,6 +1128,25 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                     
                     return;
                 }
+                
+                if (!fetchedResource) {
+                    
+                    response.statusCode = BadRequestStatusCode;
+                    
+                    return;
+                }
+                
+                // value must belong to local context
+                
+                __block NSManagedObject *resource;
+                
+                [context performBlockAndWait:^{
+                    
+                    resource = [context objectWithID:fetchedResource.objectID];
+                    
+                }];
+                
+                value = resource;
                 
             }
             
@@ -1092,7 +1175,10 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                     
                     NSError *error;
                     
-                    NSManagedObject<NOResourceProtocol> *resource = [self.store resourceWithEntityDescription:relationshipDescription.destinationEntity resourceID:resourceID shouldPrefetch:NO error:&error];
+                    NSManagedObject *fetchedResource = [self.store resourceWithEntityDescription:entityDescription
+                                                                                      resourceID:resourceID
+                                                                                  shouldPrefetch:NO
+                                                                                           error:&error];
                     
                     if (error) {
                         
@@ -1101,12 +1187,22 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                         return;
                     }
                     
-                    if (!resource) {
+                    if (!fetchedResource) {
                         
                         response.statusCode = BadRequestStatusCode;
                         
                         return;
                     }
+                    
+                    // value must belong to local context
+                    
+                    __block NSManagedObject *resource;
+                    
+                    [context performBlockAndWait:^{
+                        
+                        resource = [context objectWithID:fetchedResource.objectID];
+                        
+                    }];
                     
                     [value addObject:resource];
                 }
@@ -1284,15 +1380,9 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     // prefetch resourceID
     
-    fetchRequest.propertiesToFetch = @[[NSClassFromString(entityDescription.managedObjectClassName) resourceIDKey]];
+    fetchRequest.propertiesToFetch = @[entityDescription.propertiesByName[[NSClassFromString(entityDescription.managedObjectClassName) resourceIDKey]]];
     
-    // create context
-    
-    NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-    
-    context.persistentStoreCoordinator = self.store.persistentStoreCoordinator;
-    
-    context.undoManager = nil;
+    fetchRequest.returnsObjectsAsFaults = NO;
     
     // execute fetch request...
     
@@ -1316,78 +1406,92 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         return;
     }
     
+    // make session belong to local context
+    
+    __block NSManagedObject <NOSessionProtocol> *contextSession;
+    
+    [context performBlockAndWait:^{
+       
+        contextSession = (NSManagedObject <NOSessionProtocol> *)[context objectWithID:session.objectID];
+        
+    }];
+    
     // filter results (session must have read permissions)
     
     NSMutableArray *filteredResultsResourceIDs = [[NSMutableArray alloc] init];
     
-    for (NSManagedObject<NOResourceProtocol> *resource in result) {
+    [context performBlockAndWait:^{
         
-        NSNumber *resourceID = [resource valueForKey:[NSClassFromString(resource.entity.managedObjectClassName) resourceIDKey]];
-        
-        // permission to view resource
-        
-        if ([resource permissionForSession:session] >= ReadOnlyPermission) {
+        for (NSManagedObject<NOResourceProtocol> *resource in result) {
             
-            // must have permission for keys accessed
+            NSNumber *resourceID = [resource valueForKey:[NSClassFromString(resource.entity.managedObjectClassName) resourceIDKey]];;
             
-            if (predicateKey) {
-                
-                NSRelationshipDescription *relationship = resource.entity.relationshipsByName[predicateKey];
-                
-                NSAttributeDescription *attribute = resource.entity.attributesByName[predicateKey];
-                
-                if (attribute) {
-                    
-                    if ([resource permissionForAttribute:predicateKey session:session] < ReadOnlyPermission) {
-                        
-                        break;
-                    }
-                }
-                
-                if (relationship) {
-                    
-                    if ([resource permissionForRelationship:predicateKey session:session] < ReadOnlyPermission) {
-                        
-                        break;
-                    }
-                }
-                
-            }
+            // permission to view resource
             
-            // must have read only permission for keys in sort descriptor
-            
-            if (sortDescriptors) {
+            if ([resource permissionForSession:contextSession] >= ReadOnlyPermission) {
                 
-                for (NSSortDescriptor *sort in sortDescriptors) {
+                // must have permission for keys accessed
+                
+                if (predicateKey) {
                     
-                    NSRelationshipDescription *relationship = resource.entity.relationshipsByName[sort.key];
+                    NSRelationshipDescription *relationship = resource.entity.relationshipsByName[predicateKey];
                     
-                    NSAttributeDescription *attribute = resource.entity.attributesByName[sort.key];
+                    NSAttributeDescription *attribute = resource.entity.attributesByName[predicateKey];
                     
                     if (attribute) {
                         
-                        if ([resource permissionForAttribute:sort.key session:session] >= ReadOnlyPermission) {
+                        if ([resource permissionForAttribute:predicateKey session:contextSession] < ReadOnlyPermission) {
                             
-                            [filteredResultsResourceIDs addObject:resourceID];
+                            break;
                         }
                     }
                     
                     if (relationship) {
                         
-                        if (![resource permissionForRelationship:sort.key session:session] >= ReadOnlyPermission) {
+                        if ([resource permissionForRelationship:predicateKey session:contextSession] < ReadOnlyPermission) {
                             
-                            [filteredResultsResourceIDs addObject:resourceID];
+                            break;
+                        }
+                    }
+                    
+                }
+                
+                // must have read only permission for keys in sort descriptor
+                
+                if (sortDescriptors) {
+                    
+                    for (NSSortDescriptor *sort in sortDescriptors) {
+                        
+                        NSRelationshipDescription *relationship = resource.entity.relationshipsByName[sort.key];
+                        
+                        NSAttributeDescription *attribute = resource.entity.attributesByName[sort.key];
+                        
+                        if (attribute) {
+                            
+                            if ([resource permissionForAttribute:sort.key session:contextSession] >= ReadOnlyPermission) {
+                                
+                                [filteredResultsResourceIDs addObject:resourceID];
+                            }
+                        }
+                        
+                        if (relationship) {
+                            
+                            if (![resource permissionForRelationship:sort.key session:contextSession] >= ReadOnlyPermission) {
+                                
+                                [filteredResultsResourceIDs addObject:resourceID];
+                            }
                         }
                     }
                 }
-            }
-            
-            else {
                 
-                [filteredResultsResourceIDs addObject:resourceID];
+                else {
+                    
+                    [filteredResultsResourceIDs addObject:resourceID];
+                }
             }
         }
-    }
+        
+    }];
     
     // return the resource IDs of filtered objects
     
@@ -1424,8 +1528,6 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     sessionWithTokenFetchRequest.predicate = [NSComparisonPredicate predicateWithLeftExpression:[NSExpression expressionForKeyPath:tokenKey] rightExpression:[NSExpression expressionForConstantValue:tokenKey] modifier:NSDirectPredicateModifier type:NSEqualToPredicateOperatorType options:NSNormalizedPredicateOption];
     
     sessionWithTokenFetchRequest.fetchLimit = 1;
-    
-    sessionWithTokenFetchRequest.returnsObjectsAsFaults = YES;
     
     sessionWithTokenFetchRequest.propertiesToFetch = nil;
     
