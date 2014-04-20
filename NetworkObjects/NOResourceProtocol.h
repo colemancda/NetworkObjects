@@ -167,34 +167,6 @@
 -(BOOL)canPerformFunction:(NSString *)functionName
                   session:(NSManagedObject<NOSessionProtocol> *)session;
 
-#pragma mark - Validate
-
-/**
- Determines whether a new value is a valid new value for an attribute.
- 
- @param newValue The new value that will be given to the attribute. Note that this will be a Core Data compatible value and not a JSON compatible value.
- 
- @param attributeName The name of the attribute that will be given a new value.
- 
- @return Returns @c YES or @c NO.
-  */
-
--(BOOL)isValidValue:(NSObject *)newValue
-       forAttribute:(NSString *)attributeName;
-
-/**
- Determines whether a new value is a valid new value for a relationship.
- 
- @param newValue The new value that will be given to the relationship. Note that this will be a Core Data compatible value and not a JSON compatible value. For to-one relationships this will be the potential destination Resource and for to-many relationships this will be an array of the potential destination Resources.
- 
- @param relationshipName The name of the relationship that will be given a new value. This can be a to-one or to-many relationship.
- 
- @return Returns @c YES or @c NO.
- */
-
--(BOOL)isValidValue:(NSObject *)newValue
-    forRelationship:(NSString *)relationshipName;
-
 #pragma mark - Notification
 
 /**

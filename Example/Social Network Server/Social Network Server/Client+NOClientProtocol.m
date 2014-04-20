@@ -29,22 +29,6 @@
     return nil;
 }
 
-#pragma mark - Validate New Values
-
--(BOOL)isValidValue:(NSObject *)newValue
-       forAttribute:(NSString *)attributeName
-{
-    
-    return YES;
-}
-
--(BOOL)isValidValue:(NSObject *)newValue
-    forRelationship:(NSString *)relationshipName
-{
-    
-    return YES;
-}
-
 #pragma mark - Permissions
 
 +(BOOL)canSearchFromSession:(NSManagedObject<NOSessionProtocol> *)session
