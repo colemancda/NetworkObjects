@@ -387,13 +387,37 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         return;
     }
     
-    // methods that manipulate a instance...
+    // methods that manipulate an instance...
     
     if (resourceID) {
         
+        BOOL shouldPrefetch = YES;
+        
+        // determine prefetch
+        
+        if ([request.method isEqualToString:@"DELETE"]) {
+            
+            shouldPrefetch = NO;
+        }
+        
+        NSError *fetchError;
+        
         // get the resource
-        id<NOResourceProtocol> resource = [_store resourceWithEntityDescription:entityDescription
-                                                                     resourceID:resourceID.integerValue];
+        NSManagedObject<NOResourceProtocol> *resource = [self.store resourceWithEntityDescription:entityDescription
+                                                                                       resourceID:resourceID
+                                                                                   shouldPrefetch:shouldPrefetch
+                                                                                            error:&fetchError];
+        // internal error
+        if (fetchError) {
+            
+            // TODO LOG
+            
+            response.statusCode = InternalServerErrorStatusCode;
+            
+            return;
+        }
+        
+        // fetch resource
         
         if (!resource) {
             
@@ -401,6 +425,8 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
             
             return;
         }
+        
+        // forward to handler
         
         if (functionName) {
             
@@ -472,12 +498,15 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                                                        forSession:session];
     
     // serialize JSON data
+    
+    NSError *error;
+    
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonObject
                                                        options:self.jsonWritingOption
-                                                         error:nil];
+                                                         error:&error];
     if (!jsonData) {
         
-        NSLog(@"Error writing JSON representation of %@", resource);
+        NSLog(@"Error writing JSON representation of %@ (%@)", resource, error.localizedDescription);
         
         response.statusCode = InternalServerErrorStatusCode;
         
@@ -508,9 +537,13 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     }
     
     // since we verified the validity and access permissions of the recievedJsonObject, we then apply the edits...
+    
+    NSError *error;
+    
     [self setValuesForResource:resource
                 fromJSONObject:recievedJsonObject
-                       session:session];
+                       session:session
+                         error:&error];
     
     
     // return 200
@@ -529,7 +562,17 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         return;
     }
     
-    [_store deleteResource:resource];
+    NSError *error;
+    
+    if (![_store deleteResource:resource
+                         error:&error]) {
+        
+        // TODO LOG
+        
+        response.statusCode = InternalServerErrorStatusCode;
+        
+        return;
+    }
     
     response.statusCode = OKStatusCode;
 }
@@ -574,7 +617,20 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     }
     
     // create new instance
-    NSManagedObject<NOResourceProtocol> *newResource = [_store newResourceWithEntityDescription:entityDescription];
+    
+    NSError *error;
+    
+    NSManagedObject<NOResourceProtocol> *newResource = [_store newResourceWithEntityDescription:entityDescription
+                                                                                          error:&error];
+    
+    if (!newResource) {
+        
+        // TODO LOG
+        
+        response.statusCode = InternalServerErrorStatusCode;
+        
+        return;
+    }
     
     // notify
     [newResource wasCreatedBySession:session];
@@ -589,15 +645,30 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         response.statusCode = applyInitialValuesStatusCode;
         
         // delete created resource
-        [_store deleteResource:newResource];
+        if (![_store deleteResource:newResource
+                             error:&error]) {
+            
+            // TODO log
+            
+            response.statusCode = InternalServerErrorStatusCode;
+            
+            return;
+        }
         
         return;
     }
     
     // set initial values
-    [self setValuesForResource:newResource
+    
+    if (![self setValuesForResource:newResource
                 fromJSONObject:initialValues
-                       session:session];
+                           session:session
+                              error:&error]) {
+        
+        response.statusCode = InternalServerErrorStatusCode;
+        
+        return;
+    }
     
     // get the resourceIDKey
     NSString *resourceIDKey = [[newResource class] resourceIDKey];
@@ -711,7 +782,17 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     }
     
     // get client with resource ID
-    NSManagedObject<NOClientProtocol> *client = (NSManagedObject<NOClientProtocol> *)[_store resourceWithEntityDescription:clientEntityDescription resourceID:clientResourceID.integerValue];
+    
+    NSError *error;
+    
+    NSManagedObject<NOClientProtocol> *client = (NSManagedObject<NOClientProtocol> *)[_store resourceWithEntityDescription:clientEntityDescription resourceID:clientResourceID shouldPrefetch:YES error:&error];
+    
+    if (error) {
+        
+        response.statusCode = InternalServerErrorStatusCode;
+        
+        return;
+    }
     
     if (!client) {
         
@@ -729,7 +810,14 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     }
     
     // create new session with client
-    NSManagedObject<NOSessionProtocol> *session = (NSManagedObject<NOSessionProtocol> *)[_store newResourceWithEntityDescription:sessionEntityDescription];
+    NSManagedObject<NOSessionProtocol> *session = (NSManagedObject<NOSessionProtocol> *)[_store newResourceWithEntityDescription:sessionEntityDescription error:&error];
+    
+    if (error) {
+        
+        response.statusCode = InternalServerErrorStatusCode;
+        
+        return;
+    }
     
     // generate token
     [session generateToken];
@@ -932,8 +1020,19 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                 
                 NSNumber *resourceID = jsonPredicateValue;
                 
+                NSError *error;
+                
                 value = [self.store resourceWithEntityDescription:entityDescription
-                                                       resourceID:resourceID.integerValue];
+                                                       resourceID:resourceID
+                                                   shouldPrefetch:NO
+                                                            error:&error];
+                
+                if (error) {
+                    
+                    response.statusCode = InternalServerErrorStatusCode;
+                    
+                    return;
+                }
                 
             }
             
@@ -960,7 +1059,16 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                         return;
                     }
                     
-                    NSManagedObject<NOResourceProtocol> *resource = [self.store resourceWithEntityDescription:relationshipDescription.destinationEntity resourceID:resourceID.integerValue];
+                    NSError *error;
+                    
+                    NSManagedObject<NOResourceProtocol> *resource = [self.store resourceWithEntityDescription:relationshipDescription.destinationEntity resourceID:resourceID shouldPrefetch:NO error:&error];
+                    
+                    if (error) {
+                        
+                        response.statusCode = InternalServerErrorStatusCode;
+                        
+                        return;
+                    }
                     
                     if (!resource) {
                         
@@ -1412,9 +1520,10 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     return jsonObject;
 }
 
--(void)setValuesForResource:(NSManagedObject<NOResourceProtocol> *)resource
+-(BOOL)setValuesForResource:(NSManagedObject<NOResourceProtocol> *)resource
              fromJSONObject:(NSDictionary *)jsonObject
                     session:(NSManagedObject<NOSessionProtocol> *)session
+                      error:(NSError **)error
 {
     for (NSString *key in jsonObject) {
         
@@ -1445,7 +1554,13 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                 NSNumber *destinationResourceID = (NSNumber *)value;
                 
                 // get the destination resource
-                NSManagedObject<NOResourceProtocol> *destinationResource = [_store resourceWithEntityDescription:relationshipDescription.destinationEntity resourceID:destinationResourceID.integerValue];
+                
+                NSManagedObject<NOResourceProtocol> *destinationResource = [_store resourceWithEntityDescription:relationshipDescription.destinationEntity resourceID:destinationResourceID shouldPrefetch:NO error:error];
+                
+                if (*error) {
+                    
+                    return NO;
+                }
                 
                 [resource setValue:destinationResource
                             forKey:key];
@@ -1463,7 +1578,13 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                 for (NSNumber *destinationResourceID in resourceIDs) {
                     
                     // get the destination resource
-                    NSManagedObject<NOResourceProtocol> *destinationResource = [_store resourceWithEntityDescription:relationshipDescription.destinationEntity resourceID:destinationResourceID.integerValue];
+                    
+                    NSManagedObject<NOResourceProtocol> *destinationResource = [_store resourceWithEntityDescription:relationshipDescription.destinationEntity resourceID:destinationResourceID shouldPrefetch:NO error:error];
+                    
+                    if (*error) {
+                        
+                        return NO;
+                    }
                     
                     [newRelationshipValues addObject:destinationResource];
                 }
@@ -1481,6 +1602,8 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     // notify
     [resource wasEditedBySession:session];
+    
+    return YES;
 }
 
 -(NOServerStatusCode)verifyEditResource:(NSManagedObject<NOResourceProtocol> *)resource
@@ -1571,7 +1694,14 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                     
                     NSNumber *destinationResourceID = (NSNumber *)jsonValue;
                     
-                    NSManagedObject<NOResourceProtocol> *newValue = [_store resourceWithEntityDescription:relationshipDescription.entity resourceID:destinationResourceID.integerValue];
+                    NSError *error;
+                    
+                    NSManagedObject<NOResourceProtocol> *newValue = [_store resourceWithEntityDescription:relationshipDescription.entity resourceID:destinationResourceID shouldPrefetch:NO error:&error];
+                    
+                    if (error) {
+                        
+                        return InternalServerErrorStatusCode;
+                    }
                     
                     if (!newValue) {
                         
@@ -1607,7 +1737,14 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                     
                     for (NSNumber *destinationResourceID in jsonReplacementCollection) {
                         
-                        NSManagedObject<NOResourceProtocol> *destinationResource = [_store resourceWithEntityDescription:relationshipDescription.entity resourceID:destinationResourceID.integerValue];
+                        NSError *error;
+                        
+                        NSManagedObject<NOResourceProtocol> *destinationResource = [_store resourceWithEntityDescription:relationshipDescription.entity resourceID:destinationResourceID shouldPrefetch:NO error:&error];
+                        
+                        if (error) {
+                            
+                            return InternalServerErrorStatusCode;
+                        }
                         
                         if (!destinationResource) {
                             

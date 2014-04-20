@@ -6,8 +6,8 @@
 //  Copyright (c) 2013 CDA. All rights reserved.
 //
 
-#import "NOStore.h"
 @import CoreData;
+#import "NOStore.h"
 #import "NetworkObjectsConstants.h"
 
 @implementation NOStore
@@ -28,7 +28,7 @@
         _context.persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:model];
         _context.undoManager = nil;
         
-        // create a creation queue per nsmanagedobject subclass that conforms to NOResourceProtocol
+        // create a creation queue per NSManagedObject subclass that conforms to NOResourceProtocol
         
         NSMutableDictionary *creationQueuesDict = [[NSMutableDictionary alloc] init];
         
@@ -45,6 +45,8 @@
                 creationQueuesDict[entityDescription.name] = operationQueue;
             }
         }
+        
+        
         
         _createResourcesQueues = [NSDictionary dictionaryWithDictionary:creationQueuesDict];
         
@@ -146,34 +148,10 @@
 
 #pragma mark - Manipulate Resources
 
--(NSNumber *)numberOfInstancesOfResourceWithEntityDescription:(NSEntityDescription *)entityDescription
-{
-    __block NSNumber *count;
-    
-    [_context performBlockAndWait:^{
-        
-        NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:entityDescription.name];
-        fetchRequest.resultType = NSCountResultType;
-        
-        NSError *fetchError;
-        NSArray *result = [_context executeFetchRequest:fetchRequest
-                                                  error:&fetchError];
-        
-        if (!result) {
-            
-            [NSException raise:@"Fetch Request Failed"
-                        format:@"%@", fetchError.localizedDescription];
-            return;
-        }
-        
-        count = result[0];
-        
-    }];
-    
-    return count;
-}
-
--(NSManagedObject<NOResourceProtocol> *)resourceWithEntityDescription:(NSEntityDescription *)entityDescription resourceID:(NSUInteger)resourceID
+-(NSManagedObject<NOResourceProtocol> *)resourceWithEntityDescription:(NSEntityDescription *)entityDescription
+                                                           resourceID:(NSNumber *)resourceID
+                                                       shouldPrefetch:(BOOL)shouldPrefetch
+                                                                error:(NSError *__autoreleasing *)error;
 {
     // get the key of the resourceID attribute
     Class entityClass = NSClassFromString(entityDescription.managedObjectClassName);
@@ -184,50 +162,48 @@
     
     fetchRequest.fetchLimit = 1;
     
-    fetchRequest.predicate = [NSPredicate predicateWithFormat:@"%K == %lu", resourceIDKey, (unsigned long)resourceID];
+    fetchRequest.predicate = [NSComparisonPredicate predicateWithLeftExpression:[NSExpression expressionForKeyPath:resourceIDKey]
+                                                                rightExpression:[NSExpression expressionForConstantValue:resourceID]
+                                                                       modifier:NSDirectPredicateModifier
+                                                                           type:NSEqualToPredicateOperatorType
+                                                                        options:NSNormalizedPredicateOption];
     
-    __block id<NOResourceProtocol> resource;
+    if (shouldPrefetch) {
+        
+        fetchRequest.returnsObjectsAsFaults = NO;
+    }
+    
+    __block NSArray *result;
     
     [_context performBlockAndWait:^{
         
-        NSError *fetchError;
-        NSArray *result = [_context executeFetchRequest:fetchRequest
-                                                  error:&fetchError];
+        result = [_context executeFetchRequest:fetchRequest
+                                         error:error];
         
-        if (!result) {
-            
-            [NSException raise:@"Fetch Request Failed"
-                        format:@"%@", fetchError.localizedDescription];
-            return;
-        }
-        
-        if (result.count > 1) {
-            
-            NSLog(@"More than one %@ exist with the same resourceID", entityDescription.name);
-            
-        }
-        
-        // nothing was found
-        if (!result.count) {
-            return;
-        }
-        
-        resource = result[0];
     }];
     
-    return resource;
+    if (!result) {
+        
+        return nil;
+    }
+    
+    return result.firstObject;
 }
 
--(void)deleteResource:(NSManagedObject<NOResourceProtocol> *)resource
+-(BOOL)deleteResource:(NSManagedObject<NOResourceProtocol> *)resource
+                error:(NSError *__autoreleasing *)error
 {
     // no need to wait for block to end since we dont return a value
     [_context performBlock:^{
         
         [_context deleteObject:resource];
     }];
+    
+    return YES;
 }
 
 -(NSManagedObject<NOResourceProtocol> *)newResourceWithEntityDescription:(NSEntityDescription *)entityDescription
+                                                                   error:(NSError *__autoreleasing *)error
 {
     // use the operationQueue for this resource
     
@@ -257,7 +233,7 @@
                 resourceID = @0;
             }
             else {
-                resourceID = @(lastID.integerValue + 1);
+                resourceID = [NSNumber numberWithInteger:lastID.integerValue + 1];
             }
             
             [newResource setValue:resourceID

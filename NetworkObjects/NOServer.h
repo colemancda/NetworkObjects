@@ -283,9 +283,10 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
  
  */
 
--(void)setValuesForResource:(NSManagedObject<NOResourceProtocol> *)resource
+-(BOOL)setValuesForResource:(NSManagedObject<NOResourceProtocol> *)resource
              fromJSONObject:(NSDictionary *)jsonObject
-                    session:(NSManagedObject<NOSessionProtocol> *)session;
+                    session:(NSManagedObject<NOSessionProtocol> *)session
+                      error:(NSError **)error;
 
 
 @end

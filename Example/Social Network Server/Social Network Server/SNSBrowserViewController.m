@@ -119,7 +119,15 @@ static void *KVOContext;
 {
     SNSAppDelegate *appDelegate = [NSApp delegate];
     
-    [appDelegate.store newResourceWithEntityDescription:self.selectedEntity];
+    NSError *error;
+    
+    if (![appDelegate.store newResourceWithEntityDescription:self.selectedEntity
+                                                      error:&error]) {
+        
+        [NSApp presentError:error];
+        
+        return;
+    }
     
     [self.arrayController fetch:nil];
 }
@@ -132,7 +140,15 @@ static void *KVOContext;
     
     NSManagedObject *selectedItem = self.arrayController.arrangedObjects[self.tableView.selectedRow];
     
-    [appDelegate.store deleteResource:(id)selectedItem];
+    NSError *error;
+    
+    if ([appDelegate.store deleteResource:(id)selectedItem
+                                        error:&error]) {
+        
+        [NSApp presentError:error];
+        
+        return;
+    }
     
     [self.arrayController fetch:nil];
     

@@ -10,7 +10,7 @@
 #import <CoreData/CoreData.h>
 #import <NetworkObjects/NOResourceProtocol.h>
 
-typedef NS_ENUM(NSUInteger, NOStoreSaveErrorCode) {
+typedef NS_ENUM(NSUInteger, NOStoreErrorCode) {
     
     /** Could not backup the previous archive of @c _lastResourceIDs. */
     NOStoreBackupLastIDsSaveError = 100,
@@ -66,30 +66,21 @@ typedef NS_ENUM(NSUInteger, NOStoreSaveErrorCode) {
  */
 -(BOOL)save:(NSError **)error;
 
-#pragma mark - Resource Methods
-
-// GET number of instances
-
-/**
- Returns the number of instances of a specified Resource.
- 
- @param entityDescription The NSEntityDescription of a Resource as defined in @c context.persistentStoreCoordinator.managedObjectModel
- 
- @return An NSNumber with the number of instances of a specified Resource.
- */
--(NSNumber *)numberOfInstancesOfResourceWithEntityDescription:(NSEntityDescription *)entityDescription;
-
 #pragma mark - Manage Resource Instances
 
 // Cocoa methods to manage a object graph styled after REST but without the networking or authentication, useful for editing NetworkedObjects from the server app or for other internal use.
 
 // e.g. you want to create a new resource but dont wanna write the glue code for assigning it a proper resource ID
 
--(NSManagedObject<NOResourceProtocol> *)newResourceWithEntityDescription:(NSEntityDescription *)entityDescription;
+-(NSManagedObject<NOResourceProtocol> *)newResourceWithEntityDescription:(NSEntityDescription *)entityDescription
+                                                                   error:(NSError **)error;
 
 -(NSManagedObject<NOResourceProtocol> *)resourceWithEntityDescription:(NSEntityDescription *)entityDescription
-                                                           resourceID:(NSUInteger)resourceID;
+                                                           resourceID:(NSNumber *)resourceID
+                                                       shouldPrefetch:(BOOL)shouldPrefetch
+                                                                error:(NSError **)error;
 
--(void)deleteResource:(NSManagedObject<NOResourceProtocol> *)resource;
+-(BOOL)deleteResource:(NSManagedObject<NOResourceProtocol> *)resource
+                error:(NSError **)error;
 
 @end
