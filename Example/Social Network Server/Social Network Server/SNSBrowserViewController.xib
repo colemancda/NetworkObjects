@@ -127,11 +127,23 @@
                         <binding destination="-2" name="enabled" keyPath="self.canDelete" id="7KG-t7-9Jd"/>
                     </connections>
                 </button>
+                <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="oLj-x6-ljJ">
+                    <rect key="frame" x="365" y="13" width="87" height="32"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <buttonCell key="cell" type="push" title="Refresh" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Unh-x3-IN5">
+                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                        <font key="font" metaFont="system"/>
+                    </buttonCell>
+                    <connections>
+                        <action selector="fetch:" target="2CK-Zu-wXT" id="Xz7-dF-tHc"/>
+                    </connections>
+                </button>
             </subviews>
             <constraints>
                 <constraint firstAttribute="trailing" secondItem="bqc-yE-TNW" secondAttribute="trailing" constant="20" id="8BR-Yw-mWo"/>
                 <constraint firstItem="EXW-Iu-Enj" firstAttribute="top" secondItem="bqc-yE-TNW" secondAttribute="bottom" constant="17" id="C0Z-ya-cTS"/>
                 <constraint firstAttribute="trailing" secondItem="iWl-dl-ocf" secondAttribute="trailing" constant="20" id="C8G-fr-cj1"/>
+                <constraint firstAttribute="bottom" secondItem="oLj-x6-ljJ" secondAttribute="bottom" constant="20" id="DlX-Di-wMj"/>
                 <constraint firstItem="U9d-rx-y3n" firstAttribute="top" secondItem="bqc-yE-TNW" secondAttribute="bottom" constant="17" id="FsV-XQ-wSF"/>
                 <constraint firstItem="iWl-dl-ocf" firstAttribute="leading" secondItem="mCx-Wz-pbs" secondAttribute="leading" constant="20" id="Jdo-MG-Nll"/>
                 <constraint firstAttribute="centerX" secondItem="weY-3I-jgc" secondAttribute="centerX" id="Jou-VB-Ybo"/>
@@ -144,6 +156,7 @@
                 <constraint firstItem="U9d-rx-y3n" firstAttribute="leading" secondItem="EXW-Iu-Enj" secondAttribute="trailing" constant="12" id="iPy-AX-d6h"/>
                 <constraint firstItem="EXW-Iu-Enj" firstAttribute="leading" secondItem="mCx-Wz-pbs" secondAttribute="leading" constant="20" id="ibU-VY-LtB"/>
                 <constraint firstItem="bqc-yE-TNW" firstAttribute="top" secondItem="iWl-dl-ocf" secondAttribute="bottom" constant="8" id="lwJ-kX-nsw"/>
+                <constraint firstAttribute="trailing" secondItem="oLj-x6-ljJ" secondAttribute="trailing" constant="20" id="zcm-Ti-kNz"/>
                 <constraint firstItem="U9d-rx-y3n" firstAttribute="top" secondItem="bqc-yE-TNW" secondAttribute="bottom" constant="17" id="zde-Ra-W5Q"/>
             </constraints>
             <connections>

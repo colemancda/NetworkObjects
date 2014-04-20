@@ -143,7 +143,7 @@ static void *KVOContext = &KVOContext;
     
     NSError *error;
     
-    if ([appDelegate.store deleteResource:(id)selectedItem
+    if (![appDelegate.store deleteResource:(id)selectedItem
                                         error:&error]) {
         
         [NSApp presentError:error];

@@ -181,7 +181,19 @@
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
+#pragma mark - First Responder
 
+-(void)saveDocument:(id)sender
+{
+    NSError *error;
+    
+    if (![self.context save:&error]) {
+        
+        [NSApp presentError:error];
+    }
+    
+    NSLog(@"Main Context saved");
+}
 
 @end
 
