@@ -20,12 +20,15 @@
         
         // load model
         if (!model) {
+            
             model = [NSManagedObjectModel mergedModelFromBundles:nil];
         }
         
         // create context
         _context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+        
         _context.persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:model];
+        
         _context.undoManager = nil;
         
         // create a creation queue per NSManagedObject subclass that conforms to NOResourceProtocol
@@ -39,7 +42,10 @@
             if ([entityClass conformsToProtocol:@protocol(NOResourceProtocol)]) {
                 
                 NSOperationQueue *operationQueue = [[NSOperationQueue alloc] init];
+                
                 operationQueue.maxConcurrentOperationCount = 1;
+                
+                operationQueue.name = [NSString stringWithFormat:@"%@ %@ Creation Queue", self, entityDescription.name];
                 
                 // add to mutable dict
                 creationQueuesDict[entityDescription.name] = operationQueue;
