@@ -52,19 +52,14 @@ typedef NS_ENUM(NSUInteger, NOStoreErrorCode) {
  @see NSManagedObjectModel
  */
 
--(id)initWithManagedObjectModel:(NSManagedObjectModel *)model
-                     lastIDsURL:(NSURL *)lastIDsURL;
+-(id)initWithPersistentStoreCoordinator:(NSPersistentStoreCoordinator *)persistentStoreCoordinator
+                             lastIDsURL:(NSURL *)lastIDsURL;
 
-@property (nonatomic, readonly) NSManagedObjectContext *context;
+@property (nonatomic, readonly) NSPersistentStoreCoordinator *persistentStoreCoordinator;
 
 @property (nonatomic, readonly) NSDictionary *lastResourceIDs;
 
 @property (nonatomic, readonly) NSURL *lastIDsURL;
-
-/**
- Saves the NSManagedObjectContext @c context and @c lastResourceIDs dictionary.
- */
--(BOOL)save:(NSError **)error;
 
 #pragma mark - Manage Resource Instances
 

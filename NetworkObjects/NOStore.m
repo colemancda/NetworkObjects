@@ -10,32 +10,110 @@
 #import "NOStore.h"
 #import "NetworkObjectsConstants.h"
 
+@implementation NOStore (NewContext)
+
+-(NSManagedObjectContext *)newContext
+{
+    NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+    
+    context.persistentStoreCoordinator = self.persistentStoreCoordinator;
+    
+    context.undoManager = nil;
+    
+    return context;
+}
+
+@end
+
+@implementation NOStore (Save)
+
+-(BOOL)saveContextwithLastResourceIDs:(NSManagedObjectContext *)context
+                                error:(NSError **)error
+{
+    BOOL savedLastIDs;
+    
+    NSDictionary *lastIDsBackup;
+    
+    // this will be nil for in-memory stores
+    
+    if (self.lastIDsURL) {
+        
+        // attempt to make backup
+        
+        lastIDsBackup = [NSDictionary dictionaryWithContentsOfURL:self.lastIDsURL];
+        
+        savedLastIDs = [self.lastResourceIDs writeToURL:self.lastIDsURL
+                                             atomically:YES];
+        
+        if (!savedLastIDs) {
+            
+            NSString *localizedDescription = NSLocalizedString(@"Could not backup previous lastIDs archived dictionary",
+                                                               @"NOStore Save Backup Error Description");
+            
+            *error = [NSError errorWithDomain:NetworkObjectsErrorDomain
+                                         code:NOStoreBackupLastIDsSaveError
+                                     userInfo:@{NSLocalizedDescriptionKey: localizedDescription}];
+            
+            return NO;
+        }
+    }
+    
+    // save context
+    __block NSError *saveContextError;
+    
+    [context performBlockAndWait:^{
+        
+        [context save:&saveContextError];
+        
+    }];
+    
+    // restore lastIDs file becuase the Core Data save failed
+    if (saveContextError && savedLastIDs && lastIDsBackup) {
+        
+        // restore saved lastIDs
+        BOOL restoreLastIDs = [lastIDsBackup writeToURL:self.lastIDsURL
+                                             atomically:YES];
+        
+        if (!restoreLastIDs) {
+            
+            NSString *localizedDescription = NSLocalizedString(@"Could not restore lastIDs file to value before failed context save operation.", @"NOStore Restore Backup Error Description");
+            
+            *error = [NSError errorWithDomain:NetworkObjectsErrorDomain
+                                         code:NOStoreRestoreLastIDsSaveError
+                                     userInfo:@{NSLocalizedDescriptionKey: localizedDescription,
+                                                NSUnderlyingErrorKey: saveContextError}];
+            
+            return NO;
+            
+        }
+        
+        *error = saveContextError;
+        
+        return NO;
+    }
+    
+    return YES;
+}
+
+@end
+
 @implementation NOStore
 
--(id)initWithManagedObjectModel:(NSManagedObjectModel *)model
-                     lastIDsURL:(NSURL *)lastIDsURL
+#pragma mark - Initialization
+
+-(id)initWithPersistentStoreCoordinator:(NSPersistentStoreCoordinator *)persistentStoreCoordinator
+                             lastIDsURL:(NSURL *)lastIDsURL
 {
     self = [super init];
     if (self) {
         
-        // load model
-        if (!model) {
-            
-            model = [NSManagedObjectModel mergedModelFromBundles:nil];
-        }
-        
-        // create context
-        _context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-        
-        _context.persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:model];
-        
-        _context.undoManager = nil;
+        _persistentStoreCoordinator = persistentStoreCoordinator;
         
         // create a creation queue per NSManagedObject subclass that conforms to NOResourceProtocol
         
         NSMutableDictionary *creationQueuesDict = [[NSMutableDictionary alloc] init];
         
-        for (NSEntityDescription *entityDescription in model.entities) {
+        for (NSEntityDescription *entityDescription in _persistentStoreCoordinator.managedObjectModel.entities) {
             
             Class entityClass = NSClassFromString(entityDescription.managedObjectClassName);
             
@@ -77,80 +155,12 @@
     return self;
 }
 
--(id)init
+- (id)init
 {
-    self = [self initWithManagedObjectModel:nil
-                                 lastIDsURL:nil];
-    return self;
-}
-
-#pragma mark - Save
-
--(BOOL)save:(NSError **)error
-{
-    BOOL savedLastIDs;
-    
-    NSDictionary *lastIDsBackup;
-    
-    // this will be nil for in-memory stores
-    
-    if (_lastIDsURL) {
-        
-        // attempt to make backup
-        
-        lastIDsBackup = [NSDictionary dictionaryWithContentsOfURL:_lastIDsURL];
-        
-        savedLastIDs = [_lastResourceIDs writeToURL:_lastIDsURL
-                                         atomically:YES];
-        
-        if (!savedLastIDs) {
-            
-            NSString *localizedDescription = NSLocalizedString(@"Could not backup previous lastIDs archived dictionary",
-                                                               @"NOStore Save Backup Error Description");
-            
-            *error = [NSError errorWithDomain:NetworkObjectsErrorDomain
-                                         code:NOStoreBackupLastIDsSaveError
-                                     userInfo:@{NSLocalizedDescriptionKey: localizedDescription}];
-            
-            return NO;
-        }
-    }
-    
-    // save context
-    __block NSError *saveContextError;
-    
-    [_context performBlockAndWait:^{
-        
-        [_context save:&saveContextError];
-        
-    }];
-    
-    // restore lastIDs file becuase the Core Data save failed
-    if (saveContextError && savedLastIDs && lastIDsBackup) {
-        
-        // restore saved lastIDs
-        BOOL restoreLastIDs = [lastIDsBackup writeToURL:_lastIDsURL
-                                             atomically:YES];
-        
-        if (!restoreLastIDs) {
-            
-            NSString *localizedDescription = NSLocalizedString(@"Could not restore lastIDs file to value before failed context save operation.", @"NOStore Restore Backup Error Description");
-            
-            *error = [NSError errorWithDomain:NetworkObjectsErrorDomain
-                                         code:NOStoreRestoreLastIDsSaveError
-                                     userInfo:@{NSLocalizedDescriptionKey: localizedDescription,
-                                                NSUnderlyingErrorKey: saveContextError}];
-            
-            return NO;
-            
-        }
-        
-        *error = saveContextError;
-        
-        return NO;
-    }
-    
-    return YES;
+    [NSException raise:@"Wrong initialization method"
+                format:@"You cannot use %@ with %@, you have to use %@",
+     NSStringFromSelector(_cmd), self, NSStringFromSelector(@selector(initWithPersistentStoreCoordinator:lastIDsURL:))];
+    return nil;
 }
 
 #pragma mark - Manipulate Resources
@@ -161,9 +171,8 @@
                                                                 error:(NSError *__autoreleasing *)error;
 {
     // get the key of the resourceID attribute
-    Class entityClass = NSClassFromString(entityDescription.managedObjectClassName);
     
-    NSString *resourceIDKey = [entityClass resourceIDKey];
+    NSString *resourceIDKey = [NSClassFromString(entityDescription.managedObjectClassName) resourceIDKey];
     
     NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:entityDescription.name];
     
@@ -180,11 +189,15 @@
         fetchRequest.returnsObjectsAsFaults = NO;
     }
     
+    // create temp context
+    
+    NSManagedObjectContext *context = [self newContext];
+    
     __block NSArray *result;
     
-    [_context performBlockAndWait:^{
+    [context performBlockAndWait:^{
         
-        result = [_context executeFetchRequest:fetchRequest
+        result = [context executeFetchRequest:fetchRequest
                                          error:error];
         
     }];
@@ -201,10 +214,21 @@
                 error:(NSError *__autoreleasing *)error
 {
     // no need to wait for block to end since we dont return a value
-    [_context performBlock:^{
+    
+    NSManagedObjectContext *context = [self newContext];
+    
+    [context performBlock:^{
         
-        [_context deleteObject:resource];
+        [context deleteObject:resource];
+        
+        [context save:error];
+        
     }];
+    
+    if (*error) {
+        
+        return NO;
+    }
     
     return YES;
 }
@@ -220,18 +244,21 @@
     
     __block NSManagedObject<NOResourceProtocol> *newResource;
     
+    // temp context
+    
+    NSManagedObjectContext *context = [self newContext];
+    
+    // get resourceID attribute
+    
+    NSString *resourceIDKey = [NSClassFromString(entityDescription.managedObjectClassName) resourceIDKey];
+    
     NSBlockOperation *blockOperation = [NSBlockOperation blockOperationWithBlock:^{
         
-        [_context performBlockAndWait:^{
-            
-            // get resourceID attribute
-            Class entityClass = NSClassFromString(entityDescription.managedObjectClassName);
-            
-            NSString *resourceIDKey = [entityClass resourceIDKey];
+        [context performBlockAndWait:^{
             
             // create new resource
             newResource = [NSEntityDescription insertNewObjectForEntityForName:entityDescription.name
-                                                        inManagedObjectContext:_context];
+                                                        inManagedObjectContext:context];
             
             // set new resourceID
             NSNumber *resourceID;
@@ -249,11 +276,21 @@
             // set as last ID
             _lastResourceIDs[entityDescription.name] = resourceID;
             
+            // save
+            
+            [self saveContextwithLastResourceIDs:context
+                                           error:error];
+            
         }];
     }];
     
     [operationQueue addOperations:@[blockOperation]
                 waitUntilFinished:YES];
+    
+    if (*error) {
+        
+        return nil;
+    }
     
     return newResource;
 }
