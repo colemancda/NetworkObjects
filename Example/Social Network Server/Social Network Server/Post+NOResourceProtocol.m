@@ -156,19 +156,45 @@ wasAccessedBySession:(NSManagedObject<NOSessionProtocol> *)session
 }
 
 -(BOOL)canPerformFunction:(NSString *)functionName
-                  session:(NSManagedObject<NOSessionProtocol> *)session
-{
-    return YES;
-}
-
--(NOResourceFunctionCode)performFunction:(NSString *)functionName
-                             withSession:(NSManagedObject<NOSessionProtocol> *)session
-                      recievedJsonObject:(NSDictionary *)recievedJsonObject
-                                response:(NSDictionary *__autoreleasing *)jsonObjectResponse
+                  session:(Session *)session
 {
     if ([functionName isEqualToString:@"like"]) {
         
-        NSLog(@"performed 'like' function on %@", self);
+        // session has user and at least readonly permisson
+        
+        if (session.user &&
+            [self permissionForSession:(id)session] > NONoAccessPermission &&
+            [self permissionForRelationship:@"likes" session:(id)session] > NONoAccessPermission) {
+            
+            return YES;
+        }
+        
+    }
+    
+    return NO;
+}
+
+-(NOResourceFunctionCode)performFunction:(NSString *)functionName
+                             withSession:(NSManagedObject<NOSessionProtocol> *)sessionProtocolObject
+                      recievedJsonObject:(NSDictionary *)recievedJsonObject
+                                response:(NSDictionary *__autoreleasing *)jsonObjectResponse
+{
+    Session *session = (Session *)sessionProtocolObject;
+    
+    if ([functionName isEqualToString:@"like"]) {
+        
+        // add like
+        if (![self.likes containsObject:session.user]) {
+            
+            [self addLikesObject:session.user];
+        }
+        
+        // unlike
+        else {
+            
+            [self removeLikesObject:session.user];
+            
+        }
         
     }
     
