@@ -16,13 +16,13 @@
 typedef NS_ENUM(NSUInteger, NOResourcePermission) {
     
     /**  No access permission */
-    NoAccessPermission = 0,
+    NONoAccessPermission = 0,
     
     /**  Read Only permission */
-    ReadOnlyPermission = 1,
+    NOReadOnlyPermission = 1,
     
     /**  Read and Write permission */
-    EditPermission
+    NOEditPermission
     
 };
 
@@ -32,16 +32,16 @@ typedef NS_ENUM(NSUInteger, NOResourcePermission) {
 typedef NS_ENUM(NSUInteger, NOResourceFunctionCode) {
     
     /** The function performed successfully */
-    FunctionPerformedSuccesfully = 200,
+    NOFunctionPerformedSuccesfully = 200,
     
     /** The function recieved an invalid JSON object */
-    FunctionRecievedInvalidJSONObject = 400,
+    NOFunctionRecievedInvalidJSONObject = 400,
     
     /** The function cannot be performed, possibly due to session permissions */
-    CannotPerformFunction = 403,
+    NOCannotPerformFunction = 403,
     
     // ** There was an internal error while performing the function */
-    InternalErrorPerformingFunction = 500
+    NOInternalErrorPerformingFunction = 500
 };
 
 #endif

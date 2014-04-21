@@ -523,7 +523,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     }];
     
     // resource is invisible to session
-    if (resourcePermission < ReadOnlyPermission) {
+    if (resourcePermission < NOReadOnlyPermission) {
         
         response.statusCode = NOServerForbiddenStatusCode;
         
@@ -638,7 +638,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     [self.store.context performBlockAndWait:^{
         
-        cannotDelete = ([resource permissionForSession:session] < EditPermission || ![resource canDeleteFromSession:session]);
+        cannotDelete = ([resource permissionForSession:session] < NOEditPermission || ![resource canDeleteFromSession:session]);
         
     }];
     
@@ -1534,7 +1534,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
             
             // permission to view resource
             
-            if ([resource permissionForSession:session] >= ReadOnlyPermission) {
+            if ([resource permissionForSession:session] >= NOReadOnlyPermission) {
                 
                 // must have permission for keys accessed
                 
@@ -1546,7 +1546,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                     
                     if (attribute) {
                         
-                        if ([resource permissionForAttribute:predicateKey session:session] < ReadOnlyPermission) {
+                        if ([resource permissionForAttribute:predicateKey session:session] < NOReadOnlyPermission) {
                             
                             break;
                         }
@@ -1554,7 +1554,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                     
                     if (relationship) {
                         
-                        if ([resource permissionForRelationship:predicateKey session:session] < ReadOnlyPermission) {
+                        if ([resource permissionForRelationship:predicateKey session:session] < NOReadOnlyPermission) {
                             
                             break;
                         }
@@ -1574,7 +1574,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                         
                         if (attribute) {
                             
-                            if ([resource permissionForAttribute:sort.key session:session] >= ReadOnlyPermission) {
+                            if ([resource permissionForAttribute:sort.key session:session] >= NOReadOnlyPermission) {
                                 
                                 [filteredResultsResourceIDs addObject:resourceID];
                             }
@@ -1582,7 +1582,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                         
                         if (relationship) {
                             
-                            if (![resource permissionForRelationship:sort.key session:session] >= ReadOnlyPermission) {
+                            if (![resource permissionForRelationship:sort.key session:session] >= NOReadOnlyPermission) {
                                 
                                 [filteredResultsResourceIDs addObject:resourceID];
                             }
@@ -1678,7 +1678,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     for (NSString *attributeName in resource.entity.attributesByName) {
         
         // check access permissions (unless its the resourceID, thats always visible)
-        if ([resource permissionForAttribute:attributeName session:session] >= ReadOnlyPermission ||
+        if ([resource permissionForAttribute:attributeName session:session] >= NOReadOnlyPermission ||
             [attributeName isEqualToString:[[resource class] resourceIDKey]]) {
             
             // get attribute
@@ -1707,7 +1707,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         NSEntityDescription *destinationEntity = relationshipDescription.destinationEntity;
         
         // make sure relationship is visible
-        if ([resource permissionForRelationship:relationshipName session:session] >= ReadOnlyPermission) {
+        if ([resource permissionForRelationship:relationshipName session:session] >= NOReadOnlyPermission) {
             
             // make sure the destination entity class conforms to NOResourceProtocol
             if ([NSClassFromString(destinationEntity.managedObjectClassName) conformsToProtocol:@protocol(NOResourceProtocol)]) {
@@ -1719,8 +1719,8 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                     NSManagedObject<NOResourceProtocol> *destinationResource = [resource valueForKey:relationshipName];
                     
                     // check access permissions (the relationship & the single distination object must be visible)
-                    if ([resource permissionForRelationship:relationshipName session:session] >= ReadOnlyPermission &&
-                        [destinationResource permissionForSession:session ] >= ReadOnlyPermission) {
+                    if ([resource permissionForRelationship:relationshipName session:session] >= NOReadOnlyPermission &&
+                        [destinationResource permissionForSession:session ] >= NOReadOnlyPermission) {
                         
                         // get resourceID
                         NSString *destinationResourceIDKey = [destinationResource.class resourceIDKey];
@@ -1744,7 +1744,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                     
                     for (NSManagedObject<NOResourceProtocol> *destinationResource in toManyRelationship) {
                         
-                        if ([destinationResource permissionForRelationship:relationshipName session:session] >= ReadOnlyPermission) {
+                        if ([destinationResource permissionForRelationship:relationshipName session:session] >= NOReadOnlyPermission) {
                             
                             // get destination resource ID
                             
@@ -1866,7 +1866,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                                 session:(NSManagedObject<NOSessionProtocol> *)session
                                   error:(NSError **)error
 {
-    if ([resource permissionForSession:session] < EditPermission) {
+    if ([resource permissionForSession:session] < NOEditPermission) {
         
         return NOServerForbiddenStatusCode;
     }
@@ -1965,7 +1965,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                     }
                     
                     // destination resource must be visible
-                    if ([newValue permissionForSession:session] < ReadOnlyPermission) {
+                    if ([newValue permissionForSession:session] < NOReadOnlyPermission) {
                         
                         return NOServerForbiddenStatusCode;
                     }
@@ -2009,7 +2009,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                         }
                         
                         // check permissions
-                        if ([destinationResource permissionForSession:session] < ReadOnlyPermission) {
+                        if ([destinationResource permissionForSession:session] < NOReadOnlyPermission) {
                             
                             return NOServerForbiddenStatusCode;
                         }

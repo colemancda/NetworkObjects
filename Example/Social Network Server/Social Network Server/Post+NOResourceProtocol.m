@@ -77,10 +77,10 @@
     // creator has edit permission
     if (session.user == self.creator) {
         
-        return EditPermission;
+        return NOEditPermission;
     }
     
-    return ReadOnlyPermission;
+    return NOReadOnlyPermission;
 }
 
 -(NOResourcePermission)permissionForAttribute:(NSString *)attributeName
@@ -88,17 +88,17 @@
 {
     if ([attributeName isEqualToString:@"views"]) {
         
-        return ReadOnlyPermission;
+        return NOReadOnlyPermission;
     }
     
-    return EditPermission;
+    return NOEditPermission;
 }
 
 -(NOResourcePermission)permissionForRelationship:(NSString *)relationshipName
                                          session:(NSManagedObject<NOSessionProtocol> *)session
 {
     // dont wanna directly replace relationship, use function instead
-    return ReadOnlyPermission;
+    return NOReadOnlyPermission;
 }
 
 #pragma mark - Notifications
@@ -172,7 +172,7 @@ wasAccessedBySession:(NSManagedObject<NOSessionProtocol> *)session
         
     }
     
-    return FunctionPerformedSuccesfully;
+    return NOFunctionPerformedSuccesfully;
 }
 
 @end
