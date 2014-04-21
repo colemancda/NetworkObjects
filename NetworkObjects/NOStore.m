@@ -52,7 +52,7 @@
                 
                 operationQueue.maxConcurrentOperationCount = 1;
                 
-                operationQueue.name = [NSString stringWithFormat:@"%@ %@ Creation Queue", self, entityDescription.name];
+                operationQueue.name = [NSString stringWithFormat:@"com.ColemanCDA.NetworkObjects.NOStore%@CreationQueue", entityDescription.name];
                 
                 // add to mutable dict
                 creationQueuesDict[entityDescription.name] = operationQueue;
