@@ -1827,21 +1827,16 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                 
                 NSArray *resourceIDs = (NSArray *)value;
                 
-                // build array to replace old to-many relationsip
-                NSMutableSet *newRelationshipValues = [[NSMutableSet alloc] init];
+                // fetch resources
                 
-                for (NSNumber *destinationResourceID in resourceIDs) {
+                NSArray *newRelationshipValues = [_store fetchResources:relationshipDescription.entity
+                                                       withResourceIDs:resourceIDs
+                                                        shouldPrefetch:NO
+                                                                 error:error];
+                
+                if (*error) {
                     
-                    // get the destination resource
-                    
-                    NSManagedObject<NOResourceProtocol> *destinationResource = [_store resourceWithEntityDescription:relationshipDescription.destinationEntity resourceID:destinationResourceID shouldPrefetch:NO error:error];
-                    
-                    if (*error) {
-                        
-                        return NO;
-                    }
-                    
-                    [newRelationshipValues addObject:destinationResource];
+                    return NO;
                 }
                 
                 // replace collection
@@ -1991,30 +1986,33 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                     
                     NSArray *jsonReplacementCollection = (NSArray *)jsonValue;
                     
-                    // build new value
-                    NSMutableArray *newValue = [[NSMutableArray alloc] init];
+                    // fetch new value
+                    NSArray *newValue = [_store fetchResources:relationshipDescription.entity
+                                               withResourceIDs:jsonReplacementCollection
+                                                shouldPrefetch:NO
+                                                         error:error];
+                    
+                    if (*error) {
+                        
+                        return NOServerInternalServerErrorStatusCode;
+                    }
+                    
+                    // make sure all the values are present and have the correct permissions...
+                    
+                    if (jsonReplacementCollection.count != newValue.count) {
+                        
+                        return NOServerBadRequestStatusCode;
+                    }
                     
                     for (NSNumber *destinationResourceID in jsonReplacementCollection) {
                         
-                        NSManagedObject<NOResourceProtocol> *destinationResource = [_store resourceWithEntityDescription:relationshipDescription.entity resourceID:destinationResourceID shouldPrefetch:NO error:error];
-                        
-                        if (*error) {
-                            
-                            return NOServerInternalServerErrorStatusCode;
-                        }
-                        
-                        if (!destinationResource) {
-                            
-                            return NOServerBadRequestStatusCode;
-                        }
+                        NSManagedObject<NOResourceProtocol> *destinationResource = newValue[[jsonReplacementCollection indexOfObject:destinationResourceID]];
                         
                         // check permissions
                         if ([destinationResource permissionForSession:session] < NOReadOnlyPermission) {
                             
                             return NOServerForbiddenStatusCode;
                         }
-                        
-                        [newValue addObject:destinationResource];
                     }
                     
                     // must be valid new value

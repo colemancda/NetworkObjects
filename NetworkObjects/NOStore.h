@@ -76,6 +76,11 @@ typedef NS_ENUM(NSUInteger, NOStoreErrorCode) {
                                                        shouldPrefetch:(BOOL)shouldPrefetch
                                                                 error:(NSError **)error;
 
+-(NSArray *)fetchResources:(NSEntityDescription *)entity
+           withResourceIDs:(NSArray *)resourceIDs
+            shouldPrefetch:(BOOL)shouldPrefetch
+                     error:(NSError **)error;
+
 -(NSManagedObject<NOResourceProtocol> *)newResourceWithEntityDescription:(NSEntityDescription *)entityDescription;
 
 -(void)deleteResource:(NSManagedObject<NOResourceProtocol> *)resource;

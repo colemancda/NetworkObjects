@@ -139,6 +139,46 @@
     return resource;
 }
 
+-(NSArray *)fetchResources:(NSEntityDescription *)entity
+           withResourceIDs:(NSArray *)resourceIDs
+            shouldPrefetch:(BOOL)shouldPrefetch
+                     error:(NSError **)error
+{
+    // get the key of the resourceID attribute
+    
+    NSString *resourceIDKey = [NSClassFromString(entity.managedObjectClassName) resourceIDKey];
+    
+    NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:entity.name];
+    
+    fetchRequest.fetchLimit = resourceIDs.count;
+    
+    fetchRequest.predicate = [NSComparisonPredicate predicateWithLeftExpression:[NSExpression expressionForKeyPath:resourceIDKey]
+                                                                rightExpression:[NSExpression expressionForConstantValue:resourceIDs]
+                                                                       modifier:NSDirectPredicateModifier
+                                                                           type:NSInPredicateOperatorType
+                                                                        options:NSNormalizedPredicateOption];
+    
+    if (shouldPrefetch) {
+        
+        fetchRequest.returnsObjectsAsFaults = NO;
+    }
+    else {
+        
+        fetchRequest.includesPropertyValues = NO;
+    }
+    
+    __block NSArray *result;
+    
+    [_context performBlockAndWait:^{
+        
+        result = [_context executeFetchRequest:fetchRequest
+                                         error:error];
+        
+    }];
+    
+    return result;
+}
+
 -(void)deleteResource:(NSManagedObject<NOResourceProtocol> *)resource;
 {
     // no need to wait for block to end since we dont return a value
