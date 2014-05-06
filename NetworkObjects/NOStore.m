@@ -120,6 +120,11 @@
 
 -(NSManagedObjectContext *)newConcurrentContext
 {
+    if (!_concurrentPersistanceDelegate) {
+        
+        return nil;
+    }
+    
     NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
     
     context.undoManager = nil;

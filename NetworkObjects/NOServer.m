@@ -1196,11 +1196,11 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     if (self.store.concurrentPersistanceDelegate) {
         
-        context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+        context = [self.store newConcurrentContext];
+    }
+    else {
         
-        context.undoManager = nil;
-        
-        context.persistentStoreCoordinator = [self.store ];
+        context = self.store.context;
     }
     
     // add search parameters...
@@ -1312,15 +1312,23 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                 
                 // value must belong to local context
                 
-                __block NSManagedObject *resource;
-                
-                [context performBlockAndWait:^{
+                if (self.store.concurrentPersistanceDelegate) {
                     
-                    resource = [context objectWithID:fetchedResource.objectID];
+                    __block NSManagedObject *resource;
                     
-                }];
-                
-                value = resource;
+                    [context performBlockAndWait:^{
+                        
+                        resource = [context objectWithID:fetchedResource.objectID];
+                        
+                    }];
+                    
+                    value = resource;
+                    
+                }
+                else {
+                    
+                    value = fetchedResource;
+                }
                 
             }
             
@@ -1374,7 +1382,22 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                         return;
                     }
                     
-                    [value addObject:resource];
+                    // if concurrent, then get resource on main private context
+                    
+                    if (self.store.concurrentPersistanceDelegate) {
+                        
+                        [context performBlockAndWait:^{
+                           
+                            [value addObject:[context objectWithID:resource.objectID]];
+                            
+                        }];
+                    }
+                    
+                    else {
+                        
+                        [value addObject:resource];
+
+                    }
                 }
             }
         }
