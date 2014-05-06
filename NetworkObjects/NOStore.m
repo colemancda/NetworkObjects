@@ -133,7 +133,7 @@
         
         context.undoManager = nil;
         
-        context.persistentStoreCoordinator = [_concurrencyDelegate newPersistentStoreCoordinatorForStore:self];
+        context.persistentStoreCoordinator = [_concurrentPersistanceDelegate newPersistentStoreCoordinatorForStore:self];
         
         if (contextPointer) {
             
@@ -201,7 +201,7 @@
 {
     NSManagedObjectContext *context;
     
-    if (_concurrencyDelegate) {
+    if (_concurrentPersistanceDelegate) {
         
         // setup new context
         
@@ -209,7 +209,7 @@
         
         context.undoManager = nil;
         
-        context.persistentStoreCoordinator = [_concurrencyDelegate newPersistentStoreCoordinatorForStore:self];
+        context.persistentStoreCoordinator = [_concurrentPersistanceDelegate newPersistentStoreCoordinatorForStore:self];
         
         if (contextPointer) {
             
@@ -266,7 +266,7 @@
 -(NSManagedObject<NOResourceProtocol> *)newResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                                                                  context:(NSManagedObjectContext *__autoreleasing *)contextPointer;
 {
-    if (_concurrencyDelegate) {
+    if (_concurrentPersistanceDelegate) {
         
         return [self concurrentlyCreateNewResourceWithEntityDescription:entityDescription
                                                                 context:contextPointer];
@@ -326,7 +326,7 @@
 
 -(BOOL)save:(NSError **)error
 {
-    if (_concurrencyDelegate) {
+    if (_concurrentPersistanceDelegate) {
         
         [NSException raise:NSInternalInconsistencyException
                     format:@"Cannot call %@ on NOStore configured for concurrent persistance.", NSStringFromSelector(_cmd)];
@@ -432,7 +432,7 @@
     
     context.undoManager = nil;
     
-    context.persistentStoreCoordinator = [_concurrencyDelegate newPersistentStoreCoordinatorForStore:self];
+    context.persistentStoreCoordinator = [_concurrentPersistanceDelegate newPersistentStoreCoordinatorForStore:self];
     
     if (contextPointer) {
         
@@ -450,7 +450,7 @@
         
         NSString *resourceIDKey = [NSClassFromString(entityDescription.managedObjectClassName) resourceIDKey];
        
-        [resource setValue:[_concurrencyDelegate store:self newResourceIDForResource:entityDescription.name]
+        [resource setValue:[_concurrentPersistanceDelegate store:self newResourceIDForResource:entityDescription.name]
                     forKey:resourceIDKey];
         
     }];

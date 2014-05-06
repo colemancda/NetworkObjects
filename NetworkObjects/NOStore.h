@@ -74,7 +74,7 @@ typedef NS_ENUM(NSUInteger, NOStoreErrorCode) {
 
 #pragma mark - Concurrent Store Properties
 
-@property (nonatomic, readonly) id<NOStoreConcurrentPersistanceDelegate> concurrencyDelegate;
+@property (nonatomic, readonly) id<NOStoreConcurrentPersistanceDelegate> concurrentPersistanceDelegate;
 
 #pragma mark - Actions
 

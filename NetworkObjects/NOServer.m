@@ -110,11 +110,6 @@ NSString *const NOServerSearchPathOption = @"NOServerSearchPathOption";
 
 - (id)init
 {
-    [NSException raise:@"Wrong initialization method"
-                format:@"You cannot use %@ with '-%@', you have to use '-%@'",
-     self,
-     NSStringFromSelector(_cmd),
-     NSStringFromSelector(@selector(initWithOptions:))];
     return nil;
 }
 
@@ -125,9 +120,8 @@ NSString *const NOServerSearchPathOption = @"NOServerSearchPathOption";
     _httpServer.port = port;
     
     NSError *startServerError;
-    BOOL didStart = [_httpServer start:&startServerError];
     
-    if (!didStart) {
+    if (![_httpServer start:&startServerError]) {
         
         return startServerError;
     }
@@ -938,9 +932,9 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     __block NSError *error;
     
-    NSManagedObjectContext *context = self.store.context;
+    NSManagedObjectContext *context;
     
-    NSManagedObject<NOClientProtocol> *client = (NSManagedObject<NOClientProtocol> *)[_store resourceWithEntityDescription:clientEntityDescription resourceID:clientResourceID shouldPrefetch:YES context:nil error:&error];
+    NSManagedObject<NOClientProtocol> *client = (NSManagedObject<NOClientProtocol> *)[_store resourceWithEntityDescription:clientEntityDescription resourceID:clientResourceID shouldPrefetch:YES context:&context error:&error];
     
     if (error) {
         
@@ -979,6 +973,12 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     // create new session with client
     __block NSManagedObject<NOSessionProtocol> *session = (NSManagedObject<NOSessionProtocol> *)[_store newResourceWithEntityDescription:sessionEntityDescription context:nil];
+    
+    // concurrency
+    
+    if (self.store.concurrencyDelegate) {
+        <#statements#>
+    }
     
     [context performBlockAndWait:^{;
         
