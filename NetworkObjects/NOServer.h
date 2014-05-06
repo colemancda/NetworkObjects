@@ -250,6 +250,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
  
  */
 -(NSManagedObject<NOSessionProtocol> *)sessionWithToken:(NSString *)token
+                                                context:(NSManagedObjectContext **)context
                                                   error:(NSError **)error;
 
 /**
@@ -268,6 +269,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
  */
 
 -(NSDictionary *)JSONRepresentationOfResource:(NSManagedObject<NOResourceProtocol> *)resource
+                                      context:(NSManagedObjectContext *)context
                                    forSession:(NSManagedObject<NOSessionProtocol> *)session;
 
 /**
@@ -289,6 +291,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
 -(NOServerStatusCode)verifyEditResource:(NSManagedObject<NOResourceProtocol> *)resource
                      recievedJsonObject:(NSDictionary *)recievedJsonObject
                                 session:(NSManagedObject<NOSessionProtocol> *)session
+                                context:(NSManagedObjectContext *)context
                                   error:(NSError **)error;
 
 /**
@@ -299,6 +302,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
 -(BOOL)setValuesForResource:(NSManagedObject<NOResourceProtocol> *)resource
              fromJSONObject:(NSDictionary *)jsonObject
                     session:(NSManagedObject<NOSessionProtocol> *)session
+                    context:(NSManagedObjectContext *)context
                       error:(NSError **)error;
 
 

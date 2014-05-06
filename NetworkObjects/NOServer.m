@@ -1702,6 +1702,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
 #pragma mark - Common methods for handlers
 
 -(NSManagedObject<NOSessionProtocol> *)sessionWithToken:(NSString *)token
+                                                context:(NSManagedObjectContext **)contextPointer
                                                   error:(NSError **)error
 {
     // determine the attribute name the entity uses for storing tokens
@@ -1720,7 +1721,21 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     sessionWithTokenFetchRequest.fetchLimit = 1;
     
-    NSManagedObjectContext *context = self.store.context;
+    NSManagedObjectContext *context;
+    
+    if (self.store.concurrentPersistanceDelegate) {
+        
+        context = [self.store newConcurrentContext];
+    }
+    else {
+        
+        context = self.store.context;
+    }
+    
+    if (contextPointer) {
+        
+        *contextPointer = context;
+    }
     
     __block NSManagedObject <NOSessionProtocol> *session;
     
