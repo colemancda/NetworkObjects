@@ -119,7 +119,8 @@ static void *KVOContext = &KVOContext;
 {
     SNSAppDelegate *appDelegate = [NSApp delegate];
     
-    [appDelegate.store newResourceWithEntityDescription:self.selectedEntity];
+    [appDelegate.store newResourceWithEntityDescription:self.selectedEntity
+                                                context:nil];
     
     [self.arrayController fetch:nil];
 }
@@ -132,15 +133,13 @@ static void *KVOContext = &KVOContext;
     
     NSManagedObject *selectedItem = self.arrayController.arrangedObjects[self.tableView.selectedRow];
     
-    __block NSManagedObject <NOResourceProtocol> *resource;
-    
     [appDelegate.store.context performBlockAndWait:^{
         
-        resource = (NSManagedObject <NOResourceProtocol> *)[appDelegate.store.context objectWithID:selectedItem.objectID];
+        NSManagedObject <NOResourceProtocol> *resource = (NSManagedObject <NOResourceProtocol> *)[appDelegate.store.context objectWithID:selectedItem.objectID];
+        
+        [appDelegate.store.context deleteObject:resource];
         
     }];
-    
-    [appDelegate.store deleteResource:resource];
     
     [self.arrayController fetch:nil];
 }

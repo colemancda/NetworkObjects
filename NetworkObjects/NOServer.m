@@ -132,6 +132,68 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
 
 @end
 
+@interface NOServer (Concurrent)
+
+/**
+ Request handler for POST REST requests
+ 
+ */
+-(void)handleCreateResourceWithEntityDescription:(NSEntityDescription *)entityDescription
+                                         session:(NSManagedObject<NOSessionProtocol> *)session
+                                   initialValues:(NSDictionary *)initialValues
+                                        response:(RouteResponse *)response;
+
+/**
+ Request handler for function REST requests
+ 
+ */
+-(void)handleFunction:(NSString *)functionName
+   recievedJsonObject:(NSDictionary *)recievedJsonObject
+             resource:(NSManagedObject<NOResourceProtocol> *)resource
+              session:(NSManagedObject<NOSessionProtocol> *)session
+             response:(RouteResponse *)response;
+
+/**
+ Request handler for PUT REST requests
+ 
+ */
+-(void)handleEditResource:(NSManagedObject <NOResourceProtocol> *)resource
+       recievedJsonObject:(NSDictionary *)recievedJsonObject
+                  session:(NSManagedObject <NOSessionProtocol> *)session
+                 response:(RouteResponse *)response;
+
+/**
+ Request handler for GET REST requests
+ 
+ */
+-(void)handleGetResource:(NSManagedObject <NOResourceProtocol> *)resource
+                 session:(NSManagedObject <NOSessionProtocol> *)session
+                response:(RouteResponse *)response;
+
+/**
+ Request handler for DELETE REST requests
+ 
+ */
+-(void)handleDeleteResource:(NSManagedObject <NOResourceProtocol> *)resource
+                    session:(NSManagedObject <NOSessionProtocol> *)session
+                   response:(RouteResponse *)response;
+
+/**
+ Request handler for authentication requests
+ 
+ */
+-(void)handleLoginWithRequest:(RouteRequest *)request
+                     response:(RouteResponse *)response;
+
+/** Request handler for search requests **/
+
+-(void)handleSearchForResourceWithEntityDescription:(NSEntityDescription *)entityDescription
+                                            session:(NSManagedObject<NOSessionProtocol> *)session
+                                   searchParameters:(NSDictionary *)searchParameters
+                                           response:(RouteResponse *)response;
+
+@end
+
 @interface NOServer ()
 
 @property (nonatomic) NOStore *store;
@@ -516,7 +578,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         NSManagedObject<NOResourceProtocol> *resource = [self.store resourceWithEntityDescription:entityDescription
                                                                                        resourceID:resourceID
                                                                                    shouldPrefetch:shouldPrefetch
-                                                                                          context:con
+                                                                                          context:nil
                                                                                             error:&fetchError];
         
         // internal error
@@ -737,7 +799,11 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         return;
     }
     
-    [_store deleteResource:resource];
+    [_store.context performBlock:^{
+       
+        [_store.context deleteObject:resource];
+        
+    }];
     
     response.statusCode = NOServerOKStatusCode;
 }
@@ -787,7 +853,8 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     NSManagedObjectContext *context = self.store.context;
     
-    NSManagedObject<NOResourceProtocol> *newResource = [_store newResourceWithEntityDescription:entityDescription];
+    NSManagedObject<NOResourceProtocol> *newResource = [_store newResourceWithEntityDescription:entityDescription
+                                                                                        context:nil];
     
     if (!newResource) {;
         
@@ -823,7 +890,11 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         
         // delete created object
         
-        [self.store deleteResource:newResource];
+        [self.store.context performBlockAndWait:^{
+           
+            [self.store.context deleteObject:newResource];
+            
+        }];
         
         if (applyInitialValuesStatusCode == NOServerInternalServerErrorStatusCode) {
             
@@ -1028,7 +1099,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     NSManagedObjectContext *context = self.store.context;
     
-    NSManagedObject<NOClientProtocol> *client = (NSManagedObject<NOClientProtocol> *)[_store resourceWithEntityDescription:clientEntityDescription resourceID:clientResourceID shouldPrefetch:YES error:&error];
+    NSManagedObject<NOClientProtocol> *client = (NSManagedObject<NOClientProtocol> *)[_store resourceWithEntityDescription:clientEntityDescription resourceID:clientResourceID shouldPrefetch:YES context:nil error:&error];
     
     if (error) {
         
@@ -1066,7 +1137,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     }
     
     // create new session with client
-    __block NSManagedObject<NOSessionProtocol> *session = (NSManagedObject<NOSessionProtocol> *)[_store newResourceWithEntityDescription:sessionEntityDescription];
+    __block NSManagedObject<NOSessionProtocol> *session = (NSManagedObject<NOSessionProtocol> *)[_store newResourceWithEntityDescription:sessionEntityDescription context:nil];
     
     [context performBlockAndWait:^{;
         
@@ -1324,6 +1395,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                 NSManagedObject *fetchedResource = [self.store resourceWithEntityDescription:entityDescription
                                                                                   resourceID:resourceID
                                                                               shouldPrefetch:NO
+                                                                                     context:nil
                                                                                        error:&error];
                 
                 if (error) {
@@ -1387,6 +1459,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                     NSManagedObject *resource = [self.store resourceWithEntityDescription:entityDescription
                                                                                       resourceID:resourceID
                                                                                   shouldPrefetch:NO
+                                                                                        context:nil
                                                                                            error:&error];
                     
                     if (error) {
@@ -1898,7 +1971,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                 
                 // get the destination resource
                 
-                NSManagedObject<NOResourceProtocol> *destinationResource = [_store resourceWithEntityDescription:relationshipDescription.destinationEntity resourceID:destinationResourceID shouldPrefetch:NO error:error];
+                NSManagedObject<NOResourceProtocol> *destinationResource = [_store resourceWithEntityDescription:relationshipDescription.destinationEntity resourceID:destinationResourceID shouldPrefetch:NO context:nil error:error];
                 
                 if (*error) {
                     
@@ -1920,6 +1993,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                 NSArray *newRelationshipValues = [_store fetchResources:relationshipDescription.entity
                                                        withResourceIDs:resourceIDs
                                                         shouldPrefetch:NO
+                                                                context:nil
                                                                  error:error];
                 
                 if (*error) {
@@ -2035,7 +2109,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                     
                     NSNumber *destinationResourceID = (NSNumber *)jsonValue;
                     
-                    NSManagedObject<NOResourceProtocol> *newValue = [_store resourceWithEntityDescription:relationshipDescription.entity resourceID:destinationResourceID shouldPrefetch:NO error:error];
+                    NSManagedObject<NOResourceProtocol> *newValue = [_store resourceWithEntityDescription:relationshipDescription.entity resourceID:destinationResourceID shouldPrefetch:NO context:nil error:error];
                     
                     if (*error) {
                         
@@ -2078,6 +2152,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                     NSArray *newValue = [_store fetchResources:relationshipDescription.entity
                                                withResourceIDs:jsonReplacementCollection
                                                 shouldPrefetch:NO
+                                                       context:nil
                                                          error:error];
                     
                     if (*error) {
