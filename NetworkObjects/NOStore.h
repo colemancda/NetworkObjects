@@ -104,7 +104,8 @@ typedef NS_ENUM(NSUInteger, NOStoreErrorCode) {
                      error:(NSError **)error;
 
 -(NSManagedObject<NOResourceProtocol> *)newResourceWithEntityDescription:(NSEntityDescription *)entityDescription
-                                                                 context:(NSManagedObjectContext **)context;
+                                                                 context:(NSManagedObjectContext **)context
+                                                                   error:(NSError **)error;
 
 
 @end

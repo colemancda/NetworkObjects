@@ -13,7 +13,8 @@
 @interface NOStore (Concurrency)
 
 -(NSManagedObject<NOResourceProtocol> *)concurrentlyCreateNewResourceWithEntityDescription:(NSEntityDescription *)entityDescription
-                                                                                   context:(NSManagedObjectContext **)context;
+                                                                                   context:(NSManagedObjectContext **)context
+                                                                                     error:(NSError **)error;
 
 @end
 
@@ -102,7 +103,7 @@
     
     if (self) {
         
-        _concurrencyDelegate = delegate;
+        _concurrentPersistanceDelegate = delegate;
         
     }
     
@@ -125,7 +126,7 @@
 {
     NSManagedObjectContext *context;
     
-    if (_concurrencyDelegate) {
+    if (_concurrentPersistanceDelegate) {
         
         // setup new context
         
@@ -264,12 +265,14 @@
 }
 
 -(NSManagedObject<NOResourceProtocol> *)newResourceWithEntityDescription:(NSEntityDescription *)entityDescription
-                                                                 context:(NSManagedObjectContext *__autoreleasing *)contextPointer;
+                                                                 context:(NSManagedObjectContext *__autoreleasing *)contextPointer
+                                                                   error:(NSError *__autoreleasing *)error;
 {
     if (_concurrentPersistanceDelegate) {
         
         return [self concurrentlyCreateNewResourceWithEntityDescription:entityDescription
-                                                                context:contextPointer];
+                                                                context:contextPointer
+                                                                  error:error];
     }
     
     if (contextPointer) {
@@ -427,6 +430,7 @@
 
 -(NSManagedObject<NOResourceProtocol> *)concurrentlyCreateNewResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                                                                                    context:(NSManagedObjectContext **)contextPointer
+                                                                                     error:(NSError *__autoreleasing *)error
 {
     NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
     
@@ -452,6 +456,11 @@
        
         [resource setValue:[_concurrentPersistanceDelegate store:self newResourceIDForResource:entityDescription.name]
                     forKey:resourceIDKey];
+        
+        if (![context save:error]) {
+            
+            resource = nil;
+        }
         
     }];
     

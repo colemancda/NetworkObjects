@@ -972,12 +972,31 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     }
     
     // create new session with client
-    __block NSManagedObject<NOSessionProtocol> *session = (NSManagedObject<NOSessionProtocol> *)[_store newResourceWithEntityDescription:sessionEntityDescription context:nil];
+    __block NSManagedObject<NOSessionProtocol> *session = (NSManagedObject<NOSessionProtocol> *)[_store newResourceWithEntityDescription:sessionEntityDescription context:nil error:&error];
     
-    // concurrency
+    // concurrency...
     
-    if (self.store.concurrencyDelegate) {
-        <#statements#>
+    if (error) {
+        
+        if (_errorDelegate) {
+            
+            [_errorDelegate server:self didEncounterInternalError:error forRequestType:NOServerLoginRequestType];
+        }
+        
+        response.statusCode = NOServerInternalServerErrorStatusCode;
+        
+        return;
+    }
+    
+    if (self.store.concurrentPersistanceDelegate) {
+        
+        // session was created on another context
+        
+        [context performBlockAndWait:^{
+           
+            session = (NSManagedObject<NOSessionProtocol> *)[context objectWithID:session.objectID];
+            
+        }];
     }
     
     [context performBlockAndWait:^{;
@@ -1099,6 +1118,29 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         }];
         
         [jsonObject addEntriesFromDictionary:@{sessionUserKey: userResourceID}];
+    }
+    
+    // save immediately if concurrent
+    
+    if (self.store.concurrentPersistanceDelegate) {
+        
+        [context performBlockAndWait:^{
+           
+            [context save:&error];
+            
+        }];
+        
+        if (error) {
+            
+            if (_errorDelegate) {
+                
+                [_errorDelegate server:self didEncounterInternalError:error forRequestType:NOServerLoginRequestType];
+            }
+            
+            response.statusCode = NOServerInternalServerErrorStatusCode;
+            
+            return;
+        }
     }
     
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonObject
