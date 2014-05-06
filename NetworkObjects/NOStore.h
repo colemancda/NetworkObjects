@@ -32,7 +32,7 @@ typedef NS_ENUM(NSUInteger, NOStoreErrorCode) {
     NSMutableDictionary *_lastResourceIDs;
     
     /**
-     A dictionary that contains NSOperationQueues for the coordinated creation of resources so that they can be given valid Resource ID.
+     A dictionary that contains NSOperationQueues for the coordinated creation of resources so that they can be given a valid Resource ID.
      */
     NSDictionary *_createResourcesQueues;
 }
@@ -80,11 +80,13 @@ typedef NS_ENUM(NSUInteger, NOStoreErrorCode) {
 
 -(BOOL)save:(NSError **)error;
 
-#pragma mark - Manage Resource Instances Serially
+#pragma mark - Manage Resource Instances
 
 // Cocoa methods to manage a object graph styled after REST but without the networking or authentication, useful for editing NetworkedObjects from the server app or for other internal use.
 
 // e.g. you want to create a new resource but dont wanna write the glue code for assigning it a proper resource ID
+
+// Make sure to call these on the same thread as the @c context argmuent.
 
 -(NSManagedObject<NOResourceProtocol> *)resourceWithEntityDescription:(NSEntityDescription *)entityDescription
                                                            resourceID:(NSNumber *)resourceID
@@ -101,9 +103,6 @@ typedef NS_ENUM(NSUInteger, NOStoreErrorCode) {
 -(NSManagedObject<NOResourceProtocol> *)newResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                                                                  context:(NSManagedObjectContext **)context;
 
--(void)deleteResource:(NSManagedObject<NOResourceProtocol> *)resource
-              context:(NSManagedObjectContext **)context;
-
 
 @end
 
@@ -118,6 +117,6 @@ typedef NS_ENUM(NSUInteger, NOStoreErrorCode) {
 
 -(NSNumber *)store:(NOStore *)store lastResourceIDForResource:(NSString *)resourceName;
 
--(BOOL)store:(NOStore *)store saveWithError:(NSError **)error;
+-(BOOL)store:(NOStore *)store saveResourceIDsWithError:(NSError **)error;
  
 @end

@@ -10,6 +10,14 @@
 #import "NOStore.h"
 #import "NetworkObjectsConstants.h"
 
+@interface NOStore (Concurrency)
+
+-(NSManagedObject<NOResourceProtocol> *)concurrentlyCreateNewResourceWithEntityDescription:(NSEntityDescription *)entityDescription
+                                                                                   context:(NSManagedObjectContext **)context;
+-(BOOL)concurrentlySave:(NSError **)error;
+
+@end
+
 @implementation NOStore
 
 #pragma mark - Initialization
@@ -113,8 +121,31 @@
 -(NSManagedObject<NOResourceProtocol> *)resourceWithEntityDescription:(NSEntityDescription *)entityDescription
                                                            resourceID:(NSNumber *)resourceID
                                                        shouldPrefetch:(BOOL)shouldPrefetch
-                                                                error:(NSError *__autoreleasing *)error;
+                                                              context:(NSManagedObjectContext *__autoreleasing *)contextPointer
+                                                                error:(NSError *__autoreleasing *)error
 {
+    NSManagedObjectContext *context;
+    
+    if (_concurrencyDelegate) {
+        
+        // setup new context
+        
+        context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+        
+        context.undoManager = nil;
+        
+        context.persistentStoreCoordinator = [_concurrencyDelegate newPersistentStoreCoordinatorForStore:self];
+        
+        *contextPointer = context;
+    }
+    
+    else {
+        
+        context = _context;
+        
+        *contextPointer = _context;
+    }
+    
     // get the key of the resourceID attribute
     
     NSString *resourceIDKey = [NSClassFromString(entityDescription.managedObjectClassName) resourceIDKey];
@@ -140,10 +171,10 @@
     
     __block NSArray *result;
     
-    [_context performBlockAndWait:^{
+    [context performBlockAndWait:^{
         
-        result = [_context executeFetchRequest:fetchRequest
-                                         error:error];
+        result = [context executeFetchRequest:fetchRequest
+                                        error:error];
         
     }];
     
@@ -160,8 +191,31 @@
 -(NSArray *)fetchResources:(NSEntityDescription *)entity
            withResourceIDs:(NSArray *)resourceIDs
             shouldPrefetch:(BOOL)shouldPrefetch
-                     error:(NSError **)error
+                   context:(NSManagedObjectContext *__autoreleasing *)contextPointer
+                     error:(NSError *__autoreleasing *)error
 {
+    NSManagedObjectContext *context;
+    
+    if (_concurrencyDelegate) {
+        
+        // setup new context
+        
+        context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+        
+        context.undoManager = nil;
+        
+        context.persistentStoreCoordinator = [_concurrencyDelegate newPersistentStoreCoordinatorForStore:self];
+        
+        *contextPointer = context;
+    }
+    
+    else {
+        
+        context = _context;
+        
+        *contextPointer = _context;
+    }
+    
     // get the key of the resourceID attribute
     
     NSString *resourceIDKey = [NSClassFromString(entity.managedObjectClassName) resourceIDKey];
@@ -187,9 +241,9 @@
     
     __block NSArray *result;
     
-    [_context performBlockAndWait:^{
+    [context performBlockAndWait:^{
         
-        result = [_context executeFetchRequest:fetchRequest
+        result = [context executeFetchRequest:fetchRequest
                                          error:error];
         
     }];
@@ -197,19 +251,15 @@
     return result;
 }
 
--(void)deleteResource:(NSManagedObject<NOResourceProtocol> *)resource;
+-(NSManagedObject<NOResourceProtocol> *)newResourceWithEntityDescription:(NSEntityDescription *)entityDescription
+                                                                 context:(NSManagedObjectContext *__autoreleasing *)context;
 {
-    // no need to wait for block to end since we dont return a value
+    if (_concurrencyDelegate) {
+        
+        return [self concurrentlyCreateNewResourceWithEntityDescription:entityDescription
+                                                                context:context];
+    }
     
-    [_context performBlock:^{
-        
-        [_context deleteObject:resource];
-        
-    }];
-}
-
--(NSManagedObject<NOResourceProtocol> *)newResourceWithEntityDescription:(NSEntityDescription *)entityDescription;
-{
     // use the operationQueue for this resource
     
     NSOperationQueue *operationQueue = _createResourcesQueues[entityDescription.name];
@@ -259,6 +309,11 @@
 
 -(BOOL)save:(NSError **)error
 {
+    if (_concurrencyDelegate) {
+        
+        return [self concurrentlySave:error];
+    }
+    
     BOOL savedLastIDs;
     
     NSDictionary *lastIDsBackup;
@@ -344,3 +399,22 @@
 }
 
 @end
+
+@implementation NOStore (Concurrency)
+
+-(NSManagedObject<NOResourceProtocol> *)concurrentlyCreateNewResourceWithEntityDescription:(NSEntityDescription *)entityDescription
+                                                                                   context:(NSManagedObjectContext **)context
+{
+    
+    
+}
+
+
+-(BOOL)concurrentlySave:(NSError **)error
+{
+    
+    
+}
+
+@end
+
