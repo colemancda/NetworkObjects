@@ -84,6 +84,24 @@
     return self;
 }
 
+-(instancetype)initWithConcurrentPersistanceDelegate:(id<NOStoreConcurrentPersistanceDelegate>)delegate;
+{
+    if (!delegate) {
+        
+        return nil;
+    }
+    
+    self = [super init];
+    
+    if (self) {
+        
+        _concurrencyDelegate = delegate;
+        
+    }
+    
+    return self;
+}
+
 - (id)init
 {
     return [[NOStore alloc] initWithPersistentStoreCoordinator:nil

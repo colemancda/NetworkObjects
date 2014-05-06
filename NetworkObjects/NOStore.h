@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
 #import <NetworkObjects/NOResourceProtocol.h>
+@protocol NOStoreConcurrentPersistanceDelegate;
 
 typedef NS_ENUM(NSUInteger, NOStoreErrorCode) {
     
@@ -43,7 +44,7 @@ typedef NS_ENUM(NSUInteger, NOStoreErrorCode) {
  [[NOStore alloc] initWithManagedObjectModel:nil lastIDsURL:nil];
  @endcode
  
- @param model The NSManagedObjectModel to use with this store. Should contain entities that conform to NOResourceProtocol. Can be nil.
+ @param persistentStoreCoordinator Preconfigured @c NSPersistentStoreCoordinator that the store will use. Can be nil.
  
  @param lastIDsURL The URL to which the list of Resource IDs will be saved. Can be nil.
  
@@ -52,8 +53,18 @@ typedef NS_ENUM(NSUInteger, NOStoreErrorCode) {
  @see NSManagedObjectModel
  */
 
--(id)initWithPersistentStoreCoordinator:(NSPersistentStoreCoordinator *)persistentStoreCoordinator
+-(instancetype)initWithPersistentStoreCoordinator:(NSPersistentStoreCoordinator *)persistentStoreCoordinator
                              lastIDsURL:(NSURL *)lastIDsURL;
+
+/** Initializes a @c NOStore instance configured for concurrent requests.
+ */
+
+-(instancetype)initWithConcurrentPersistanceDelegate:(id<NOStoreConcurrentPersistanceDelegate>)delegate;
+
+#pragma mark - Serial Store Properties
+
+/** The store's @c NSManagedObjectContext. This value is @c nil of the store was initialized with @c -initWithConcurrentPersistanceDelegate:.
+ */
 
 @property (nonatomic, readonly) NSManagedObjectContext *context;
 
@@ -61,11 +72,15 @@ typedef NS_ENUM(NSUInteger, NOStoreErrorCode) {
 
 @property (nonatomic, readonly) NSURL *lastIDsURL;
 
+#pragma mark - Concurrent Store Properties
+
+@property (nonatomic, readonly) id<NOStoreConcurrentPersistanceDelegate> concurrencyDelegate;
+
 #pragma mark - Actions
 
 -(BOOL)save:(NSError **)error;
 
-#pragma mark - Manage Resource Instances
+#pragma mark - Manage Resource Instances Serially
 
 // Cocoa methods to manage a object graph styled after REST but without the networking or authentication, useful for editing NetworkedObjects from the server app or for other internal use.
 
@@ -74,15 +89,35 @@ typedef NS_ENUM(NSUInteger, NOStoreErrorCode) {
 -(NSManagedObject<NOResourceProtocol> *)resourceWithEntityDescription:(NSEntityDescription *)entityDescription
                                                            resourceID:(NSNumber *)resourceID
                                                        shouldPrefetch:(BOOL)shouldPrefetch
+                                                              context:(NSManagedObjectContext **)context
                                                                 error:(NSError **)error;
 
 -(NSArray *)fetchResources:(NSEntityDescription *)entity
            withResourceIDs:(NSArray *)resourceIDs
             shouldPrefetch:(BOOL)shouldPrefetch
+                   context:(NSManagedObjectContext **)context
                      error:(NSError **)error;
 
--(NSManagedObject<NOResourceProtocol> *)newResourceWithEntityDescription:(NSEntityDescription *)entityDescription;
+-(NSManagedObject<NOResourceProtocol> *)newResourceWithEntityDescription:(NSEntityDescription *)entityDescription
+                                                                 context:(NSManagedObjectContext **)context;
 
--(void)deleteResource:(NSManagedObject<NOResourceProtocol> *)resource;
+-(void)deleteResource:(NSManagedObject<NOResourceProtocol> *)resource
+              context:(NSManagedObjectContext **)context;
 
+
+@end
+
+@protocol NOStoreConcurrentPersistanceDelegate <NSObject>
+
+/** Delegate should setup a new @c NSPersistentStoreCoordinator instance that points to the same storage. Do no attempt to configure with @c NSInMemoryStoreType store type.
+ */
+
+-(NSPersistentStoreCoordinator *)newPersistentStoreCoordinatorForStore:(NOStore *)store;
+
+-(void)store:(NOStore *)store didCreateNewResource:(NSString *)resourceName withResourceID:(NSNumber *)resourceID;
+
+-(NSNumber *)store:(NOStore *)store lastResourceIDForResource:(NSString *)resourceName;
+
+-(BOOL)store:(NOStore *)store saveWithError:(NSError **)error;
+ 
 @end

@@ -31,7 +31,7 @@ extern NSString *const NOServerLoginPathOption;
 extern NSString *const NOServerSearchPathOption;
 
 /**
- This is the server class that broadcasts the Core Data entities in a NOStore (called Resources) over the network.
+ This is the server class that broadcasts the Core Data entities in a NOStore (called Resources) over the network. You should always stop the server before modifying a nonatomic property.
  */
 
 @interface NOServer : NSObject
