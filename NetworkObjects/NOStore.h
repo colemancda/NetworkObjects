@@ -17,7 +17,7 @@ typedef NS_ENUM(NSUInteger, NOStoreErrorCode) {
     NOStoreBackupLastIDsSaveError = 100,
     
     /** Could not restore the previous archive of @c _lastResourceIDs. */
-    NOStoreRestoreLastIDsSaveError,
+    NOStoreRestoreLastIDsSaveError
 };
 
 /**
@@ -115,6 +115,8 @@ typedef NS_ENUM(NSUInteger, NOStoreErrorCode) {
  */
 
 -(NSPersistentStoreCoordinator *)newPersistentStoreCoordinatorForStore:(NOStore *)store;
+
+/** Delegate should return the new resource ID for the newly created resource. */
 
 -(NSNumber *)store:(NOStore *)store newResourceIDForResource:(NSString *)resourceName;
 
