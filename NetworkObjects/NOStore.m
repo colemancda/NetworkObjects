@@ -116,6 +116,19 @@
                                                     lastIDsURL:nil];
 }
 
+#pragma mark - Generate new instances
+
+-(NSManagedObjectContext *)newConcurrentContext
+{
+    NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+    
+    context.undoManager = nil;
+    
+    context.persistentStoreCoordinator = [_concurrentPersistanceDelegate newPersistentStoreCoordinatorForStore:self];
+    
+    return context;
+}
+
 #pragma mark - Manipulate Resources
 
 -(NSManagedObject<NOResourceProtocol> *)resourceWithEntityDescription:(NSEntityDescription *)entityDescription
@@ -130,11 +143,7 @@
         
         // setup new context
         
-        context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-        
-        context.undoManager = nil;
-        
-        context.persistentStoreCoordinator = [_concurrentPersistanceDelegate newPersistentStoreCoordinatorForStore:self];
+        context = [self newConcurrentContext];
         
         if (contextPointer) {
             
@@ -206,11 +215,7 @@
         
         // setup new context
         
-        context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-        
-        context.undoManager = nil;
-        
-        context.persistentStoreCoordinator = [_concurrentPersistanceDelegate newPersistentStoreCoordinatorForStore:self];
+        context = [self newConcurrentContext];
         
         if (contextPointer) {
             
@@ -432,11 +437,7 @@
                                                                                    context:(NSManagedObjectContext **)contextPointer
                                                                                      error:(NSError *__autoreleasing *)error
 {
-    NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-    
-    context.undoManager = nil;
-    
-    context.persistentStoreCoordinator = [_concurrentPersistanceDelegate newPersistentStoreCoordinatorForStore:self];
+    NSManagedObjectContext *context = [self newConcurrentContext];
     
     if (contextPointer) {
         

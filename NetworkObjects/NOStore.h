@@ -83,6 +83,10 @@ typedef NS_ENUM(NSUInteger, NOStoreErrorCode) {
 
 -(BOOL)save:(NSError **)error;
 
+#pragma mark - Generate new instances (Concurrent)
+
+-(NSManagedObjectContext *)newConcurrentContext;
+
 #pragma mark - Manage Resource Instances
 
 // Cocoa methods to manage a object graph styled after REST but without the networking or authentication, useful for editing NetworkedObjects from the server app or for other internal use.

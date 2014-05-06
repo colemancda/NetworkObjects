@@ -972,6 +972,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     }
     
     // create new session with client
+    
     __block NSManagedObject<NOSessionProtocol> *session = (NSManagedObject<NOSessionProtocol> *)[_store newResourceWithEntityDescription:sessionEntityDescription context:nil error:&error];
     
     // concurrency...
@@ -1191,7 +1192,16 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     // create context
     
-    NSManagedObjectContext *context = self.store.context;
+    NSManagedObjectContext *context;
+    
+    if (self.store.concurrentPersistanceDelegate) {
+        
+        context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+        
+        context.undoManager = nil;
+        
+        context.persistentStoreCoordinator = [self.store ];
+    }
     
     // add search parameters...
     
