@@ -160,6 +160,7 @@ extern NSString *const NOServerSearchPathOption;
 
 -(void)setupServerRoutes;
 
+#pragma mark - Request Handlers
 
 // code for handling incoming REST requests (authentication, returning JSON data)
 
@@ -172,6 +173,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
           resourceID:(NSNumber *)resourceID
             function:(NSString *)functionName
             isSearch:(BOOL)isSearch
+             context:(NSManagedObjectContext *)context
             response:(RouteResponse *)response;
 
 /**
@@ -181,6 +183,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
 -(void)handleCreateResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                                          session:(NSManagedObject<NOSessionProtocol> *)session
                                    initialValues:(NSDictionary *)initialValues
+                                         context:(NSManagedObjectContext *)context
                                         response:(RouteResponse *)response;
 
 /**
@@ -191,6 +194,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
    recievedJsonObject:(NSDictionary *)recievedJsonObject
              resource:(NSManagedObject<NOResourceProtocol> *)resource
               session:(NSManagedObject<NOSessionProtocol> *)session
+              context:(NSManagedObjectContext *)context
              response:(RouteResponse *)response;
 
 /**
@@ -200,6 +204,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
 -(void)handleEditResource:(NSManagedObject <NOResourceProtocol> *)resource
        recievedJsonObject:(NSDictionary *)recievedJsonObject
                   session:(NSManagedObject <NOSessionProtocol> *)session
+                  context:(NSManagedObjectContext *)context
                  response:(RouteResponse *)response;
 
 /**
@@ -208,6 +213,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
  */
 -(void)handleGetResource:(NSManagedObject <NOResourceProtocol> *)resource
                  session:(NSManagedObject <NOSessionProtocol> *)session
+                 context:(NSManagedObjectContext *)context
                 response:(RouteResponse *)response;
 
 /**
@@ -216,6 +222,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
  */
 -(void)handleDeleteResource:(NSManagedObject <NOResourceProtocol> *)resource
                     session:(NSManagedObject <NOSessionProtocol> *)session
+                    context:(NSManagedObjectContext *)context
                    response:(RouteResponse *)response;
 
 /**

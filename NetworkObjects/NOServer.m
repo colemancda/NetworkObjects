@@ -67,13 +67,13 @@ NSString *const NOServerSearchPathOption = @"NOServerSearchPathOption";
 
 @synthesize resourcePaths = _resourcePaths;
 
+#pragma mark - Initialization
+
 -(instancetype)initWithOptions:(NSDictionary *)options
 
 {
     self = [super init];
     if (self) {
-        
-        // Obligatory Options
         
         self.store = options[NOServerStoreOption];
         
@@ -83,27 +83,17 @@ NSString *const NOServerSearchPathOption = @"NOServerSearchPathOption";
         
         self.clientEntityName = options[NOServerClientEntityNameOption];
         
-        if (!self.store || !self.userEntityName || !self.sessionEntityName || !self.clientEntityName) {
-            
-            [NSException raise:NSInvalidArgumentException
-                        format:@"Required initialzation options were not included in the options dictionary"];
-            
-            return nil;
-        }
+        self.loginPath = options[NOServerLoginPathOption];
         
-        // Optional Options
-        
-        _loginPath = options[NOServerLoginPathOption];
-        
-        _searchPath = options[NOServerSearchPathOption];
+        self.searchPath = options[NOServerSearchPathOption];
         
         // HTTP Server
         
-        _httpServer = [[NOHTTPServer alloc] init];
+        self.httpServer = [[NOHTTPServer alloc] init];
         
-        _httpServer.server = self;
+        self.httpServer.server = self;
         
-        _httpServer.connectionClass = [NOHTTPConnection class];
+        self.httpServer.connectionClass = [NOHTTPConnection class];
         
         [self setupServerRoutes];
         
