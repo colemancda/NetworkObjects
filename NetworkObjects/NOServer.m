@@ -45,21 +45,108 @@ NSString *const NOServerSearchPathOption = @"NOServerSearchPathOption";
 
 @end
 
+@interface NOServer (Internal)
+
+/**
+ Sets up the internal HTTP server's REST URL scheme.
+ 
+ */
+
+-(void)setupServerRoutes;
+
+
+// code for handling incoming REST requests (authentication, returning JSON data)
+
+/**
+ All incoming REST requests (except for authentication requests) are handled by this method, which passes code execution to another of the following methods based on the request.
+ 
+ */
+-(void)handleRequest:(RouteRequest *)request
+forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
+          resourceID:(NSNumber *)resourceID
+            function:(NSString *)functionName
+            isSearch:(BOOL)isSearch
+            response:(RouteResponse *)response;
+
+@end
+
+@interface NOServer (Serial)
+
+/**
+ Request handler for POST REST requests
+ 
+ */
+-(void)handleCreateResourceWithEntityDescription:(NSEntityDescription *)entityDescription
+                                         session:(NSManagedObject<NOSessionProtocol> *)session
+                                   initialValues:(NSDictionary *)initialValues
+                                        response:(RouteResponse *)response;
+
+/**
+ Request handler for function REST requests
+ 
+ */
+-(void)handleFunction:(NSString *)functionName
+   recievedJsonObject:(NSDictionary *)recievedJsonObject
+             resource:(NSManagedObject<NOResourceProtocol> *)resource
+              session:(NSManagedObject<NOSessionProtocol> *)session
+             response:(RouteResponse *)response;
+
+/**
+ Request handler for PUT REST requests
+ 
+ */
+-(void)handleEditResource:(NSManagedObject <NOResourceProtocol> *)resource
+       recievedJsonObject:(NSDictionary *)recievedJsonObject
+                  session:(NSManagedObject <NOSessionProtocol> *)session
+                 response:(RouteResponse *)response;
+
+/**
+ Request handler for GET REST requests
+ 
+ */
+-(void)handleGetResource:(NSManagedObject <NOResourceProtocol> *)resource
+                 session:(NSManagedObject <NOSessionProtocol> *)session
+                response:(RouteResponse *)response;
+
+/**
+ Request handler for DELETE REST requests
+ 
+ */
+-(void)handleDeleteResource:(NSManagedObject <NOResourceProtocol> *)resource
+                    session:(NSManagedObject <NOSessionProtocol> *)session
+                   response:(RouteResponse *)response;
+
+/**
+ Request handler for authentication requests
+ 
+ */
+-(void)handleLoginWithRequest:(RouteRequest *)request
+                     response:(RouteResponse *)response;
+
+/** Request handler for search requests **/
+
+-(void)handleSearchForResourceWithEntityDescription:(NSEntityDescription *)entityDescription
+                                            session:(NSManagedObject<NOSessionProtocol> *)session
+                                   searchParameters:(NSDictionary *)searchParameters
+                                           response:(RouteResponse *)response;
+
+@end
+
 @interface NOServer ()
 
-@property NOStore *store;
+@property (nonatomic) NOStore *store;
 
-@property NOHTTPServer *httpServer;
+@property (nonatomic) NOHTTPServer *httpServer;
 
-@property NSString *sessionEntityName;
+@property (nonatomic) NSString *sessionEntityName;
 
-@property NSString *userEntityName;
+@property (nonatomic) NSString *userEntityName;
 
-@property NSString *clientEntityName;
+@property (nonatomic) NSString *clientEntityName;
 
-@property NSString *loginPath;
+@property (nonatomic) NSString *loginPath;
 
-@property NSString *searchPath;
+@property (nonatomic) NSString *searchPath;
 
 @end
 
@@ -429,6 +516,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         NSManagedObject<NOResourceProtocol> *resource = [self.store resourceWithEntityDescription:entityDescription
                                                                                        resourceID:resourceID
                                                                                    shouldPrefetch:shouldPrefetch
+                                                                                          context:con
                                                                                             error:&fetchError];
         
         // internal error

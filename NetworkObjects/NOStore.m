@@ -14,7 +14,6 @@
 
 -(NSManagedObject<NOResourceProtocol> *)concurrentlyCreateNewResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                                                                                    context:(NSManagedObjectContext **)context;
--(BOOL)concurrentlySave:(NSError **)error;
 
 @end
 
@@ -136,14 +135,20 @@
         
         context.persistentStoreCoordinator = [_concurrencyDelegate newPersistentStoreCoordinatorForStore:self];
         
-        *contextPointer = context;
+        if (contextPointer) {
+            
+            *contextPointer = context;
+        }
     }
     
     else {
         
         context = _context;
         
-        *contextPointer = _context;
+        if (contextPointer) {
+            
+            *contextPointer = context;
+        }
     }
     
     // get the key of the resourceID attribute
@@ -206,14 +211,21 @@
         
         context.persistentStoreCoordinator = [_concurrencyDelegate newPersistentStoreCoordinatorForStore:self];
         
-        *contextPointer = context;
+        if (contextPointer) {
+            
+            *contextPointer = context;
+        }
+        
     }
     
     else {
         
         context = _context;
         
-        *contextPointer = _context;
+        if (contextPointer) {
+            
+            *contextPointer = context;
+        }
     }
     
     // get the key of the resourceID attribute
@@ -252,12 +264,17 @@
 }
 
 -(NSManagedObject<NOResourceProtocol> *)newResourceWithEntityDescription:(NSEntityDescription *)entityDescription
-                                                                 context:(NSManagedObjectContext *__autoreleasing *)context;
+                                                                 context:(NSManagedObjectContext *__autoreleasing *)contextPointer;
 {
     if (_concurrencyDelegate) {
         
         return [self concurrentlyCreateNewResourceWithEntityDescription:entityDescription
-                                                                context:context];
+                                                                context:contextPointer];
+    }
+    
+    if (contextPointer) {
+        
+        *contextPointer = _context;
     }
     
     // use the operationQueue for this resource
@@ -311,8 +328,12 @@
 {
     if (_concurrencyDelegate) {
         
-        return [self concurrentlySave:error];
+        [NSException raise:NSInternalInconsistencyException
+                    format:@"Cannot call %@ on NOStore configured for concurrent persistance.", NSStringFromSelector(_cmd)];
+        
+        return NO;
     }
+    
     
     BOOL savedLastIDs;
     
@@ -400,20 +421,41 @@
 
 @end
 
+#pragma mark - Categories
+
 @implementation NOStore (Concurrency)
 
 -(NSManagedObject<NOResourceProtocol> *)concurrentlyCreateNewResourceWithEntityDescription:(NSEntityDescription *)entityDescription
-                                                                                   context:(NSManagedObjectContext **)context
+                                                                                   context:(NSManagedObjectContext **)contextPointer
 {
+    NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
     
+    context.undoManager = nil;
     
-}
-
-
--(BOOL)concurrentlySave:(NSError **)error
-{
+    context.persistentStoreCoordinator = [_concurrencyDelegate newPersistentStoreCoordinatorForStore:self];
     
+    if (contextPointer) {
+        
+        *contextPointer = context;
+    }
     
+    __block NSManagedObject<NOResourceProtocol> *resource;
+    
+    [context performBlockAndWait:^{
+        
+        resource = [NSEntityDescription insertNewObjectForEntityForName:entityDescription.name
+                                                                                      inManagedObjectContext:context];
+        
+        // set resource ID
+        
+        NSString *resourceIDKey = [NSClassFromString(entityDescription.managedObjectClassName) resourceIDKey];
+       
+        [resource setValue:[_concurrencyDelegate store:self newResourceIDForResource:entityDescription.name]
+                    forKey:resourceIDKey];
+        
+    }];
+    
+    return resource;
 }
 
 @end

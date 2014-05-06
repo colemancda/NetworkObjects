@@ -17,7 +17,7 @@ typedef NS_ENUM(NSUInteger, NOStoreErrorCode) {
     NOStoreBackupLastIDsSaveError = 100,
     
     /** Could not restore the previous archive of @c _lastResourceIDs. */
-    NOStoreRestoreLastIDsSaveError
+    NOStoreRestoreLastIDsSaveError,
 };
 
 /**
@@ -78,6 +78,9 @@ typedef NS_ENUM(NSUInteger, NOStoreErrorCode) {
 
 #pragma mark - Actions
 
+/** Used to save the store's context and lastResourceIDs dictionary. Concurrent stores create a new context for each request and is not responsible for saving them.
+ */
+
 -(BOOL)save:(NSError **)error;
 
 #pragma mark - Manage Resource Instances
@@ -113,10 +116,6 @@ typedef NS_ENUM(NSUInteger, NOStoreErrorCode) {
 
 -(NSPersistentStoreCoordinator *)newPersistentStoreCoordinatorForStore:(NOStore *)store;
 
--(void)store:(NOStore *)store didCreateNewResource:(NSString *)resourceName withResourceID:(NSNumber *)resourceID;
+-(NSNumber *)store:(NOStore *)store newResourceIDForResource:(NSString *)resourceName;
 
--(NSNumber *)store:(NOStore *)store lastResourceIDForResource:(NSString *)resourceName;
-
--(BOOL)store:(NOStore *)store saveResourceIDsWithError:(NSError **)error;
- 
 @end
