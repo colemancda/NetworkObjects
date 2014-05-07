@@ -120,7 +120,8 @@ static void *KVOContext = &KVOContext;
     SNSAppDelegate *appDelegate = [NSApp delegate];
     
     [appDelegate.store newResourceWithEntityDescription:self.selectedEntity
-                                                context:nil];
+                                                context:nil
+                                                  error:nil];
     
     [self.arrayController fetch:nil];
 }

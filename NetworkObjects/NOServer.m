@@ -648,6 +648,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
 
 -(void)handleDeleteResource:(NSManagedObject<NOResourceProtocol> *)resource
                     session:(NSManagedObject<NOSessionProtocol> *)session
+                    context:(NSManagedObjectContext *)context
                    response:(RouteResponse *)response
 {
     // check permissions
@@ -667,11 +668,41 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         return;
     }
     
-    [_store.context performBlock:^{
-       
-        [_store.context deleteObject:resource];
+    if (self.store.concurrentPersistanceDelegate) {
         
-    }];
+        __block NSError *error;
+        
+        [context performBlockAndWait:^{
+            
+            [context deleteObject:resource];
+            
+            [context save:&error];
+            
+        }];
+        
+        if (error) {
+            
+            if (_errorDelegate) {
+                
+                [_errorDelegate server:self didEncounterInternalError:error forRequestType:NOServerDELETERequestType];
+            }
+            
+            response.statusCode = NOServerInternalServerErrorStatusCode;
+            
+            return;
+        }
+        
+    }
+    
+    else {
+        
+        [context performBlock:^{
+            
+            [context deleteObject:resource];
+            
+        }];
+        
+    }
     
     response.statusCode = NOServerOKStatusCode;
 }
@@ -719,10 +750,11 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     __block NSError *error;
     
-    NSManagedObjectContext *context = self.store.context;
+    NSManagedObjectContext *context;
     
     NSManagedObject<NOResourceProtocol> *newResource = [_store newResourceWithEntityDescription:entityDescription
-                                                                                        context:nil];
+                                                                                        context:&context
+                                                                                          error:&error];
     
     if (!newResource) {;
         
@@ -736,33 +768,33 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         return;
     }
     
-    [context performBlockAndWait:^{
-       
-        [newResource wasCreatedBySession:session];
-        
-    }];
-    
     // validate initial values
     
     __block NOServerStatusCode applyInitialValuesStatusCode;
     
     [context performBlockAndWait:^{
         
+        [newResource wasCreatedBySession:session];
+        
         applyInitialValuesStatusCode = [self verifyEditResource:newResource
                                              recievedJsonObject:initialValues
                                                         session:session
+                                                        context:context
                                                           error:&error];
     }];
     
     if (applyInitialValuesStatusCode != NOServerOKStatusCode) {
         
-        // delete created object
+        // delete created object if serial
         
-        [self.store.context performBlockAndWait:^{
-           
-            [self.store.context deleteObject:newResource];
+        if (!self.store.concurrentPersistanceDelegate) {
             
-        }];
+            [self.store.context performBlockAndWait:^{
+                
+                [self.store.context deleteObject:newResource];
+                
+            }];
+        }
         
         if (applyInitialValuesStatusCode == NOServerInternalServerErrorStatusCode) {
             
@@ -794,6 +826,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         [self setValuesForResource:newResource
                     fromJSONObject:initialValues
                            session:session
+                           context:context
                              error:&error];
         
         // get resourceID
@@ -811,6 +844,29 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         response.statusCode = NOServerInternalServerErrorStatusCode;
         
         return;
+    }
+    
+    // save if concurrent
+    
+    if (self.store.concurrentPersistanceDelegate) {
+        
+        [context performBlockAndWait:^{
+            
+            [context save:&error];
+            
+        }];
+        
+        if (error) {
+            
+            if (_errorDelegate) {
+                
+                [_errorDelegate server:self didEncounterInternalError:error forRequestType:NOServerGETRequestType];
+            }
+            
+            response.statusCode = NOServerInternalServerErrorStatusCode;
+            
+            return;
+        }
     }
     
     NSDictionary *jsonObject = @{resourceIDKey: resourceID};
@@ -840,10 +896,9 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
    recievedJsonObject:(NSDictionary *)recievedJsonObject
              resource:(NSManagedObject<NOResourceProtocol> *)resource
               session:(NSManagedObject<NOSessionProtocol> *)session
+              context:(NSManagedObjectContext *)context
              response:(RouteResponse *)response
 {
-    NSManagedObjectContext *context = self.store.context;
-    
     __block BOOL canPerformFunction;
     
     [context performBlockAndWait:^{
@@ -873,6 +928,31 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                               recievedJsonObject:recievedJsonObject
                                         response:&jsonResponse];
     }];
+    
+    // save if concurrent
+    
+    if (self.store.concurrentPersistanceDelegate) {
+        
+        __block NSError *error;
+        
+        [context performBlockAndWait:^{
+            
+            [context save:&error];
+            
+        }];
+        
+        if (error) {
+            
+            if (_errorDelegate) {
+                
+                [_errorDelegate server:self didEncounterInternalError:error forRequestType:NOServerGETRequestType];
+            }
+            
+            response.statusCode = NOServerInternalServerErrorStatusCode;
+            
+            return;
+        }
+    }
     
     if (jsonResponse) {
         
