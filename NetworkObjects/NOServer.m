@@ -47,19 +47,19 @@ NSString *const NOServerSearchPathOption = @"NOServerSearchPathOption";
 
 @interface NOServer ()
 
-@property NOStore *store;
+@property (nonatomic) NOStore *store;
 
-@property NOHTTPServer *httpServer;
+@property (nonatomic) NOHTTPServer *httpServer;
 
-@property NSString *sessionEntityName;
+@property (nonatomic) NSString *sessionEntityName;
 
-@property NSString *userEntityName;
+@property (nonatomic) NSString *userEntityName;
 
-@property NSString *clientEntityName;
+@property (nonatomic) NSString *clientEntityName;
 
-@property NSString *loginPath;
+@property (nonatomic) NSString *loginPath;
 
-@property NSString *searchPath;
+@property (nonatomic) NSString *searchPath;
 
 @end
 
@@ -67,13 +67,13 @@ NSString *const NOServerSearchPathOption = @"NOServerSearchPathOption";
 
 @synthesize resourcePaths = _resourcePaths;
 
+#pragma mark - Initialization
+
 -(instancetype)initWithOptions:(NSDictionary *)options
 
 {
     self = [super init];
     if (self) {
-        
-        // Obligatory Options
         
         self.store = options[NOServerStoreOption];
         
@@ -83,27 +83,17 @@ NSString *const NOServerSearchPathOption = @"NOServerSearchPathOption";
         
         self.clientEntityName = options[NOServerClientEntityNameOption];
         
-        if (!self.store || !self.userEntityName || !self.sessionEntityName || !self.clientEntityName) {
-            
-            [NSException raise:NSInvalidArgumentException
-                        format:@"Required initialzation options were not included in the options dictionary"];
-            
-            return nil;
-        }
+        self.loginPath = options[NOServerLoginPathOption];
         
-        // Optional Options
-        
-        _loginPath = options[NOServerLoginPathOption];
-        
-        _searchPath = options[NOServerSearchPathOption];
+        self.searchPath = options[NOServerSearchPathOption];
         
         // HTTP Server
         
-        _httpServer = [[NOHTTPServer alloc] init];
+        self.httpServer = [[NOHTTPServer alloc] init];
         
-        _httpServer.server = self;
+        self.httpServer.server = self;
         
-        _httpServer.connectionClass = [NOHTTPConnection class];
+        self.httpServer.connectionClass = [NOHTTPConnection class];
         
         [self setupServerRoutes];
         
@@ -120,11 +110,6 @@ NSString *const NOServerSearchPathOption = @"NOServerSearchPathOption";
 
 - (id)init
 {
-    [NSException raise:@"Wrong initialization method"
-                format:@"You cannot use %@ with '-%@', you have to use '-%@'",
-     self,
-     NSStringFromSelector(_cmd),
-     NSStringFromSelector(@selector(initWithOptions:))];
     return nil;
 }
 
@@ -135,9 +120,8 @@ NSString *const NOServerSearchPathOption = @"NOServerSearchPathOption";
     _httpServer.port = port;
     
     NSError *startServerError;
-    BOOL didStart = [_httpServer start:&startServerError];
     
-    if (!didStart) {
+    if (![_httpServer start:&startServerError]) {
         
         return startServerError;
     }
@@ -325,9 +309,12 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     NSString *token = request.headers[@"Authorization"];
     
+    NSManagedObjectContext *sessionContext;
+    
     NSError *error;
     
     __block NSManagedObject<NOSessionProtocol> *session = [self sessionWithToken:token
+                                                                         context:&sessionContext
                                                                            error:&error];
     
     if (error) {
@@ -356,7 +343,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         
         NSDictionary *headers = response.headers.copy;
         
-        [_store.context performBlockAndWait:^{
+        [sessionContext performBlockAndWait:^{
             
             if ([session canUseSessionFromIP:ipAddress
                               requestHeaders:headers]) {
@@ -426,9 +413,13 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         NSError *fetchError;
         
         // get the resource
+        
+        NSManagedObjectContext *context;
+        
         NSManagedObject<NOResourceProtocol> *resource = [self.store resourceWithEntityDescription:entityDescription
                                                                                        resourceID:resourceID
                                                                                    shouldPrefetch:shouldPrefetch
+                                                                                          context:&context
                                                                                             error:&fetchError];
         
         // internal error
@@ -461,6 +452,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
               recievedJsonObject:jsonObject
                         resource:resource
                          session:session
+                         context:context
                         response:response];
             
             return;
@@ -480,6 +472,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
             [self handleEditResource:resource
                   recievedJsonObject:jsonObject
                              session:session
+                             context:context
                             response:response];
             
             return;
@@ -489,6 +482,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
             
             [self handleGetResource:resource
                             session:session
+                            context:context
                            response:response];
             
             return;
@@ -498,6 +492,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
             
             [self handleDeleteResource:resource
                                session:session
+                               context:context
                               response:response];
             
             return;
@@ -510,11 +505,10 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
 
 -(void)handleGetResource:(NSManagedObject<NOResourceProtocol> *)resource
                  session:(NSManagedObject<NOSessionProtocol> *)session
+                 context:(NSManagedObjectContext *)context
                 response:(RouteResponse *)response
 {
     __block NOResourcePermission resourcePermission;
-    
-    NSManagedObjectContext *context = self.store.context;
     
     [context performBlockAndWait:^{
         
@@ -566,10 +560,9 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
 -(void)handleEditResource:(NSManagedObject<NOResourceProtocol> *)resource
        recievedJsonObject:(NSDictionary *)recievedJsonObject
                   session:(NSManagedObject<NOSessionProtocol> *)session
+                  context:(NSManagedObjectContext *)context
                  response:(RouteResponse *)response
 {
-    NSManagedObjectContext *context = self.store.context;
-    
     // check if jsonObject has keys that dont exist in this resource or lacks permission to edit...
     
     __block NOServerStatusCode editStatusCode;
@@ -581,6 +574,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         editStatusCode = [self verifyEditResource:resource
                                recievedJsonObject:recievedJsonObject
                                           session:session
+                                          context:context
                                             error:&error];
     }];
     
@@ -608,6 +602,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         [self setValuesForResource:resource
                     fromJSONObject:recievedJsonObject
                            session:session
+                           context:context
                              error:&error];
         
     }];
@@ -624,12 +619,36 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         return;
     }
     
+    // save if store is concurrent...
+    
+    if (self.store.concurrentPersistanceDelegate) {
+        
+        [context performBlockAndWait:^{
+           
+            [context save:&error];
+            
+        }];
+        
+        if (error) {
+            
+            if (_errorDelegate) {
+                
+                [_errorDelegate server:self didEncounterInternalError:error forRequestType:NOServerPUTRequestType];
+            }
+            
+            response.statusCode = NOServerInternalServerErrorStatusCode;
+            
+            return;
+        }
+    }
+    
     // return 200
     response.statusCode = NOServerOKStatusCode;
 }
 
 -(void)handleDeleteResource:(NSManagedObject<NOResourceProtocol> *)resource
                     session:(NSManagedObject<NOSessionProtocol> *)session
+                    context:(NSManagedObjectContext *)context
                    response:(RouteResponse *)response
 {
     // check permissions
@@ -649,7 +668,41 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         return;
     }
     
-    [_store deleteResource:resource];
+    if (self.store.concurrentPersistanceDelegate) {
+        
+        __block NSError *error;
+        
+        [context performBlockAndWait:^{
+            
+            [context deleteObject:resource];
+            
+            [context save:&error];
+            
+        }];
+        
+        if (error) {
+            
+            if (_errorDelegate) {
+                
+                [_errorDelegate server:self didEncounterInternalError:error forRequestType:NOServerDELETERequestType];
+            }
+            
+            response.statusCode = NOServerInternalServerErrorStatusCode;
+            
+            return;
+        }
+        
+    }
+    
+    else {
+        
+        [context performBlock:^{
+            
+            [context deleteObject:resource];
+            
+        }];
+        
+    }
     
     response.statusCode = NOServerOKStatusCode;
 }
@@ -697,9 +750,11 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     __block NSError *error;
     
-    NSManagedObjectContext *context = self.store.context;
+    NSManagedObjectContext *context;
     
-    NSManagedObject<NOResourceProtocol> *newResource = [_store newResourceWithEntityDescription:entityDescription];
+    NSManagedObject<NOResourceProtocol> *newResource = [_store newResourceWithEntityDescription:entityDescription
+                                                                                        context:&context
+                                                                                          error:&error];
     
     if (!newResource) {;
         
@@ -713,29 +768,33 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         return;
     }
     
-    [context performBlockAndWait:^{
-       
-        [newResource wasCreatedBySession:session];
-        
-    }];
-    
     // validate initial values
     
     __block NOServerStatusCode applyInitialValuesStatusCode;
     
     [context performBlockAndWait:^{
         
+        [newResource wasCreatedBySession:session];
+        
         applyInitialValuesStatusCode = [self verifyEditResource:newResource
                                              recievedJsonObject:initialValues
                                                         session:session
+                                                        context:context
                                                           error:&error];
     }];
     
     if (applyInitialValuesStatusCode != NOServerOKStatusCode) {
         
-        // delete created object
+        // delete created object if serial
         
-        [self.store deleteResource:newResource];
+        if (!self.store.concurrentPersistanceDelegate) {
+            
+            [self.store.context performBlockAndWait:^{
+                
+                [self.store.context deleteObject:newResource];
+                
+            }];
+        }
         
         if (applyInitialValuesStatusCode == NOServerInternalServerErrorStatusCode) {
             
@@ -767,6 +826,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         [self setValuesForResource:newResource
                     fromJSONObject:initialValues
                            session:session
+                           context:context
                              error:&error];
         
         // get resourceID
@@ -784,6 +844,29 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         response.statusCode = NOServerInternalServerErrorStatusCode;
         
         return;
+    }
+    
+    // save if concurrent
+    
+    if (self.store.concurrentPersistanceDelegate) {
+        
+        [context performBlockAndWait:^{
+            
+            [context save:&error];
+            
+        }];
+        
+        if (error) {
+            
+            if (_errorDelegate) {
+                
+                [_errorDelegate server:self didEncounterInternalError:error forRequestType:NOServerGETRequestType];
+            }
+            
+            response.statusCode = NOServerInternalServerErrorStatusCode;
+            
+            return;
+        }
     }
     
     NSDictionary *jsonObject = @{resourceIDKey: resourceID};
@@ -813,10 +896,9 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
    recievedJsonObject:(NSDictionary *)recievedJsonObject
              resource:(NSManagedObject<NOResourceProtocol> *)resource
               session:(NSManagedObject<NOSessionProtocol> *)session
+              context:(NSManagedObjectContext *)context
              response:(RouteResponse *)response
 {
-    NSManagedObjectContext *context = self.store.context;
-    
     __block BOOL canPerformFunction;
     
     [context performBlockAndWait:^{
@@ -846,6 +928,31 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                               recievedJsonObject:recievedJsonObject
                                         response:&jsonResponse];
     }];
+    
+    // save if concurrent
+    
+    if (self.store.concurrentPersistanceDelegate) {
+        
+        __block NSError *error;
+        
+        [context performBlockAndWait:^{
+            
+            [context save:&error];
+            
+        }];
+        
+        if (error) {
+            
+            if (_errorDelegate) {
+                
+                [_errorDelegate server:self didEncounterInternalError:error forRequestType:NOServerGETRequestType];
+            }
+            
+            response.statusCode = NOServerInternalServerErrorStatusCode;
+            
+            return;
+        }
+    }
     
     if (jsonResponse) {
         
@@ -938,9 +1045,9 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     __block NSError *error;
     
-    NSManagedObjectContext *context = self.store.context;
+    NSManagedObjectContext *context;
     
-    NSManagedObject<NOClientProtocol> *client = (NSManagedObject<NOClientProtocol> *)[_store resourceWithEntityDescription:clientEntityDescription resourceID:clientResourceID shouldPrefetch:YES error:&error];
+    NSManagedObject<NOClientProtocol> *client = (NSManagedObject<NOClientProtocol> *)[_store resourceWithEntityDescription:clientEntityDescription resourceID:clientResourceID shouldPrefetch:YES context:&context error:&error];
     
     if (error) {
         
@@ -978,7 +1085,33 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     }
     
     // create new session with client
-    __block NSManagedObject<NOSessionProtocol> *session = (NSManagedObject<NOSessionProtocol> *)[_store newResourceWithEntityDescription:sessionEntityDescription];
+    
+    __block NSManagedObject<NOSessionProtocol> *session = (NSManagedObject<NOSessionProtocol> *)[_store newResourceWithEntityDescription:sessionEntityDescription context:nil error:&error];
+    
+    // concurrency...
+    
+    if (error) {
+        
+        if (_errorDelegate) {
+            
+            [_errorDelegate server:self didEncounterInternalError:error forRequestType:NOServerLoginRequestType];
+        }
+        
+        response.statusCode = NOServerInternalServerErrorStatusCode;
+        
+        return;
+    }
+    
+    if (self.store.concurrentPersistanceDelegate) {
+        
+        // session was created on another context
+        
+        [context performBlockAndWait:^{
+           
+            session = (NSManagedObject<NOSessionProtocol> *)[context objectWithID:session.objectID];
+            
+        }];
+    }
     
     [context performBlockAndWait:^{;
         
@@ -1101,6 +1234,29 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         [jsonObject addEntriesFromDictionary:@{sessionUserKey: userResourceID}];
     }
     
+    // save immediately if concurrent
+    
+    if (self.store.concurrentPersistanceDelegate) {
+        
+        [context performBlockAndWait:^{
+           
+            [context save:&error];
+            
+        }];
+        
+        if (error) {
+            
+            if (_errorDelegate) {
+                
+                [_errorDelegate server:self didEncounterInternalError:error forRequestType:NOServerLoginRequestType];
+            }
+            
+            response.statusCode = NOServerInternalServerErrorStatusCode;
+            
+            return;
+        }
+    }
+    
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonObject
                                                        options:self.prettyPrintJSON
                                                          error:&error];
@@ -1149,7 +1305,16 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     // create context
     
-    NSManagedObjectContext *context = self.store.context;
+    NSManagedObjectContext *context;
+    
+    if (self.store.concurrentPersistanceDelegate) {
+        
+        context = [self.store newConcurrentContext];
+    }
+    else {
+        
+        context = self.store.context;
+    }
     
     // add search parameters...
     
@@ -1236,6 +1401,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                 NSManagedObject *fetchedResource = [self.store resourceWithEntityDescription:entityDescription
                                                                                   resourceID:resourceID
                                                                               shouldPrefetch:NO
+                                                                                     context:nil
                                                                                        error:&error];
                 
                 if (error) {
@@ -1259,15 +1425,23 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                 
                 // value must belong to local context
                 
-                __block NSManagedObject *resource;
-                
-                [context performBlockAndWait:^{
+                if (self.store.concurrentPersistanceDelegate) {
                     
-                    resource = [context objectWithID:fetchedResource.objectID];
+                    __block NSManagedObject *resource;
                     
-                }];
-                
-                value = resource;
+                    [context performBlockAndWait:^{
+                        
+                        resource = [context objectWithID:fetchedResource.objectID];
+                        
+                    }];
+                    
+                    value = resource;
+                    
+                }
+                else {
+                    
+                    value = fetchedResource;
+                }
                 
             }
             
@@ -1299,6 +1473,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                     NSManagedObject *resource = [self.store resourceWithEntityDescription:entityDescription
                                                                                       resourceID:resourceID
                                                                                   shouldPrefetch:NO
+                                                                                        context:nil
                                                                                            error:&error];
                     
                     if (error) {
@@ -1320,7 +1495,22 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                         return;
                     }
                     
-                    [value addObject:resource];
+                    // if concurrent, then get resource on main private context
+                    
+                    if (self.store.concurrentPersistanceDelegate) {
+                        
+                        [context performBlockAndWait:^{
+                           
+                            [value addObject:[context objectWithID:resource.objectID]];
+                            
+                        }];
+                    }
+                    
+                    else {
+                        
+                        [value addObject:resource];
+
+                    }
                 }
             }
         }
@@ -1625,6 +1815,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
 #pragma mark - Common methods for handlers
 
 -(NSManagedObject<NOSessionProtocol> *)sessionWithToken:(NSString *)token
+                                                context:(NSManagedObjectContext **)contextPointer
                                                   error:(NSError **)error
 {
     // determine the attribute name the entity uses for storing tokens
@@ -1639,11 +1830,34 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     NSFetchRequest *sessionWithTokenFetchRequest = [NSFetchRequest fetchRequestWithEntityName:self.sessionEntityName];
     
+    if (self.store.concurrentPersistanceDelegate) {
+        
+        sessionWithTokenFetchRequest.includesPropertyValues = NO;
+    }
+    else {
+        
+        sessionWithTokenFetchRequest.returnsObjectsAsFaults = NO;
+    }
+    
     sessionWithTokenFetchRequest.predicate = [NSComparisonPredicate predicateWithLeftExpression:[NSExpression expressionForKeyPath:tokenKey] rightExpression:[NSExpression expressionForConstantValue:token] modifier:NSDirectPredicateModifier type:NSEqualToPredicateOperatorType options:NSNormalizedPredicateOption];
     
     sessionWithTokenFetchRequest.fetchLimit = 1;
     
-    NSManagedObjectContext *context = self.store.context;
+    NSManagedObjectContext *context;
+    
+    if (self.store.concurrentPersistanceDelegate) {
+        
+        context = [self.store newConcurrentContext];
+    }
+    else {
+        
+        context = self.store.context;
+    }
+    
+    if (contextPointer) {
+        
+        *contextPointer = context;
+    }
     
     __block NSManagedObject <NOSessionProtocol> *session;
     
@@ -1778,6 +1992,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
 -(BOOL)setValuesForResource:(NSManagedObject<NOResourceProtocol> *)resource
              fromJSONObject:(NSDictionary *)jsonObject
                     session:(NSManagedObject<NOSessionProtocol> *)session
+                    context:(NSManagedObjectContext *)context
                       error:(NSError **)error
 {
     for (NSString *key in jsonObject) {
@@ -1810,11 +2025,16 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                 
                 // get the destination resource
                 
-                NSManagedObject<NOResourceProtocol> *destinationResource = [_store resourceWithEntityDescription:relationshipDescription.destinationEntity resourceID:destinationResourceID shouldPrefetch:NO error:error];
+                NSManagedObject<NOResourceProtocol> *destinationResource = [_store resourceWithEntityDescription:relationshipDescription.destinationEntity resourceID:destinationResourceID shouldPrefetch:NO context:nil error:error];
                 
                 if (*error) {
                     
                     return NO;
+                }
+                
+                if (self.store.concurrentPersistanceDelegate) {
+                    
+                    destinationResource = (NSManagedObject <NOResourceProtocol>*)[context objectWithID:destinationResource.objectID];
                 }
                 
                 [resource setValue:destinationResource
@@ -1832,11 +2052,24 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                 NSArray *newRelationshipValues = [_store fetchResources:relationshipDescription.entity
                                                        withResourceIDs:resourceIDs
                                                         shouldPrefetch:NO
+                                                                context:nil
                                                                  error:error];
                 
                 if (*error) {
                     
                     return NO;
+                }
+                
+                if (self.store.concurrentPersistanceDelegate) {
+                    
+                    NSMutableArray *contextValues = [[NSMutableArray alloc] init];
+                    
+                    for (NSManagedObject *value in newRelationshipValues) {
+                        
+                        [contextValues addObject:[context objectWithID:value.objectID]];
+                    }
+                    
+                    newRelationshipValues = [NSArray arrayWithArray:contextValues];
                 }
                 
                 // replace collection
@@ -1859,6 +2092,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
 -(NOServerStatusCode)verifyEditResource:(NSManagedObject<NOResourceProtocol> *)resource
                      recievedJsonObject:(NSDictionary *)recievedJsonObject
                                 session:(NSManagedObject<NOSessionProtocol> *)session
+                                context:(NSManagedObjectContext *)context
                                   error:(NSError **)error
 {
     if ([resource permissionForSession:session] < NOEditPermission) {
@@ -1947,7 +2181,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                     
                     NSNumber *destinationResourceID = (NSNumber *)jsonValue;
                     
-                    NSManagedObject<NOResourceProtocol> *newValue = [_store resourceWithEntityDescription:relationshipDescription.entity resourceID:destinationResourceID shouldPrefetch:NO error:error];
+                    NSManagedObject<NOResourceProtocol> *newValue = [_store resourceWithEntityDescription:relationshipDescription.entity resourceID:destinationResourceID shouldPrefetch:NO context:nil error:error];
                     
                     if (*error) {
                         
@@ -1957,6 +2191,13 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                     if (!newValue) {
                         
                         return NOServerBadRequestStatusCode;
+                    }
+                    
+                    // concurrency context
+                    
+                    if (self.store.concurrentPersistanceDelegate) {
+                        
+                        newValue = (NSManagedObject<NOResourceProtocol> *)[context objectWithID:newValue.objectID];
                     }
                     
                     // destination resource must be visible
@@ -1990,6 +2231,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                     NSArray *newValue = [_store fetchResources:relationshipDescription.entity
                                                withResourceIDs:jsonReplacementCollection
                                                 shouldPrefetch:NO
+                                                       context:nil
                                                          error:error];
                     
                     if (*error) {
@@ -2007,6 +2249,14 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                     for (NSNumber *destinationResourceID in jsonReplacementCollection) {
                         
                         NSManagedObject<NOResourceProtocol> *destinationResource = newValue[[jsonReplacementCollection indexOfObject:destinationResourceID]];
+                        
+                        // concurrency context
+                        
+                        if (self.store.concurrentPersistanceDelegate) {
+                            
+                            destinationResource = (NSManagedObject<NOResourceProtocol> *)[context objectWithID:destinationResource.objectID];
+                        }
+
                         
                         // check permissions
                         if ([destinationResource permissionForSession:session] < NOReadOnlyPermission) {

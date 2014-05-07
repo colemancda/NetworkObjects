@@ -31,7 +31,7 @@ extern NSString *const NOServerLoginPathOption;
 extern NSString *const NOServerSearchPathOption;
 
 /**
- This is the server class that broadcasts the Core Data entities in a NOStore (called Resources) over the network.
+ This is the server class that broadcasts the Core Data entities in a NOStore (called Resources) over the network. You should always stop the server before modifying a nonatomic property.
  */
 
 @interface NOServer : NSObject
@@ -160,7 +160,7 @@ extern NSString *const NOServerSearchPathOption;
 
 -(void)setupServerRoutes;
 
-#pragma mark - Responding to requests
+#pragma mark - Request Handlers
 
 // code for handling incoming REST requests (authentication, returning JSON data)
 
@@ -192,6 +192,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
    recievedJsonObject:(NSDictionary *)recievedJsonObject
              resource:(NSManagedObject<NOResourceProtocol> *)resource
               session:(NSManagedObject<NOSessionProtocol> *)session
+              context:(NSManagedObjectContext *)context
              response:(RouteResponse *)response;
 
 /**
@@ -201,6 +202,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
 -(void)handleEditResource:(NSManagedObject <NOResourceProtocol> *)resource
        recievedJsonObject:(NSDictionary *)recievedJsonObject
                   session:(NSManagedObject <NOSessionProtocol> *)session
+                  context:(NSManagedObjectContext *)context
                  response:(RouteResponse *)response;
 
 /**
@@ -209,6 +211,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
  */
 -(void)handleGetResource:(NSManagedObject <NOResourceProtocol> *)resource
                  session:(NSManagedObject <NOSessionProtocol> *)session
+                 context:(NSManagedObjectContext *)context
                 response:(RouteResponse *)response;
 
 /**
@@ -217,6 +220,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
  */
 -(void)handleDeleteResource:(NSManagedObject <NOResourceProtocol> *)resource
                     session:(NSManagedObject <NOSessionProtocol> *)session
+                    context:(NSManagedObjectContext *)context
                    response:(RouteResponse *)response;
 
 /**
@@ -244,10 +248,11 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
  
  */
 -(NSManagedObject<NOSessionProtocol> *)sessionWithToken:(NSString *)token
+                                                context:(NSManagedObjectContext **)context
                                                   error:(NSError **)error;
 
 /**
- Generates a JSON representation of a Resource based on the session requesting the Resource instance.
+ Generates a JSON representation of a Resource based on the session requesting the Resource instance. Must be called inside in the same thread as its context.
  
  @param resource A NSManagedObject subclass that conforms to NOResourceProtocol. This is the Resource that will be represented by the returned JSON dictionary.
  
@@ -283,6 +288,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
 -(NOServerStatusCode)verifyEditResource:(NSManagedObject<NOResourceProtocol> *)resource
                      recievedJsonObject:(NSDictionary *)recievedJsonObject
                                 session:(NSManagedObject<NOSessionProtocol> *)session
+                                context:(NSManagedObjectContext *)context
                                   error:(NSError **)error;
 
 /**
@@ -293,6 +299,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
 -(BOOL)setValuesForResource:(NSManagedObject<NOResourceProtocol> *)resource
              fromJSONObject:(NSDictionary *)jsonObject
                     session:(NSManagedObject<NOSessionProtocol> *)session
+                    context:(NSManagedObjectContext *)context
                       error:(NSError **)error;
 
 

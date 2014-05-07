@@ -10,6 +10,14 @@
 #import "NOStore.h"
 #import "NetworkObjectsConstants.h"
 
+@interface NOStore (Concurrency)
+
+-(NSManagedObject<NOResourceProtocol> *)concurrentlyCreateNewResourceWithEntityDescription:(NSEntityDescription *)entityDescription
+                                                                                   context:(NSManagedObjectContext **)context
+                                                                                     error:(NSError **)error;
+
+@end
+
 @implementation NOStore
 
 #pragma mark - Initialization
@@ -84,10 +92,46 @@
     return self;
 }
 
+-(instancetype)initWithConcurrentPersistanceDelegate:(id<NOStoreConcurrentPersistanceDelegate>)delegate;
+{
+    if (!delegate) {
+        
+        return nil;
+    }
+    
+    self = [super init];
+    
+    if (self) {
+        
+        _concurrentPersistanceDelegate = delegate;
+        
+    }
+    
+    return self;
+}
+
 - (id)init
 {
     return [[NOStore alloc] initWithPersistentStoreCoordinator:nil
                                                     lastIDsURL:nil];
+}
+
+#pragma mark - Generate new instances
+
+-(NSManagedObjectContext *)newConcurrentContext
+{
+    if (!_concurrentPersistanceDelegate) {
+        
+        return nil;
+    }
+    
+    NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+    
+    context.undoManager = nil;
+    
+    context.persistentStoreCoordinator = [_concurrentPersistanceDelegate newPersistentStoreCoordinatorForStore:self];
+    
+    return context;
 }
 
 #pragma mark - Manipulate Resources
@@ -95,8 +139,33 @@
 -(NSManagedObject<NOResourceProtocol> *)resourceWithEntityDescription:(NSEntityDescription *)entityDescription
                                                            resourceID:(NSNumber *)resourceID
                                                        shouldPrefetch:(BOOL)shouldPrefetch
-                                                                error:(NSError *__autoreleasing *)error;
+                                                              context:(NSManagedObjectContext *__autoreleasing *)contextPointer
+                                                                error:(NSError *__autoreleasing *)error
 {
+    NSManagedObjectContext *context;
+    
+    if (_concurrentPersistanceDelegate) {
+        
+        // setup new context
+        
+        context = [self newConcurrentContext];
+        
+        if (contextPointer) {
+            
+            *contextPointer = context;
+        }
+    }
+    
+    else {
+        
+        context = _context;
+        
+        if (contextPointer) {
+            
+            *contextPointer = context;
+        }
+    }
+    
     // get the key of the resourceID attribute
     
     NSString *resourceIDKey = [NSClassFromString(entityDescription.managedObjectClassName) resourceIDKey];
@@ -122,10 +191,10 @@
     
     __block NSArray *result;
     
-    [_context performBlockAndWait:^{
+    [context performBlockAndWait:^{
         
-        result = [_context executeFetchRequest:fetchRequest
-                                         error:error];
+        result = [context executeFetchRequest:fetchRequest
+                                        error:error];
         
     }];
     
@@ -142,8 +211,34 @@
 -(NSArray *)fetchResources:(NSEntityDescription *)entity
            withResourceIDs:(NSArray *)resourceIDs
             shouldPrefetch:(BOOL)shouldPrefetch
-                     error:(NSError **)error
+                   context:(NSManagedObjectContext *__autoreleasing *)contextPointer
+                     error:(NSError *__autoreleasing *)error
 {
+    NSManagedObjectContext *context;
+    
+    if (_concurrentPersistanceDelegate) {
+        
+        // setup new context
+        
+        context = [self newConcurrentContext];
+        
+        if (contextPointer) {
+            
+            *contextPointer = context;
+        }
+        
+    }
+    
+    else {
+        
+        context = _context;
+        
+        if (contextPointer) {
+            
+            *contextPointer = context;
+        }
+    }
+    
     // get the key of the resourceID attribute
     
     NSString *resourceIDKey = [NSClassFromString(entity.managedObjectClassName) resourceIDKey];
@@ -169,9 +264,9 @@
     
     __block NSArray *result;
     
-    [_context performBlockAndWait:^{
+    [context performBlockAndWait:^{
         
-        result = [_context executeFetchRequest:fetchRequest
+        result = [context executeFetchRequest:fetchRequest
                                          error:error];
         
     }];
@@ -179,19 +274,22 @@
     return result;
 }
 
--(void)deleteResource:(NSManagedObject<NOResourceProtocol> *)resource;
+-(NSManagedObject<NOResourceProtocol> *)newResourceWithEntityDescription:(NSEntityDescription *)entityDescription
+                                                                 context:(NSManagedObjectContext *__autoreleasing *)contextPointer
+                                                                   error:(NSError *__autoreleasing *)error;
 {
-    // no need to wait for block to end since we dont return a value
+    if (_concurrentPersistanceDelegate) {
+        
+        return [self concurrentlyCreateNewResourceWithEntityDescription:entityDescription
+                                                                context:contextPointer
+                                                                  error:error];
+    }
     
-    [_context performBlock:^{
+    if (contextPointer) {
         
-        [_context deleteObject:resource];
-        
-    }];
-}
-
--(NSManagedObject<NOResourceProtocol> *)newResourceWithEntityDescription:(NSEntityDescription *)entityDescription;
-{
+        *contextPointer = _context;
+    }
+    
     // use the operationQueue for this resource
     
     NSOperationQueue *operationQueue = _createResourcesQueues[entityDescription.name];
@@ -241,6 +339,15 @@
 
 -(BOOL)save:(NSError **)error
 {
+    if (_concurrentPersistanceDelegate) {
+        
+        [NSException raise:NSInternalInconsistencyException
+                    format:@"Cannot call %@ on NOStore configured for concurrent persistance.", NSStringFromSelector(_cmd)];
+        
+        return NO;
+    }
+    
+    
     BOOL savedLastIDs;
     
     NSDictionary *lastIDsBackup;
@@ -326,3 +433,45 @@
 }
 
 @end
+
+#pragma mark - Categories
+
+@implementation NOStore (Concurrency)
+
+-(NSManagedObject<NOResourceProtocol> *)concurrentlyCreateNewResourceWithEntityDescription:(NSEntityDescription *)entityDescription
+                                                                                   context:(NSManagedObjectContext **)contextPointer
+                                                                                     error:(NSError *__autoreleasing *)error
+{
+    NSManagedObjectContext *context = [self newConcurrentContext];
+    
+    if (contextPointer) {
+        
+        *contextPointer = context;
+    }
+    
+    __block NSManagedObject<NOResourceProtocol> *resource;
+    
+    [context performBlockAndWait:^{
+        
+        resource = [NSEntityDescription insertNewObjectForEntityForName:entityDescription.name
+                                                                                      inManagedObjectContext:context];
+        
+        // set resource ID
+        
+        NSString *resourceIDKey = [NSClassFromString(entityDescription.managedObjectClassName) resourceIDKey];
+       
+        [resource setValue:[_concurrentPersistanceDelegate store:self newResourceIDForResource:entityDescription.name]
+                    forKey:resourceIDKey];
+        
+        if (![context save:error]) {
+            
+            resource = nil;
+        }
+        
+    }];
+    
+    return resource;
+}
+
+@end
+
