@@ -309,9 +309,12 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     
     NSString *token = request.headers[@"Authorization"];
     
+    NSManagedObjectContext *sessionContext;
+    
     NSError *error;
     
     __block NSManagedObject<NOSessionProtocol> *session = [self sessionWithToken:token
+                                                                         context:&sessionContext
                                                                            error:&error];
     
     if (error) {
@@ -340,7 +343,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         
         NSDictionary *headers = response.headers.copy;
         
-        [_store.context performBlockAndWait:^{
+        [sessionContext performBlockAndWait:^{
             
             if ([session canUseSessionFromIP:ipAddress
                               requestHeaders:headers]) {
@@ -410,10 +413,13 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         NSError *fetchError;
         
         // get the resource
+        
+        NSManagedObjectContext *context;
+        
         NSManagedObject<NOResourceProtocol> *resource = [self.store resourceWithEntityDescription:entityDescription
                                                                                        resourceID:resourceID
                                                                                    shouldPrefetch:shouldPrefetch
-                                                                                          context:nil
+                                                                                          context:&context
                                                                                             error:&fetchError];
         
         // internal error
@@ -446,6 +452,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
               recievedJsonObject:jsonObject
                         resource:resource
                          session:session
+                         context:context
                         response:response];
             
             return;
@@ -465,6 +472,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
             [self handleEditResource:resource
                   recievedJsonObject:jsonObject
                              session:session
+                             context:context
                             response:response];
             
             return;
@@ -474,6 +482,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
             
             [self handleGetResource:resource
                             session:session
+                            context:context
                            response:response];
             
             return;
@@ -483,6 +492,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
             
             [self handleDeleteResource:resource
                                session:session
+                               context:context
                               response:response];
             
             return;
@@ -495,11 +505,10 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
 
 -(void)handleGetResource:(NSManagedObject<NOResourceProtocol> *)resource
                  session:(NSManagedObject<NOSessionProtocol> *)session
+                 context:(NSManagedObjectContext *)context
                 response:(RouteResponse *)response
 {
     __block NOResourcePermission resourcePermission;
-    
-    NSManagedObjectContext *context = self.store.context;
     
     [context performBlockAndWait:^{
         
@@ -1716,6 +1725,15 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
     // search the store for session with token
     
     NSFetchRequest *sessionWithTokenFetchRequest = [NSFetchRequest fetchRequestWithEntityName:self.sessionEntityName];
+    
+    if (self.store.concurrentPersistanceDelegate) {
+        
+        sessionWithTokenFetchRequest.includesPropertyValues = NO;
+    }
+    else {
+        
+        sessionWithTokenFetchRequest.returnsObjectsAsFaults = NO;
+    }
     
     sessionWithTokenFetchRequest.predicate = [NSComparisonPredicate predicateWithLeftExpression:[NSExpression expressionForKeyPath:tokenKey] rightExpression:[NSExpression expressionForConstantValue:token] modifier:NSDirectPredicateModifier type:NSEqualToPredicateOperatorType options:NSNormalizedPredicateOption];
     

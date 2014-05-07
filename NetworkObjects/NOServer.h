@@ -173,7 +173,6 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
           resourceID:(NSNumber *)resourceID
             function:(NSString *)functionName
             isSearch:(BOOL)isSearch
-             context:(NSManagedObjectContext *)context
             response:(RouteResponse *)response;
 
 /**
@@ -183,7 +182,6 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
 -(void)handleCreateResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                                          session:(NSManagedObject<NOSessionProtocol> *)session
                                    initialValues:(NSDictionary *)initialValues
-                                         context:(NSManagedObjectContext *)context
                                         response:(RouteResponse *)response;
 
 /**
@@ -254,7 +252,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                                                   error:(NSError **)error;
 
 /**
- Generates a JSON representation of a Resource based on the session requesting the Resource instance.
+ Generates a JSON representation of a Resource based on the session requesting the Resource instance. Must be called inside in the same thread as its context.
  
  @param resource A NSManagedObject subclass that conforms to NOResourceProtocol. This is the Resource that will be represented by the returned JSON dictionary.
  
@@ -269,7 +267,6 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
  */
 
 -(NSDictionary *)JSONRepresentationOfResource:(NSManagedObject<NOResourceProtocol> *)resource
-                                      context:(NSManagedObjectContext *)context
                                    forSession:(NSManagedObject<NOSessionProtocol> *)session;
 
 /**
