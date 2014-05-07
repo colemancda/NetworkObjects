@@ -560,10 +560,9 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
 -(void)handleEditResource:(NSManagedObject<NOResourceProtocol> *)resource
        recievedJsonObject:(NSDictionary *)recievedJsonObject
                   session:(NSManagedObject<NOSessionProtocol> *)session
+                  context:(NSManagedObjectContext *)context
                  response:(RouteResponse *)response
 {
-    NSManagedObjectContext *context = self.store.context;
-    
     // check if jsonObject has keys that dont exist in this resource or lacks permission to edit...
     
     __block NOServerStatusCode editStatusCode;
@@ -575,6 +574,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         editStatusCode = [self verifyEditResource:resource
                                recievedJsonObject:recievedJsonObject
                                           session:session
+                                          context:context
                                             error:&error];
     }];
     
@@ -602,6 +602,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         [self setValuesForResource:resource
                     fromJSONObject:recievedJsonObject
                            session:session
+                           context:context
                              error:&error];
         
     }];
@@ -616,6 +617,29 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
         response.statusCode = NOServerInternalServerErrorStatusCode;
         
         return;
+    }
+    
+    // save if store is concurrent...
+    
+    if (self.store.concurrentPersistanceDelegate) {
+        
+        [context performBlockAndWait:^{
+           
+            [context save:&error];
+            
+        }];
+        
+        if (error) {
+            
+            if (_errorDelegate) {
+                
+                [_errorDelegate server:self didEncounterInternalError:error forRequestType:NOServerPUTRequestType];
+            }
+            
+            response.statusCode = NOServerInternalServerErrorStatusCode;
+            
+            return;
+        }
     }
     
     // return 200
@@ -1888,6 +1912,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
 -(BOOL)setValuesForResource:(NSManagedObject<NOResourceProtocol> *)resource
              fromJSONObject:(NSDictionary *)jsonObject
                     session:(NSManagedObject<NOSessionProtocol> *)session
+                    context:(NSManagedObjectContext *)context
                       error:(NSError **)error
 {
     for (NSString *key in jsonObject) {
@@ -1927,6 +1952,11 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                     return NO;
                 }
                 
+                if (self.store.concurrentPersistanceDelegate) {
+                    
+                    destinationResource = (NSManagedObject <NOResourceProtocol>*)[context objectWithID:destinationResource.objectID];
+                }
+                
                 [resource setValue:destinationResource
                             forKey:key];
                 
@@ -1950,6 +1980,18 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                     return NO;
                 }
                 
+                if (self.store.concurrentPersistanceDelegate) {
+                    
+                    NSMutableArray *contextValues = [[NSMutableArray alloc] init];
+                    
+                    for (NSManagedObject *value in newRelationshipValues) {
+                        
+                        [contextValues addObject:[context objectWithID:value.objectID]];
+                    }
+                    
+                    newRelationshipValues = [NSArray arrayWithArray:contextValues];
+                }
+                
                 // replace collection
                 [resource setValue:newRelationshipValues
                             forKey:key];
@@ -1970,6 +2012,7 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
 -(NOServerStatusCode)verifyEditResource:(NSManagedObject<NOResourceProtocol> *)resource
                      recievedJsonObject:(NSDictionary *)recievedJsonObject
                                 session:(NSManagedObject<NOSessionProtocol> *)session
+                                context:(NSManagedObjectContext *)context
                                   error:(NSError **)error
 {
     if ([resource permissionForSession:session] < NOEditPermission) {
@@ -2070,6 +2113,13 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                         return NOServerBadRequestStatusCode;
                     }
                     
+                    // concurrency context
+                    
+                    if (self.store.concurrentPersistanceDelegate) {
+                        
+                        newValue = (NSManagedObject<NOResourceProtocol> *)[context objectWithID:newValue.objectID];
+                    }
+                    
                     // destination resource must be visible
                     if ([newValue permissionForSession:session] < NOReadOnlyPermission) {
                         
@@ -2119,6 +2169,14 @@ forResourceWithEntityDescription:(NSEntityDescription *)entityDescription
                     for (NSNumber *destinationResourceID in jsonReplacementCollection) {
                         
                         NSManagedObject<NOResourceProtocol> *destinationResource = newValue[[jsonReplacementCollection indexOfObject:destinationResourceID]];
+                        
+                        // concurrency context
+                        
+                        if (self.store.concurrentPersistanceDelegate) {
+                            
+                            destinationResource = (NSManagedObject<NOResourceProtocol> *)[context objectWithID:destinationResource.objectID];
+                        }
+
                         
                         // check permissions
                         if ([destinationResource permissionForSession:session] < NOReadOnlyPermission) {
