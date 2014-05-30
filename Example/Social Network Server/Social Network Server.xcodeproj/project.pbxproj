@@ -472,6 +472,9 @@
 				LastUpgradeCheck = 0500;
 				ORGANIZATIONNAME = ColemanCDA;
 				TargetAttributes = {
+					6E11BCE218AFD13900FF75FB = {
+						DevelopmentTeam = 4W79SG34MW;
+					};
 					6E11BD0318AFD13A00FF75FB = {
 						TestTargetID = 6E11BCE218AFD13900FF75FB;
 					};
@@ -739,6 +742,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -758,6 +762,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
