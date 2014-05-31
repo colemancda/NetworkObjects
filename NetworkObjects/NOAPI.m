@@ -114,7 +114,7 @@ NSString *const NOAPISearchPathOption = @"NOAPISearchPathOption";
 
 - (id)init
 {
-    return nil;
+    return [self initWithOptions:nil];
 }
 
 #pragma mark - Requests
