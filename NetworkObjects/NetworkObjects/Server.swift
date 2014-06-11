@@ -7,12 +7,18 @@
 //
 
 import Foundation
+import CoreData
 
 protocol ServerDelegate {
     
     func didEncounterInternalError(server: Server, error: NSError, requestType: Integer)
     
     
+}
+
+protocol ServerDataSource {
+    
+    func managedObjectModel(forServer server: Server) -> NSManagedObjectModel
 }
 
 class HTTPServer: RoutingHTTPServer {
@@ -25,27 +31,52 @@ class HTTPServer: RoutingHTTPServer {
     
 }
 
+class ServerConnection: RoutingConnection {
+    
+    
+}
+
 class Server {
     
-    let store: ServerStore
+    // Server constants
     
-    let httpServer: HTTPServer
+    let dataSource: AnyObject
     
     let delegate: AnyObject?
     
     let sslIdentityAndCertificates: NSArray?
     
+    // Server Variables
+    
     var prettyPrintJSON: Bool = false;
+    
+    // Lazy Properties
+    
+    @lazy var httpServer: HTTPServer = {
+       
+        let httpServer = HTTPServer(server: self);
+        
+        return httpServer
+        
+    }()
+    
+    @lazy var resourcePaths: Dictionary<String, NSEntityDescription> = {
+       
+        let urls: Dictionary;
+        
+        for
+        
+    }()
     
     init(store: ServerStore, delegate: AnyObject?, sslIdentityAndCertificates: NSArray?){
         
         self.store = store
         self.delegate = delegate
         self.sslIdentityAndCertificates = sslIdentityAndCertificates
+        
     }
     
     func start(port: Integer){
-        
         
         
     }
