@@ -19,7 +19,7 @@ class HTTPServer: RoutingHTTPServer {
     
     let server: Server
     
-    init(server){
+    init(server: Server){
         self.server = server;
     }
     
@@ -35,9 +35,9 @@ class Server {
     
     let sslIdentityAndCertificates: NSArray?
     
-    var prettyPrintJSON: Bool = NO;
+    var prettyPrintJSON: Bool = false;
     
-    init(store, delegate, sslIdentityAndCertificates){
+    init(store: ServerStore, delegate: AnyObject?, sslIdentityAndCertificates: NSArray?){
         
         self.store = store
         self.delegate = delegate
