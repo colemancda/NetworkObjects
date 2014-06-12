@@ -13,13 +13,17 @@ import CoreData
     
     func didEncounterInternalError(server: Server, error: NSError, requestType: NSInteger)
     
-    
+    // Search
+    func canPerformSearchForServer(server: Server, request: RouteRequest, entity: NSEntityDescription) -> Bool
+    func didPerformSearchForServer(server: Server, request: RouteRequest, entity: NSEntityDescription)
 }
 
 @objc protocol ServerDataSource {
     
-    func resourceIDForNewResourceInstance(server: Server, entity: NSEntityDescription) -> Int
-    func managedObjectContextForRequest
+    func managedObjectContextForServer(server: Server, request: RouteRequest) -> NSManagedObjectContext
+    func resourceIDForNewResourceInstanceForServer(server: Server, entity: NSEntityDescription) -> NSInteger
+    func resourceIDKeyForServer(server: Server, entity: NSEntityDescription) -> NSString
+    
 }
 
 class HTTPServer: RoutingHTTPServer {
@@ -53,8 +57,6 @@ class ServerConnection: RoutingConnection {
     
     let searchPath: String?
     
-    let includeModelVersion: Bool
-    
     // Lazy Properties
     
     @lazy var httpServer: HTTPServer = {
@@ -63,7 +65,7 @@ class ServerConnection: RoutingConnection {
        
         let httpServer = HTTPServer(server: self);
         
-        // add resource instances handlers
+        // add resource global handlers
         
         for (path, entity) in self.resourcePaths {
             
@@ -75,14 +77,22 @@ class ServerConnection: RoutingConnection {
                 
                 let block: (RouteRequest?, RouteResponse?) -> Void = {
                     
-                    request, response in
-                    
-                    
-                    
+                    request, response in self.handleSearch(request!, entity: entity, response: response!)
                 }
                 
                 httpServer.post(searchPathExpression, withBlock:block)
             }
+            
+            // create new resource
+            
+            let newInstancePathExpression = "/" + path
+            
+            let block: (RouteRequest?, RouteResponse?) -> Void = {
+                
+                request, response in self.handleCreateNewInstance(request!, entity: entity, response: response!)
+            }
+            
+            httpServer.post(newInstancePathExpression, withBlock:block)
             
         }
         
@@ -93,12 +103,8 @@ class ServerConnection: RoutingConnection {
     @lazy var resourcePaths: Dictionary<String, NSEntityDescription> = {
         
         var urls = Dictionary<String, NSEntityDescription>();
-
-        let dataSource = self.dataSource as ServerDataSource
         
-        let model = self.dataSource.managedObjectModel(forServer: self)
-        
-        for object: AnyObject in model.entities {
+        for object: AnyObject in self.managedObjectModel.entities {
             
             if let entity = object as? NSEntityDescription {
                 
@@ -136,7 +142,24 @@ class ServerConnection: RoutingConnection {
     func stop(){
         
         
+        
     }
     
+    // handler functions
+    
+    func handleSearch(request: RouteRequest, entity: NSEntityDescription, response: RouteResponse) {
+        
+        let delegate = self.delegate as ServerDelegate
+        
+        if !delegate.canPerformSearchForServer(self, request: request, entity: entity) {
+            
+            response.statusCode = 400;
+        }
+        
+    }
+    
+    func handleCreateNewInstance(request: RouteRequest, entity: NSEntityDescription, response: RouteResponse) {
+        
+    }
     
 }
