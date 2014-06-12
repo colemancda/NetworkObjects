@@ -75,24 +75,52 @@ class ServerConnection: RoutingConnection {
                 
                 let searchPathExpression = "/" + self.searchPath! + "/" + path
                 
-                let block: (RouteRequest?, RouteResponse?) -> Void = {
+                let searchBlock: (RouteRequest?, RouteResponse?) -> Void = {
                     
                     request, response in self.handleSearch(request!, entity: entity, response: response!)
                 }
                 
-                httpServer.post(searchPathExpression, withBlock:block)
+                httpServer.post(searchPathExpression, withBlock:searchBlock)
             }
             
             // create new resource
             
             let newInstancePathExpression = "/" + path
             
-            let block: (RouteRequest?, RouteResponse?) -> Void = {
+            let newInstanceBlock: (RouteRequest?, RouteResponse?) -> Void = {
                 
                 request, response in self.handleCreateNewInstance(request!, entity: entity, response: response!)
             }
             
-            httpServer.post(newInstancePathExpression, withBlock:block)
+            httpServer.post(newInstancePathExpression, withBlock:newInstanceBlock)
+            
+            // instance handlers
+            
+            let instancePathExpression = NSString(format:"{^/%@/(\\d+)}", path)
+            
+            let instanceBlock: (RouteRequest?, RouteResponse?) -> Void = {
+                
+                request, response in
+                
+                // get the resource ID
+                
+                let captures = request.params["captures"]
+                
+                let capturedResourceID = captures[0]
+                
+            }
+            
+            // GET (read resource)
+            
+            httpServer.get(instancePathExpression, withBlock: instanceBlock)
+            
+            // PUT (edit resource)
+            
+            httpServer.put(instancePathExpression, withBlock: instanceBlock)
+            
+            // DELETE (delete resource)
+            
+            httpServer.delete(instancePathExpression, withBlock: instanceBlock)
             
         }
         
