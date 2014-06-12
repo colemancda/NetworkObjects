@@ -18,7 +18,8 @@ import CoreData
 
 @objc protocol ServerDataSource {
     
-    func managedObjectModel(forServer server: Server) -> NSManagedObjectModel
+    func resourceIDForNewResourceInstance(server: Server, entity: NSEntityDescription) -> Int
+    func managedObjectContextForRequest
 }
 
 class HTTPServer: RoutingHTTPServer {
@@ -44,17 +45,46 @@ class ServerConnection: RoutingConnection {
     
     let delegate: AnyObject?
     
+    let managedObjectModel: NSManagedObjectModel
+    
     let sslIdentityAndCertificates: NSArray?
     
-    // Server Variables
+    let prettyPrintJSON: Bool
     
-    var prettyPrintJSON: Bool = false;
+    let searchPath: String?
+    
+    let includeModelVersion: Bool
     
     // Lazy Properties
     
     @lazy var httpServer: HTTPServer = {
+        
+        // create and configure HTTP server
        
         let httpServer = HTTPServer(server: self);
+        
+        // add resource instances handlers
+        
+        for (path, entity) in self.resourcePaths {
+            
+            // add search path
+            
+            if self.searchPath {
+                
+                let searchPathExpression = "/" + self.searchPath! + "/" + path
+                
+                let block: (RouteRequest?, RouteResponse?) -> Void = {
+                    
+                    request, response in
+                    
+                    
+                    
+                }
+                
+                httpServer.post(searchPathExpression, withBlock:block)
+            }
+            
+        }
         
         return httpServer
         
@@ -62,11 +92,9 @@ class ServerConnection: RoutingConnection {
     
     @lazy var resourcePaths: Dictionary<String, NSEntityDescription> = {
         
-        // Could use model.entitiesByName
-       
         var urls = Dictionary<String, NSEntityDescription>();
-        
-        let dataSource = self.dataSource as? ServerDataSource
+
+        let dataSource = self.dataSource as ServerDataSource
         
         let model = self.dataSource.managedObjectModel(forServer: self)
         
@@ -74,26 +102,33 @@ class ServerConnection: RoutingConnection {
             
             if let entity = object as? NSEntityDescription {
                 
-                let entityName: String = entity.name
+                // make sure the entity is not abstract
                 
-                urls[entityName] = entity
+                if !entity.abstract {
+                    
+                    let entityName: String = entity.name
+                    
+                    urls[entityName] = entity
+                }
             }
-            
         }
         
         return urls
         
     }()
     
-    init(dataSource: AnyObject, delegate: AnyObject?, sslIdentityAndCertificates: NSArray?){
+    init(dataSource: AnyObject, delegate: AnyObject?, managedObjectModel: NSManagedObjectModel, sslIdentityAndCertificates: NSArray?, prettyPrintJSON: Bool, searchPath: String?){
         
         self.dataSource = dataSource
         self.delegate = delegate
         self.sslIdentityAndCertificates = sslIdentityAndCertificates
+        self.prettyPrintJSON = prettyPrintJSON
+        self.managedObjectModel = managedObjectModel
+        self.searchPath = searchPath
         
     }
     
-    func start(port: Integer){
+    func start(port: Int){
         
         
     }
