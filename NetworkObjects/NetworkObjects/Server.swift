@@ -9,14 +9,14 @@
 import Foundation
 import CoreData
 
-protocol ServerDelegate {
+@objc protocol ServerDelegate {
     
-    func didEncounterInternalError(server: Server, error: NSError, requestType: Integer)
+    func didEncounterInternalError(server: Server, error: NSError, requestType: NSInteger)
     
     
 }
 
-protocol ServerDataSource {
+@objc protocol ServerDataSource {
     
     func managedObjectModel(forServer server: Server) -> NSManagedObjectModel
 }
@@ -36,7 +36,7 @@ class ServerConnection: RoutingConnection {
     
 }
 
-class Server {
+@objc class Server {
     
     // Server constants
     
@@ -61,16 +61,33 @@ class Server {
     }()
     
     @lazy var resourcePaths: Dictionary<String, NSEntityDescription> = {
-       
-        let urls: Dictionary;
         
-        for
+        // Could use model.entitiesByName
+       
+        var urls = Dictionary<String, NSEntityDescription>();
+        
+        let dataSource = self.dataSource as? ServerDataSource
+        
+        let model = self.dataSource.managedObjectModel(forServer: self)
+        
+        for object: AnyObject in model.entities {
+            
+            if let entity = object as? NSEntityDescription {
+                
+                let entityName: String = entity.name
+                
+                urls[entityName] = entity
+            }
+            
+        }
+        
+        return urls
         
     }()
     
-    init(store: ServerStore, delegate: AnyObject?, sslIdentityAndCertificates: NSArray?){
+    init(dataSource: AnyObject, delegate: AnyObject?, sslIdentityAndCertificates: NSArray?){
         
-        self.store = store
+        self.dataSource = dataSource
         self.delegate = delegate
         self.sslIdentityAndCertificates = sslIdentityAndCertificates
         
