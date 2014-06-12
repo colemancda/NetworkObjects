@@ -99,10 +99,7 @@ NSString *const NOAPISearchPathOption = @"NOAPISearchPathOption";
         
         self.clientEntityName = options[NOAPIClientEntityNameOption];
         
-        if (!self.model || !self.sessionEntityName || !self.userEntityName || !self.clientEntityName) {
-            
-            [NSException raise:NSInvalidArgumentException
-                        format:@"Required initialzation options were not included in the options dictionary"];
+        if (!self.model) {
             
             return nil;
         }
@@ -117,12 +114,7 @@ NSString *const NOAPISearchPathOption = @"NOAPISearchPathOption";
 
 - (id)init
 {
-    [NSException raise:@"Wrong initialization method"
-                format:@"You cannot use %@ with '-%@', you have to use '-%@'",
-     self,
-     NSStringFromSelector(_cmd),
-     NSStringFromSelector(@selector(initWithOptions:))];
-    return nil;
+    return [self initWithOptions:nil];
 }
 
 #pragma mark - Requests
