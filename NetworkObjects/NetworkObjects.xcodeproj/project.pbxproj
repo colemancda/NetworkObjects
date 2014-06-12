@@ -63,17 +63,17 @@
 		6E9DEE451946AF08007C266F /* NetworkObjectsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E9DEE441946AF08007C266F /* NetworkObjectsTests.swift */; };
 		6E9DEE4F1946AF5D007C266F /* Server.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E9DEE4E1946AF5D007C266F /* Server.swift */; };
 		6E9DEE501946AF5D007C266F /* Server.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E9DEE4E1946AF5D007C266F /* Server.swift */; };
-		6E9DEE851946B8DC007C266F /* HTTPResponseProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E9DEE791946B8DC007C266F /* HTTPResponseProxy.h */; };
+		6E9DEE851946B8DC007C266F /* HTTPResponseProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E9DEE791946B8DC007C266F /* HTTPResponseProxy.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6E9DEE861946B8DC007C266F /* HTTPResponseProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9DEE7A1946B8DC007C266F /* HTTPResponseProxy.m */; };
-		6E9DEE871946B8DC007C266F /* Route.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E9DEE7B1946B8DC007C266F /* Route.h */; };
+		6E9DEE871946B8DC007C266F /* Route.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E9DEE7B1946B8DC007C266F /* Route.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6E9DEE881946B8DC007C266F /* Route.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9DEE7C1946B8DC007C266F /* Route.m */; };
 		6E9DEE891946B8DC007C266F /* RouteRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E9DEE7D1946B8DC007C266F /* RouteRequest.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6E9DEE8A1946B8DC007C266F /* RouteRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9DEE7E1946B8DC007C266F /* RouteRequest.m */; };
 		6E9DEE8B1946B8DC007C266F /* RouteResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E9DEE7F1946B8DC007C266F /* RouteResponse.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6E9DEE8C1946B8DC007C266F /* RouteResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9DEE801946B8DC007C266F /* RouteResponse.m */; };
-		6E9DEE8D1946B8DC007C266F /* RoutingConnection.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E9DEE811946B8DC007C266F /* RoutingConnection.h */; };
+		6E9DEE8D1946B8DC007C266F /* RoutingConnection.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E9DEE811946B8DC007C266F /* RoutingConnection.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6E9DEE8E1946B8DC007C266F /* RoutingConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9DEE821946B8DC007C266F /* RoutingConnection.m */; };
-		6E9DEE8F1946B8DC007C266F /* RoutingHTTPServer.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E9DEE831946B8DC007C266F /* RoutingHTTPServer.h */; };
+		6E9DEE8F1946B8DC007C266F /* RoutingHTTPServer.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E9DEE831946B8DC007C266F /* RoutingHTTPServer.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6E9DEE901946B8DC007C266F /* RoutingHTTPServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9DEE841946B8DC007C266F /* RoutingHTTPServer.m */; };
 		6EC9C01F19480C640034D68A /* NetworkObjects-Bridging-Header.h in Headers */ = {isa = PBXBuildFile; fileRef = 6EC9C01E19480C640034D68A /* NetworkObjects-Bridging-Header.h */; };
 /* End PBXBuildFile section */
