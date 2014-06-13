@@ -86,6 +86,8 @@
 		6E38BFAB194AAAEE00FD5513 /* NSDate+ISO8601.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E38BFA7194AAAEE00FD5513 /* NSDate+ISO8601.m */; };
 		6E38BFAC194AAAEE00FD5513 /* NSManagedObject+CoreDataJSONCompatibility.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E38BFA8194AAAEE00FD5513 /* NSManagedObject+CoreDataJSONCompatibility.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		6E38BFAD194AAAEE00FD5513 /* NSManagedObject+CoreDataJSONCompatibility.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E38BFA9194AAAEE00FD5513 /* NSManagedObject+CoreDataJSONCompatibility.m */; };
+		6E73AE50194BC6B5008BE32A /* NOStore.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E73AE4E194BC6B5008BE32A /* NOStore.h */; };
+		6E73AE51194BC6B5008BE32A /* NOStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E73AE4F194BC6B5008BE32A /* NOStore.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -181,6 +183,8 @@
 		6E38BFA7194AAAEE00FD5513 /* NSDate+ISO8601.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDate+ISO8601.m"; sourceTree = "<group>"; };
 		6E38BFA8194AAAEE00FD5513 /* NSManagedObject+CoreDataJSONCompatibility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSManagedObject+CoreDataJSONCompatibility.h"; sourceTree = "<group>"; };
 		6E38BFA9194AAAEE00FD5513 /* NSManagedObject+CoreDataJSONCompatibility.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSManagedObject+CoreDataJSONCompatibility.m"; sourceTree = "<group>"; };
+		6E73AE4E194BC6B5008BE32A /* NOStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NOStore.h; sourceTree = "<group>"; };
+		6E73AE4F194BC6B5008BE32A /* NOStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NOStore.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -225,6 +229,7 @@
 			children = (
 				6E38BEE0194A6F0800FD5513 /* NetworkObjects.h */,
 				6E38BEFD194A710900FD5513 /* NetworkObjectsConstants.h */,
+				6E73AE4D194BC697008BE32A /* Stores */,
 				6E38BFA4194AAAD800FD5513 /* Model */,
 				6E38BF96194A987800FD5513 /* Controllers */,
 				6E38BEFF194A970B00FD5513 /* Dependencies */,
@@ -429,6 +434,15 @@
 			name = Categories;
 			sourceTree = "<group>";
 		};
+		6E73AE4D194BC697008BE32A /* Stores */ = {
+			isa = PBXGroup;
+			children = (
+				6E73AE4E194BC6B5008BE32A /* NOStore.h */,
+				6E73AE4F194BC6B5008BE32A /* NOStore.m */,
+			);
+			name = Stores;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -465,6 +479,7 @@
 				6E38BF7D194A978B00FD5513 /* DDLog+LOGV.h in Headers */,
 				6E38BFA0194A995A00FD5513 /* NOHTTPConnection.h in Headers */,
 				6E38BF79194A978B00FD5513 /* DDFileLogger.h in Headers */,
+				6E73AE50194BC6B5008BE32A /* NOStore.h in Headers */,
 				6E38BF73194A978B00FD5513 /* DDAbstractDatabaseLogger.h in Headers */,
 				6E38BF5B194A976100FD5513 /* HTTPDynamicFileResponse.h in Headers */,
 				6E38BF53194A976100FD5513 /* MultipartMessageHeader.h in Headers */,
@@ -602,6 +617,7 @@
 				6E38BF42194A976100FD5513 /* DDData.m in Sources */,
 				6E38BF7C194A978B00FD5513 /* DDLog.m in Sources */,
 				6E38BF14194A974300FD5513 /* RouteResponse.m in Sources */,
+				6E73AE51194BC6B5008BE32A /* NOStore.m in Sources */,
 				6E38BF7F194A978B00FD5513 /* DDTTYLogger.m in Sources */,
 				6E38BF56194A976100FD5513 /* MultipartMessageHeaderField.m in Sources */,
 				6E38BF5E194A976100FD5513 /* HTTPErrorResponse.m in Sources */,
