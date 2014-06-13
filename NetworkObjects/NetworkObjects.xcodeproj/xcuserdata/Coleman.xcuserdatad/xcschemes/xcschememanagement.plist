@@ -9,24 +9,9 @@
 			<key>orderHint</key>
 			<integer>0</integer>
 		</dict>
-		<key>NetworkObjectsiOS.xcscheme</key>
-		<dict>
-			<key>orderHint</key>
-			<integer>1</integer>
-		</dict>
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
-		<key>6E1FC69F194BC316007D77DD</key>
-		<dict>
-			<key>primary</key>
-			<true/>
-		</dict>
-		<key>6E1FC6A9194BC316007D77DD</key>
-		<dict>
-			<key>primary</key>
-			<true/>
-		</dict>
 		<key>6E38BEDA194A6F0800FD5513</key>
 		<dict>
 			<key>primary</key>
