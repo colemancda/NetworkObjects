@@ -2,8 +2,8 @@
 //  NOHTTPServer.m
 //  NetworkObjects
 //
-//  Created by Alsey Coleman Miller on 6/12/14.
-//  Copyright (c) 2014 ColemanCDA. All rights reserved.
+//  Created by Alsey Coleman Miller on 10/19/13.
+//  Copyright (c) 2013 CDA. All rights reserved.
 //
 
 #import "NOHTTPServer.h"

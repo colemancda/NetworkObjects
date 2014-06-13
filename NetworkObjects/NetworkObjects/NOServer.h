@@ -13,7 +13,7 @@
 @protocol NOServerDelegate;
 @protocol NOServerDataSource;
 
-@class RouteRequest, RouteResponse;
+@class RouteRequest, RouteResponse, NOHTTPServer, NOHTTPServer;
 
 @interface NOServer : NSObject
 {
@@ -58,7 +58,7 @@
 
 @property (nonatomic, readonly) NSArray *sslIdentityAndCertificates;
 
-@property (nonatomic, readonly) 
+@property (nonatomic, readonly) NOHTTPServer *httpServer;
 
 #pragma mark - Server Control
 
@@ -108,6 +108,12 @@
                         resourceID:(NSNumber *)resourceID
                           response:(RouteResponse *)response;
 
+-(void)handleFunctionInstanceRequest:(RouteRequest *)request
+                           forEntity:(NSEntityDescription *)entity
+                          resourceID:(NSNumber *)resourceID
+                        functionName:(NSString *)functionName
+                            response:(RouteResponse *)response;
+
 @end
 
 
@@ -131,6 +137,8 @@
 -(NSString *)server:(NOServer *)server nameOfResourceIDAttributeForEntity:(NSEntityDescription *)entity;
 
 -(NSString *)server:(NOServer *)server resourcePathForEntity:(NSEntityDescription *)entity;
+
+-(NSSet *)server:(NOServer *)server functionsForEntity:(NSEntityDescription *)entity;
 
 @end
 

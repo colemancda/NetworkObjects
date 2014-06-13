@@ -1,16 +1,14 @@
 //
-//  NOHTTPServer.h
+//  NOHTTPConnection.h
 //  NetworkObjects
 //
 //  Created by Alsey Coleman Miller on 10/19/13.
 //  Copyright (c) 2013 CDA. All rights reserved.
 //
 
-#import "RoutingHTTPServer.h"
+#import "RoutingConnection.h"
 @class NOServer;
 
-@interface NOHTTPServer : RoutingHTTPServer
-
-@property (nonatomic) NOServer *server;
+@interface NOHTTPConnection : RoutingConnection
 
 @end

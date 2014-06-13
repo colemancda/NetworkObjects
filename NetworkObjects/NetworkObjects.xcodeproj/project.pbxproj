@@ -76,8 +76,12 @@
 		6E38BF7F194A978B00FD5513 /* DDTTYLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E38BF72194A978B00FD5513 /* DDTTYLogger.m */; };
 		6E38BF83194A97A900FD5513 /* GCDAsyncSocket.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E38BF81194A97A900FD5513 /* GCDAsyncSocket.h */; };
 		6E38BF84194A97A900FD5513 /* GCDAsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E38BF82194A97A900FD5513 /* GCDAsyncSocket.m */; };
-		6E38BF87194A97E100FD5513 /* NOHTTPServer.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E38BF85194A97E100FD5513 /* NOHTTPServer.h */; };
-		6E38BF88194A97E100FD5513 /* NOHTTPServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E38BF86194A97E100FD5513 /* NOHTTPServer.m */; };
+		6E38BF9E194A995A00FD5513 /* RouteResponse+IPAddress.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E38BF98194A995A00FD5513 /* RouteResponse+IPAddress.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		6E38BF9F194A995A00FD5513 /* RouteResponse+IPAddress.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E38BF99194A995A00FD5513 /* RouteResponse+IPAddress.m */; };
+		6E38BFA0194A995A00FD5513 /* NOHTTPConnection.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E38BF9A194A995A00FD5513 /* NOHTTPConnection.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		6E38BFA1194A995A00FD5513 /* NOHTTPConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E38BF9B194A995A00FD5513 /* NOHTTPConnection.m */; };
+		6E38BFA2194A995A00FD5513 /* NOHTTPServer.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E38BF9C194A995A00FD5513 /* NOHTTPServer.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		6E38BFA3194A995A00FD5513 /* NOHTTPServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E38BF9D194A995A00FD5513 /* NOHTTPServer.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -163,8 +167,12 @@
 		6E38BF72194A978B00FD5513 /* DDTTYLogger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DDTTYLogger.m; path = ../../Dependencies/CocoaLumberjack/Lumberjack/DDTTYLogger.m; sourceTree = "<group>"; };
 		6E38BF81194A97A900FD5513 /* GCDAsyncSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GCDAsyncSocket.h; path = ../../Dependencies/CocoaAsyncSocket/GCD/GCDAsyncSocket.h; sourceTree = "<group>"; };
 		6E38BF82194A97A900FD5513 /* GCDAsyncSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GCDAsyncSocket.m; path = ../../Dependencies/CocoaAsyncSocket/GCD/GCDAsyncSocket.m; sourceTree = "<group>"; };
-		6E38BF85194A97E100FD5513 /* NOHTTPServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NOHTTPServer.h; sourceTree = "<group>"; };
-		6E38BF86194A97E100FD5513 /* NOHTTPServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NOHTTPServer.m; sourceTree = "<group>"; };
+		6E38BF98194A995A00FD5513 /* RouteResponse+IPAddress.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RouteResponse+IPAddress.h"; sourceTree = "<group>"; };
+		6E38BF99194A995A00FD5513 /* RouteResponse+IPAddress.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "RouteResponse+IPAddress.m"; sourceTree = "<group>"; };
+		6E38BF9A194A995A00FD5513 /* NOHTTPConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NOHTTPConnection.h; sourceTree = "<group>"; };
+		6E38BF9B194A995A00FD5513 /* NOHTTPConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NOHTTPConnection.m; sourceTree = "<group>"; };
+		6E38BF9C194A995A00FD5513 /* NOHTTPServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NOHTTPServer.h; sourceTree = "<group>"; };
+		6E38BF9D194A995A00FD5513 /* NOHTTPServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NOHTTPServer.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -209,10 +217,7 @@
 			children = (
 				6E38BEE0194A6F0800FD5513 /* NetworkObjects.h */,
 				6E38BEFD194A710900FD5513 /* NetworkObjectsConstants.h */,
-				6E38BEF9194A6F7E00FD5513 /* NOServer.h */,
-				6E38BEFA194A6F7E00FD5513 /* NOServer.m */,
-				6E38BF85194A97E100FD5513 /* NOHTTPServer.h */,
-				6E38BF86194A97E100FD5513 /* NOHTTPServer.m */,
+				6E38BF95194A987100FD5513 /* Server */,
 				6E38BEFF194A970B00FD5513 /* Dependencies */,
 				6E38BEDE194A6F0800FD5513 /* Supporting Files */,
 			);
@@ -373,6 +378,37 @@
 			name = CocoaAsyncSocket;
 			sourceTree = "<group>";
 		};
+		6E38BF95194A987100FD5513 /* Server */ = {
+			isa = PBXGroup;
+			children = (
+				6E38BF96194A987800FD5513 /* Controllers */,
+			);
+			name = Server;
+			sourceTree = "<group>";
+		};
+		6E38BF96194A987800FD5513 /* Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				6E38BF97194A988A00FD5513 /* Categories */,
+				6E38BEF9194A6F7E00FD5513 /* NOServer.h */,
+				6E38BEFA194A6F7E00FD5513 /* NOServer.m */,
+				6E38BF9A194A995A00FD5513 /* NOHTTPConnection.h */,
+				6E38BF9B194A995A00FD5513 /* NOHTTPConnection.m */,
+				6E38BF9C194A995A00FD5513 /* NOHTTPServer.h */,
+				6E38BF9D194A995A00FD5513 /* NOHTTPServer.m */,
+			);
+			name = Controllers;
+			sourceTree = "<group>";
+		};
+		6E38BF97194A988A00FD5513 /* Categories */ = {
+			isa = PBXGroup;
+			children = (
+				6E38BF98194A995A00FD5513 /* RouteResponse+IPAddress.h */,
+				6E38BF99194A995A00FD5513 /* RouteResponse+IPAddress.m */,
+			);
+			name = Categories;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -395,13 +431,14 @@
 				6E38BF7E194A978B00FD5513 /* DDTTYLogger.h in Headers */,
 				6E38BF7D194A978B00FD5513 /* DDLog+LOGV.h in Headers */,
 				6E38BF49194A976100FD5513 /* HTTPConnection.h in Headers */,
+				6E38BFA2194A995A00FD5513 /* NOHTTPServer.h in Headers */,
 				6E38BF4E194A976100FD5513 /* HTTPResponse.h in Headers */,
+				6E38BFA0194A995A00FD5513 /* NOHTTPConnection.h in Headers */,
 				6E38BF79194A978B00FD5513 /* DDFileLogger.h in Headers */,
 				6E38BF73194A978B00FD5513 /* DDAbstractDatabaseLogger.h in Headers */,
 				6E38BF4C194A976100FD5513 /* HTTPMessage.h in Headers */,
 				6E38BF5B194A976100FD5513 /* HTTPDynamicFileResponse.h in Headers */,
 				6E38BF53194A976100FD5513 /* MultipartMessageHeader.h in Headers */,
-				6E38BF87194A97E100FD5513 /* NOHTTPServer.h in Headers */,
 				6E38BF0F194A974300FD5513 /* Route.h in Headers */,
 				6E38BF13194A974300FD5513 /* RouteResponse.h in Headers */,
 				6E38BEFE194A710900FD5513 /* NetworkObjectsConstants.h in Headers */,
@@ -413,6 +450,7 @@
 				6E38BF0D194A974300FD5513 /* HTTPResponseProxy.h in Headers */,
 				6E38BF5D194A976100FD5513 /* HTTPErrorResponse.h in Headers */,
 				6E38BF77194A978B00FD5513 /* DDASLLogger.h in Headers */,
+				6E38BF9E194A995A00FD5513 /* RouteResponse+IPAddress.h in Headers */,
 				6E38BF41194A976100FD5513 /* DDData.h in Headers */,
 				6E38BEE1194A6F0800FD5513 /* NetworkObjects.h in Headers */,
 				6E38BF4F194A976100FD5513 /* HTTPServer.h in Headers */,
@@ -528,6 +566,7 @@
 				6E38BEFC194A6F7E00FD5513 /* NOServer.m in Sources */,
 				6E38BF46194A976100FD5513 /* DDRange.m in Sources */,
 				6E38BF76194A978B00FD5513 /* DDASLLogCapture.m in Sources */,
+				6E38BFA3194A995A00FD5513 /* NOHTTPServer.m in Sources */,
 				6E38BF84194A97A900FD5513 /* GCDAsyncSocket.m in Sources */,
 				6E38BF4A194A976100FD5513 /* HTTPConnection.m in Sources */,
 				6E38BF18194A974300FD5513 /* RoutingHTTPServer.m in Sources */,
@@ -545,9 +584,10 @@
 				6E38BF62194A976100FD5513 /* HTTPRedirectResponse.m in Sources */,
 				6E38BF0E194A974300FD5513 /* HTTPResponseProxy.m in Sources */,
 				6E38BF60194A976100FD5513 /* HTTPFileResponse.m in Sources */,
+				6E38BFA1194A995A00FD5513 /* NOHTTPConnection.m in Sources */,
 				6E38BF50194A976100FD5513 /* HTTPServer.m in Sources */,
-				6E38BF88194A97E100FD5513 /* NOHTTPServer.m in Sources */,
 				6E38BF4D194A976100FD5513 /* HTTPMessage.m in Sources */,
+				6E38BF9F194A995A00FD5513 /* RouteResponse+IPAddress.m in Sources */,
 				6E38BF58194A976100FD5513 /* HTTPAsyncFileResponse.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
