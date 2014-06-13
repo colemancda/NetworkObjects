@@ -299,29 +299,247 @@
             }
         }
         
+        // create predicate
         
+        NSExpression *leftExp = [NSExpression expressionForKeyPath:predicateKey];
         
-        // check for permission
+        NSExpression *rightExp = [NSExpression expressionForConstantValue:value];
         
-        if (self.delegate) {
+        NSPredicateOperatorType operator = predicateOperator.integerValue;
+        
+        // add optional parameters...
+        
+        NSNumber *optionNumber = searchParameters[[NSString stringWithFormat:@"%lu", (unsigned long)NOSearchPredicateOptionParameter]];
+        
+        NSComparisonPredicateOptions options;
+        
+        if ([optionNumber isKindOfClass:[NSNumber class]]) {
             
-            NOServerStatusCode statusCode = [_delegate server:self statusCodeForRequest:request withType:NOServerRequestTypeSearch entity:entity userInfo:userInfo];
+            options = optionNumber.integerValue;
             
-            if (statusCode != NOServerStatusCodeOK) {
-                
-                response.statusCode = statusCode;
-                
-                return;
-            }
+        }
+        else {
+            
+            options = NSNormalizedPredicateOption;
         }
         
+        NSNumber *modifierNumber = searchParameters[[NSString stringWithFormat:@"%lu", (unsigned long)NOSearchPredicateModifierParameter]];
         
+        NSComparisonPredicateModifier modifier;
         
-        // tell delegate
+        if ([modifierNumber isKindOfClass:[NSNumber class]]) {
+            
+            modifier = modifierNumber.integerValue;
+        }
         
+        else {
+            
+            modifier = NSDirectPredicateModifier;
+        }
+        
+        NSComparisonPredicate *predicate = [[NSComparisonPredicate alloc] initWithLeftExpression:leftExp
+                                                                                 rightExpression:rightExp
+                                                                                        modifier:modifier
+                                                                                            type:operator
+                                                                                         options:options];
+        
+        if (!predicate) {
+            
+            response.statusCode = NOServerStatusCodeBadRequest;
+            
+            return;
+        }
+        
+        fetchRequest.predicate = predicate;
         
     }
     
+    // sort descriptors
+    
+    NSArray *sortDescriptorsJSONArray = searchParameters[[NSString stringWithFormat:@"%lu", (unsigned long)NOSearchSortDescriptorsParameter]];
+    
+    NSMutableArray *sortDescriptors;
+    
+    if (sortDescriptorsJSONArray) {
+        
+        if (![sortDescriptorsJSONArray isKindOfClass:[NSArray class]]) {
+            
+            response.statusCode = NOServerStatusCodeBadRequest;
+            
+            return;
+        }
+        
+        if (!sortDescriptorsJSONArray.count) {
+            
+            response.statusCode = NOServerStatusCodeBadRequest;
+            
+            return;
+        }
+        
+        sortDescriptors = [[NSMutableArray alloc] init];
+        
+        for (NSDictionary *sortDescriptorJSON in sortDescriptorsJSONArray) {
+            
+            // validate JSON
+            
+            if (![sortDescriptorJSON isKindOfClass:[NSDictionary class]]) {
+                
+                response.statusCode = NOServerStatusCodeBadRequest;
+                
+                return;
+            }
+            
+            if (sortDescriptorJSON.allKeys.count != 1) {
+                
+                response.statusCode = NOServerStatusCodeBadRequest;
+                
+                return;
+            }
+            
+            NSString *key = sortDescriptorJSON.allKeys.firstObject;
+            
+            NSNumber *ascending = sortDescriptorJSON.allValues.firstObject;
+            
+            // more validation
+            
+            if (![key isKindOfClass:[NSString class]] ||
+                ![ascending isKindOfClass:[NSNumber class]]) {
+                
+                response.statusCode = NOServerStatusCodeBadRequest;
+                
+                return;
+            }
+            
+            NSSortDescriptor *sort = [NSSortDescriptor sortDescriptorWithKey:key
+                                                                   ascending:ascending.boolValue];
+            
+            [sortDescriptors addObject:sort];
+            
+        }
+        
+        fetchRequest.sortDescriptors = sortDescriptors;
+        
+    }
+    
+    // fetch limit
+    
+    NSNumber *fetchLimitNumber = searchParameters[[NSString stringWithFormat:@"%lu", (unsigned long)NOSearchFetchLimitParameter]];
+    
+    if (fetchLimitNumber) {
+        
+        if (![fetchLimitNumber isKindOfClass:[NSNumber class]]) {
+            
+            response.statusCode = NOServerStatusCodeBadRequest;
+            
+            return;
+        }
+        
+        fetchRequest.fetchLimit = fetchLimitNumber.integerValue;
+    }
+    
+    // fetch offset
+    
+    NSNumber *fetchOffsetNumber = searchParameters[[NSString stringWithFormat:@"%lu", (unsigned long)NOSearchFetchOffsetParameter]];
+    
+    if (fetchOffsetNumber) {
+        
+        if (![fetchOffsetNumber isKindOfClass:[NSNumber class]]) {
+            
+            response.statusCode = NOServerStatusCodeBadRequest;
+            
+            return;
+        }
+        
+        
+        fetchRequest.fetchOffset = fetchOffsetNumber.integerValue;
+    }
+    
+    NSNumber *includeSubEntitites = searchParameters[[NSString stringWithFormat:@"%lu", (unsigned long)NOSearchIncludesSubentitiesParameter]];
+    
+    if (includeSubEntitites) {
+        
+        if (![includeSubEntitites isKindOfClass:[NSNumber class]]) {
+            
+            response.statusCode = NOServerStatusCodeBadRequest;
+            
+            return;
+        }
+        
+        fetchRequest.includesSubentities = includeSubEntitites.boolValue;
+    }
+    
+    // check for permission
+    
+    if (self.delegate) {
+        
+        NOServerStatusCode statusCode = [_delegate server:self statusCodeForRequest:request withType:NOServerRequestTypeSearch entity:entity userInfo:userInfo];
+        
+        if (statusCode != NOServerStatusCodeOK) {
+            
+            response.statusCode = statusCode;
+            
+            return;
+        }
+    }
+    
+    // execute fetch request...
+    
+    // prefetch resourceID
+    
+    fetchRequest.returnsObjectsAsFaults = NO;
+    
+    fetchRequest.includesPropertyValues = YES;
+    
+    // execute fetch request...
+    
+    __block NSError *fetchError;
+    
+    __block NSArray *result;
+    
+    [context performBlockAndWait:^{
+        
+        result = [context executeFetchRequest:fetchRequest
+                                        error:&fetchError];
+        
+    }];
+    
+    // invalid fetch
+    
+    if (fetchError) {
+        
+        response.statusCode = NOServerStatusCodeBadRequest;
+        
+        return;
+    }
+    
+    // return the resource IDs of filtered objects
+    
+    NSError *error;
+    
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:result
+                                                       options:self.jsonWritingOption
+                                                         error:&error];
+    
+    if (!jsonData) {
+        
+        if (_delegate) {
+            
+            [_delegate server:self didEncounterInternalError:error forRequest:request withType:NOServerRequestTypeSearch entity:entity userInfo:userInfo];
+        }
+        
+        response.statusCode = NOServerStatusCodeInternalServerError;
+        
+        return;
+    }
+    
+    [response respondWithData:jsonData];
+    
+    // tell delegate
+    
+    if (_delegate) {
+        
+        [_delegate server:self didPerformRequest:request withType:NOServerRequestTypeSearch userInfo:userInfo];
+    }
 }
 
 @end
