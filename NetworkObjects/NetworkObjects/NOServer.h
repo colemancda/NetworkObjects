@@ -124,7 +124,7 @@
 
 @protocol NOServerDelegate <NSObject>
 
--(void)server:(NOServer *)server didEncounterInternalError:(NSError *)error forRequestType:(NOServerRequestType)requestType;
+-(void)server:(NOServer *)server didEncounterInternalError:(NSError *)error forRequest:(RouteRequest *)request withType:(NOServerRequestType)requestType entity:(NSEntityDescription *)entity userInfo:(NSDictionary *)userInfo;
 
 -(NOServerStatusCode)server:(NOServer *)server statusCodeForRequest:(RouteRequest *)request withType:(NOServerRequestType)requestType entity:(NSEntityDescription *)entity userInfo:(NSDictionary *)userInfo;
 

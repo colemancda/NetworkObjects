@@ -114,6 +114,33 @@
 {
     NSDictionary *userInfo;
     
+    // get search parameters
+    
+    NSError *jsonError;
+    
+    NSDictionary *searchParameters = [NSJSONSerialization JSONObjectWithData:request.body options:NSJSONReadingAllowFragments error:&jsonError];
+    
+    if (jsonError) {
+        
+        if (self.delegate) {
+            
+            [self.delegate server:self didEncounterInternalError:jsonError forRequest:request withType:NOServerRequestTypeSearch entity:entity userInfo:userInfo];
+        }
+        
+        response.statusCode = NOServerStatusCodeBadRequest;
+        
+        return;
+    }
+    
+    if (![searchParameters isKindOfClass:[NSDictionary class]]) {
+        
+        response.statusCode = NOServerStatusCodeBadRequest;
+        
+        return;
+    }
+    
+    // check for permission
+    
     if (self.delegate) {
         
         NOServerStatusCode statusCode = [self.delegate server:self statusCodeForRequest:request withType:NOServerRequestTypeSearch entity:entity userInfo:userInfo];
@@ -134,6 +161,58 @@
     
     fetchRequest.sortDescriptors = @[defaultSortDescriptor];
     
+    // add search parameters...
+    
+    // predicate...
+    
+    NSString *predicateKey = searchParameters[[NSString stringWithFormat:@"%lu", (unsigned long)NOSearchPredicateKeyParameter]];
+    
+    id jsonPredicateValue = searchParameters[[NSString stringWithFormat:@"%lu", (unsigned long)NOSearchPredicateValueParameter]];
+    
+    NSNumber *predicateOperator = searchParameters[[NSString stringWithFormat:@"%lu", (unsigned long)NOSearchPredicateOperatorParameter]];
+    
+    if ([predicateKey isKindOfClass:[NSString class]] &&
+        [predicateOperator isKindOfClass:[NSNumber class]] &&
+        jsonPredicateValue) {
+        
+        // validate comparator
+        
+        if (predicateOperator.integerValue == NSCustomSelectorPredicateOperatorType) {
+            
+            response.statusCode = NOServerStatusCodeBadRequest;
+            
+            return;
+        }
+        
+        // convert to Core Data value...
+        
+        id value;
+        
+        // one of these will be nil
+        
+        NSRelationshipDescription *relationshipDescription = entityDescription.relationshipsByName[predicateKey];
+        
+        NSAttributeDescription *attributeDescription = entityDescription.attributesByName[predicateKey];
+        
+        // validate that key is attribute or relationship
+        if (!relationshipDescription && !attributeDescription) {
+            
+            response.statusCode = NOServerBadRequestStatusCode;
+            
+            return;
+        }
+        
+        // attribute value
+        
+        if (attributeDescription) {
+            
+            value = [entityDescription attributeValueForJSONCompatibleValue:jsonPredicateValue
+                                                               forAttribute:predicateKey];
+        }
+        
+        // relationship value
+        
+        
     
 }
 
