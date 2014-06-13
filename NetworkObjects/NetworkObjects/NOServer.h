@@ -25,6 +25,13 @@ extern NSString const* NOServerManagedObjectContextKey;
 
 extern NSString const* NOServerNewValuesKey;
 
+extern NSString const* NOServerFunctionNameKey;
+
+extern NSString const* NOServerFunctionJSONInputKey;
+
+extern NSString const* NOServerFunctionJSONOutputKey;
+
+
 @interface NOServer : NSObject
 {
     NSDictionary *_resourcePaths;
@@ -155,6 +162,10 @@ extern NSString const* NOServerNewValuesKey;
 -(NSString *)server:(NOServer *)server resourcePathForEntity:(NSEntityDescription *)entity;
 
 -(NSSet *)server:(NOServer *)server functionsForEntity:(NSEntityDescription *)entity;
+
+@optional
+
+-(NOServerFunctionCode)server:(NOServer *)server performFunction:(NSString *)functionName forManagedObject:(NSManagedObject *)managedObject context:(NSManagedObjectContext *)context recievedJsonObject:(NSDictionary *)recievedJsonObject response:(NSDictionary **)jsonObjectResponse;
 
 @end
 
