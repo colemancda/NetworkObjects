@@ -341,8 +341,42 @@
                  shouldPrefetch:(BOOL)shouldPrefetch
                           error:(NSError **)error
 {
+    NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:entity.name];
     
+    fetchRequest.fetchLimit = 1;
     
+    fetchRequest.predicate = [NSComparisonPredicate predicateWithLeftExpression:[NSExpression expressionForKeyPath:_resourceIDAttributeName]
+                                                                rightExpression:[NSExpression expressionForConstantValue:resourceID]
+                                                                       modifier:NSDirectPredicateModifier
+                                                                           type:NSEqualToPredicateOperatorType
+                                                                        options:NSNormalizedPredicateOption];
+    
+    if (shouldPrefetch) {
+        
+        fetchRequest.returnsObjectsAsFaults = NO;
+    }
+    else {
+        
+        fetchRequest.includesPropertyValues = NO;
+    }
+    
+    __block NSArray *result;
+    
+    [context performBlockAndWait:^{
+        
+        result = [context executeFetchRequest:fetchRequest
+                                        error:error];
+        
+    }];
+    
+    if (!result) {
+        
+        return nil;
+    }
+    
+    NSManagedObject *resource = result.firstObject;
+    
+    return resource;
 }
 
 @end
