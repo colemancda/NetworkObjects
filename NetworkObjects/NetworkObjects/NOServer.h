@@ -23,6 +23,8 @@ extern NSString const* NOServerManagedObjectKey;
 
 extern NSString const* NOServerManagedObjectContextKey;
 
+extern NSString const* NOServerNewValuesKey;
+
 @interface NOServer : NSObject
 {
     NSDictionary *_resourcePaths;

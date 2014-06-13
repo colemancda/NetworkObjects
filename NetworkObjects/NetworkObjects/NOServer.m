@@ -19,6 +19,9 @@ NSString const* NOServerManagedObjectKey = @"NOServerManagedObjectKey";
 
 NSString const* NOServerManagedObjectContextKey = @"NOServerManagedObjectContextKey";
 
+NSString const* NOServerNewValuesKey = @"NOServerNewValuesKey";
+
+
 @interface NOServer (Internal)
 
 @property (nonatomic, readonly) NSJSONWritingOptions jsonWritingOption;
@@ -778,20 +781,15 @@ NSString const* NOServerManagedObjectContextKey = @"NOServerManagedObjectContext
     
     // get JSON object
     
-    NSError *error;
+    __block NSError *error;
     
     NSDictionary *jsonObject = [NSJSONSerialization JSONObjectWithData:request.body
                                                                options:NSJSONReadingAllowFragments
                                                                  error:&error];
     
-    if (error) {
+    if (!jsonObject || [jsonObject isKindOfClass:[NSDictionary class]]) {
         
-        if (_delegate) {
-            
-            [_delegate server:self didEncounterInternalError:error forRequest:request withType:NOServerRequestTypePUT entity:entity userInfo:userInfo];
-        }
-        
-        response.statusCode = NOServerStatusCodeInternalServerError;
+        response.statusCode = NOServerStatusCodeBadRequest;
         
         return;
     }
@@ -863,15 +861,57 @@ NSString const* NOServerManagedObjectContextKey = @"NOServerManagedObjectContext
     
     __block NOServerStatusCode editStatusCode;
     
+    __block NSDictionary *newValues;
+    
     [context performBlockAndWait:^{
         
         editStatusCode = [self verifyEditResource:managedObject
-                               recievedJsonObject:recievedJsonObject
-                                          session:session
+                                       forRequest:request
+                                      requestType:NOServerRequestTypePUT
+                               recievedJsonObject:jsonObject
                                           context:context
-                                            error:&error];
+                                            error:&error
+                                  convertedValues:&newValues];
     }];
     
+    if (editStatusCode != NOServerStatusCodeOK) {
+        
+        if (editStatusCode == NOServerStatusCodeInternalServerError) {
+            
+            if (_delegate) {
+                
+                [_delegate server:self didEncounterInternalError:error forRequest:request withType:NOServerRequestTypePUT entity:entity userInfo:userInfo];
+            }
+        }
+        
+        response.statusCode = editStatusCode;
+        
+        return;
+    }
+    
+    userInfo[NOServerNewValuesKey] = newValues;
+    
+    // set new values from dictionary
+    
+    [context performBlockAndWait:^{
+       
+        [managedObject setValuesForKeysWithDictionary:newValues];
+        
+    }];
+    
+    // return 200
+    response.statusCode = NOServerStatusCodeOK;
+    
+    // tell delegate
+    
+    if (_delegate) {
+        
+        [_delegate server:self didPerformRequest:request withType:NOServerRequestTypePUT userInfo:userInfo];
+    }
+}
+
+-(void)handleDeleteInstanceRequest:(RouteRequest *)request forEntity:(NSEntityDescription *)entity resourceID:(NSNumber *)resourceID response:(RouteResponse *)response
+{
     
     
 }
