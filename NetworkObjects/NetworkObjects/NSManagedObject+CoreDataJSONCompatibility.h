@@ -12,18 +12,18 @@
 
 #pragma mark - Convenience methods
 
--(NSObject *)JSONCompatibleValueForAttribute:(NSString *)attributeName;
+-(id)JSONCompatibleValueForAttribute:(NSString *)attributeName;
 
--(void)setJSONCompatibleValue:(NSObject *)value
+-(void)setJSONCompatibleValue:(id)value
                  forAttribute:(NSString *)attributeName;
 
 #pragma mark - Conversion methods
 
--(NSObject *)attributeValueForJSONCompatibleValue:(NSObject *)jsonValue
+-(id)attributeValueForJSONCompatibleValue:(id)jsonValue
                                      forAttribute:(NSString *)attributeName;
 
--(NSObject *)JSONCompatibleValueForAttributeValue:(NSObject *)attributeValue
-                                     forAttribute:(NSString *)attributeName;
+-(id)JSONCompatibleValueForAttributeValue:(id)attributeValue
+                             forAttribute:(NSString *)attributeName;
 
 #pragma mark - Validate
 
@@ -34,10 +34,10 @@
 
 @interface NSEntityDescription (CoreDataJSONCompatibility)
 
--(NSObject *)JSONCompatibleValueForAttributeValue:(NSObject *)attributeValue
-                                     forAttribute:(NSString *)attributeName;
+-(id)JSONCompatibleValueForAttributeValue:(id)attributeValue
+                             forAttribute:(NSString *)attributeName;
 
--(NSObject *)attributeValueForJSONCompatibleValue:(NSObject *)jsonValue
-                                     forAttribute:(NSString *)attributeName;
+-(id)attributeValueForJSONCompatibleValue:(id)jsonValue
+                             forAttribute:(NSString *)attributeName;
 
 @end

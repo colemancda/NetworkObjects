@@ -48,7 +48,7 @@ NSString const* NOServerManagedObjectContextKey = @"NOServerManagedObjectContext
 -(NSDictionary *)filteredJSONRepresentationOfManagedObject:(NSManagedObject *)managedObject
                                                    context:(NSManagedObjectContext *)context
                                                    request:(RouteRequest *)request
-                                               requestType:(NOServerRequestType)requestType;;
+                                               requestType:(NOServerRequestType)requestType;
 
 @end
 
@@ -694,7 +694,7 @@ NSString const* NOServerManagedObjectContextKey = @"NOServerManagedObjectContext
     
     if (_delegate) {
         
-        NOServerStatusCode statusCode = [_delegate server:self statusCodeForRequest:request withType:NOServerRequestTypeSearch entity:entity userInfo:userInfo];
+        NOServerStatusCode statusCode = [_delegate server:self statusCodeForRequest:request withType:NOServerRequestTypeGET entity:entity userInfo:userInfo];
         
         if (statusCode != NOServerStatusCodeOK) {
             
@@ -762,6 +762,92 @@ NSString const* NOServerManagedObjectContextKey = @"NOServerManagedObjectContext
         
         [_delegate server:self didPerformRequest:request withType:NOServerRequestTypeSearch userInfo:userInfo];
     }
+}
+
+-(void)handleEditInstanceRequest:(RouteRequest *)request forEntity:(NSEntityDescription *)entity resourceID:(NSNumber *)resourceID response:(RouteResponse *)response
+{
+    NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithDictionary:@{NOServerResourceIDKey : resourceID}];
+    
+    // get context
+    
+    NSManagedObjectContext *context = [_dataSource server:self managedObjectContextForRequest:request withType:NOServerRequestTypePUT];
+    
+    userInfo[NOServerManagedObjectContextKey] = context;
+    
+    // fetch managedObject
+    
+    NSError *error;
+    
+    NSManagedObject *managedObject = [self fetchEntity:entity withResourceID:resourceID usingContext:context shouldPrefetch:NO error:&error];
+    
+    // internal error
+    
+    if (error) {
+        
+        if (_delegate) {
+            
+            [_delegate server:self didEncounterInternalError:error forRequest:request withType:NOServerRequestTypePUT entity:entity userInfo:userInfo];
+        }
+        
+        response.statusCode = NOServerStatusCodeInternalServerError;
+        
+        return;
+    }
+    
+    // object doesnt exist
+    
+    if (!managedObject && !error) {
+        
+        response.statusCode = NOServerStatusCodeNotFound;
+        
+        return;
+    }
+    
+    // add managedObject to userInfo
+    
+    userInfo[NOServerManagedObjectKey] = managedObject;
+    
+    // ask delegate
+    
+    if (_delegate) {
+        
+        NOServerStatusCode statusCode = [_delegate server:self statusCodeForRequest:request withType:NOServerRequestTypePUT entity:entity userInfo:userInfo];
+        
+        if (statusCode != NOServerStatusCodeOK) {
+            
+            response.statusCode = statusCode;
+            
+            return;
+        }
+    }
+    
+    // check for permissions
+    
+    if (_permissionsEnabled) {
+        
+        if ([_delegate server:self permissionForRequest:request withType:NOServerRequestTypePUT entity:entity managedObject:managedObject context:context key:nil] < NOServerPermissionReadOnly) {
+            
+            response.statusCode = NOServerStatusCodeForbidden;
+            
+            return;
+        };
+    }
+    
+    // validate
+    
+    __block NOServerStatusCode editStatusCode;
+    
+    [context performBlockAndWait:^{
+        
+        editStatusCode = [self verifyEditResource:managedObject
+                               recievedJsonObject:recievedJsonObject
+                                          session:session
+                                          context:context
+                                            error:&error];
+    }];
+    
+    
+    
 }
 
 @end
@@ -1039,6 +1125,234 @@ NSString const* NOServerManagedObjectContextKey = @"NOServerManagedObjectContext
     }
     
     return jsonObject;
+}
+
+-(NOServerStatusCode)verifyEditResource:(NSManagedObject *)resource
+                             forRequest:(RouteRequest *)request
+                            requestType:(NOServerRequestType)requestType
+                     recievedJsonObject:(NSDictionary *)recievedJsonObject
+                                context:(NSManagedObjectContext *)context
+                                  error:(NSError **)error
+                        convertedValues:(NSDictionary **)convertedValues
+{
+    NSMutableDictionary *newConvertedValues = [[NSMutableDictionary alloc] initWithCapacity:recievedJsonObject.count];
+    
+    for (NSString *key in recievedJsonObject) {
+        
+        // validate the recieved JSON object
+        
+        if (![NSJSONSerialization isValidJSONObject:recievedJsonObject]) {
+            
+            return NOServerStatusCodeBadRequest;
+        }
+        
+        id jsonValue = recievedJsonObject[key];
+        
+        BOOL isAttribute;
+        BOOL isRelationship;
+        
+        for (NSString *attributeName in resource.entity.attributesByName) {
+            
+            // found attribute with same name
+            if ([key isEqualToString:attributeName]) {
+                
+                isAttribute = YES;
+                
+                // resourceID cannot be edited by anyone
+                if ([key isEqualToString:_resourceIDAttributeName]) {
+                    
+                    return NOServerStatusCodeForbidden;
+                }
+                
+                // check permissions
+                
+                if (_permissionsEnabled) {
+                    
+                    if ([_delegate server:self permissionForRequest:request withType:requestType entity:resource.entity managedObject:resource context:context key:attributeName] < NOServerPermissionEditPermission) {
+                        
+                        return NOServerStatusCodeForbidden;
+                    }
+                }
+                
+                NSAttributeDescription *attribute = resource.entity.attributesByName[attributeName];
+                
+                // make sure the attribute to edit is not transformable or undefined
+                if (attribute.attributeType == NSTransformableAttributeType ||
+                    attribute.attributeType == NSUndefinedAttributeType) {
+                    
+                    return NOServerStatusCodeBadRequest;
+                }
+                
+                // get pre-edit value
+                id newValue = [resource attributeValueForJSONCompatibleValue:jsonValue
+                                                                       forAttribute:key];
+                
+                // validate that the pre-edit value is of the same class as the attribute it will be given
+                
+                if (![resource isValidConvertedValue:newValue
+                                        forAttribute:attributeName]) {
+                    
+                    return NOServerStatusCodeBadRequest;
+                }
+                
+                // let NOResource verify that the new attribute value is a valid new value
+                if (![resource validateValue:&newValue
+                                      forKey:attributeName
+                                       error:nil]) {
+                    
+                    return NOServerStatusCodeBadRequest;
+                }
+                
+                newConvertedValues[attributeName] = newValue;
+            }
+        }
+        
+        for (NSString *relationshipName in resource.entity.relationshipsByName) {
+            
+            // found relationship with that name...
+            if ([key isEqualToString:relationshipName] ) {
+                
+                isRelationship = YES;
+                
+                // check permissions of relationship
+                
+                if (_permissionsEnabled) {
+                    
+                    if ([_delegate server:self permissionForRequest:request withType:requestType entity:resource.entity managedObject:resource context:context key:relationshipName] < NOServerPermissionEditPermission) {
+                        
+                        return NOServerStatusCodeForbidden;
+                    }
+                }
+                
+                NSRelationshipDescription *relationshipDescription = resource.entity.relationshipsByName[key];
+                
+                // to-one relationship
+                if (!relationshipDescription.isToMany) {
+                    
+                    // must be number
+                    if (![jsonValue isKindOfClass:[NSNumber class]]) {
+                        
+                        return NOServerStatusCodeBadRequest;
+                    }
+                    
+                    NSNumber *destinationResourceID = jsonValue;
+                    
+                    NSManagedObject *newValue = [self fetchEntity:relationshipDescription.destinationEntity
+                                                   withResourceID:destinationResourceID
+                                                     usingContext:context
+                                                   shouldPrefetch:NO
+                                                            error:error];
+                    
+                    if (*error) {
+                        
+                        return NOServerStatusCodeInternalServerError;
+                    }
+                    
+                    if (!newValue) {
+                        
+                        return NOServerStatusCodeBadRequest;
+                    }
+                    
+                    // destination resource must be visible
+                    
+                    if (_permissionsEnabled) {
+                        
+                        if ([_delegate server:self permissionForRequest:request withType:requestType entity:relationshipDescription.destinationEntity managedObject:newValue context:context key:nil] < NOServerPermissionReadOnly) {
+                            
+                            return NOServerStatusCodeForbidden;
+                        }
+                    }
+                    
+                    // must be valid value
+                    
+                    if (![resource validateValue:&newValue
+                                          forKey:key
+                                           error:nil]) {
+                        
+                        return NOServerStatusCodeBadRequest;
+                    }
+                    
+                    newConvertedValues[relationshipName] = newValue;
+                }
+                
+                // to-many relationship
+                else {
+                    
+                    // must be array
+                    if (![jsonValue isKindOfClass:[NSArray class]]) {
+                        
+                        return NOServerStatusCodeBadRequest;
+                    }
+                    
+                    // verify that the array contains numbers
+                    
+                    for (NSNumber *resourceID in jsonValue) {
+                        
+                        if (![resourceID isKindOfClass:[NSNumber class]]) {
+                            
+                            return NOServerStatusCodeBadRequest;
+                        }
+                    }
+                    
+                    NSArray *jsonReplacementCollection = jsonValue;
+                    
+                    // fetch new value
+                    NSArray *newValue = [self fetchEntity:relationshipDescription.destinationEntity
+                                          withResourceIDs:jsonReplacementCollection
+                                             usingContext:context
+                                           shouldPrefetch:NO
+                                                    error:error];
+                    
+                    if (*error) {
+                        
+                        return NOServerStatusCodeInternalServerError;
+                    }
+                    
+                    // make sure all the values are present and have the correct permissions...
+                    
+                    if (jsonReplacementCollection.count != newValue.count) {
+                        
+                        return NOServerStatusCodeBadRequest;
+                    }
+                    
+                    for (NSNumber *destinationResourceID in jsonReplacementCollection) {
+                        
+                        NSManagedObject *destinationResource = newValue[[jsonReplacementCollection indexOfObject:destinationResourceID]];
+                        
+                        // destination resource must be visible
+                        
+                        if (_permissionsEnabled) {
+                            
+                            if ([_delegate server:self permissionForRequest:request withType:requestType entity:relationshipDescription.destinationEntity managedObject:destinationResource context:context key:nil] < NOServerPermissionReadOnly) {
+                                
+                                return NOServerStatusCodeForbidden;
+                            }
+                        }
+                    }
+                    
+                    // must be valid new value
+                    if (![resource validateValue:&newValue
+                                          forKey:key
+                                           error:nil]) {
+                        
+                        return NOServerStatusCodeBadRequest;
+                    }
+                    
+                    newConvertedValues[relationshipName] = newValue;
+                }
+            }
+        }
+        
+        // no attribute or relationship with that name found
+        if (!isAttribute && !isRelationship) {
+            
+            return NOServerStatusCodeBadRequest;
+        }
+    }
+    
+    *convertedValues = newConvertedValues;
+    
+    return NOServerStatusCodeOK;
 }
 
 @end

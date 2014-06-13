@@ -13,7 +13,7 @@
 
 #pragma mark - Convenience methods
 
--(NSObject *)JSONCompatibleValueForAttribute:(NSString *)attributeName
+-(id)JSONCompatibleValueForAttribute:(NSString *)attributeName
 {
     NSObject *attributeValue = [self valueForKey:attributeName];
     
@@ -36,15 +36,15 @@
 
 #pragma mark - Conversion Methods
 
--(NSObject *)JSONCompatibleValueForAttributeValue:(NSObject *)attributeValue
-                                     forAttribute:(NSString *)attributeName
+-(id)JSONCompatibleValueForAttributeValue:(NSObject *)attributeValue
+                             forAttribute:(NSString *)attributeName
 {
     return [self.entity JSONCompatibleValueForAttributeValue:attributeValue
                                                 forAttribute:attributeName];
 }
 
--(NSObject *)attributeValueForJSONCompatibleValue:(NSObject *)jsonValue
-                                     forAttribute:(NSString *)attributeName
+-(id )attributeValueForJSONCompatibleValue:(NSObject *)jsonValue
+                              forAttribute:(NSString *)attributeName
 {
     
     return [self.entity attributeValueForJSONCompatibleValue:jsonValue
@@ -127,8 +127,8 @@
 
 @implementation NSEntityDescription (CoreDataJSONCompatibility)
 
--(NSObject *)JSONCompatibleValueForAttributeValue:(NSObject *)attributeValue
-                                     forAttribute:(NSString *)attributeName
+-(id)JSONCompatibleValueForAttributeValue:(id)attributeValue
+                             forAttribute:(NSString *)attributeName
 {
     NSAttributeDescription *attributeDescription = self.attributesByName[attributeName];
     
@@ -179,8 +179,8 @@
     return nil;
 }
 
--(NSObject *)attributeValueForJSONCompatibleValue:(NSObject *)jsonValue
-                                     forAttribute:(NSString *)attributeName
+-(id)attributeValueForJSONCompatibleValue:(id)jsonValue
+                             forAttribute:(NSString *)attributeName
 {
     NSAttributeDescription *attributeDescription = self.attributesByName[attributeName];
     
