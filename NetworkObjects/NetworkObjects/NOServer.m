@@ -37,10 +37,7 @@ NSString const* NOServerManagedObjectContextKey = @"NOServerManagedObjectContext
          shouldPrefetch:(BOOL)shouldPrefetch
                   error:(NSError **)error;
 
--(NSDictionary *)JSONRepresentationOfManagedObject:(NSManagedObject *)managedObject
-                                           context:(NSManagedObjectContext *)context
-                                           request:(RouteRequest *)request
-                                       requestType:(NOServerRequestType)requestType;
+-(NSDictionary *)JSONRepresentationOfManagedObject:(NSManagedObject *)managedObject;
 
 @end
 
@@ -713,7 +710,7 @@ NSString const* NOServerManagedObjectContextKey = @"NOServerManagedObjectContext
         
         if ([_delegate server:self permissionForRequest:request withType:NOServerRequestTypeGET entity:entity managedObject:managedObject context:context key:nil] < NOServerPermissionReadOnly) {
             
-            response.statusCode = NOServerForbiddenStatusCode;
+            response.statusCode = NOServerStatusCodeForbidden;
             
             return;
         };
@@ -724,8 +721,18 @@ NSString const* NOServerManagedObjectContextKey = @"NOServerManagedObjectContext
     
     [context performBlockAndWait:^{
         
-        jsonObject = [self JSONRepresentationOfResource:resource
-                                             forSession:session];
+        if (_permissionsEnabled) {
+            
+            jsonObject = [self filteredJSONRepresentationOfManagedObject:managedObject
+                                                                 context:context
+                                                                 request:request
+                                                             requestType:NOServerRequestTypeGET];
+        }
+        
+        else {
+            
+            jsonObject = [self JSONRepresentationOfManagedObject:managedObject];
+        }
         
     }];
     
@@ -741,7 +748,7 @@ NSString const* NOServerManagedObjectContextKey = @"NOServerManagedObjectContext
             [_delegate server:self didEncounterInternalError:error forRequest:request withType:NOServerRequestTypeGET entity:entity userInfo:userInfo];
         }
         
-        response.statusCode = NOServerInternalServerErrorStatusCode;
+        response.statusCode = NOServerStatusCodeInternalServerError;
         
         return;
     }
@@ -966,18 +973,7 @@ NSString const* NOServerManagedObjectContextKey = @"NOServerManagedObjectContext
 }
 
 -(NSDictionary *)JSONRepresentationOfManagedObject:(NSManagedObject *)managedObject
-                                           context:(NSManagedObjectContext *)context
-                                           request:(RouteRequest *)request
-                                       requestType:(NOServerRequestType)requestType
 {
-    if (_permissionsEnabled) {
-        
-        return [self filteredJSONRepresentationOfManagedObject:managedObject
-                                                       context:context
-                                                       request:request
-                                                   requestType:requestType];
-    }
-    
     // build JSON object...
     
     NSMutableDictionary *jsonObject = [[NSMutableDictionary alloc] init];
@@ -1004,8 +1000,6 @@ NSString const* NOServerManagedObjectContextKey = @"NOServerManagedObjectContext
         
         NSRelationshipDescription *relationshipDescription = managedObject.entity.relationshipsByName[relationshipName];
         
-        NSEntityDescription *destinationEntity = relationshipDescription.destinationEntity;
-        
         // to-one relationship
         if (!relationshipDescription.isToMany) {
             
@@ -1013,9 +1007,7 @@ NSString const* NOServerManagedObjectContextKey = @"NOServerManagedObjectContext
             NSManagedObject *destinationResource = [managedObject valueForKey:relationshipName];
             
             // get resourceID
-            NSString *destinationResourceIDKey = [destinationResource.class resourceIDKey];
-            
-            NSNumber *destinationResourceID = [destinationResource valueForKey:destinationResourceIDKey];
+            NSNumber *destinationResourceID = [destinationResource valueForKey:_resourceIDAttributeName];
             
             // add to json object
             [jsonObject setValue:destinationResourceID
@@ -1035,9 +1027,7 @@ NSString const* NOServerManagedObjectContextKey = @"NOServerManagedObjectContext
                 
                 // get destination resource ID
                 
-                NSString *destinationResourceIDKey = [destinationResource.class resourceIDKey];
-                
-                NSNumber *destinationResourceID = [destinationResource valueForKey:destinationResourceIDKey];
+                NSNumber *destinationResourceID = [destinationResource valueForKey:_resourceIDAttributeName];
                 
                 [visibleRelationship addObject:destinationResourceID];
             }
@@ -1047,6 +1037,8 @@ NSString const* NOServerManagedObjectContextKey = @"NOServerManagedObjectContext
                           forKey:relationshipName];
         }
     }
+    
+    return jsonObject;
 }
 
 @end
@@ -1064,8 +1056,86 @@ NSString const* NOServerManagedObjectContextKey = @"NOServerManagedObjectContext
                                                    request:(RouteRequest *)request
                                                requestType:(NOServerRequestType)requestType
 {
+    // build JSON object...
     
+    NSMutableDictionary *jsonObject = [[NSMutableDictionary alloc] init];
     
+    // first the attributes
+    
+    for (NSString *attributeName in managedObject.entity.attributesByName) {
+        
+        // check access permissions (unless its the resourceID, thats always visible)
+        if ([_delegate server:self permissionForRequest:request withType:requestType entity:managedObject.entity managedObject:managedObject context:context key:attributeName] >= NOServerPermissionReadOnly ||
+            [attributeName isEqualToString:_resourceIDAttributeName]) {
+            
+            // get attribute
+            NSAttributeDescription *attribute = managedObject.entity.attributesByName[attributeName];
+            
+            // make sure the attribute is not transformable or undefined
+            if (attribute.attributeType != NSTransformableAttributeType ||
+                attribute.attributeType != NSUndefinedAttributeType) {
+                
+                // add to JSON representation
+                jsonObject[attributeName] = [managedObject JSONCompatibleValueForAttribute:attributeName];
+                
+            }
+        }
+    }
+    
+    // then the relationships
+    for (NSString *relationshipName in managedObject.entity.relationshipsByName) {
+        
+        NSRelationshipDescription *relationshipDescription = managedObject.entity.relationshipsByName[relationshipName];
+        
+        NSEntityDescription *destinationEntity = relationshipDescription.destinationEntity;
+        
+        // make sure relationship is visible
+        if ([_delegate server:self permissionForRequest:request withType:requestType entity:managedObject.entity managedObject:managedObject context:context key:relationshipName] >= NOServerPermissionReadOnly) {
+            
+            // to-one relationship
+            if (!relationshipDescription.isToMany) {
+                
+                // get destination resource
+                NSManagedObject *destinationResource = [managedObject valueForKey:relationshipName];
+                
+                // check access permissions (the relationship & the single distination object must be visible)
+                if ([_delegate server:self permissionForRequest:request withType:requestType entity:destinationEntity managedObject:destinationResource context:context key:nil] >= NOServerPermissionReadOnly) {
+                    
+                    NSNumber *destinationResourceID = [destinationResource valueForKey:_resourceIDAttributeName];
+                    
+                    // add to json object
+                    jsonObject[destinationResourceID] = relationshipName;
+                }
+            }
+            
+            // to-many relationship
+            else {
+                
+                // get destination collection
+                NSArray *toManyRelationship = [managedObject valueForKey:relationshipName];
+                
+                // only add resources that are visible
+                NSMutableArray *visibleRelationship = [[NSMutableArray alloc] init];
+                
+                for (NSManagedObject *destinationResource in toManyRelationship) {
+                    
+                    if ([_delegate server:self permissionForRequest:request withType:requestType entity:destinationEntity managedObject:destinationResource context:context key:nil] >= NOServerPermissionReadOnly) {
+                        
+                        // get destination resource ID
+                        
+                        NSNumber *destinationResourceID = [destinationResource valueForKey:_resourceIDAttributeName];
+                        
+                        [visibleRelationship addObject:destinationResourceID];
+                    }
+                }
+                
+                // add to jsonObject
+                jsonObject[relationshipName] = visibleRelationship;
+            }
+        }
+    }
+    
+    return jsonObject;
 }
 
 @end
