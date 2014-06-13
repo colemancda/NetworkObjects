@@ -500,11 +500,11 @@
     
     __block NSError *fetchError;
     
-    __block NSArray *result;
+    __block NSArray *results;
     
     [context performBlockAndWait:^{
         
-        result = [context executeFetchRequest:fetchRequest
+        results = [context executeFetchRequest:fetchRequest
                                         error:&fetchError];
         
     }];
@@ -518,11 +518,29 @@
         return;
     }
     
+    // TODO optionally filter results
+    
+    if (_delegate && [_delegate respondsToSelector:@selector(server:permissionForRequest:withType:entity:managedObject:context:)]) {
+        
+        NSMutableArray *filteredResults = [[NSMutableArray alloc] init];
+        
+        
+        
+        results = [NSArray arrayWithArray:filteredResults];
+    }
+    
     // return the resource IDs of filtered objects
+    
+    NSMutableArray *resourceIDs = [[NSMutableArray alloc] init];
+    
+    for (NSManagedObject *managedObject in results) {
+        
+        [resourceIDs addObject:[managedObject valueForKey:_resourceIDAttributeName]];
+    }
     
     NSError *error;
     
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:result
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:resourceIDs
                                                        options:self.jsonWritingOption
                                                          error:&error];
     
