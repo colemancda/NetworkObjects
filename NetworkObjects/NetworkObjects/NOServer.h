@@ -135,7 +135,7 @@
 
 @protocol NOServerDataSource <NSObject>
 
--(NSManagedObjectContext *)server:(NOServer *)server managedObjectContextForRequest:(RouteRequest *)request;
+-(NSManagedObjectContext *)server:(NOServer *)server managedObjectContextForRequest:(RouteRequest *)request withType:(NOServerRequestType)requestType;
 
 -(NSNumber *)server:(NOServer *)server newResourceIDForEntity:(NSEntityDescription *)entity;
 

@@ -23,6 +23,12 @@
                  shouldPrefetch:(BOOL)shouldPrefetch
                           error:(NSError **)error;
 
+-(NSArray *)fetchEntity:(NSEntityDescription *)entity
+        withResourceIDs:(NSArray *)resourceIDs
+           usingContext:(NSManagedObjectContext *)context
+         shouldPrefetch:(BOOL)shouldPrefetch
+                  error:(NSError **)error;
+
 @end
 
 @implementation NOServer
@@ -131,19 +137,9 @@
         return;
     }
     
-    // check for permission
+    // get the context this request will use
     
-    if (self.delegate) {
-        
-        NOServerStatusCode statusCode = [self.delegate server:self statusCodeForRequest:request withType:NOServerRequestTypeSearch entity:entity userInfo:userInfo];
-        
-        if (statusCode != NOServerStatusCodeOK) {
-            
-            response.statusCode = statusCode;
-            
-            return;
-        }
-    }
+    NSManagedObjectContext *context = [_dataSource server:self managedObjectContextForRequest:request withType:NOServerRequestTypeSearch];
     
     // Put togeather fetch request
     NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:entity.name];
@@ -203,6 +199,126 @@
         }
         
         // relationship value
+        
+        if (relationshipDescription) {
+            
+            // to-one
+            
+            if (!relationshipDescription.isToMany) {
+                
+                // verify
+                if (![jsonPredicateValue isKindOfClass:[NSNumber class]]) {
+                    
+                    response.statusCode = NOServerStatusCodeBadRequest;
+                    
+                    return;
+                }
+                
+                NSNumber *resourceID = jsonPredicateValue;
+                
+                NSError *error;
+                
+                NSManagedObject *fetchedResource = [self fetchEntity:entity
+                                                      withResourceID:resourceID
+                                                        usingContext:context
+                                                      shouldPrefetch:NO
+                                                               error:&error];
+                
+                if (error) {
+                    
+                    if (_delegate) {
+                        
+                        [_delegate server:self didEncounterInternalError:error forRequest:request withType:NOServerRequestTypeSearch entity:entity userInfo:userInfo];
+                    }
+                    
+                    response.statusCode = NOServerStatusCodeInternalServerError;
+                    
+                    return;
+                }
+                
+                if (!fetchedResource) {
+                    
+                    response.statusCode = NOServerStatusCodeBadRequest;
+                    
+                    return;
+                }
+                
+            }
+            
+            // to-many
+            
+            else {
+                
+                // verify
+                
+                if (![jsonPredicateValue isKindOfClass:[NSArray class]]) {
+                    
+                    response.statusCode = NOServerStatusCodeBadRequest;
+                    
+                    return;
+                }
+                
+                for (NSNumber *resourceID in jsonPredicateValue) {
+                    
+                    if (![resourceID isKindOfClass:[NSNumber class]]) {
+                        
+                        response.statusCode = NOServerStatusCodeBadRequest;
+                        
+                        return;
+                    }
+                }
+                
+                NSError *error;
+                
+                NSArray *fetchResult = [self fetchEntity:entity
+                                         withResourceIDs:jsonPredicateValue
+                                            usingContext:context
+                                          shouldPrefetch:NO
+                                                   error:&error];
+                
+                if (error) {
+                    
+                    if (_delegate) {
+                        
+                        [_delegate server:self didEncounterInternalError:error forRequest:request withType:NOServerRequestTypeSearch entity:entity userInfo:userInfo];
+                    }
+                    
+                    response.statusCode = NOServerStatusCodeInternalServerError;
+                    
+                    return;
+                }
+                
+                if (fetchResult.count != [jsonPredicateValue count]) {
+                    
+                    response.statusCode = NOServerStatusCodeBadRequest;
+                    
+                    return;
+                }
+                
+                value = fetchResult;
+            }
+        }
+        
+        
+        
+        // check for permission
+        
+        if (self.delegate) {
+            
+            NOServerStatusCode statusCode = [_delegate server:self statusCodeForRequest:request withType:NOServerRequestTypeSearch entity:entity userInfo:userInfo];
+            
+            if (statusCode != NOServerStatusCodeOK) {
+                
+                response.statusCode = statusCode;
+                
+                return;
+            }
+        }
+        
+        
+        
+        // tell delegate
+        
         
     }
     
@@ -377,6 +493,43 @@
     NSManagedObject *resource = result.firstObject;
     
     return resource;
+}
+
+-(NSArray *)fetchEntity:(NSEntityDescription *)entity
+        withResourceIDs:(NSArray *)resourceIDs
+           usingContext:(NSManagedObjectContext *)context
+         shouldPrefetch:(BOOL)shouldPrefetch
+                  error:(NSError **)error
+{
+    NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:entity.name];
+    
+    fetchRequest.fetchLimit = resourceIDs.count;
+    
+    fetchRequest.predicate = [NSComparisonPredicate predicateWithLeftExpression:[NSExpression expressionForKeyPath:_resourceIDAttributeName]
+                                                                rightExpression:[NSExpression expressionForConstantValue:resourceIDs]
+                                                                       modifier:NSDirectPredicateModifier
+                                                                           type:NSInPredicateOperatorType
+                                                                        options:NSNormalizedPredicateOption];
+    
+    if (shouldPrefetch) {
+        
+        fetchRequest.returnsObjectsAsFaults = NO;
+    }
+    else {
+        
+        fetchRequest.includesPropertyValues = NO;
+    }
+    
+    __block NSArray *result;
+    
+    [context performBlockAndWait:^{
+        
+        result = [context executeFetchRequest:fetchRequest
+                                        error:error];
+        
+    }];
+    
+    return result;
 }
 
 @end
