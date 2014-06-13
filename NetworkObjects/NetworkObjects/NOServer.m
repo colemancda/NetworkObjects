@@ -966,14 +966,87 @@ NSString const* NOServerManagedObjectContextKey = @"NOServerManagedObjectContext
 }
 
 -(NSDictionary *)JSONRepresentationOfManagedObject:(NSManagedObject *)managedObject
+                                           context:(NSManagedObjectContext *)context
+                                           request:(RouteRequest *)request
+                                       requestType:(NOServerRequestType)requestType
 {
     if (_permissionsEnabled) {
         
-        return [self filteredJSONRepresentationOfManagedObject:managedObject];
+        return [self filteredJSONRepresentationOfManagedObject:managedObject
+                                                       context:context
+                                                       request:request
+                                                   requestType:requestType];
     }
     
+    // build JSON object...
     
+    NSMutableDictionary *jsonObject = [[NSMutableDictionary alloc] init];
     
+    // first the attributes
+    
+    for (NSString *attributeName in managedObject.entity.attributesByName) {
+        
+        // get attribute
+        NSAttributeDescription *attribute = managedObject.entity.attributesByName[attributeName];
+        
+        // make sure the attribute is not transformable or undefined
+        if (attribute.attributeType != NSTransformableAttributeType ||
+            attribute.attributeType != NSUndefinedAttributeType) {
+            
+            // add to JSON representation
+            jsonObject[attributeName] = [managedObject JSONCompatibleValueForAttribute:attributeName];
+            
+        }
+    }
+    
+    // then the relationships
+    for (NSString *relationshipName in managedObject.entity.relationshipsByName) {
+        
+        NSRelationshipDescription *relationshipDescription = managedObject.entity.relationshipsByName[relationshipName];
+        
+        NSEntityDescription *destinationEntity = relationshipDescription.destinationEntity;
+        
+        // to-one relationship
+        if (!relationshipDescription.isToMany) {
+            
+            // get destination resource
+            NSManagedObject *destinationResource = [managedObject valueForKey:relationshipName];
+            
+            // get resourceID
+            NSString *destinationResourceIDKey = [destinationResource.class resourceIDKey];
+            
+            NSNumber *destinationResourceID = [destinationResource valueForKey:destinationResourceIDKey];
+            
+            // add to json object
+            [jsonObject setValue:destinationResourceID
+                          forKey:relationshipName];
+        }
+        
+        // to-many relationship
+        else {
+            
+            // get destination collection
+            NSArray *toManyRelationship = [managedObject valueForKey:relationshipName];
+            
+            // only add resources that are visible
+            NSMutableArray *visibleRelationship = [[NSMutableArray alloc] init];
+            
+            for (NSManagedObject *destinationResource in toManyRelationship) {
+                
+                // get destination resource ID
+                
+                NSString *destinationResourceIDKey = [destinationResource.class resourceIDKey];
+                
+                NSNumber *destinationResourceID = [destinationResource valueForKey:destinationResourceIDKey];
+                
+                [visibleRelationship addObject:destinationResourceID];
+            }
+            
+            // add to jsonObject
+            [jsonObject setValue:visibleRelationship
+                          forKey:relationshipName];
+        }
+    }
 }
 
 @end
