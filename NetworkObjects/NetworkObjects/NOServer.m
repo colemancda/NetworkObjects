@@ -9,6 +9,7 @@
 #import "NOServer.h"
 #import "NOHTTPServer.h"
 #import "NOHTTPConnection.h"
+#import "NSManagedObject+CoreDataJSONCompatibility.h"
 
 @interface NOServer (Internal)
 
@@ -17,7 +18,10 @@
 -(void)setupHTTPServer;
 
 -(NSManagedObject *)fetchEntity:(NSEntityDescription *)entity
-                 withResourceID:(NSNumber *)resourceID;
+                 withResourceID:(NSNumber *)resourceID
+                   usingContext:(NSManagedObjectContext *)context
+                 shouldPrefetch:(BOOL)shouldPrefetch
+                          error:(NSError **)error;
 
 @end
 
@@ -120,19 +124,7 @@
     
     NSDictionary *searchParameters = [NSJSONSerialization JSONObjectWithData:request.body options:NSJSONReadingAllowFragments error:&jsonError];
     
-    if (jsonError) {
-        
-        if (self.delegate) {
-            
-            [self.delegate server:self didEncounterInternalError:jsonError forRequest:request withType:NOServerRequestTypeSearch entity:entity userInfo:userInfo];
-        }
-        
-        response.statusCode = NOServerStatusCodeBadRequest;
-        
-        return;
-    }
-    
-    if (![searchParameters isKindOfClass:[NSDictionary class]]) {
+    if (jsonError || ![searchParameters isKindOfClass:[NSDictionary class]]) {
         
         response.statusCode = NOServerStatusCodeBadRequest;
         
@@ -190,14 +182,14 @@
         
         // one of these will be nil
         
-        NSRelationshipDescription *relationshipDescription = entityDescription.relationshipsByName[predicateKey];
+        NSRelationshipDescription *relationshipDescription = entity.relationshipsByName[predicateKey];
         
-        NSAttributeDescription *attributeDescription = entityDescription.attributesByName[predicateKey];
+        NSAttributeDescription *attributeDescription = entity.attributesByName[predicateKey];
         
         // validate that key is attribute or relationship
         if (!relationshipDescription && !attributeDescription) {
             
-            response.statusCode = NOServerBadRequestStatusCode;
+            response.statusCode = NOServerStatusCodeBadRequest;
             
             return;
         }
@@ -206,13 +198,13 @@
         
         if (attributeDescription) {
             
-            value = [entityDescription attributeValueForJSONCompatibleValue:jsonPredicateValue
-                                                               forAttribute:predicateKey];
+            value = [entity attributeValueForJSONCompatibleValue:jsonPredicateValue
+                                                    forAttribute:predicateKey];
         }
         
         // relationship value
         
-        
+    }
     
 }
 
@@ -341,6 +333,16 @@
     }
     
     return 0;
+}
+    
+-(NSManagedObject *)fetchEntity:(NSEntityDescription *)entity
+                 withResourceID:(NSNumber *)resourceID
+                   usingContext:(NSManagedObjectContext *)context
+                 shouldPrefetch:(BOOL)shouldPrefetch
+                          error:(NSError **)error
+{
+    
+    
 }
 
 @end
