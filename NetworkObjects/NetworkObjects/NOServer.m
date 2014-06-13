@@ -663,6 +663,153 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
     }
 }
 
+-(void)handleCreateNewInstanceRequest:(RouteRequest *)request forEntity:(NSEntityDescription *)entity response:(RouteResponse *)response
+{
+    // get context
+    
+    NSManagedObjectContext *context = [_dataSource server:self managedObjectContextForRequest:request withType:NOServerRequestTypePOST];
+    
+    NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithDictionary:@{NOServerManagedObjectContextKey : context}];
+    
+    // ask delegate
+    
+    if (_delegate) {
+        
+        NOServerStatusCode statusCode = [_delegate server:self statusCodeForRequest:request withType:NOServerRequestTypePOST entity:entity userInfo:userInfo];
+        
+        if (statusCode != NOServerStatusCodeOK) {
+            
+            response.statusCode = statusCode;
+            
+            return;
+        }
+    }
+    
+    // check for permissions
+    
+    if (_permissionsEnabled) {
+        
+        if ([_delegate server:self permissionForRequest:request withType:NOServerRequestTypePOST entity:entity managedObject:nil context:context key:nil] < NOServerPermissionEditPermission) {
+            
+            response.statusCode = NOServerStatusCodeForbidden;
+            
+            return;
+        };
+    }
+    
+    // create new instance
+    
+    NSNumber *resourceID = [_dataSource server:self newResourceIDForEntity:entity];
+    
+    __block NSManagedObject *managedObject;
+    
+    [context performBlockAndWait:^{
+       
+        managedObject = [NSEntityDescription insertNewObjectForEntityForName:entity.name
+                                                      inManagedObjectContext:context];
+        
+        // set resourceID
+        
+        [managedObject setValue:resourceID
+                         forKey:_resourceIDAttributeName];
+        
+    }];
+    
+    // get initial values
+    
+    NSDictionary *jsonObject = [NSJSONSerialization JSONObjectWithData:request.body
+                                                               options:NSJSONReadingAllowFragments
+                                                                 error:nil];
+    
+    if (jsonObject && ![jsonObject isKindOfClass:[NSDictionary class]]) {
+        
+        response.statusCode = NOServerStatusCodeBadRequest;
+        
+        return;
+    }
+    
+    if (jsonObject) {
+        
+        // convert to core data values
+        
+        __block NOServerStatusCode editStatusCode;
+        
+        __block NSDictionary *newValues;
+        
+        __block NSError *error;
+        
+        [context performBlockAndWait:^{
+            
+            editStatusCode = [self verifyEditResource:managedObject
+                                           forRequest:request
+                                          requestType:NOServerRequestTypePOST
+                                   recievedJsonObject:jsonObject
+                                              context:context
+                                                error:&error
+                                      convertedValues:&newValues];
+        }];
+        
+        if (editStatusCode != NOServerStatusCodeOK) {
+            
+            if (editStatusCode == NOServerStatusCodeInternalServerError) {
+                
+                if (_delegate) {
+                    
+                    [_delegate server:self didEncounterInternalError:error forRequest:request withType:NOServerRequestTypePUT entity:entity userInfo:userInfo];
+                }
+            }
+            
+            response.statusCode = editStatusCode;
+            
+            return;
+        }
+        
+        userInfo[NOServerNewValuesKey] = newValues;
+        
+        // set new values from dictionary
+        
+        [context performBlockAndWait:^{
+            
+            [managedObject setValuesForKeysWithDictionary:newValues];
+            
+        }];
+        
+    }
+    
+    // respond
+    
+    NSDictionary *jsonResponse = @{_resourceIDAttributeName: resourceID};
+    
+    NSError *error;
+    
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonResponse
+                                                       options:self.jsonWritingOption
+                                                         error:&error];
+    
+    if (!jsonData) {
+        
+        if (_delegate) {
+            
+            [_delegate server:self didEncounterInternalError:error forRequest:request withType:NOServerRequestTypePOST entity:entity userInfo:userInfo];
+        }
+        
+        response.statusCode = NOServerStatusCodeInternalServerError;
+        
+        return;
+    }
+    
+    [response respondWithData:jsonData];
+    
+    response.statusCode = NOServerStatusCodeOK;
+    
+    // tell delegate
+    
+    if (_delegate) {
+        
+        [_delegate server:self didPerformRequest:request withType:NOServerRequestTypePOST userInfo:userInfo];
+    }
+}
+
 -(void)handleGetInstanceRequest:(RouteRequest *)request forEntity:(NSEntityDescription *)entity resourceID:(NSNumber *)resourceID response:(RouteResponse *)response
 {
     NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithDictionary:@{NOServerResourceIDKey : resourceID}];
@@ -1136,12 +1283,6 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
     
 }
 
--(void)handleCreateNewInstanceRequest:(RouteRequest *)request forEntity:(NSEntityDescription *)entity response:(RouteResponse *)response
-{
-    
-    
-}
-
 @end
 
 @implementation NOServer (Internal)
@@ -1440,8 +1581,8 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
         
         id jsonValue = recievedJsonObject[key];
         
-        BOOL isAttribute;
-        BOOL isRelationship;
+        BOOL isAttribute = NO;
+        BOOL isRelationship = NO;
         
         for (NSString *attributeName in resource.entity.attributesByName) {
             
