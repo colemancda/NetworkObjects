@@ -15,15 +15,15 @@
 
 typedef NS_ENUM(NSUInteger, NOSearchParameter) {
     
-    NOSearchPredicateKeyParameter,
-    NOSearchPredicateValueParameter,
-    NOSearchPredicateOperatorParameter,
-    NOSearchPredicateOptionParameter,
-    NOSearchPredicateModifierParameter,
-    NOSearchFetchLimitParameter,
-    NOSearchFetchOffsetParameter,
-    NOSearchIncludesSubentitiesParameter,
-    NOSearchSortDescriptorsParameter
+    NOSearchParameterPredicateKey,
+    NOSearchParameterPredicateValue,
+    NOSearchParameterPredicateOperator,
+    NOSearchParameterPredicateOption,
+    NOSearchParameterPredicateModifier,
+    NOSearchParameterFetchLimit,
+    NOSearchParameterFetchOffset,
+    NOSearchParameterIncludesSubentities,
+    NOSearchParameterSortDescriptors
     
 };
 
@@ -60,6 +60,8 @@ typedef NS_ENUM(NSUInteger, NOServerStatusCode) {
     
 };
 
+/** Identifies the server request type */
+
 typedef NS_ENUM(NSInteger, NOServerRequestType) {
     
     /** Undetermined request */
@@ -83,6 +85,41 @@ typedef NS_ENUM(NSInteger, NOServerRequestType) {
     /** Function request */
     NOServerRequestTypeFunction
     
+};
+
+/**
+ Permission constants
+ */
+
+typedef NS_ENUM(NSInteger, NOServerPermission) {
+    
+    /**  No access permission */
+    NOServerPermissionNoAccess = 0,
+    
+    /**  Read Only permission */
+    NOServerPermissionReadOnly = 1,
+    
+    /**  Read and Write permission */
+    NOServerPermissionEditPermission
+    
+};
+
+/**
+ Resource Function constants
+ */
+typedef NS_ENUM(NSUInteger, NOServerFunctionCode) {
+    
+    /** The function performed successfully */
+    NOServerFunctionCodePerformedSuccesfully = 200,
+    
+    /** The function recieved an invalid JSON object */
+    NOServerFunctionCodeRecievedInvalidJSONObject = 400,
+    
+    /** The function cannot be performed, possibly due to session permissions */
+    NOServerFunctionCodeCannotPerformFunction = 403,
+    
+    /** There was an internal error while performing the function */
+    NOServerFunctionCodeInternalErrorPerformingFunction = 500
 };
 
 #endif

@@ -130,6 +130,9 @@
 
 -(void)server:(NOServer *)server didPerformRequest:(RouteRequest *)request withType:(NOServerRequestType)requestType userInfo:(NSDictionary *)userInfo;
 
+@optional
+
+-()
 
 @end
 
