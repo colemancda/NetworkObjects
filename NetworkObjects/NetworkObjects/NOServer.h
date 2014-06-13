@@ -8,73 +8,105 @@
 
 #import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
+#import <NetworkObjects/NetworkObjectsConstants.h>
 
 @protocol NOServerDelegate;
 @protocol NOServerDataSource;
 
 @class RouteRequest, RouteResponse;
 
-/**
- These are HTTP status codes used with NOServer instances.
- */
-typedef NS_ENUM(NSUInteger, NOServerStatusCode) {
-    
-    /** OK status code. */
-    NOServerStatusCodeOK = 200,
-    
-    /** Bad request status code. */
-    NOServerStatusCodeBadRequest = 400,
-    
-    /** Unauthorized status code. e.g. Used when authentication is required. */
-    NOServerStatusCodeUnauthorized, // not logged in
-    
-    NOServerStatusCodePaymentRequired,
-    
-    /** Forbidden status code. e.g. Used when permission is denied. */
-    NOServerStatusCodeForbidden, // item is invisible to user or api app
-    
-    /** Not Found status code. e.g. Used when a Resource instance cannot be found. */
-    NOServerStatusCodeNotFound, // item doesnt exist
-    
-    /** Method Not Allowed status code. e.g. Used for invalid requests. */
-    NOServerStatusCodeMethodNotAllowed,
-    
-    /** Conflict status code. e.g. Used when a user with the specified username already exists. */
-    NOServerStatusCodeConflict = 409, // user already exists
-    
-    /** Internal Server Error status code. e.g. Used when a JSON cannot be converted to NSData for a HTTP response. */
-    NOServerStatusCodeInternalServerError = 500
-    
-};
-
-typedef NS_ENUM(NSInteger, NOServerRequestType) {
-    
-    /** Undetermined request */
-    NOServerRequestTypeUndetermined = -1,
-    
-    /** GET request */
-    NOServerRequestTypeGET = 1,
-    
-    /** PUT (edit) request */
-    NOServerRequestTypePUT,
-    
-    /** DELETE request */
-    NOServerRequestTypeDelete,
-    
-    /** POST (create new) request */
-    NOServerRequestTypePOST,
-    
-    /** Search request */
-    NOServerRequestTypeSearch,
-    
-    /** Function request */
-    NOServerRequestTypeFunction
-    
-};
-
 @interface NOServer : NSObject
+{
+    NSDictionary *_resourcePaths;
+}
 
+#pragma mark - Initializer
 
+-(instancetype)initWithDataSource:(id<NOServerDataSource>)dataSource
+                         delegate:(id<NOServerDelegate>)delegate
+               managedObjectModel:(NSManagedObjectModel *)managedObjectModel
+                       searchPath:(NSString *)searchPath
+                  prettyPrintJSON:(BOOL)prettyPrintJSON
+       sslIdentityAndCertificates:(NSArray *)sslIdentityAndCertificates NS_DESIGNATED_INITIALIZER;
+
+#pragma mark - Properties
+
+@property (nonatomic, readonly) id<NOServerDataSource> dataSource;
+
+@property (nonatomic, readonly) id<NOServerDelegate> delegate;
+
+@property (nonatomic, readonly) NSManagedObjectModel *managedObjectModel;
+
+/** The URL that clients will use to perform a remote fetch request. Must not conflict with the resourcePath of entities.
+ */
+
+@property (nonatomic, readonly) NSString *searchPath;
+
+/**
+ This setting defines whether the JSON output generated should be pretty printed (contain whitespacing for human readablility) or not.
+ 
+ @see NSJSONWritingPrettyPrinted
+ 
+ */
+
+@property (nonatomic, readonly) BOOL prettyPrintJSON;
+
+/**
+ * To enable HTTPS for all incoming connections set this value to an array appropriate for use in kCFStreamSSLCertificates SSL Settings.
+ * It should be an array of SecCertificateRefs except for the first element in the array, which is a SecIdentityRef.
+ **/
+
+@property (nonatomic, readonly) NSArray *sslIdentityAndCertificates;
+
+@property (nonatomic, readonly) 
+
+#pragma mark - Server Control
+
+/**
+ Start the HTTP REST server on the specified port.
+ 
+ @param port Can be 0 for a random port or a specific port.
+ 
+ @return An @c NSError describing the error if there was one or @c nil if there was none.
+ 
+ @see CocoaHTTPServer
+ */
+
+-(BOOL)startOnPort:(NSUInteger)port
+             error:(NSError **)error;
+
+/**
+ Stops broadcasting the NOStore over the network.
+ */
+
+-(void)stop;
+
+#pragma mark - Internal Methods
+
+-(NSDictionary *)resourcePaths;
+
+-(void)handleSearchRequest:(RouteRequest *)request
+                 forEntity:(NSEntityDescription *)entity
+                  response:(RouteResponse *)response;
+
+-(void)handleCreateNewInstanceRequest:(RouteRequest *)request
+                            forEntity:(NSEntityDescription *)entity
+                             response:(RouteResponse *)response;
+
+-(void)handleGetInstanceRequest:(RouteRequest *)request
+                      forEntity:(NSEntityDescription *)entity
+                     resourceID:(NSNumber *)resourceID
+                       response:(RouteResponse *)response;
+
+-(void)handleEditInstanceRequest:(RouteRequest *)request
+                       forEntity:(NSEntityDescription *)entity
+                      resourceID:(NSNumber *)resourceID
+                        response:(RouteResponse *)response;
+
+-(void)handleDeleteInstanceRequest:(RouteRequest *)request
+                         forEntity:(NSEntityDescription *)entity
+                        resourceID:(NSNumber *)resourceID
+                          response:(RouteResponse *)response;
 
 @end
 
@@ -83,9 +115,22 @@ typedef NS_ENUM(NSInteger, NOServerRequestType) {
 
 -(void)server:(NOServer *)server didEncounterInternalError:(NSError *)error forRequestType:(NOServerRequestType)requestType;
 
--(BOOL)server:(NOServer *)server canPerformRequest:(RouteRequest *)request withType:(NOServerRequestType)requestType entity:(NSEntityDescription *)entity contetxt:(NSManagedObjectContext *)context;
+-(BOOL)server:(NOServer *)server canPerformRequest:(RouteRequest *)request withType:(NOServerRequestType)requestType userInfo:(NSDictionary *)userInfo;
 
--(void)server:(NOServer *)server didPerformRequest:(RouteRequest *)request withType:(NOServerRequestType)requestType;
+-(void)server:(NOServer *)server didPerformRequest:(RouteRequest *)request withType:(NOServerRequestType)requestType userInfo:(NSDictionary *)userInfo;
 
 
 @end
+
+@protocol NOServerDataSource <NSObject>
+
+-(NSManagedObjectContext *)server:(NOServer *)server managedObjectContextForRequest:(RouteRequest *)request;
+
+-(NSNumber *)server:(NOServer *)server newResourceIDForEntity:(NSEntityDescription *)entity;
+
+-(NSString *)server:(NOServer *)server nameOfResourceIDAttributeForEntity:(NSEntityDescription *)entity;
+
+-(NSString *)server:(NOServer *)server resourcePathForEntity:(NSEntityDescription *)entity;
+
+@end
+
