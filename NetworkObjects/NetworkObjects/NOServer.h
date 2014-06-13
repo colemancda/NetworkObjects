@@ -88,7 +88,7 @@
 
 -(NSDictionary *)resourcePaths;
 
-#pragma mark - Internal Methods
+#pragma mark - Request Handlers
 
 -(void)handleSearchRequest:(RouteRequest *)request
                  forEntity:(NSEntityDescription *)entity
@@ -132,7 +132,7 @@
 
 @optional
 
--()
+-(NOServerPermission)server:(NOServer *)server permissionForRequest:(NOServerRequestType)request withType:(NOServerRequestType)requestType entity:(NSEntityDescription *)entity managedObject:(NSManagedObject *)managedObject context:(NSManagedObjectContext *)context;
 
 @end
 

@@ -31,6 +31,10 @@
 
 @end
 
+@interface NOServer (Permissions)
+
+@end
+
 @implementation NOServer
 
 #pragma mark - Initializer
@@ -95,7 +99,7 @@
 }
 
 
-#pragma mark - Internal Methods
+#pragma mark - Caches
 
 -(NSDictionary *)resourcePaths
 {
@@ -119,6 +123,8 @@
     
     return _resourcePaths;
 }
+
+#pragma mark - Request Handlers
 
 -(void)handleSearchRequest:(RouteRequest *)request forEntity:(NSEntityDescription *)entity response:(RouteResponse *)response
 {
@@ -153,11 +159,11 @@
     
     // predicate...
     
-    NSString *predicateKey = searchParameters[[NSString stringWithFormat:@"%lu", (unsigned long)NOSearchPredicateKeyParameter]];
+    NSString *predicateKey = searchParameters[[NSString stringWithFormat:@"%lu", (unsigned long)NOSearchParameterPredicateKey]];
     
-    id jsonPredicateValue = searchParameters[[NSString stringWithFormat:@"%lu", (unsigned long)NOSearchPredicateValueParameter]];
+    id jsonPredicateValue = searchParameters[[NSString stringWithFormat:@"%lu", (unsigned long)NOSearchParameterPredicateValue]];
     
-    NSNumber *predicateOperator = searchParameters[[NSString stringWithFormat:@"%lu", (unsigned long)NOSearchPredicateOperatorParameter]];
+    NSNumber *predicateOperator = searchParameters[[NSString stringWithFormat:@"%lu", (unsigned long)NOSearchParameterPredicateOperator]];
     
     if ([predicateKey isKindOfClass:[NSString class]] &&
         [predicateOperator isKindOfClass:[NSNumber class]] &&
@@ -309,7 +315,7 @@
         
         // add optional parameters...
         
-        NSNumber *optionNumber = searchParameters[[NSString stringWithFormat:@"%lu", (unsigned long)NOSearchPredicateOptionParameter]];
+        NSNumber *optionNumber = searchParameters[[NSString stringWithFormat:@"%lu", (unsigned long)NOSearchParameterPredicateOption]];
         
         NSComparisonPredicateOptions options;
         
@@ -323,7 +329,7 @@
             options = NSNormalizedPredicateOption;
         }
         
-        NSNumber *modifierNumber = searchParameters[[NSString stringWithFormat:@"%lu", (unsigned long)NOSearchPredicateModifierParameter]];
+        NSNumber *modifierNumber = searchParameters[[NSString stringWithFormat:@"%lu", (unsigned long)NOSearchParameterPredicateModifier]];
         
         NSComparisonPredicateModifier modifier;
         
@@ -356,7 +362,7 @@
     
     // sort descriptors
     
-    NSArray *sortDescriptorsJSONArray = searchParameters[[NSString stringWithFormat:@"%lu", (unsigned long)NOSearchSortDescriptorsParameter]];
+    NSArray *sortDescriptorsJSONArray = searchParameters[[NSString stringWithFormat:@"%lu", (unsigned long)NOSearchParameterSortDescriptors]];
     
     NSMutableArray *sortDescriptors;
     
@@ -423,7 +429,7 @@
     
     // fetch limit
     
-    NSNumber *fetchLimitNumber = searchParameters[[NSString stringWithFormat:@"%lu", (unsigned long)NOSearchFetchLimitParameter]];
+    NSNumber *fetchLimitNumber = searchParameters[[NSString stringWithFormat:@"%lu", (unsigned long)NOSearchParameterFetchLimit]];
     
     if (fetchLimitNumber) {
         
@@ -439,7 +445,7 @@
     
     // fetch offset
     
-    NSNumber *fetchOffsetNumber = searchParameters[[NSString stringWithFormat:@"%lu", (unsigned long)NOSearchFetchOffsetParameter]];
+    NSNumber *fetchOffsetNumber = searchParameters[[NSString stringWithFormat:@"%lu", (unsigned long)NOSearchParameterFetchOffset]];
     
     if (fetchOffsetNumber) {
         
@@ -454,7 +460,7 @@
         fetchRequest.fetchOffset = fetchOffsetNumber.integerValue;
     }
     
-    NSNumber *includeSubEntitites = searchParameters[[NSString stringWithFormat:@"%lu", (unsigned long)NOSearchIncludesSubentitiesParameter]];
+    NSNumber *includeSubEntitites = searchParameters[[NSString stringWithFormat:@"%lu", (unsigned long)NOSearchParameterIncludesSubentities]];
     
     if (includeSubEntitites) {
         
