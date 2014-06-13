@@ -16,6 +16,9 @@
 
 -(void)setupHTTPServer;
 
+-(NSManagedObject *)fetchEntity:(NSEntityDescription *)entity
+                 withResourceID:(NSNumber *)resourceID;
+
 @end
 
 @implementation NOServer
@@ -26,6 +29,7 @@
                          delegate:(id<NOServerDelegate>)delegate
                managedObjectModel:(NSManagedObjectModel *)managedObjectModel
                        searchPath:(NSString *)searchPath
+          resourceIDAttributeName:(NSString *)resourceIDAttributeName
                   prettyPrintJSON:(BOOL)prettyPrintJSON
        sslIdentityAndCertificates:(NSArray *)sslIdentityAndCertificates
 {
@@ -33,7 +37,7 @@
     
     if (self) {
         
-        if (!dataSource || !managedObjectModel) {
+        if (!dataSource || !managedObjectModel || !resourceIDAttributeName) {
             
             return nil;
         }
@@ -45,6 +49,8 @@
         _managedObjectModel = managedObjectModel;
         
         _searchPath = searchPath;
+        
+        _resourceIDAttributeName = resourceIDAttributeName;
         
         _prettyPrintJSON = prettyPrintJSON;
         
@@ -106,6 +112,27 @@
 
 -(void)handleSearchRequest:(RouteRequest *)request forEntity:(NSEntityDescription *)entity response:(RouteResponse *)response
 {
+    NSDictionary *userInfo;
+    
+    if (self.delegate) {
+        
+        NOServerStatusCode statusCode = [self.delegate server:self statusCodeForRequest:request withType:NOServerRequestTypeSearch entity:entity userInfo:userInfo];
+        
+        if (statusCode != NOServerStatusCodeOK) {
+            
+            response.statusCode = statusCode;
+            
+            return;
+        }
+    }
+    
+    // Put togeather fetch request
+    NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:entity.name];
+    
+    NSSortDescriptor *defaultSortDescriptor = [NSSortDescriptor sortDescriptorWithKey:_resourceIDAttributeName
+                                                                            ascending:YES];
+    
+    fetchRequest.sortDescriptors = @[defaultSortDescriptor];
     
     
 }

@@ -26,6 +26,7 @@
                          delegate:(id<NOServerDelegate>)delegate
                managedObjectModel:(NSManagedObjectModel *)managedObjectModel
                        searchPath:(NSString *)searchPath
+          resourceIDAttributeName:(NSString *)resourceIDAttributeName
                   prettyPrintJSON:(BOOL)prettyPrintJSON
        sslIdentityAndCertificates:(NSArray *)sslIdentityAndCertificates NS_DESIGNATED_INITIALIZER;
 
@@ -60,6 +61,8 @@
 
 @property (nonatomic, readonly) NOHTTPServer *httpServer;
 
+@property (nonatomic, readonly) NSString *resourceIDAttributeName;
+
 #pragma mark - Server Control
 
 /**
@@ -81,9 +84,11 @@
 
 -(void)stop;
 
-#pragma mark - Internal Methods
+#pragma mark - Caches
 
 -(NSDictionary *)resourcePaths;
+
+#pragma mark - Internal Methods
 
 -(void)handleSearchRequest:(RouteRequest *)request
                  forEntity:(NSEntityDescription *)entity
@@ -121,7 +126,7 @@
 
 -(void)server:(NOServer *)server didEncounterInternalError:(NSError *)error forRequestType:(NOServerRequestType)requestType;
 
--(BOOL)server:(NOServer *)server canPerformRequest:(RouteRequest *)request withType:(NOServerRequestType)requestType userInfo:(NSDictionary *)userInfo;
+-(NOServerStatusCode)server:(NOServer *)server statusCodeForRequest:(RouteRequest *)request withType:(NOServerRequestType)requestType entity:(NSEntityDescription *)entity userInfo:(NSDictionary *)userInfo;
 
 -(void)server:(NOServer *)server didPerformRequest:(RouteRequest *)request withType:(NOServerRequestType)requestType userInfo:(NSDictionary *)userInfo;
 
@@ -133,8 +138,6 @@
 -(NSManagedObjectContext *)server:(NOServer *)server managedObjectContextForRequest:(RouteRequest *)request;
 
 -(NSNumber *)server:(NOServer *)server newResourceIDForEntity:(NSEntityDescription *)entity;
-
--(NSString *)server:(NOServer *)server nameOfResourceIDAttributeForEntity:(NSEntityDescription *)entity;
 
 -(NSString *)server:(NOServer *)server resourcePathForEntity:(NSEntityDescription *)entity;
 
