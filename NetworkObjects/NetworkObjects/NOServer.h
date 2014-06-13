@@ -15,6 +15,8 @@
 
 @class RouteRequest, RouteResponse, NOHTTPServer, NOHTTPServer;
 
+extern NSString const* NOServerFetchRequestKey;
+
 @interface NOServer : NSObject
 {
     NSDictionary *_resourcePaths;
@@ -121,7 +123,6 @@
 
 @end
 
-
 @protocol NOServerDelegate <NSObject>
 
 -(void)server:(NOServer *)server didEncounterInternalError:(NSError *)error forRequest:(RouteRequest *)request withType:(NOServerRequestType)requestType entity:(NSEntityDescription *)entity userInfo:(NSDictionary *)userInfo;
@@ -132,7 +133,8 @@
 
 @optional
 
--(NOServerPermission)server:(NOServer *)server permissionForRequest:(NOServerRequestType)request withType:(NOServerRequestType)requestType entity:(NSEntityDescription *)entity managedObject:(NSManagedObject *)managedObject context:(NSManagedObjectContext *)context;
+-(NOServerPermission)server:(NOServer *)server permissionForRequest:(RouteRequest *)request withType:(NOServerRequestType)requestType entity:(NSEntityDescription *)entity managedObject:(NSManagedObject *)managedObject context:(NSManagedObjectContext *)context key:(NSString *)key;
+
 
 @end
 

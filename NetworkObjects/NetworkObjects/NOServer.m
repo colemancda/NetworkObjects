@@ -11,6 +11,8 @@
 #import "NOHTTPConnection.h"
 #import "NSManagedObject+CoreDataJSONCompatibility.h"
 
+NSString const* NOServerFetchRequestKey = @"NOServerFetchRequestKey";
+
 @interface NOServer (Internal)
 
 @property (nonatomic, readonly) NSJSONWritingOptions jsonWritingOption;
@@ -32,6 +34,18 @@
 @end
 
 @interface NOServer (Permissions)
+
+-(void)checkForDelegatePermissions;
+
+@end
+
+@interface NOServer ()
+
+{
+    BOOL _permissionsEnabled;
+    
+}
+
 
 @end
 
@@ -71,6 +85,8 @@
         _sslIdentityAndCertificates = sslIdentityAndCertificates;
         
         [self setupHTTPServer];
+        
+        [self checkForDelegatePermissions];
     }
     
     return self;
@@ -474,7 +490,15 @@
         fetchRequest.includesSubentities = includeSubEntitites.boolValue;
     }
     
+    // prefetch resourceID
+    
+    fetchRequest.returnsObjectsAsFaults = NO;
+    
+    fetchRequest.includesPropertyValues = YES;
+    
     // check for permission
+    
+    userInfo = @{NOServerFetchRequestKey: fetchRequest};
     
     if (self.delegate) {
         
@@ -489,12 +513,6 @@
     }
     
     // execute fetch request...
-    
-    // prefetch resourceID
-    
-    fetchRequest.returnsObjectsAsFaults = NO;
-    
-    fetchRequest.includesPropertyValues = YES;
     
     // execute fetch request...
     
@@ -518,24 +536,74 @@
         return;
     }
     
-    // TODO optionally filter results
+    // optionally filter results
     
-    if (_delegate && [_delegate respondsToSelector:@selector(server:permissionForRequest:withType:entity:managedObject:context:)]) {
+    if (_permissionsEnabled) {
         
         NSMutableArray *filteredResults = [[NSMutableArray alloc] init];
         
-        
+        for (NSManagedObject *managedObject in results) {
+            
+            __block NSNumber *resourceID;
+            
+            [context performBlockAndWait:^{
+                
+                resourceID = [managedObject valueForKey:_resourceIDAttributeName];
+                
+            }];
+            
+            // permission to view resource
+            
+            if ([_delegate server:self permissionForRequest:request withType:NOServerRequestTypeSearch entity:entity managedObject:managedObject context:context key:nil] >= NOServerPermissionReadOnly) {
+                
+                // must have permission for keys accessed
+                
+                if (predicateKey) {
+                    
+                    if ([_delegate server:self permissionForRequest:request withType:NOServerRequestTypeSearch entity:entity managedObject:managedObject context:context key:predicateKey] < NOServerPermissionReadOnly) {
+                        
+                        break;
+                    }
+                    
+                }
+                
+                // must have read only permission for keys in sort descriptor
+                
+                if (sortDescriptors) {
+                    
+                    for (NSSortDescriptor *sort in sortDescriptors) {
+                        
+                        if ([_delegate server:self permissionForRequest:request withType:NOServerRequestTypeSearch entity:entity managedObject:managedObject context:context key:sort.key] >= NOServerPermissionReadOnly) {
+                            
+                            [filteredResults addObject:managedObject];
+                        }
+                    }
+                }
+                
+                else {
+                    
+                    [filteredResults addObject:managedObject];
+                }
+            }
+        }
         
         results = [NSArray arrayWithArray:filteredResults];
     }
     
-    // return the resource IDs of filtered objects
+    // return the resource IDs of objects
     
     NSMutableArray *resourceIDs = [[NSMutableArray alloc] init];
     
     for (NSManagedObject *managedObject in results) {
         
-        [resourceIDs addObject:[managedObject valueForKey:_resourceIDAttributeName]];
+        __block NSNumber *resourceID;
+        
+        [context performBlockAndWait:^{
+            
+            resourceID = [managedObject valueForKey:_resourceIDAttributeName];
+        }];
+        
+        [resourceIDs addObject:resourceID];
     }
     
     NSError *error;
@@ -775,3 +843,14 @@
 }
 
 @end
+
+
+@implementation NOServer (Permissions)
+
+-(void)checkForDelegatePermissions
+{
+    _permissionsEnabled = (_delegate && [_delegate respondsToSelector:@selector(server:permissionForRequest:withType:entity:managedObject:context:key:)]);
+}
+
+@end
+
