@@ -74,7 +74,7 @@ typedef NS_ENUM(NSInteger, NOServerRequestType) {
     NOServerRequestTypePUT,
     
     /** DELETE request */
-    NOServerRequestTypeDelete,
+    NOServerRequestTypeDELETE,
     
     /** POST (create new) request */
     NOServerRequestTypePOST,

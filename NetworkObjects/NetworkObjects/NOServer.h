@@ -17,6 +17,12 @@
 
 extern NSString const* NOServerFetchRequestKey;
 
+extern NSString const* NOServerResourceIDKey;
+
+extern NSString const* NOServerManagedObjectKey;
+
+extern NSString const* NOServerManagedObjectContextKey;
+
 @interface NOServer : NSObject
 {
     NSDictionary *_resourcePaths;

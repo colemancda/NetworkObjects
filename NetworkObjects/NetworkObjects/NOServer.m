@@ -13,6 +13,12 @@
 
 NSString const* NOServerFetchRequestKey = @"NOServerFetchRequestKey";
 
+NSString const* NOServerResourceIDKey = @"NOServerResourceIDKey";
+
+NSString const* NOServerManagedObjectKey = @"NOServerManagedObjectKey";
+
+NSString const* NOServerManagedObjectContextKey = @"NOServerManagedObjectContextKey";
+
 @interface NOServer (Internal)
 
 @property (nonatomic, readonly) NSJSONWritingOptions jsonWritingOption;
@@ -31,11 +37,21 @@ NSString const* NOServerFetchRequestKey = @"NOServerFetchRequestKey";
          shouldPrefetch:(BOOL)shouldPrefetch
                   error:(NSError **)error;
 
+-(NSDictionary *)JSONRepresentationOfManagedObject:(NSManagedObject *)managedObject
+                                           context:(NSManagedObjectContext *)context
+                                           request:(RouteRequest *)request
+                                       requestType:(NOServerRequestType)requestType;
+
 @end
 
 @interface NOServer (Permissions)
 
 -(void)checkForDelegatePermissions;
+
+-(NSDictionary *)filteredJSONRepresentationOfManagedObject:(NSManagedObject *)managedObject
+                                                   context:(NSManagedObjectContext *)context
+                                                   request:(RouteRequest *)request
+                                               requestType:(NOServerRequestType)requestType;;
 
 @end
 
@@ -634,6 +650,113 @@ NSString const* NOServerFetchRequestKey = @"NOServerFetchRequestKey";
     }
 }
 
+-(void)handleGetInstanceRequest:(RouteRequest *)request forEntity:(NSEntityDescription *)entity resourceID:(NSNumber *)resourceID response:(RouteResponse *)response
+{
+    NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithDictionary:@{NOServerResourceIDKey : resourceID}];
+    
+    // get context
+    
+    NSManagedObjectContext *context = [_dataSource server:self managedObjectContextForRequest:request withType:NOServerRequestTypeGET];
+    
+    userInfo[NOServerManagedObjectContextKey] = context;
+    
+    // fetch managedObject
+    
+    NSError *error;
+    
+    NSManagedObject *managedObject = [self fetchEntity:entity withResourceID:resourceID usingContext:context shouldPrefetch:YES error:&error];
+    
+    // internal error
+    
+    if (error) {
+        
+        if (_delegate) {
+            
+            [_delegate server:self didEncounterInternalError:error forRequest:request withType:NOServerRequestTypeGET entity:entity userInfo:userInfo];
+        }
+        
+        response.statusCode = NOServerStatusCodeInternalServerError;
+        
+        return;
+    }
+    
+    // object doesnt exist
+    
+    if (!managedObject && !error) {
+        
+        response.statusCode = NOServerStatusCodeNotFound;
+        
+        return;
+    }
+    
+    // add managedObject to userInfo
+    
+    userInfo[NOServerManagedObjectKey] = managedObject;
+    
+    // ask delegate
+    
+    if (_delegate) {
+        
+        NOServerStatusCode statusCode = [_delegate server:self statusCodeForRequest:request withType:NOServerRequestTypeSearch entity:entity userInfo:userInfo];
+        
+        if (statusCode != NOServerStatusCodeOK) {
+            
+            response.statusCode = statusCode;
+            
+            return;
+        }
+    }
+    
+    // check for permissions
+    
+    if (_permissionsEnabled) {
+        
+        if ([_delegate server:self permissionForRequest:request withType:NOServerRequestTypeGET entity:entity managedObject:managedObject context:context key:nil] < NOServerPermissionReadOnly) {
+            
+            response.statusCode = NOServerForbiddenStatusCode;
+            
+            return;
+        };
+    }
+    
+    // build json object
+    __block NSDictionary *jsonObject;
+    
+    [context performBlockAndWait:^{
+        
+        jsonObject = [self JSONRepresentationOfResource:resource
+                                             forSession:session];
+        
+    }];
+    
+    // serialize JSON data
+    
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonObject
+                                                       options:self.jsonWritingOption
+                                                         error:&error];
+    if (!jsonData) {
+        
+        if (_delegate) {
+            
+            [_delegate server:self didEncounterInternalError:error forRequest:request withType:NOServerRequestTypeGET entity:entity userInfo:userInfo];
+        }
+        
+        response.statusCode = NOServerInternalServerErrorStatusCode;
+        
+        return;
+    }
+    
+    // return JSON representation of resource
+    [response respondWithData:jsonData];
+    
+    // tell delegate
+    
+    if (_delegate) {
+        
+        [_delegate server:self didPerformRequest:request withType:NOServerRequestTypeSearch userInfo:userInfo];
+    }
+}
+
 @end
 
 @implementation NOServer (Internal)
@@ -842,6 +965,17 @@ NSString const* NOServerFetchRequestKey = @"NOServerFetchRequestKey";
     return result;
 }
 
+-(NSDictionary *)JSONRepresentationOfManagedObject:(NSManagedObject *)managedObject
+{
+    if (_permissionsEnabled) {
+        
+        return [self filteredJSONRepresentationOfManagedObject:managedObject];
+    }
+    
+    
+    
+}
+
 @end
 
 
@@ -850,6 +984,15 @@ NSString const* NOServerFetchRequestKey = @"NOServerFetchRequestKey";
 -(void)checkForDelegatePermissions
 {
     _permissionsEnabled = (_delegate && [_delegate respondsToSelector:@selector(server:permissionForRequest:withType:entity:managedObject:context:key:)]);
+}
+
+-(NSDictionary *)filteredJSONRepresentationOfManagedObject:(NSManagedObject *)managedObject
+                                                   context:(NSManagedObjectContext *)context
+                                                   request:(RouteRequest *)request
+                                               requestType:(NOServerRequestType)requestType
+{
+    
+    
 }
 
 @end
