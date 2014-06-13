@@ -39,6 +39,14 @@ NSString const* NOServerManagedObjectContextKey = @"NOServerManagedObjectContext
 
 -(NSDictionary *)JSONRepresentationOfManagedObject:(NSManagedObject *)managedObject;
 
+-(NOServerStatusCode)verifyEditResource:(NSManagedObject *)resource
+                             forRequest:(RouteRequest *)request
+                            requestType:(NOServerRequestType)requestType
+                     recievedJsonObject:(NSDictionary *)recievedJsonObject
+                                context:(NSManagedObjectContext *)context
+                                  error:(NSError **)error
+                        convertedValues:(NSDictionary **)convertedValues;
+
 @end
 
 @interface NOServer (Permissions)
@@ -760,13 +768,33 @@ NSString const* NOServerManagedObjectContextKey = @"NOServerManagedObjectContext
     
     if (_delegate) {
         
-        [_delegate server:self didPerformRequest:request withType:NOServerRequestTypeSearch userInfo:userInfo];
+        [_delegate server:self didPerformRequest:request withType:NOServerRequestTypeGET userInfo:userInfo];
     }
 }
 
 -(void)handleEditInstanceRequest:(RouteRequest *)request forEntity:(NSEntityDescription *)entity resourceID:(NSNumber *)resourceID response:(RouteResponse *)response
 {
     NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithDictionary:@{NOServerResourceIDKey : resourceID}];
+    
+    // get JSON object
+    
+    NSError *error;
+    
+    NSDictionary *jsonObject = [NSJSONSerialization JSONObjectWithData:request.body
+                                                               options:NSJSONReadingAllowFragments
+                                                                 error:&error];
+    
+    if (error) {
+        
+        if (_delegate) {
+            
+            [_delegate server:self didEncounterInternalError:error forRequest:request withType:NOServerRequestTypePUT entity:entity userInfo:userInfo];
+        }
+        
+        response.statusCode = NOServerStatusCodeInternalServerError;
+        
+        return;
+    }
     
     // get context
     
@@ -775,8 +803,6 @@ NSString const* NOServerManagedObjectContextKey = @"NOServerManagedObjectContext
     userInfo[NOServerManagedObjectContextKey] = context;
     
     // fetch managedObject
-    
-    NSError *error;
     
     NSManagedObject *managedObject = [self fetchEntity:entity withResourceID:resourceID usingContext:context shouldPrefetch:NO error:&error];
     
