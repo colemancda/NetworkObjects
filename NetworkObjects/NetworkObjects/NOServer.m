@@ -648,7 +648,7 @@
                 
                 NSString *capturedResourceID = captures[0];
                 
-                NSNumber *resourceID = @(capturedResourceID.integerValue);
+                NSNumber *resourceID = [NSNumber numberWithInteger:capturedResourceID.integerValue];
                 
                 [self handleFunctionInstanceRequest:request
                                           forEntity:entity
