@@ -849,7 +849,7 @@ NSString const* NOServerNewValuesKey = @"NOServerNewValuesKey";
     
     if (_permissionsEnabled) {
         
-        if ([_delegate server:self permissionForRequest:request withType:NOServerRequestTypePUT entity:entity managedObject:managedObject context:context key:nil] < NOServerPermissionReadOnly) {
+        if ([_delegate server:self permissionForRequest:request withType:NOServerRequestTypePUT entity:entity managedObject:managedObject context:context key:nil] < NOServerPermissionEditPermission) {
             
             response.statusCode = NOServerStatusCodeForbidden;
             
@@ -912,6 +912,71 @@ NSString const* NOServerNewValuesKey = @"NOServerNewValuesKey";
 
 -(void)handleDeleteInstanceRequest:(RouteRequest *)request forEntity:(NSEntityDescription *)entity resourceID:(NSNumber *)resourceID response:(RouteResponse *)response
 {
+    NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithDictionary:@{NOServerResourceIDKey : resourceID}];
+    
+    // get context
+    
+    NSManagedObjectContext *context = [_dataSource server:self managedObjectContextForRequest:request withType:NOServerRequestTypeDELETE];
+    
+    userInfo[NOServerManagedObjectContextKey] = context;
+    
+    // fetch managedObject
+    
+    NSManagedObject *managedObject = [self fetchEntity:entity withResourceID:resourceID usingContext:context shouldPrefetch:NO error:&error];
+    
+    // internal error
+    
+    if (error) {
+        
+        if (_delegate) {
+            
+            [_delegate server:self didEncounterInternalError:error forRequest:request withType:NOServerRequestTypeDELETE entity:entity userInfo:userInfo];
+        }
+        
+        response.statusCode = NOServerStatusCodeInternalServerError;
+        
+        return;
+    }
+    
+    // object doesnt exist
+    
+    if (!managedObject && !error) {
+        
+        response.statusCode = NOServerStatusCodeNotFound;
+        
+        return;
+    }
+    
+    // add managedObject to userInfo
+    
+    userInfo[NOServerManagedObjectKey] = managedObject;
+    
+    // ask delegate
+    
+    if (_delegate) {
+        
+        NOServerStatusCode statusCode = [_delegate server:self statusCodeForRequest:request withType:NOServerRequestTypeDELETE entity:entity userInfo:userInfo];
+        
+        if (statusCode != NOServerStatusCodeOK) {
+            
+            response.statusCode = statusCode;
+            
+            return;
+        }
+    }
+    
+    // check for permissions
+    
+    if (_permissionsEnabled) {
+        
+        if ([_delegate server:self permissionForRequest:request withType:NOServerRequestTypeDELETE entity:entity managedObject:managedObject context:context key:nil] < NOServerPermissionEditPermission) {
+            
+            response.statusCode = NOServerStatusCodeForbidden;
+            
+            return;
+        };
+    }
+    
     
     
 }
