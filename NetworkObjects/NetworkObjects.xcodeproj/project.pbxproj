@@ -77,8 +77,6 @@
 		6E38BF84194A97A900FD5513 /* GCDAsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E38BF82194A97A900FD5513 /* GCDAsyncSocket.m */; };
 		6E38BF9E194A995A00FD5513 /* RouteResponse+IPAddress.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E38BF98194A995A00FD5513 /* RouteResponse+IPAddress.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		6E38BF9F194A995A00FD5513 /* RouteResponse+IPAddress.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E38BF99194A995A00FD5513 /* RouteResponse+IPAddress.m */; };
-		6E38BFA0194A995A00FD5513 /* NOHTTPConnection.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E38BF9A194A995A00FD5513 /* NOHTTPConnection.h */; settings = {ATTRIBUTES = (Private, ); }; };
-		6E38BFA1194A995A00FD5513 /* NOHTTPConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E38BF9B194A995A00FD5513 /* NOHTTPConnection.m */; };
 		6E38BFA2194A995A00FD5513 /* NOHTTPServer.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E38BF9C194A995A00FD5513 /* NOHTTPServer.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		6E38BFA3194A995A00FD5513 /* NOHTTPServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E38BF9D194A995A00FD5513 /* NOHTTPServer.m */; };
 		6E38BFAA194AAAEE00FD5513 /* NSDate+ISO8601.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E38BFA6194AAAEE00FD5513 /* NSDate+ISO8601.h */; };
@@ -177,8 +175,6 @@
 		6E38BF82194A97A900FD5513 /* GCDAsyncSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GCDAsyncSocket.m; path = ../../Dependencies/CocoaAsyncSocket/GCD/GCDAsyncSocket.m; sourceTree = "<group>"; };
 		6E38BF98194A995A00FD5513 /* RouteResponse+IPAddress.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RouteResponse+IPAddress.h"; sourceTree = "<group>"; };
 		6E38BF99194A995A00FD5513 /* RouteResponse+IPAddress.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "RouteResponse+IPAddress.m"; sourceTree = "<group>"; };
-		6E38BF9A194A995A00FD5513 /* NOHTTPConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NOHTTPConnection.h; sourceTree = "<group>"; };
-		6E38BF9B194A995A00FD5513 /* NOHTTPConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NOHTTPConnection.m; sourceTree = "<group>"; };
 		6E38BF9C194A995A00FD5513 /* NOHTTPServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NOHTTPServer.h; sourceTree = "<group>"; };
 		6E38BF9D194A995A00FD5513 /* NOHTTPServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NOHTTPServer.m; sourceTree = "<group>"; };
 		6E38BFA6194AAAEE00FD5513 /* NSDate+ISO8601.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDate+ISO8601.h"; sourceTree = "<group>"; };
@@ -407,8 +403,6 @@
 				6E38BF97194A988A00FD5513 /* Categories */,
 				6E38BEF9194A6F7E00FD5513 /* NOServer.h */,
 				6E38BEFA194A6F7E00FD5513 /* NOServer.m */,
-				6E38BF9A194A995A00FD5513 /* NOHTTPConnection.h */,
-				6E38BF9B194A995A00FD5513 /* NOHTTPConnection.m */,
 				6E38BF9C194A995A00FD5513 /* NOHTTPServer.h */,
 				6E38BF9D194A995A00FD5513 /* NOHTTPServer.m */,
 			);
@@ -462,7 +456,6 @@
 				6E38BEE1194A6F0800FD5513 /* NetworkObjects.h in Headers */,
 				6E38BEFB194A6F7E00FD5513 /* NOServer.h in Headers */,
 				6E73AE50194BC6B5008BE32A /* NOStore.h in Headers */,
-				6E38BFA0194A995A00FD5513 /* NOHTTPConnection.h in Headers */,
 				6E38BF9E194A995A00FD5513 /* RouteResponse+IPAddress.h in Headers */,
 				6E38BFA2194A995A00FD5513 /* NOHTTPServer.h in Headers */,
 				6E38BF0F194A974300FD5513 /* Route.h in Headers */,
@@ -635,7 +628,6 @@
 				6E38BF62194A976100FD5513 /* HTTPRedirectResponse.m in Sources */,
 				6E38BF0E194A974300FD5513 /* HTTPResponseProxy.m in Sources */,
 				6E38BF60194A976100FD5513 /* HTTPFileResponse.m in Sources */,
-				6E38BFA1194A995A00FD5513 /* NOHTTPConnection.m in Sources */,
 				6E38BF50194A976100FD5513 /* HTTPServer.m in Sources */,
 				6E38BF4D194A976100FD5513 /* HTTPMessage.m in Sources */,
 				6E38BFAD194AAAEE00FD5513 /* NSManagedObject+CoreDataJSONCompatibility.m in Sources */,

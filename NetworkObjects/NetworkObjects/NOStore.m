@@ -300,7 +300,7 @@
             
         }];
         
-        // get the corresponding managed object that belong to the main thread
+        // get the corresponding managed objects that belongs to the main queue context
         
         NSMutableArray *mainContextResults = [[NSMutableArray alloc] init];
         
@@ -372,25 +372,25 @@
             
             // get cached resource
             
-            resource = [self findOrCreateResource:resourceName
+            resource = [self findOrCreateEntity:entity
                                    withResourceID:resourceID
                                           context:_privateQueueManagedObjectContext];
             
             // set values
             
             [self setJSONObject:resourceDict
-                    forResource:resource];
+                    forManagedObject:resource];
             
             
             // set date cached
             
-            [self didCacheResource:resource];
+            [self didCacheManagedObject:resource];
             
             // save
             
             NSError *saveError;
             
-            if (![self.context save:&saveError]) {
+            if (![_privateQueueManagedObjectContext save:&saveError]) {
                 
                 [NSException raise:NSInternalInconsistencyException
                             format:@"%@", saveError.localizedDescription];
@@ -398,6 +398,7 @@
             
         }];
         
+        // get the corresponding managed object that belongs to the main queue context
         
         
         completionBlock(nil, resource);

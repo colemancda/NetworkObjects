@@ -31,7 +31,6 @@ extern NSString const* NOServerFunctionJSONInputKey;
 
 extern NSString const* NOServerFunctionJSONOutputKey;
 
-
 @interface NOServer : NSObject
 {
     NSDictionary *_resourcePaths;

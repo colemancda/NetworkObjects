@@ -8,8 +8,8 @@
 
 #import "NOServer.h"
 #import "NOHTTPServer.h"
-#import "NOHTTPConnection.h"
 #import "NSManagedObject+CoreDataJSONCompatibility.h"
+#import "RoutingConnection.h"
 
 NSString const* NOServerFetchRequestKey = @"NOServerFetchRequestKey";
 
@@ -26,6 +26,10 @@ NSString const* NOServerFunctionNameKey = @"NOServerFunctionNameKey";
 NSString const* NOServerFunctionJSONInputKey = @"NOServerFunctionJSONInputKey";
 
 NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey";
+
+@interface NOHTTPConnection : RoutingConnection
+
+@end
 
 @interface NOServer (Internal)
 
@@ -1899,6 +1903,24 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
     }
     
     return jsonObject;
+}
+
+@end
+
+@implementation NOHTTPConnection
+
+-(BOOL)isSecureServer
+{
+    return (BOOL)self.sslIdentityAndCertificates;
+}
+
+-(NSArray *)sslIdentityAndCertificates
+{
+    NOHTTPServer *httpServer = (NOHTTPServer *)config.server;
+    
+    NOServer *server = httpServer.server;
+    
+    return server.sslIdentityAndCertificates;
 }
 
 @end
