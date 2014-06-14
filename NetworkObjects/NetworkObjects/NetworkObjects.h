@@ -16,7 +16,6 @@ FOUNDATION_EXPORT const unsigned char NetworkObjectsVersionString[];
 
 #import <NetworkObjects/NOServer.h>
 #import <NetworkObjects/NOHTTPServer.h>
-#import <NetworkObjects/NOHTTPConnection.h>
 
 #import <NetworkObjects/NOStore.h>
 

@@ -50,6 +50,20 @@
 
 @end
 
+@interface NOStore (CommonErrors)
+
+-(NSError *)invalidServerResponseError;
+
+-(NSError *)badRequestError;
+
+-(NSError *)serverError;
+
+-(NSError *)unauthorizedError;
+
+-(NSError *)notFoundError;
+
+@end
+
 @implementation NOStore (NSJSONWritingOption)
 
 -(NSJSONWritingOptions)jsonWritingOption
@@ -65,10 +79,10 @@
 
 @interface NOStore (API)
 
--(NSURLSessionDataTask *)searchForResource:(NSString *)resourceName
+-(NSURLSessionDataTask *)searchForResource:(NSEntityDescription *)enitity
                             withParameters:(NSDictionary *)parameters
                                 URLSession:(NSURLSession *)urlSession
-                                completion:(void (^)(NSError *error, NSArray *results))completionBlock;
+                                completion:(void (^)(NSError *error, NSDictionary *results))completionBlock;
 
 -(NSURLSessionDataTask *)getResource:(NSString *)resourceName
                               withID:(NSUInteger)resourceID
@@ -116,7 +130,7 @@
 
 @property (nonatomic) NSURL *serverURL;
 
-@property (nonatomic) NSDictionary *resourcePaths;
+@property (nonatomic) NSDictionary *entitiesByResourcePath;
 
 @property (nonatomic) NSManagedObjectModel *model;
 
@@ -133,7 +147,7 @@
 
 - (instancetype)initWithPersistentStoreCoordinator:(NSPersistentStoreCoordinator *)psc
                                          serverURL:(NSURL *)serverURL
-                                     resourcePaths:(NSDictionary *)resourcePaths
+                            entitiesByResourcePath:(NSDictionary *)entitiesByResourcePath
                                    prettyPrintJSON:(BOOL)prettyPrintJSON
                            resourceIDAttributeName:(NSString *)resourceIDAttributeName
                            dateCachedAttributeName:(NSString *)dateCachedAttributeName
@@ -146,7 +160,7 @@
         
         self.serverURL = serverURL;
         
-        self.resourcePaths = resourcePaths;
+        self.entitiesByResourcePath = entitiesByResourcePath;
         
         self.prettyPrintJSON = prettyPrintJSON;
         
@@ -236,7 +250,11 @@
         jsonObject[[NSString stringWithFormat:@"%lu", (unsigned long)NOSearchParameterSortDescriptors]] = jsonSortDescriptors;
     }
     
-    return [self searchForResource:entity.name withParameters:jsonObject URLSession:urlSession completion:^(NSError *error, NSArray *results) {
+    // get entity
+    
+    NSEntityDescription *entity = self.model.entitiesByName[fetchRequest.entityName];
+    
+    return [self searchForResource:entity withParameters:jsonObject URLSession:urlSession completion:^(NSError *error, NSDictionary *results) {
         
         if (error) {
             
@@ -249,25 +267,34 @@
         
         NSMutableArray *cachedResults = [[NSMutableArray alloc] init];
         
-        [self.context performBlockAndWait:^{
+        [self.privateQueueManagedObjectContext performBlockAndWait:^{
             
-            for (NSNumber *resourceID in results) {
+            for (NSString *resourcePath in results) {
                 
-                NSManagedObject *resource = [self findOrCreateResource:entity.name
-                                                        withResourceID:resourceID
-                                                               context:self.context];
+                NSArray *resourceIDs = results[resourcePath];
                 
-                [cachedResults addObject:resource];
-            }
-            
-            // save
-            
-            NSError *saveError;
-            
-            if (![self.context save:&saveError]) {
+                // get the entity
                 
-                [NSException raise:NSInternalInconsistencyException
-                            format:@"%@", saveError.localizedDescription];
+                NSEntityDescription *entity = self.entitiesByResourcePath[resourcePath];
+                
+                for (NSNumber *resourceID in results) {
+                    
+                    NSManagedObject *resource = [self findOrCreateCreateEntityWithName:entity.name
+                                                                        withResourceID:resourceID
+                                                                               context:self.privateQueueManagedObjectContext];
+                    
+                    [cachedResults addObject:resource];
+                }
+                
+                // save
+                
+                NSError *saveError;
+                
+                if (![self.context save:&saveError]) {
+                    
+                    [NSException raise:NSInternalInconsistencyException
+                                format:@"%@", saveError.localizedDescription];
+                }
             }
             
         }];
@@ -318,10 +345,10 @@
 
 @implementation NOStore (API)
 
--(NSURLSessionDataTask *)searchForResource:(NSString *)resourceName
+-(NSURLSessionDataTask *)searchForResource:(NSEntityDescription *)entity
                             withParameters:(NSDictionary *)parameters
                                 URLSession:(NSURLSession *)urlSession
-                                completion:(void (^)(NSError *, NSArray *))completionBlock
+                                completion:(void (^)(NSError *, NSDictionary *))completionBlock
 {
     if (!self.searchPath) {
         
@@ -337,9 +364,7 @@
     
     // Build URL
     
-    Class entityClass = [self entityClassWithResourceName:resourceName];
-    
-    NSString *resourcePath = [entityClass resourcePath];
+    NSString *resourcePath = [self.resourcePaths allKeysForObject:entity].firstObject;
     
     NSURL *searchURL = [self.serverURL URLByAppendingPathComponent:self.searchPath];
     
@@ -348,13 +373,6 @@
     NSMutableURLRequest *urlRequest = [[NSMutableURLRequest alloc] initWithURL:searchURL];
     
     urlRequest.HTTPMethod = @"POST";
-    
-    // add authentication header if availible
-    
-    if (self.sessionToken) {
-        
-        [urlRequest addValue:self.sessionToken forHTTPHeaderField:@"Authorization"];
-    }
     
     // add JSON data
     
@@ -1167,6 +1185,366 @@
     }
     
     return jsonObject;
+}
+
+@end
+
+@implementation NOAPI (CommonErrors)
+
+-(NSError *)invalidServerResponseError
+{
+    
+    NSString *description = NSLocalizedString(@"The server returned a invalid response",
+                                              @"The server returned a invalid response");
+    
+    NSError *error = [NSError errorWithDomain:NetworkObjectsErrorDomain
+                                         code:NOAPIInvalidServerResponseErrorCode
+                                     userInfo:@{NSLocalizedDescriptionKey: description}];
+    
+    return error;
+}
+
+-(NSError *)badRequestError
+{
+    static NSError *error;
+    
+    if (!error) {
+        
+        NSString *description = NSLocalizedString(@"Invalid request",
+                                                  @"Invalid request");
+        
+        error = [NSError errorWithDomain:NetworkObjectsErrorDomain
+                                    code:NOAPIBadRequestErrorCode
+                                userInfo:@{NSLocalizedDescriptionKey: description}];
+        
+    }
+    
+    return error;
+}
+
+-(NSError *)serverError
+{
+    static NSError *error;
+    
+    if (!error) {
+        
+        NSString *description = NSLocalizedString(@"The server suffered an internal error",
+                                                  @"The server suffered an internal error");
+        
+        error = [NSError errorWithDomain:NetworkObjectsErrorDomain
+                                    code:NOAPIServerInternalErrorCode
+                                userInfo:@{NSLocalizedDescriptionKey: description}];
+        
+    }
+    
+    return error;
+}
+
+-(NSError *)unauthorizedError
+{
+    static NSError *error;
+    
+    if (!error) {
+        
+        NSString *description = NSLocalizedString(@"Authentication is required",
+                                                  @"Authentication is required");
+        
+        error = [NSError errorWithDomain:NetworkObjectsErrorDomain
+                                    code:NOAPIUnauthorizedErrorCode
+                                userInfo:@{NSLocalizedDescriptionKey: description}];
+    }
+    
+    return error;
+}
+
+-(NSError *)notFoundError
+{
+    static NSError *error;
+    
+    if (!error) {
+        
+        NSString *description = NSLocalizedString(@"Resource was not found",
+                                                  @"Resource was not found");
+        
+        error = [NSError errorWithDomain:NetworkObjectsErrorDomain
+                                    code:NOAPINotFoundErrorCode
+                                userInfo:@{NSLocalizedDescriptionKey: description}];
+    }
+    
+    return error;
+}
+
+@end
+
+@implementation NOAPICachedStore (Cache)
+
+-(NSManagedObjectID *)findResource:(NSString *)resourceName
+                    withResourceID:(NSNumber *)resourceID
+                           context:(NSManagedObjectContext *)context
+{
+    // look for resource in cache
+    
+    NSManagedObjectID *objectID;
+    
+    NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:resourceName];
+    
+    fetchRequest.resultType = NSManagedObjectIDResultType;
+    
+    fetchRequest.fetchLimit = 1;
+    
+    // get entity
+    NSEntityDescription *entity = self.model.entitiesByName[resourceName];
+    
+    Class entityClass = NSClassFromString(entity.managedObjectClassName);
+    
+    NSString *resourceIDKey = [entityClass resourceIDKey];
+    
+    // create predicate
+    fetchRequest.predicate = [NSComparisonPredicate predicateWithLeftExpression:[NSExpression expressionForKeyPath:resourceIDKey]
+                                                                rightExpression:[NSExpression expressionForConstantValue:resourceID]
+                                                                       modifier:NSDirectPredicateModifier
+                                                                           type:NSEqualToPredicateOperatorType
+                                                                        options:NSNormalizedPredicateOption];
+    
+    NSError *error;
+    
+    NSArray *results = [context executeFetchRequest:fetchRequest
+                                              error:&error];
+    
+    if (error) {
+        
+        [NSException raise:@"Error executing NSFetchRequest"
+                    format:@"%@", error.localizedDescription];
+        
+        return nil;
+    }
+    
+    objectID = results.firstObject;
+    
+    return objectID;
+}
+
+-(NSManagedObject<NOResourceKeysProtocol> *)findOrCreateResource:(NSString *)resourceName
+                                                  withResourceID:(NSNumber *)resourceID
+                                                         context:(NSManagedObjectContext *)context
+{
+    // get cached resource...
+    
+    NSEntityDescription *entity = self.model.entitiesByName[resourceName];
+    
+    Class entityClass = NSClassFromString(entity.managedObjectClassName);
+    
+    NSString *resourceIDKey = [entityClass resourceIDKey];
+    
+    NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:resourceName];
+    
+    fetchRequest.fetchLimit = 1;
+    
+    // create predicate
+    
+    fetchRequest.predicate = [NSComparisonPredicate predicateWithLeftExpression:[NSExpression expressionForKeyPath:resourceIDKey]
+                                                                rightExpression:[NSExpression expressionForConstantValue:resourceID]
+                                                                       modifier:NSDirectPredicateModifier
+                                                                           type:NSEqualToPredicateOperatorType
+                                                                        options:NSNormalizedPredicateOption];
+    
+    fetchRequest.returnsObjectsAsFaults = NO;
+    
+    // fetch
+    
+    NSManagedObject <NOResourceKeysProtocol> *resource;
+    
+    NSError *error;
+    
+    NSArray *results = [context executeFetchRequest:fetchRequest
+                                              error:&error];
+    
+    if (error) {
+        
+        [NSException raise:@"Error executing NSFetchRequest"
+                    format:@"%@", error.localizedDescription];
+        
+        return nil;
+    }
+    
+    resource = results.firstObject;
+    
+    // create cached resource if not found
+    
+    if (!resource) {
+        
+        // create new entity
+        
+        resource = [NSEntityDescription insertNewObjectForEntityForName:resourceName
+                                                 inManagedObjectContext:context];
+        
+        // set resource ID
+        
+        [resource setValue:resourceID
+                    forKey:[NSClassFromString(entity.managedObjectClassName) resourceIDKey]];
+        
+    }
+    
+    return resource;
+}
+
+-(NSManagedObject<NOResourceKeysProtocol> *)setJSONObject:(NSDictionary *)resourceDict
+                                              forResource:(NSManagedObject<NOResourceKeysProtocol> *)resource
+{
+    // set values...
+    
+    NSEntityDescription *entity = resource.entity;
+    
+    [self.context performBlockAndWait:^{
+        
+        for (NSString *attributeName in entity.attributesByName) {
+            
+            for (NSString *key in resourceDict) {
+                
+                // found matching key (will only run once because dictionaries dont have duplicates)
+                if ([key isEqualToString:attributeName]) {
+                    
+                    id jsonValue = [resourceDict valueForKey:key];
+                    
+                    id newValue = [resource attributeValueForJSONCompatibleValue:jsonValue
+                                                                    forAttribute:attributeName];
+                    
+                    id value = [resource valueForKey:key];
+                    
+                    NSAttributeDescription *attribute = entity.attributesByName[attributeName];
+                    
+                    // check if new values are different from current values...
+                    
+                    BOOL isNewValue = YES;
+                    
+                    // if both are nil
+                    if (!value && !newValue) {
+                        
+                        isNewValue = NO;
+                    }
+                    
+                    else {
+                        
+                        if (attribute.attributeType == NSStringAttributeType) {
+                            
+                            if ([value isEqualToString:newValue]) {
+                                
+                                isNewValue = NO;
+                            }
+                        }
+                        
+                        if (attribute.attributeType == NSDecimalAttributeType ||
+                            attribute.attributeType == NSInteger16AttributeType ||
+                            attribute.attributeType == NSInteger32AttributeType ||
+                            attribute.attributeType == NSInteger64AttributeType ||
+                            attribute.attributeType == NSDoubleAttributeType ||
+                            attribute.attributeType == NSBooleanAttributeType ||
+                            attribute.attributeType == NSFloatAttributeType) {
+                            
+                            if ([value isEqualToNumber:newValue]) {
+                                
+                                isNewValue = NO;
+                            }
+                        }
+                        
+                        if (attribute.attributeType == NSDateAttributeType) {
+                            
+                            if ([value isEqualToDate:newValue]) {
+                                
+                                isNewValue = NO;
+                            }
+                        }
+                        
+                        if (attribute.attributeType == NSBinaryDataAttributeType) {
+                            
+                            if ([value isEqualToData:newValue]) {
+                                
+                                isNewValue = NO;
+                            }
+                        }
+                    }
+                    
+                    // only set newValue if its different from the current value
+                    
+                    if (isNewValue) {
+                        
+                        [resource setValue:newValue
+                                    forKey:attributeName];
+                    }
+                    
+                    break;
+                }
+            }
+        }
+        
+        for (NSString *relationshipName in entity.relationshipsByName) {
+            
+            NSRelationshipDescription *relationship = entity.relationshipsByName[relationshipName];
+            
+            for (NSString *key in resourceDict) {
+                
+                // found matching key (will only run once because dictionaries dont have duplicates)
+                if ([key isEqualToString:relationshipName]) {
+                    
+                    // destination entity
+                    NSEntityDescription *destinationEntity = relationship.destinationEntity;
+                    
+                    // to-one relationship
+                    if (!relationship.isToMany) {
+                        
+                        // get the resource ID
+                        NSNumber *destinationResourceID = [resourceDict valueForKey:relationshipName];
+                        
+                        NSManagedObject<NOResourceKeysProtocol> *destinationResource = [self findOrCreateResource:destinationEntity.name
+                                                                                                   withResourceID:destinationResourceID
+                                                                                                          context:resource.managedObjectContext];
+                        
+                        // dont set value if its the same as current value
+                        
+                        if (destinationResource != [resource valueForKey:relationshipName]) {
+                            
+                            [resource setValue:destinationResource
+                                        forKey:key];
+                        }
+                    }
+                    
+                    // to-many relationship
+                    else {
+                        
+                        // get the resourceIDs
+                        NSArray *destinationResourceIDs = [resourceDict valueForKey:relationshipName];
+                        
+                        NSSet *currentValues = [resource valueForKey:relationshipName];
+                        
+                        NSMutableSet *destinationResources = [[NSMutableSet alloc] init];
+                        
+                        for (NSNumber *destinationResourceID in destinationResourceIDs) {
+                            
+                            NSManagedObject *destinationResource = [self findOrCreateResource:destinationEntity.name
+                                                                               withResourceID:destinationResourceID
+                                                                                      context:resource.managedObjectContext];
+                            
+                            [destinationResources addObject:destinationResource];
+                        }
+                        
+                        // set new relationships if they are different from current values
+                        if (![currentValues isEqualToSet:destinationResources]) {
+                            
+                            [resource setValue:destinationResources
+                                        forKey:key];
+                        }
+                        
+                    }
+                    
+                    break;
+                    
+                }
+            }
+        }
+        
+    }];
+    
+    return resource;
 }
 
 @end

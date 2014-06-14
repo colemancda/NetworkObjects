@@ -17,7 +17,7 @@
 
 - (instancetype)initWithPersistentStoreCoordinator:(NSPersistentStoreCoordinator *)psc
                                          serverURL:(NSURL *)serverURL
-                                     resourcePaths:(NSDictionary *)resourcePaths
+                            entitiesByResourcePath:(NSDictionary *)entitiesByResourcePath
                                    prettyPrintJSON:(BOOL)prettyPrintJSON
                            resourceIDAttributeName:(NSString *)resourceIDAttributeName
                            dateCachedAttributeName:(NSString *)dateCachedAttributeName NS_DESIGNATED_INITIALIZER;
@@ -65,7 +65,7 @@
 
 /**  Resource path strings mapped to entity descriptions. */
 
-@property (nonatomic, readonly) NSDictionary *resourcePaths;
+@property (nonatomic, readonly) NSDictionary *entitiesByResourcePath;
 
 #pragma mark - Requests
 
