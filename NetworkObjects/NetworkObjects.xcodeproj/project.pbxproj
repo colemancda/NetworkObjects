@@ -86,7 +86,7 @@
 		6E38BFAB194AAAEE00FD5513 /* NSDate+ISO8601.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E38BFA7194AAAEE00FD5513 /* NSDate+ISO8601.m */; };
 		6E38BFAC194AAAEE00FD5513 /* NSManagedObject+CoreDataJSONCompatibility.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E38BFA8194AAAEE00FD5513 /* NSManagedObject+CoreDataJSONCompatibility.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		6E38BFAD194AAAEE00FD5513 /* NSManagedObject+CoreDataJSONCompatibility.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E38BFA9194AAAEE00FD5513 /* NSManagedObject+CoreDataJSONCompatibility.m */; };
-		6E73AE50194BC6B5008BE32A /* NOStore.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E73AE4E194BC6B5008BE32A /* NOStore.h */; };
+		6E73AE50194BC6B5008BE32A /* NOStore.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E73AE4E194BC6B5008BE32A /* NOStore.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6E73AE51194BC6B5008BE32A /* NOStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E73AE4F194BC6B5008BE32A /* NOStore.m */; };
 /* End PBXBuildFile section */
 
