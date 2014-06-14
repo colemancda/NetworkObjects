@@ -13,15 +13,15 @@
 
 // call these inside -performWithBlock:
 
--(NSManagedObjectID *)findEntityWithName:(NSString *)entityName
-                          withResourceID:(NSNumber *)resourceID
-                                 context:(NSManagedObjectContext *)context;
+-(NSManagedObjectID *)findEntity:(NSEntityDescription *)entity
+                  withResourceID:(NSNumber *)resourceID
+                         context:(NSManagedObjectContext *)context;
 
 // Must save context after calling these
 
--(NSManagedObject *)findOrCreateEntityWithName:(NSString *)entityName
-                                withResourceID:(NSNumber *)resourceID
-                                       context:(NSManagedObjectContext *)context;
+-(NSManagedObject *)findOrCreateEntity:(NSEntityDescription *)entity
+                        withResourceID:(NSNumber *)resourceID
+                               context:(NSManagedObjectContext *)context;
 
 -(NSManagedObject *)setJSONObject:(NSDictionary *)jsonObject
                  forManagedObject:(NSManagedObject *)managedObject;
@@ -84,29 +84,29 @@
                                 URLSession:(NSURLSession *)urlSession
                                 completion:(void (^)(NSError *error, NSDictionary *results))completionBlock;
 
--(NSURLSessionDataTask *)getResource:(NSString *)resourceName
+-(NSURLSessionDataTask *)getResource:(NSEntityDescription *)entity
                               withID:(NSUInteger)resourceID
                           URLSession:(NSURLSession *)urlSession
                           completion:(void (^)(NSError *error, NSDictionary *resource))completionBlock;
 
--(NSURLSessionDataTask *)editResource:(NSString *)resourceName
+-(NSURLSessionDataTask *)editResource:(NSEntityDescription *)entity
                                withID:(NSUInteger)resourceID
                               changes:(NSDictionary *)changes
                            URLSession:(NSURLSession *)urlSession
                            completion:(void (^)(NSError *error))completionBlock;
 
--(NSURLSessionDataTask *)deleteResource:(NSString *)resourceName
+-(NSURLSessionDataTask *)deleteResource:(NSEntityDescription *)entity
                                  withID:(NSUInteger)resourceID
                              URLSession:(NSURLSession *)urlSession
                              completion:(void (^)(NSError *error))completionBlock;
 
--(NSURLSessionDataTask *)createResource:(NSString *)resourceName
+-(NSURLSessionDataTask *)createResource:(NSEntityDescription *)entity
                       withInitialValues:(NSDictionary *)initialValues
                              URLSession:(NSURLSession *)urlSession
                              completion:(void (^)(NSError *error, NSNumber *resourceID))completionBlock;
 
 -(NSURLSessionDataTask *)performFunction:(NSString *)functionName
-                              onResource:(NSString *)resourceName
+                              onResource:(NSEntityDescription *)entity
                                   withID:(NSUInteger)resourceID
                           withJSONObject:(NSDictionary *)jsonObject
                               URLSession:(NSURLSession *)urlSession
@@ -267,7 +267,7 @@
         
         NSMutableArray *cachedResults = [[NSMutableArray alloc] init];
         
-        [self.privateQueueManagedObjectContext performBlockAndWait:^{
+        [_privateQueueManagedObjectContext performBlockAndWait:^{
             
             for (NSString *resourcePath in results) {
                 
@@ -277,11 +277,11 @@
                 
                 NSEntityDescription *entity = self.entitiesByResourcePath[resourcePath];
                 
-                for (NSNumber *resourceID in results) {
+                for (NSNumber *resourceID in resourceIDs) {
                     
-                    NSManagedObject *resource = [self findOrCreateCreateEntityWithName:entity.name
-                                                                        withResourceID:resourceID
-                                                                               context:self.privateQueueManagedObjectContext];
+                    NSManagedObject *resource = [self findOrCreateEntity:entity
+                                                          withResourceID:resourceID
+                                                                 context:_privateQueueManagedObjectContext];
                     
                     [cachedResults addObject:resource];
                 }
@@ -290,7 +290,7 @@
                 
                 NSError *saveError;
                 
-                if (![self.context save:&saveError]) {
+                if (![_privateQueueManagedObjectContext save:&saveError]) {
                     
                     [NSException raise:NSInternalInconsistencyException
                                 format:@"%@", saveError.localizedDescription];
@@ -299,9 +299,309 @@
             
         }];
         
-        completionBlock(nil, cachedResults);
+        // get the corresponding managed object that belong to the main thread
+        
+        NSMutableArray *mainContextResults = [[NSMutableArray alloc] init];
+        
+        [_managedObjectContext performBlockAndWait:^{
+            
+            for (NSManagedObject *managedObject in cachedResults) {
+                
+                NSManagedObject *mainContextManagedObject = [_managedObjectContext objectWithID:managedObject.objectID];
+                
+                [mainContextResults addObject:mainContextManagedObject];
+            }
+            
+        }];
+        
+        completionBlock(nil, mainContextResults);
         
     }];
+}
+
+-(NSURLSessionDataTask *)fetchEntityWithName:(NSString *)entityName
+                                  resourceID:(NSNumber *)resourceID
+                                  URLSession:(NSURLSession *)urlSession
+                                  completion:(void (^)(NSError *, NSManagedObject *))completionBlock
+{
+    NSEntityDescription *entity = self.model.entitiesByName[entityName];
+    
+    return [self getResource:entity withID:resourceID.integerValue URLSession:urlSession completion:^(NSError *error, NSDictionary *resourceDict) {
+        
+        if (error) {
+            
+            // not found, delete object from our cache
+            
+            if (error.code == NOServerStatusCodeNotFound) {
+                
+                // delete object on private thread
+                
+                [self.privateQueueManagedObjectContext performBlockAndWait:^{
+                    
+                    NSManagedObjectID *objectID = [self findEntity:entity
+                                                    withResourceID:resourceID
+                                                           context:_privateQueueManagedObjectContext];
+                    
+                    if (objectID) {
+                        
+                        [_privateQueueManagedObjectContext deleteObject:[_privateQueueManagedObjectContext objectWithID:objectID]];
+                        
+                        NSError *saveError;
+                        
+                        // save
+                        
+                        if (![_privateQueueManagedObjectContext save:&saveError]) {
+                            
+                            [NSException raise:NSInternalInconsistencyException
+                                        format:@"%@", saveError];
+                        }
+                    }
+                    
+                }];
+            }
+            
+            completionBlock(error, nil);
+            
+            return;
+        }
+        
+        __block NSManagedObject<NOResourceKeysProtocol> *resource;
+        
+        [self.context performBlockAndWait:^{
+            
+            // get cached resource
+            
+            resource = [self findOrCreateResource:resourceName
+                                   withResourceID:resourceID
+                                          context:self.context];
+            
+            // set values
+            
+            [self setJSONObject:resourceDict
+                    forResource:resource];
+            
+            
+            // set date cached
+            
+            [self didCacheResource:resource];
+            
+            // save
+            
+            NSError *saveError;
+            
+            if (![self.context save:&saveError]) {
+                
+                [NSException raise:NSInternalInconsistencyException
+                            format:@"%@", saveError.localizedDescription];
+            }
+            
+        }];
+        
+        
+        
+        completionBlock(nil, resource);
+    }];
+}
+
+-(NSURLSessionDataTask *)createCachedResource:(NSString *)resourceName
+                                initialValues:(NSDictionary *)initialValues
+                                   URLSession:(NSURLSession *)urlSession
+                                   completion:(void (^)(NSError *, NSManagedObject<NOResourceKeysProtocol> *))completionBlock
+{
+    NSEntityDescription *entity = self.model.entitiesByName[resourceName];
+    
+    // convert those Core Data values to JSON
+    NSDictionary *jsonValues = [entity jsonObjectFromCoreDataValues:initialValues];
+    
+    return [self createResource:resourceName withInitialValues:jsonValues URLSession:urlSession completion:^(NSError *error, NSNumber *resourceID) {
+        
+        if (error) {
+            
+            completionBlock(error, nil);
+            
+            return;
+        }
+        
+        __block NSManagedObject<NOResourceKeysProtocol> *resource;
+        
+        [self.context performBlockAndWait:^{
+            
+            // create new entity
+            
+            resource = [NSEntityDescription insertNewObjectForEntityForName:resourceName
+                                                     inManagedObjectContext:self.context];
+            
+            // set resource ID
+            
+            [resource setValue:resourceID
+                        forKey:[NSClassFromString(entity.managedObjectClassName) resourceIDKey]];
+            
+            // set values
+            for (NSString *key in initialValues) {
+                
+                id value = initialValues[key];
+                
+                // Core Data cannot hold NSNull
+                
+                if (value == [NSNull null]) {
+                    
+                    value = nil;
+                }
+                
+                [resource setValue:value
+                            forKey:key];
+            }
+            
+            // set date cached
+            
+            [self didCacheResource:resource];
+            
+            // save
+            
+            NSError *saveError;
+            
+            if (![self.context save:&saveError]) {
+                
+                [NSException raise:NSInternalInconsistencyException
+                            format:@"%@", saveError.localizedDescription];
+            }
+            
+        }];
+        
+        completionBlock(nil, resource);
+    }];
+}
+
+-(NSURLSessionDataTask *)editCachedResource:(NSManagedObject<NOResourceKeysProtocol> *)resource
+                                    changes:(NSDictionary *)values
+                                 URLSession:(NSURLSession *)urlSession
+                                 completion:(void (^)(NSError *))completionBlock
+{
+    // convert those Core Data values to JSON
+    NSDictionary *jsonValues = [resource.entity jsonObjectFromCoreDataValues:values];
+    
+    // get resourceID
+    
+    Class entityClass = NSClassFromString(resource.entity.managedObjectClassName);
+    
+    NSString *resourceIDKey = [entityClass resourceIDKey];
+    
+    NSNumber *resourceID = [resource valueForKey:resourceIDKey];
+    
+    return [self editResource:resource.entity.name withID:resourceID.integerValue changes:jsonValues URLSession:urlSession completion:^(NSError *error) {
+        
+        if (error) {
+            
+            completionBlock(error);
+            
+            return;
+        }
+        
+        [self.context performBlockAndWait:^{
+            
+            // get object on this context
+            
+            NSManagedObject *contextResource = [self.context objectWithID:resource.objectID];
+            
+            // set values
+            for (NSString *key in values) {
+                
+                id value = values[key];
+                
+                // Core Data cannot hold NSNull
+                
+                if (value == [NSNull null]) {
+                    
+                    value = nil;
+                }
+                
+                [contextResource setValue:value
+                                   forKey:key];
+            }
+            
+            // save
+            
+            NSError *saveError;
+            
+            if (![self.context save:&saveError]) {
+                
+                [NSException raise:NSInternalInconsistencyException
+                            format:@"%@", saveError.localizedDescription];
+            }
+            
+        }];
+        
+        completionBlock(nil);
+        
+    }];
+}
+
+-(NSURLSessionDataTask *)deleteCachedResource:(NSManagedObject<NOResourceKeysProtocol> *)resource
+                                   URLSession:(NSURLSession *)urlSession
+                                   completion:(void (^)(NSError *))completionBlock
+{
+    // get resourceID
+    
+    Class entityClass = NSClassFromString(resource.entity.managedObjectClassName);
+    
+    NSString *resourceIDKey = [entityClass resourceIDKey];
+    
+    NSNumber *resourceID = [resource valueForKey:resourceIDKey];
+    
+    return [self deleteResource:resource.entity.name withID:resourceID.integerValue URLSession:urlSession completion:^(NSError *error) {
+        
+        if (error) {
+            
+            completionBlock(error);
+            
+            return;
+        }
+        
+        // delete...
+        
+        [self.context performBlock:^{
+            
+            // get object on this context
+            
+            NSManagedObject *contextResource = [self.context objectWithID:resource.objectID];
+            
+            [self.context deleteObject:contextResource];
+            
+            // save
+            
+            NSError *saveError;
+            
+            if (![self.context save:&saveError]) {
+                
+                [NSException raise:NSInternalInconsistencyException
+                            format:@"%@", saveError.localizedDescription];
+            }
+            
+            completionBlock(nil);
+        }];
+    }];
+}
+
+-(NSURLSessionDataTask *)performFunction:(NSString *)functionName
+                        onCachedResource:(NSManagedObject<NOResourceKeysProtocol> *)resource
+                          withJSONObject:(NSDictionary *)jsonObject
+                              URLSession:(NSURLSession *)urlSession
+                              completion:(void (^)(NSError *, NSNumber *, NSDictionary *))completionBlock
+{
+    // get resourceID
+    
+    Class entityClass = NSClassFromString(resource.entity.managedObjectClassName);
+    
+    NSString *resourceIDKey = [entityClass resourceIDKey];
+    
+    NSNumber *resourceID = [resource valueForKey:resourceIDKey];
+    
+    return [self performFunction:functionName
+                      onResource:resource.entity.name
+                          withID:resourceID.integerValue
+                  withJSONObject:jsonObject
+                      URLSession:urlSession
+                      completion:completionBlock];
 }
 
 @end
@@ -364,7 +664,7 @@
     
     // Build URL
     
-    NSString *resourcePath = [self.resourcePaths allKeysForObject:entity].firstObject;
+    NSString *resourcePath = [self.entitiesByResourcePath allKeysForObject:entity].firstObject;
     
     NSURL *searchURL = [self.serverURL URLByAppendingPathComponent:self.searchPath];
     
@@ -402,21 +702,21 @@
         
         // error codes
         
-        if (httpResponse.statusCode != NOServerOKStatusCode) {
+        if (httpResponse.statusCode != NOServerStatusCodeOK) {
             
-            if (httpResponse.statusCode == NOServerUnauthorizedStatusCode) {
+            if (httpResponse.statusCode == NOServerStatusCodeUnauthorized) {
                 
                 completionBlock(self.unauthorizedError, nil);
                 return;
             }
             
-            if (httpResponse.statusCode == NOServerForbiddenStatusCode) {
+            if (httpResponse.statusCode == NOServerStatusCodeForbidden) {
                 
                 NSString *errorDescription = NSLocalizedString(@"Permission to perform search is denied",
                                                                @"Permission to perform search is denied");
                 
                 NSError *forbiddenError = [NSError errorWithDomain:NetworkObjectsErrorDomain
-                                                              code:NOAPIForbiddenErrorCode
+                                                              code:NOServerStatusCodeForbidden
                                                           userInfo:@{NSLocalizedDescriptionKey: errorDescription}];
                 
                 completionBlock(forbiddenError, nil);
@@ -424,14 +724,14 @@
                 return;
             }
             
-            if (httpResponse.statusCode == NOServerInternalServerErrorStatusCode) {
+            if (httpResponse.statusCode == NOServerStatusCodeInternalServerError) {
                 
                 completionBlock(self.serverError, nil);
                 
                 return;
             }
             
-            if (httpResponse.statusCode == NOServerBadRequestStatusCode) {
+            if (httpResponse.statusCode == NOServerStatusCodeBadRequest) {
                 
                 completionBlock(self.badRequestError, nil);
                 
@@ -447,12 +747,12 @@
         
         // parse response
         
-        NSArray *jsonResponse = [NSJSONSerialization JSONObjectWithData:data
+        NSDictionary *jsonResponse = [NSJSONSerialization JSONObjectWithData:data
                                                                 options:NSJSONReadingAllowFragments
                                                                   error:nil];
         
         if (!jsonResponse ||
-            ![jsonResponse isKindOfClass:[NSArray class]]) {
+            ![jsonResponse isKindOfClass:[NSDictionary class]]) {
             
             completionBlock(self.invalidServerResponseError, nil);
             
@@ -485,8 +785,6 @@
                           URLSession:(NSURLSession *)urlSession
                           completion:(void (^)(NSError *, NSDictionary *))completionBlock
 {
-    NOAPICheckForServerURL
-    
     // determine URL session
     if (!urlSession) {
         
@@ -495,9 +793,7 @@
     
     // build URL
     
-    Class entityClass = [self entityClassWithResourceName:resourceName];
-    
-    NSString *resourcePath = [entityClass resourcePath];
+    NSString *resourcePath = [self.entitiesByResourcePath allKeysForObject:entity].firstObject
     
     NSURL *getResourceURL = [self.serverURL URLByAppendingPathComponent:resourcePath];
     
@@ -506,13 +802,6 @@
     getResourceURL = [getResourceURL URLByAppendingPathComponent:resourceIDString];
     
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:getResourceURL];
-    
-    // add authentication header if availible
-    
-    if (self.sessionToken) {
-        
-        [request addValue:self.sessionToken forHTTPHeaderField:@"Authorization"];
-    }
     
     NSURLSessionDataTask *dataTask = [urlSession dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         
@@ -527,21 +816,21 @@
         
         NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
         
-        if (httpResponse.statusCode != 200) {
+        if (httpResponse.statusCode != NOServerStatusCodeOK) {
             
-            if (httpResponse.statusCode == NOServerUnauthorizedStatusCode) {
+            if (httpResponse.statusCode == NOServerStatusCodeUnauthorized) {
                 
                 completionBlock(self.unauthorizedError, nil);
                 return;
             }
             
-            if (httpResponse.statusCode == NOServerForbiddenStatusCode) {
+            if (httpResponse.statusCode == NOServerStatusCodeForbidden) {
                 
                 NSString *errorDescription = NSLocalizedString(@"Access to resource is denied",
                                                                @"Access to resource is denied");
                 
                 NSError *forbiddenError = [NSError errorWithDomain:NetworkObjectsErrorDomain
-                                                              code:NOAPIForbiddenErrorCode
+                                                              code:NOServerStatusCodeForbidden
                                                           userInfo:@{NSLocalizedDescriptionKey: errorDescription}];
                 
                 completionBlock(forbiddenError, nil);
@@ -549,21 +838,21 @@
                 return;
             }
             
-            if (httpResponse.statusCode == NOServerInternalServerErrorStatusCode) {
+            if (httpResponse.statusCode == NOServerStatusCodeInternalServerError) {
                 
                 completionBlock(self.serverError, nil);
                 
                 return;
             }
             
-            if (httpResponse.statusCode == NOServerBadRequestStatusCode) {
+            if (httpResponse.statusCode == NOServerStatusCodeBadRequest) {
                 
                 completionBlock(self.badRequestError, nil);
                 
                 return;
             }
             
-            if (httpResponse.statusCode == NOServerNotFoundStatusCode) {
+            if (httpResponse.statusCode == NOServerStatusCodeNotFound) {
                 
                 completionBlock([self notFoundError], nil);
                 
@@ -664,13 +953,13 @@
         
         if (httpResponse.statusCode != 200) {
             
-            if (httpResponse.statusCode == NOServerUnauthorizedStatusCode) {
+            if (httpResponse.statusCode == NOServerStatusCodeUnauthorized) {
                 
                 completionBlock(self.unauthorizedError, nil);
                 return;
             }
             
-            if (httpResponse.statusCode == NOServerForbiddenStatusCode) {
+            if (httpResponse.statusCode == NOServerStatusCodeForbidden) {
                 
                 NSString *errorDescription = NSLocalizedString(@"Permission to create new resource is denied",
                                                                @"Permission to create new resource is denied");
@@ -684,14 +973,14 @@
                 return;
             }
             
-            if (httpResponse.statusCode == NOServerInternalServerErrorStatusCode) {
+            if (httpResponse.statusCode == NOServerStatusCodeInternalServerError) {
                 
                 completionBlock(self.serverError, nil);
                 
                 return;
             }
             
-            if (httpResponse.statusCode == NOServerBadRequestStatusCode) {
+            if (httpResponse.statusCode == NOServerStatusCodeBadRequest) {
                 
                 completionBlock(self.badRequestError, nil);
                 
@@ -814,13 +1103,13 @@
         
         if (httpResponse.statusCode != 200) {
             
-            if (httpResponse.statusCode == NOServerUnauthorizedStatusCode) {
+            if (httpResponse.statusCode == NOServerStatusCodeUnauthorized) {
                 
                 completionBlock(self.unauthorizedError);
                 return;
             }
             
-            if (httpResponse.statusCode == NOServerForbiddenStatusCode) {
+            if (httpResponse.statusCode == NOServerStatusCodeForbidden) {
                 
                 NSString *errorDescription = NSLocalizedString(@"Permission to edit resource is denied",
                                                                @"Permission to edit resource is denied");
@@ -834,14 +1123,14 @@
                 return;
             }
             
-            if (httpResponse.statusCode == NOServerInternalServerErrorStatusCode) {
+            if (httpResponse.statusCode == NOServerStatusCodeInternalServerError) {
                 
                 completionBlock(self.serverError);
                 
                 return;
             }
             
-            if (httpResponse.statusCode == NOServerBadRequestStatusCode) {
+            if (httpResponse.statusCode == NOServerStatusCodeBadRequest) {
                 
                 completionBlock(self.badRequestError);
                 
@@ -915,19 +1204,19 @@
         
         if (httpResponse.statusCode != 200) {
             
-            if (httpResponse.statusCode == NOServerNotFoundStatusCode) {
+            if (httpResponse.statusCode == NOServerStatusCodeNotFound) {
                 
                 completionBlock(self.notFoundError);
                 return;
             }
             
-            if (httpResponse.statusCode == NOServerUnauthorizedStatusCode) {
+            if (httpResponse.statusCode == NOServerStatusCodeUnauthorized) {
                 
                 completionBlock(self.unauthorizedError);
                 return;
             }
             
-            if (httpResponse.statusCode == NOServerForbiddenStatusCode) {
+            if (httpResponse.statusCode == NOServerStatusCodeForbidden) {
                 
                 NSString *errorDescription = NSLocalizedString(@"Permission to delete resource is denied",
                                                                @"Permission to delete resource is denied");
@@ -941,14 +1230,14 @@
                 return;
             }
             
-            if (httpResponse.statusCode == NOServerInternalServerErrorStatusCode) {
+            if (httpResponse.statusCode == NOServerStatusCodeInternalServerError) {
                 
                 completionBlock(self.serverError);
                 
                 return;
             }
             
-            if (httpResponse.statusCode == NOServerBadRequestStatusCode) {
+            if (httpResponse.statusCode == NOServerStatusCodeBadRequest) {
                 
                 completionBlock(self.badRequestError);
                 
@@ -1276,31 +1565,24 @@
 
 @end
 
-@implementation NOAPICachedStore (Cache)
+@implementation NOStore (Cache)
 
--(NSManagedObjectID *)findResource:(NSString *)resourceName
-                    withResourceID:(NSNumber *)resourceID
-                           context:(NSManagedObjectContext *)context
+-(NSManagedObjectID *)findEntity:(NSEntityDescription *)entity
+                  withResourceID:(NSNumber *)resourceID
+                         context:(NSManagedObjectContext *)context
 {
     // look for resource in cache
     
     NSManagedObjectID *objectID;
     
-    NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:resourceName];
+    NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:entity.name];
     
     fetchRequest.resultType = NSManagedObjectIDResultType;
     
     fetchRequest.fetchLimit = 1;
     
-    // get entity
-    NSEntityDescription *entity = self.model.entitiesByName[resourceName];
-    
-    Class entityClass = NSClassFromString(entity.managedObjectClassName);
-    
-    NSString *resourceIDKey = [entityClass resourceIDKey];
-    
     // create predicate
-    fetchRequest.predicate = [NSComparisonPredicate predicateWithLeftExpression:[NSExpression expressionForKeyPath:resourceIDKey]
+    fetchRequest.predicate = [NSComparisonPredicate predicateWithLeftExpression:[NSExpression expressionForKeyPath:_resourceIDAttributeName]
                                                                 rightExpression:[NSExpression expressionForConstantValue:resourceID]
                                                                        modifier:NSDirectPredicateModifier
                                                                            type:NSEqualToPredicateOperatorType
@@ -1324,25 +1606,19 @@
     return objectID;
 }
 
--(NSManagedObject<NOResourceKeysProtocol> *)findOrCreateResource:(NSString *)resourceName
-                                                  withResourceID:(NSNumber *)resourceID
-                                                         context:(NSManagedObjectContext *)context
+-(NSManagedObject *)findOrCreateEntity:(NSEntityDescription *)entity
+                        withResourceID:(NSNumber *)resourceID
+                               context:(NSManagedObjectContext *)context
 {
     // get cached resource...
     
-    NSEntityDescription *entity = self.model.entitiesByName[resourceName];
-    
-    Class entityClass = NSClassFromString(entity.managedObjectClassName);
-    
-    NSString *resourceIDKey = [entityClass resourceIDKey];
-    
-    NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:resourceName];
+    NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:entity.name];
     
     fetchRequest.fetchLimit = 1;
     
     // create predicate
     
-    fetchRequest.predicate = [NSComparisonPredicate predicateWithLeftExpression:[NSExpression expressionForKeyPath:resourceIDKey]
+    fetchRequest.predicate = [NSComparisonPredicate predicateWithLeftExpression:[NSExpression expressionForKeyPath:_resourceIDAttributeName]
                                                                 rightExpression:[NSExpression expressionForConstantValue:resourceID]
                                                                        modifier:NSDirectPredicateModifier
                                                                            type:NSEqualToPredicateOperatorType
@@ -1352,7 +1628,7 @@
     
     // fetch
     
-    NSManagedObject <NOResourceKeysProtocol> *resource;
+    NSManagedObject *resource;
     
     NSError *error;
     
@@ -1381,15 +1657,15 @@
         // set resource ID
         
         [resource setValue:resourceID
-                    forKey:[NSClassFromString(entity.managedObjectClassName) resourceIDKey]];
+                    forKey:_resourceIDAttributeName];
         
     }
     
     return resource;
 }
 
--(NSManagedObject<NOResourceKeysProtocol> *)setJSONObject:(NSDictionary *)resourceDict
-                                              forResource:(NSManagedObject<NOResourceKeysProtocol> *)resource
+-(NSManagedObject *)setJSONObject:(NSDictionary *)jsonObject
+                 forManagedObject:(NSManagedObject *)managedObject
 {
     // set values...
     

@@ -1,15 +1,12 @@
 //
-//  NetworkObjectsConstants.h
+//  NODefines.h
 //  NetworkObjects
 //
-//  Created by Alsey Coleman Miller on 11/10/13.
-//  Copyright (c) 2013 CDA. All rights reserved.
+//  Created by Alsey Coleman Miller on 6/14/14.
+//  Copyright (c) 2014 ColemanCDA. All rights reserved.
 //
 
-#ifndef NetworkObjects_NetworkObjectsConstants_h
-#define NetworkObjects_NetworkObjectsConstants_h
-
-#define NetworkObjectsErrorDomain @"com.ColemanCDA.NetworkObjects.ErrorDomain"
+#import <Foundation/Foundation.h>
 
 // search parameters
 
@@ -121,5 +118,3 @@ typedef NS_ENUM(NSUInteger, NOServerFunctionCode) {
     /** There was an internal error while performing the function */
     NOServerFunctionCodeInternalErrorPerformingFunction = 500
 };
-
-#endif
