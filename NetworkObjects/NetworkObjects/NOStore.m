@@ -7,6 +7,7 @@
 //
 
 #import "NOStore.h"
+#import "NetworkObjectsConstants.h"
 
 @interface NOStore (Cache)
 
@@ -38,6 +39,14 @@
 -(void)setupDateCachedAttributeWithAttributeName:(NSString *)dateCachedAttributeName;
 
 -(void)didCacheManagedObject:(NSManagedObject *)managedObject;
+
+@end
+
+@interface NOStore (ManagedObjectContexts)
+
+-(void)setupManagedObjectContextsWithPersistentStoreCoordinator:(NSPersistentStoreCoordinator *)psc;
+
+-(void)mergeChangesFromContextDidSaveNotification:(NSNotification *)notification;
 
 @end
 
@@ -95,6 +104,8 @@
 
 @property (nonatomic) NSManagedObjectContext *managedObjectContext;
 
+@property (nonatomic) NSManagedObjectContext *privateQueueManagedObjectContext;
+
 @property (nonatomic) NSString *dateCachedAttributeName;
 
 @property (nonatomic) NSString *resourceIDAttributeName;
@@ -115,6 +126,11 @@
 
 #pragma mark - Initialization
 
+-(void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
 - (instancetype)initWithPersistentStoreCoordinator:(NSPersistentStoreCoordinator *)psc
                                          serverURL:(NSURL *)serverURL
                                      resourcePaths:(NSDictionary *)resourcePaths
@@ -126,13 +142,7 @@
     
     if (self) {
         
-        self.managedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-        
-        self.managedObjectContext.undoManager = nil;
-        
-        self.managedObjectContext.persistentStoreCoordinator = psc;
-        
-        self.model = psc.managedObjectModel;
+        [self setupManagedObjectContextsWithPersistentStoreCoordinator:psc];
         
         self.serverURL = serverURL;
         
@@ -158,7 +168,114 @@
 
 #pragma mark - Requests
 
-
+-(NSURLSessionDataTask *)performSearchWithFetchRequest:(NSFetchRequest *)fetchRequest
+                                            URLSession:(NSURLSession *)urlSession
+                                            completion:(void (^)(NSError *, NSArray *))completionBlock
+{
+    // build JSON request from fetch request
+    
+    NSMutableDictionary *jsonObject = [[NSMutableDictionary alloc] init];
+    
+    // Optional comparison predicate
+    
+    NSComparisonPredicate *predicate = (NSComparisonPredicate *)fetchRequest.predicate;
+    
+    if (predicate) {
+        
+        if (![predicate isKindOfClass:[NSComparisonPredicate class]]) {
+            
+            [NSException raise:NSInvalidArgumentException
+                        format:@"The fetch request's predicate must be of type NSComparisonPredicate"];
+            
+            return nil;
+        }
+        
+        jsonObject[[NSString stringWithFormat:@"%lu", (unsigned long)NOSearchParameterPredicateKey]] = predicate.leftExpression.keyPath;
+        
+        // convert value to from Core Data to JSON
+        
+        id jsonValue = [fetchRequest.entity jsonObjectFromCoreDataValues:@{predicate.leftExpression.keyPath: predicate.rightExpression.constantValue}].allValues.firstObject;
+        
+        jsonObject[[NSString stringWithFormat:@"%lu", (unsigned long)NOSearchParameterPredicateValue]] = jsonValue;
+        
+        jsonObject[[NSString stringWithFormat:@"%lu", (unsigned long)NOSearchParameterPredicateOperator]] = [NSNumber numberWithInteger:predicate.predicateOperatorType];
+        
+        jsonObject[[NSString stringWithFormat:@"%lu", (unsigned long)NOSearchParameterPredicateOption]] = [NSNumber numberWithInteger:predicate.options];
+        
+        jsonObject[[NSString stringWithFormat:@"%lu", (unsigned long)NOSearchParameterPredicateModifier]] = [NSNumber numberWithInteger:predicate.comparisonPredicateModifier];
+    }
+    
+    // other fetch parameters
+    
+    if (fetchRequest.fetchLimit) {
+        
+        jsonObject[[NSString stringWithFormat:@"%lu", (unsigned long)NOSearchParameterFetchLimit]] = [NSNumber numberWithInteger: fetchRequest.fetchLimit];
+    }
+    
+    if (fetchRequest.fetchOffset) {
+        
+        jsonObject[[NSString stringWithFormat:@"%lu", (unsigned long)NOSearchParameterFetchOffset]] = [NSNumber numberWithInteger:fetchRequest.fetchOffset];
+    }
+    
+    if (fetchRequest.includesSubentities) {
+        
+        jsonObject[[NSString stringWithFormat:@"%lu", (unsigned long)NOSearchParameterIncludesSubentities]] = [NSNumber numberWithInteger:fetchRequest.includesSubentities];
+    }
+    
+    // sort descriptors
+    
+    if (fetchRequest.sortDescriptors.count) {
+        
+        NSMutableArray *jsonSortDescriptors = [[NSMutableArray alloc] init];
+        
+        for (NSSortDescriptor *sort in fetchRequest.sortDescriptors) {
+            
+            [jsonSortDescriptors addObject:@{sort.key: @(sort.ascending)}];
+        }
+        
+        jsonObject[[NSString stringWithFormat:@"%lu", (unsigned long)NOSearchParameterSortDescriptors]] = jsonSortDescriptors;
+    }
+    
+    return [self searchForResource:entity.name withParameters:jsonObject URLSession:urlSession completion:^(NSError *error, NSArray *results) {
+        
+        if (error) {
+            
+            completionBlock(error, nil);
+            
+            return;
+        }
+        
+        // get results as cached resources
+        
+        NSMutableArray *cachedResults = [[NSMutableArray alloc] init];
+        
+        [self.context performBlockAndWait:^{
+            
+            for (NSNumber *resourceID in results) {
+                
+                NSManagedObject *resource = [self findOrCreateResource:entity.name
+                                                        withResourceID:resourceID
+                                                               context:self.context];
+                
+                [cachedResults addObject:resource];
+            }
+            
+            // save
+            
+            NSError *saveError;
+            
+            if (![self.context save:&saveError]) {
+                
+                [NSException raise:NSInternalInconsistencyException
+                            format:@"%@", saveError.localizedDescription];
+            }
+            
+        }];
+        
+        completionBlock(nil, cachedResults);
+        
+    }];
+}
 
 @end
 
@@ -928,6 +1045,128 @@
     [dataTask resume];
     
     return dataTask;
+}
+
+@end
+
+@implementation NOStore (ManagedObjectContexts)
+
+-(void)setupManagedObjectContextsWithPersistentStoreCoordinator:(NSPersistentStoreCoordinator *)psc
+{
+    // setup contexts
+    
+    self.managedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
+    
+    self.managedObjectContext.undoManager = nil;
+    
+    self.managedObjectContext.persistentStoreCoordinator = psc;
+    
+    self.model = psc.managedObjectModel;
+    
+    self.privateQueueManagedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+    
+    self.privateQueueManagedObjectContext.undoManager = nil;
+    
+    self.privateQueueManagedObjectContext.persistentStoreCoordinator = psc;
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(mergeChangesFromContextDidSaveNotification:)
+                                                 name:NSManagedObjectContextDidSaveNotification
+                                               object:self.privateQueueManagedObjectContext];
+    
+}
+
+-(void)mergeChangesFromContextDidSaveNotification:(NSNotification *)notification
+{
+    [_managedObjectContext performBlock:^{
+       
+        [_managedObjectContext mergeChangesFromContextDidSaveNotification:notification];
+        
+    }];
+}
+
+@end
+
+@implementation NSEntityDescription (Convert)
+
+-(NSDictionary *)jsonObjectFromCoreDataValues:(NSDictionary *)values
+{
+    NSMutableDictionary *jsonObject = [[NSMutableDictionary alloc] init];
+    
+    // convert values...
+    
+    for (NSString *attributeName in self.attributesByName) {
+        
+        for (NSString *key in values) {
+            
+            // found matching key (will only run once because dictionaries dont have duplicates)
+            if ([key isEqualToString:attributeName]) {
+                
+                id value = [values valueForKey:key];
+                
+                id jsonValue = [self JSONCompatibleValueForAttributeValue:value
+                                                             forAttribute:key];
+                
+                jsonObject[key] = jsonValue;
+                
+                break;
+            }
+        }
+    }
+    
+    for (NSString *relationshipName in self.relationshipsByName) {
+        
+        NSRelationshipDescription *relationship = self.relationshipsByName[relationshipName];
+        
+        for (NSString *key in values) {
+            
+            // found matching key (will only run once because dictionaries dont have duplicates)
+            if ([key isEqualToString:relationshipName]) {
+                
+                // destination entity
+                NSEntityDescription *destinationEntity = relationship.destinationEntity;
+                
+                Class entityClass = NSClassFromString(destinationEntity.managedObjectClassName);
+                
+                NSString *destinationResourceIDKey = [entityClass resourceIDKey];
+                
+                // to-one relationship
+                if (!relationship.isToMany) {
+                    
+                    // get resource ID of object
+                    
+                    NSManagedObject<NOResourceKeysProtocol> *destinationResource = values[key];
+                    
+                    NSNumber *destinationResourceID = [destinationResource valueForKey:destinationResourceIDKey];
+                    
+                    jsonObject[key] = destinationResourceID;
+                    
+                }
+                
+                // to-many relationship
+                else {
+                    
+                    NSSet *destinationResources = [values valueForKey:relationshipName];
+                    
+                    NSMutableArray *destinationResourceIDs = [[NSMutableArray alloc] init];
+                    
+                    for (NSManagedObject *destinationResource in destinationResources) {
+                        
+                        NSNumber *destinationResourceID = [destinationResource valueForKey:destinationResourceIDKey];
+                        
+                        [destinationResourceIDs addObject:destinationResourceID];
+                    }
+                    
+                    jsonObject[key] = destinationResourceIDs;
+                    
+                }
+                
+                break;
+            }
+        }
+    }
+    
+    return jsonObject;
 }
 
 @end

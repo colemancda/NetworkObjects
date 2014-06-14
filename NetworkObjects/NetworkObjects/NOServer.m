@@ -173,7 +173,7 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
 
 -(void)handleSearchRequest:(RouteRequest *)request forEntity:(NSEntityDescription *)entity response:(RouteResponse *)response
 {
-    NSDictionary *userInfo;
+    NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
     
     // get search parameters
     
@@ -191,6 +191,8 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
     // get the context this request will use
     
     NSManagedObjectContext *context = [_dataSource server:self managedObjectContextForRequest:request withType:NOServerRequestTypeSearch];
+    
+    userInfo[NOServerManagedObjectContextKey] = context;
     
     // Put togeather fetch request
     NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:entity.name];
@@ -527,7 +529,7 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
     
     // check for permission
     
-    userInfo = @{NOServerFetchRequestKey: fetchRequest};
+    userInfo[NOServerFetchRequestKey] = fetchRequest;
     
     if (self.delegate) {
         
@@ -583,13 +585,13 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
             
             // permission to view resource
             
-            if ([_delegate server:self permissionForRequest:request withType:NOServerRequestTypeSearch entity:entity managedObject:managedObject context:context key:nil] >= NOServerPermissionReadOnly) {
+            if ([_delegate server:self permissionForRequest:request withType:NOServerRequestTypeSearch entity:managedObject.entity managedObject:managedObject context:context key:nil] >= NOServerPermissionReadOnly) {
                 
                 // must have permission for keys accessed
                 
                 if (predicateKey) {
                     
-                    if ([_delegate server:self permissionForRequest:request withType:NOServerRequestTypeSearch entity:entity managedObject:managedObject context:context key:predicateKey] < NOServerPermissionReadOnly) {
+                    if ([_delegate server:self permissionForRequest:request withType:NOServerRequestTypeSearch entity:managedObject.entity managedObject:managedObject context:context key:predicateKey] < NOServerPermissionReadOnly) {
                         
                         break;
                     }
@@ -602,7 +604,7 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
                     
                     for (NSSortDescriptor *sort in sortDescriptors) {
                         
-                        if ([_delegate server:self permissionForRequest:request withType:NOServerRequestTypeSearch entity:entity managedObject:managedObject context:context key:sort.key] >= NOServerPermissionReadOnly) {
+                        if ([_delegate server:self permissionForRequest:request withType:NOServerRequestTypeSearch entity:managedObject.entity managedObject:managedObject context:context key:sort.key] >= NOServerPermissionReadOnly) {
                             
                             [filteredResults addObject:managedObject];
                         }
@@ -619,21 +621,20 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
         results = [NSArray arrayWithArray:filteredResults];
     }
     
-    // return the resource IDs of objects
+    // return the resource IDs of objects mapped to their resource path
     
     NSMutableArray *resourceIDs = [[NSMutableArray alloc] init];
     
-    for (NSManagedObject *managedObject in results) {
+    [context performBlockAndWait:^{
         
-        __block NSNumber *resourceID;
-        
-        [context performBlockAndWait:^{
+        for (NSManagedObject *managedObject in results) {
             
-            resourceID = [managedObject valueForKey:_resourceIDAttributeName];
-        }];
+            NSNumber *resourceID = [managedObject valueForKey:_resourceIDAttributeName];
+            
+            [resourceIDs addObject:resourceID];
+        }
         
-        [resourceIDs addObject:resourceID];
-    }
+    }];
     
     NSError *error;
     
