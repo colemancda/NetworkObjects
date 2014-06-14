@@ -15,9 +15,14 @@
 
 /** Default initializer to use. Do not use -init. */
 
-- (instancetype)initWithOptions:(NSDictionary *)options;
+- (instancetype)initWithPersistentStoreCoordinator:(NSPersistentStoreCoordinator *)psc
+                                         serverURL:(NSURL *)serverURL
+                                     resourcePaths:(NSDictionary *)resourcePaths
+                                   prettyPrintJSON:(BOOL)prettyPrintJSON
+                           resourceIDAttributeName:(NSString *)resourceIDAttributeName
+                           dateCachedAttributeName:(NSString *)dateCachedAttributeName NS_DESIGNATED_INITIALIZER;
 
-#pragma mark - Cache
+#pragma mark - Properties
 
 // must initialize the persistent store coordinator
 
@@ -28,9 +33,9 @@
  
  */
 
-@property (nonatomic, readonly) NSManagedObjectContext *context;
+@property (nonatomic, readonly) NSManagedObjectContext *managedObjectContext;
 
-/** The string value that will be used to add a date attribute to all the resources NOAPICachedStore caches. */
+/** The string value that will be used to add a date attribute to all the resources NOStore caches. */
 
 @property (nonatomic, readonly) NSString *dateCachedAttributeName;
 
@@ -58,9 +63,9 @@
 
 @property (nonatomic, readonly) NSURL *serverURL;
 
-/**
- The resource ID of the client that this store will authenticate as. Can be @c nil. If set, @c clientSecret must be set to a valid value too.
- */
+/**  Resource path strings mapped to entity descriptions. */
+
+@property (nonatomic, readonly) NSDictionary *resourcePaths;
 
 #pragma mark - Requests
 
@@ -77,33 +82,33 @@
  @warning Some of the properties of the fetch request have to use specific values. The entity specified in the fetch request must match an entity description in the store's @c model property. The only valid predicate class that can be used is @c NSComparisonPredicate and never set the predicate's @c predicateOperatorType to @c NSCustomSelectorPredicateOperatorType.
  */
 
--(NSURLSessionDataTask *)searchForCachedResourceWithFetchRequest:(NSFetchRequest *)fetchRequest
-                                                      URLSession:(NSURLSession *)urlSession
-                                                      completion:(void (^)(NSError *error, NSArray *results))completionBlock;
+-(NSURLSessionDataTask *)performSearchWithFetchRequest:(NSFetchRequest *)fetchRequest
+                                            URLSession:(NSURLSession *)urlSession
+                                            completion:(void (^)(NSError *error, NSArray *results))completionBlock;
 
--(NSURLSessionDataTask *)getCachedResource:(NSString *)resourceName
-                                resourceID:(NSNumber *)resourceID
+-(NSURLSessionDataTask *)fetchEntityWithName:(NSString *)entityName
+                                  resourceID:(NSNumber *)resourceID
+                                  URLSession:(NSURLSession *)urlSession
+                                  completion:(void (^)(NSError *error, NSManagedObject *managedObject))completionBlock;
+
+-(NSURLSessionDataTask *)editManagedObject:(NSManagedObject *)managedObject
+                                   changes:(NSDictionary *)values
                                 URLSession:(NSURLSession *)urlSession
-                                completion:(void (^)(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource))completionBlock;
+                                completion:(void (^)(NSError *error))completionBlock;
 
--(NSURLSessionDataTask *)editCachedResource:(NSManagedObject<NOResourceKeysProtocol>*)resource
-                                    changes:(NSDictionary *)values
-                                 URLSession:(NSURLSession *)urlSession
-                                 completion:(void (^)(NSError *error))completionBlock;
+-(NSURLSessionDataTask *)deleteManagedObject:(NSManagedObject *)managedObject
+                                  URLSession:(NSURLSession *)urlSession
+                                  completion:(void (^)(NSError *error))completionBlock;
 
--(NSURLSessionDataTask *)deleteCachedResource:(NSManagedObject<NOResourceKeysProtocol>*)resource
-                                   URLSession:(NSURLSession *)urlSession
-                                   completion:(void (^)(NSError *error))completionBlock;
-
--(NSURLSessionDataTask *)createCachedResource:(NSString *)resourceName
+-(NSURLSessionDataTask *)createEntityWithName:(NSString *)entityName
                                 initialValues:(NSDictionary *)initialValues
                                    URLSession:(NSURLSession *)urlSession
-                                   completion:(void (^)(NSError *error, NSManagedObject<NOResourceKeysProtocol> *resource)) completionBlock;
+                                   completion:(void (^)(NSError *error, NSManagedObject *resource)) completionBlock;
 
 -(NSURLSessionDataTask *)performFunction:(NSString *)functionName
-                        onCachedResource:(NSManagedObject<NOResourceKeysProtocol>*)resource
+                        forManagedObject:(NSManagedObject*)managedObject
                           withJSONObject:(NSDictionary *)jsonObject
                               URLSession:(NSURLSession *)urlSession
-                              completion:(void (^)(NSError *error, NSNumber *statusCode, NSDictionary *jsonResponse))completionBlock
+                              completion:(void (^)(NSError *error, NSNumber *statusCode, NSDictionary *jsonResponse))completionBlock;
 
 @end
