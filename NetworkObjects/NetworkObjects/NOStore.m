@@ -83,7 +83,7 @@
 -(NSURLSessionDataTask *)searchForResource:(NSEntityDescription *)enitity
                             withParameters:(NSDictionary *)parameters
                                 URLSession:(NSURLSession *)urlSession
-                                completion:(void (^)(NSError *error, NSDictionary *results))completionBlock;
+                                completion:(void (^)(NSError *error, NSArray *results))completionBlock;
 
 -(NSURLSessionDataTask *)getResource:(NSEntityDescription *)entity
                               withID:(NSUInteger)resourceID
@@ -255,7 +255,7 @@
     
     NSEntityDescription *entity = self.model.entitiesByName[fetchRequest.entityName];
     
-    return [self searchForResource:entity withParameters:jsonObject URLSession:urlSession completion:^(NSError *error, NSDictionary *results) {
+    return [self searchForResource:entity withParameters:jsonObject URLSession:urlSession completion:^(NSError *error, NSArray *results) {
         
         if (error) {
             
@@ -270,22 +270,21 @@
         
         [_privateQueueManagedObjectContext performBlockAndWait:^{
             
-            for (NSString *resourcePath in results) {
+            for (NSDictionary *resourcePathByResourceID in results) {
                 
-                NSArray *resourceIDs = results[resourcePath];
+                NSString *resourcePath = resourcePathByResourceID.allValues.firstObject;
+                
+                NSString *resourceID = resourcePathByResourceID.allKeys.firstObject;
                 
                 // get the entity
                 
                 NSEntityDescription *entity = self.entitiesByResourcePath[resourcePath];
                 
-                for (NSNumber *resourceID in resourceIDs) {
-                    
-                    NSManagedObject *resource = [self findOrCreateEntity:entity
-                                                          withResourceID:resourceID
-                                                                 context:_privateQueueManagedObjectContext];
-                    
-                    [cachedResults addObject:resource];
-                }
+                NSManagedObject *resource = [self findOrCreateEntity:entity
+                                                      withResourceID:[NSNumber numberWithInteger:resourceID.integerValue]
+                                                             context:_privateQueueManagedObjectContext];
+                
+                [cachedResults addObject:resource];
                 
                 // save
                 
@@ -650,7 +649,7 @@
 -(NSURLSessionDataTask *)searchForResource:(NSEntityDescription *)entity
                             withParameters:(NSDictionary *)parameters
                                 URLSession:(NSURLSession *)urlSession
-                                completion:(void (^)(NSError *, NSDictionary *))completionBlock
+                                completion:(void (^)(NSError *, NSArray *))completionBlock
 {
     if (!self.searchPath) {
         
@@ -717,7 +716,7 @@
                 NSString *errorDescription = NSLocalizedString(@"Permission to perform search is denied",
                                                                @"Permission to perform search is denied");
                 
-                NSError *forbiddenError = [NSError errorWithDomain:NetworkObjectsErrorDomain
+                NSError *forbiddenError = [NSError errorWithDomain:(NSString *)NOErrorDomain
                                                               code:NOServerStatusCodeForbidden
                                                           userInfo:@{NSLocalizedDescriptionKey: errorDescription}];
                 
@@ -749,23 +748,37 @@
         
         // parse response
         
-        NSDictionary *jsonResponse = [NSJSONSerialization JSONObjectWithData:data
+        NSArray *jsonResponse = [NSJSONSerialization JSONObjectWithData:data
                                                                 options:NSJSONReadingAllowFragments
                                                                   error:nil];
         
         if (!jsonResponse ||
-            ![jsonResponse isKindOfClass:[NSDictionary class]]) {
+            ![jsonResponse isKindOfClass:[NSArray class]]) {
             
             completionBlock(self.invalidServerResponseError, nil);
             
             return;
         }
         
-        // verify that values are numbers
+        // verify that values are string
         
-        for (NSNumber *resultResourceID in jsonResponse) {
+        for (NSDictionary *resultResourcePathByResourceID in jsonResponse) {
             
-            if (![resultResourceID isKindOfClass:[NSNumber class]]) {
+            if (![resultResourcePathByResourceID isKindOfClass:[NSDictionary class]]) {
+                
+                completionBlock(self.invalidServerResponseError, nil);
+                
+                return;
+            }
+            
+            NSString *resourcePath = resultResourcePathByResourceID.allValues.firstObject;
+            
+            NSString *resourceID = resultResourcePathByResourceID.allKeys.firstObject;
+            
+            if (![resourcePath isKindOfClass:[NSString class]] ||
+                ![resourceID isKindOfClass:[NSString class]] ||
+                resultResourcePathByResourceID.allKeys != 1 ||
+                resultResourcePathByResourceID.allValues != 1) {
                 
                 completionBlock(self.invalidServerResponseError, nil);
                 
