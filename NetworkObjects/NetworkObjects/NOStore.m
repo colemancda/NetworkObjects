@@ -7,7 +7,8 @@
 //
 
 #import "NOStore.h"
-#import "NetworkObjectsConstants.h"
+#import "NODefines.h"
+#import "NOError.h"
 
 @interface NOStore (Cache)
 
@@ -365,15 +366,15 @@
             return;
         }
         
-        __block NSManagedObject<NOResourceKeysProtocol> *resource;
+        __block NSManagedObject *resource;
         
-        [self.context performBlockAndWait:^{
+        [self.privateQueueManagedObjectContext performBlockAndWait:^{
             
             // get cached resource
             
             resource = [self findOrCreateResource:resourceName
                                    withResourceID:resourceID
-                                          context:self.context];
+                                          context:_privateQueueManagedObjectContext];
             
             // set values
             

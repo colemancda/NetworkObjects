@@ -8,12 +8,12 @@
 
 #import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
-#import <NetworkObjects/NetworkObjectsConstants.h>
+#import <NetworkObjects/NODefines.h>
 
 @protocol NOServerDelegate;
 @protocol NOServerDataSource;
 
-@class RouteRequest, RouteResponse, NOHTTPServer, NOHTTPServer;
+@class RouteRequest, RouteResponse, NOHTTPServer;
 
 extern NSString const* NOServerFetchRequestKey;
 
