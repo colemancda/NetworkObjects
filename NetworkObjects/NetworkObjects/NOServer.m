@@ -623,22 +623,37 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
     
     // return the resource IDs of objects mapped to their resource path
     
-    NSMutableArray *resourceIDs = [[NSMutableArray alloc] init];
+    NSMutableDictionary *resourcePathsResults = [[NSMutableDictionary alloc] init];
     
     [context performBlockAndWait:^{
         
         for (NSManagedObject *managedObject in results) {
             
+            // get the resourcePath for the entity
+            
+            NSString *resourcePath = [self.resourcePaths allKeysForObject:managedObject.entity].firstObject;
+            
+            NSMutableArray *resultsForEntity = resourcePathsResults[resourcePath];
+            
+            if (!resultsForEntity) {
+                
+                // mutable array to dictionary
+                
+                resultsForEntity = [[NSMutableArray alloc] init];
+                
+                resourcePathsResults[resourcePath] = resultsForEntity;
+            }
+            
             NSNumber *resourceID = [managedObject valueForKey:_resourceIDAttributeName];
             
-            [resourceIDs addObject:resourceID];
+            [resultsForEntity addObject:resourceID];
         }
         
     }];
     
     NSError *error;
     
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:resourceIDs
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:resourcePathsResults
                                                        options:self.jsonWritingOption
                                                          error:&error];
     
