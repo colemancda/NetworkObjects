@@ -10,6 +10,8 @@
 #import "NODefines.h"
 #import "NOError.h"
 
+#pragma mark - Category Declarations
+
 @interface NOStore (Cache)
 
 // call these inside -performWithBlock:
@@ -45,7 +47,7 @@
 
 @interface NOStore (ManagedObjectContexts)
 
--(void)setupManagedObjectContextsWithPersistentStoreCoordinator:(NSPersistentStoreCoordinator *)psc;
+-(void)setupManagedObjectContextsWithPersistentStoreCoordinator:(NSPersistentStoreCoordinator *)psc managedObjectContextConcurrencyType:(NSManagedObjectContextConcurrencyType)managedObjectContextConcurrencyType;
 
 -(void)mergeChangesFromContextDidSaveNotification:(NSNotification *)notification;
 
@@ -147,6 +149,7 @@
 }
 
 - (instancetype)initWithPersistentStoreCoordinator:(NSPersistentStoreCoordinator *)psc
+               managedObjectContextConcurrencyType:(NSManagedObjectContextConcurrencyType)managedObjectContextConcurrencyType
                                          serverURL:(NSURL *)serverURL
                             entitiesByResourcePath:(NSDictionary *)entitiesByResourcePath
                                    prettyPrintJSON:(BOOL)prettyPrintJSON
@@ -372,13 +375,13 @@
             // get cached resource
             
             resource = [self findOrCreateEntity:entity
-                                   withResourceID:resourceID
-                                          context:_privateQueueManagedObjectContext];
+                                 withResourceID:resourceID
+                                        context:_privateQueueManagedObjectContext];
             
             // set values
             
             [self setJSONObject:resourceDict
-                    forManagedObject:resource];
+               forManagedObject:resource];
             
             
             // set date cached
@@ -399,22 +402,29 @@
         
         // get the corresponding managed object that belongs to the main queue context
         
+        __block NSManagedObject *mainContextManagedObject;
         
-        completionBlock(nil, resource);
+        [self.managedObjectContext performBlockAndWait:^{
+            
+            mainContextManagedObject = [_managedObjectContext objectWithID:resource.objectID];
+            
+        }];
+        
+        completionBlock(nil, mainContextManagedObject);
     }];
 }
 
--(NSURLSessionDataTask *)createCachedResource:(NSString *)resourceName
+-(NSURLSessionDataTask *)createEntityWithName:(NSString *)entityName
                                 initialValues:(NSDictionary *)initialValues
                                    URLSession:(NSURLSession *)urlSession
-                                   completion:(void (^)(NSError *, NSManagedObject<NOResourceKeysProtocol> *))completionBlock
+                                   completion:(void (^)(NSError *, NSManagedObject *))completionBlock
 {
-    NSEntityDescription *entity = self.model.entitiesByName[resourceName];
+    NSEntityDescription *entity = self.model.entitiesByName[entityName];
     
     // convert those Core Data values to JSON
     NSDictionary *jsonValues = [entity jsonObjectFromCoreDataValues:initialValues];
     
-    return [self createResource:resourceName withInitialValues:jsonValues URLSession:urlSession completion:^(NSError *error, NSNumber *resourceID) {
+    return [self createResource:entity withInitialValues:jsonValues URLSession:urlSession completion:^(NSError *error, NSNumber *resourceID) {
         
         if (error) {
             
@@ -423,19 +433,19 @@
             return;
         }
         
-        __block NSManagedObject<NOResourceKeysProtocol> *resource;
+        __block NSManagedObject *resource;
         
-        [self.context performBlockAndWait:^{
+        [self.privateQueueManagedObjectContext performBlockAndWait:^{
             
             // create new entity
             
-            resource = [NSEntityDescription insertNewObjectForEntityForName:resourceName
-                                                     inManagedObjectContext:self.context];
+            resource = [NSEntityDescription insertNewObjectForEntityForName:entityName
+                                                     inManagedObjectContext:_managedObjectContext];
             
             // set resource ID
             
             [resource setValue:resourceID
-                        forKey:[NSClassFromString(entity.managedObjectClassName) resourceIDKey]];
+                        forKey:_resourceIDAttributeName];
             
             // set values
             for (NSString *key in initialValues) {
@@ -584,21 +594,17 @@
 }
 
 -(NSURLSessionDataTask *)performFunction:(NSString *)functionName
-                        onCachedResource:(NSManagedObject<NOResourceKeysProtocol> *)resource
+                        onCachedResource:(NSManagedObject *)resource
                           withJSONObject:(NSDictionary *)jsonObject
                               URLSession:(NSURLSession *)urlSession
                               completion:(void (^)(NSError *, NSNumber *, NSDictionary *))completionBlock
 {
     // get resourceID
     
-    Class entityClass = NSClassFromString(resource.entity.managedObjectClassName);
-    
-    NSString *resourceIDKey = [entityClass resourceIDKey];
-    
-    NSNumber *resourceID = [resource valueForKey:resourceIDKey];
+    NSNumber *resourceID = [resource valueForKey:_resourceIDAttributeName];
     
     return [self performFunction:functionName
-                      onResource:resource.entity.name
+                      onResource:resource.entity
                           withID:resourceID.integerValue
                   withJSONObject:jsonObject
                       URLSession:urlSession
@@ -607,42 +613,7 @@
 
 @end
 
-@implementation NOStore (DateCached)
-
--(void)setupDateCachedAttributeWithAttributeName:(NSString *)dateCachedAttributeName
-{
-    // add a date attribute to
-    for (NSString *entityName in self.model.entitiesByName) {
-        
-        NSEntityDescription *entity = self.model.entitiesByName[entityName];
-        
-        if (!entity.isAbstract || !entity.superentity) {
-            
-            // create new (runtime) attribute
-            
-            NSAttributeDescription *dateAttribute = [[NSAttributeDescription alloc] init];
-            
-            dateAttribute.attributeType = NSDateAttributeType;
-            
-            dateAttribute.name = dateCachedAttributeName;
-            
-            // add to entity
-            
-            entity.properties = [entity.properties arrayByAddingObject:dateAttribute];
-        }
-    }
-}
-
--(void)didCacheManagedObject:(NSManagedObject *)managedObject;
-{
-    if (_dateCachedAttributeName) {
-        
-        [managedObject setValue:[NSDate date]
-                         forKey:self.dateCachedAttributeName];
-    }
-}
-
-@end
+#pragma mark - Category Implementations
 
 @implementation NOStore (API)
 
@@ -777,8 +748,8 @@
             
             if (![resourcePath isKindOfClass:[NSString class]] ||
                 ![resourceID isKindOfClass:[NSString class]] ||
-                resultResourcePathByResourceID.allKeys != 1 ||
-                resultResourcePathByResourceID.allValues != 1) {
+                resultResourcePathByResourceID.allKeys.count != 1 ||
+                resultResourcePathByResourceID.allValues.count != 1) {
                 
                 completionBlock(self.invalidServerResponseError, nil);
                 
@@ -795,7 +766,7 @@
     return dataTask;
 }
 
--(NSURLSessionDataTask *)getResource:(NSString *)resourceName
+-(NSURLSessionDataTask *)getResource:(NSEntityDescription *)entity
                               withID:(NSUInteger)resourceID
                           URLSession:(NSURLSession *)urlSession
                           completion:(void (^)(NSError *, NSDictionary *))completionBlock
@@ -808,7 +779,7 @@
     
     // build URL
     
-    NSString *resourcePath = [self.entitiesByResourcePath allKeysForObject:entity].firstObject
+    NSString *resourcePath = [self.entitiesByResourcePath allKeysForObject:entity].firstObject;
     
     NSURL *getResourceURL = [self.serverURL URLByAppendingPathComponent:resourcePath];
     
@@ -844,7 +815,7 @@
                 NSString *errorDescription = NSLocalizedString(@"Access to resource is denied",
                                                                @"Access to resource is denied");
                 
-                NSError *forbiddenError = [NSError errorWithDomain:NetworkObjectsErrorDomain
+                NSError *forbiddenError = [NSError errorWithDomain:(NSString *)NOErrorDomain
                                                               code:NOServerStatusCodeForbidden
                                                           userInfo:@{NSLocalizedDescriptionKey: errorDescription}];
                 
@@ -904,13 +875,11 @@
     return dataTask;
 }
 
--(NSURLSessionDataTask *)createResource:(NSString *)resourceName
+-(NSURLSessionDataTask *)createResource:(NSEntityDescription *)entity
                       withInitialValues:(NSDictionary *)initialValues
                              URLSession:(NSURLSession *)urlSession
                              completion:(void (^)(NSError *, NSNumber *))completionBlock
 {
-    NOAPICheckForServerURL
-    
     // determine URL session
     if (!urlSession) {
         
@@ -919,9 +888,7 @@
     
     // build URL...
     
-    Class entityClass = [self entityClassWithResourceName:resourceName];
-    
-    NSString *resourcePath = [entityClass resourcePath];
+    NSString *resourcePath = [self.entitiesByResourcePath allKeysForObject:entity].firstObject;
     
     NSURL *createResourceURL = [self.serverURL URLByAppendingPathComponent:resourcePath];
     
@@ -944,13 +911,6 @@
         request.HTTPBody = postData;
     }
     
-    // add authentication header if availible
-    
-    if (self.sessionToken) {
-        
-        [request addValue:self.sessionToken forHTTPHeaderField:@"Authorization"];
-    }
-    
     request.HTTPMethod = @"POST";
     
     NSURLSessionDataTask *dataTask = [urlSession dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
@@ -966,7 +926,7 @@
         
         NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
         
-        if (httpResponse.statusCode != 200) {
+        if (httpResponse.statusCode != NOServerStatusCodeOK) {
             
             if (httpResponse.statusCode == NOServerStatusCodeUnauthorized) {
                 
@@ -979,8 +939,8 @@
                 NSString *errorDescription = NSLocalizedString(@"Permission to create new resource is denied",
                                                                @"Permission to create new resource is denied");
                 
-                NSError *forbiddenError = [NSError errorWithDomain:NetworkObjectsErrorDomain
-                                                              code:NOAPIForbiddenErrorCode
+                NSError *forbiddenError = [NSError errorWithDomain:(NSString *)NOErrorDomain
+                                                              code:NOServerStatusCodeForbidden
                                                           userInfo:@{NSLocalizedDescriptionKey: errorDescription}];
                 
                 completionBlock(forbiddenError, nil);
@@ -1025,13 +985,7 @@
         
         // get new resource id
         
-        NSEntityDescription *entity = _model.entitiesByName[resourceName];
-        
-        Class entityClass = NSClassFromString(entity.managedObjectClassName);
-        
-        NSString *resourceIDKey = [entityClass resourceIDKey];
-        
-        NSNumber *resourceID = jsonResponse[resourceIDKey];
+        NSNumber *resourceID = jsonResponse[_resourceIDAttributeName];
         
         if (!resourceID) {
             
@@ -1050,14 +1004,12 @@
     return dataTask;
 }
 
--(NSURLSessionDataTask *)editResource:(NSString *)resourceName
+-(NSURLSessionDataTask *)editResource:(NSEntityDescription *)entity
                                withID:(NSUInteger)resourceID
                               changes:(NSDictionary *)changes
                            URLSession:(NSURLSession *)urlSession
                            completion:(void (^)(NSError *))completionBlock
 {
-    NOAPICheckForServerURL
-    
     // determine URL session
     if (!urlSession) {
         
@@ -1066,9 +1018,7 @@
     
     // build URL
     
-    Class entityClass = [self entityClassWithResourceName:resourceName];
-    
-    NSString *resourcePath = [entityClass resourcePath];
+    NSString *resourcePath = [self.entitiesByResourcePath allKeysForObject:entity].firstObject;
     
     NSURL *editResourceURL = [self.serverURL URLByAppendingPathComponent:resourcePath];
     
@@ -1096,13 +1046,6 @@
     
     request.HTTPBody = httpBody;
     
-    // add authentication header if availible
-    
-    if (self.sessionToken) {
-        
-        [request addValue:self.sessionToken forHTTPHeaderField:@"Authorization"];
-    }
-    
     NSURLSessionDataTask *dataTask = [urlSession dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         
         if (error) {
@@ -1116,7 +1059,7 @@
         
         NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
         
-        if (httpResponse.statusCode != 200) {
+        if (httpResponse.statusCode != NOServerStatusCodeOK) {
             
             if (httpResponse.statusCode == NOServerStatusCodeUnauthorized) {
                 
@@ -1129,8 +1072,8 @@
                 NSString *errorDescription = NSLocalizedString(@"Permission to edit resource is denied",
                                                                @"Permission to edit resource is denied");
                 
-                NSError *forbiddenError = [NSError errorWithDomain:NetworkObjectsErrorDomain
-                                                              code:NOAPIForbiddenErrorCode
+                NSError *forbiddenError = [NSError errorWithDomain:(NSString *)NOErrorDomain
+                                                              code:NOServerStatusCodeForbidden
                                                           userInfo:@{NSLocalizedDescriptionKey: errorDescription}];
                 
                 completionBlock(forbiddenError);
@@ -1168,13 +1111,11 @@
     return dataTask;
 }
 
--(NSURLSessionDataTask *)deleteResource:(NSString *)resourceName
+-(NSURLSessionDataTask *)deleteResource:(NSEntityDescription *)entity
                                  withID:(NSUInteger)resourceID
                              URLSession:(NSURLSession *)urlSession
                              completion:(void (^)(NSError *))completionBlock
 {
-    NOAPICheckForServerURL
-    
     // determine URL session
     if (!urlSession) {
         
@@ -1183,9 +1124,7 @@
     
     // build URL
     
-    Class entityClass = [self entityClassWithResourceName:resourceName];
-    
-    NSString *resourcePath = [entityClass resourcePath];
+    NSString *resourcePath = [self.entitiesByResourcePath allKeysForObject:entity].firstObject;
     
     NSURL *deleteResourceURL = [self.serverURL URLByAppendingPathComponent:resourcePath];
     
@@ -1196,13 +1135,6 @@
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:deleteResourceURL];
     
     request.HTTPMethod = @"DELETE";
-    
-    // add authentication header if availible
-    
-    if (self.sessionToken) {
-        
-        [request addValue:self.sessionToken forHTTPHeaderField:@"Authorization"];
-    }
     
     NSURLSessionDataTask *dataTask = [urlSession dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         
@@ -1217,7 +1149,7 @@
         
         NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
         
-        if (httpResponse.statusCode != 200) {
+        if (httpResponse.statusCode != NOServerStatusCodeOK) {
             
             if (httpResponse.statusCode == NOServerStatusCodeNotFound) {
                 
@@ -1236,8 +1168,8 @@
                 NSString *errorDescription = NSLocalizedString(@"Permission to delete resource is denied",
                                                                @"Permission to delete resource is denied");
                 
-                NSError *forbiddenError = [NSError errorWithDomain:NetworkObjectsErrorDomain
-                                                              code:NOAPIForbiddenErrorCode
+                NSError *forbiddenError = [NSError errorWithDomain:(NSString *)NOErrorDomain
+                                                              code:NOServerStatusCodeForbidden
                                                           userInfo:@{NSLocalizedDescriptionKey: errorDescription}];
                 
                 completionBlock(forbiddenError);
@@ -1276,14 +1208,12 @@
 }
 
 -(NSURLSessionDataTask *)performFunction:(NSString *)functionName
-                              onResource:(NSString *)resourceName
+                              onResource:(NSEntityDescription *)entity
                                   withID:(NSUInteger)resourceID
                           withJSONObject:(NSDictionary *)jsonObject
                               URLSession:(NSURLSession *)urlSession
                               completion:(void (^)(NSError *, NSNumber *, NSDictionary *))completionBlock
 {
-    NOAPICheckForServerURL
-    
     // determine URL session
     if (!urlSession) {
         
@@ -1292,9 +1222,7 @@
     
     // build URL
     
-    Class entityClass = [self entityClassWithResourceName:resourceName];
-    
-    NSString *resourcePath = [entityClass resourcePath];
+    NSString *resourcePath = [self.entitiesByResourcePath allKeysForObject:entity].firstObject;
     
     NSURL *deleteResourceURL = [self.serverURL URLByAppendingPathComponent:resourcePath];
     
@@ -1306,13 +1234,6 @@
     
     request.HTTPMethod = @"POST";
     
-    // add authentication header if availible
-    
-    if (self.sessionToken) {
-        
-        [request addValue:self.sessionToken forHTTPHeaderField:@"Authorization"];
-    }
-    
     // add HTTP body
     if (jsonObject) {
         
@@ -1323,7 +1244,7 @@
         if (!jsonData) {
             
             [NSException raise:NSInvalidArgumentException
-                        format:@"Invalid jsonObject NSDictionary argument. Not valid JSON."];
+                        format:@"Invalid 'withJSONObject:' NSDictionary argument. Not valid JSON."];
             
             return nil;
         }
@@ -1371,13 +1292,50 @@
 
 @end
 
+@implementation NOStore (DateCached)
+
+-(void)setupDateCachedAttributeWithAttributeName:(NSString *)dateCachedAttributeName
+{
+    // add a date attribute to
+    for (NSString *entityName in self.model.entitiesByName) {
+        
+        NSEntityDescription *entity = self.model.entitiesByName[entityName];
+        
+        if (!entity.superentity) {
+            
+            // create new (runtime) attribute
+            
+            NSAttributeDescription *dateAttribute = [[NSAttributeDescription alloc] init];
+            
+            dateAttribute.attributeType = NSDateAttributeType;
+            
+            dateAttribute.name = dateCachedAttributeName;
+            
+            // add to entity
+            
+            entity.properties = [entity.properties arrayByAddingObject:dateAttribute];
+        }
+    }
+}
+
+-(void)didCacheManagedObject:(NSManagedObject *)managedObject;
+{
+    if (_dateCachedAttributeName) {
+        
+        [managedObject setValue:[NSDate date]
+                         forKey:self.dateCachedAttributeName];
+    }
+}
+
+@end
+
 @implementation NOStore (ManagedObjectContexts)
 
--(void)setupManagedObjectContextsWithPersistentStoreCoordinator:(NSPersistentStoreCoordinator *)psc
+-(void)setupManagedObjectContextsWithPersistentStoreCoordinator:(NSPersistentStoreCoordinator *)psc managedObjectContextConcurrencyType:(NSManagedObjectContextConcurrencyType)managedObjectContextConcurrencyType
 {
     // setup contexts
     
-    self.managedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
+    self.managedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:managedObjectContextConcurrencyType];
     
     self.managedObjectContext.undoManager = nil;
     

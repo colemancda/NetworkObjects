@@ -16,6 +16,7 @@
 /** Default initializer to use. Do not use -init. */
 
 - (instancetype)initWithPersistentStoreCoordinator:(NSPersistentStoreCoordinator *)psc
+               managedObjectContextConcurrencyType:(NSManagedObjectContextConcurrencyType)managedObjectContextConcurrencyType
                                          serverURL:(NSURL *)serverURL
                             entitiesByResourcePath:(NSDictionary *)entitiesByResourcePath
                                    prettyPrintJSON:(BOOL)prettyPrintJSON
