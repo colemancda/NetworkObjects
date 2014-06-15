@@ -42,6 +42,6 @@ typedef NS_ENUM(NSUInteger, NOErrorCode) {
     NOErrorCodeServerStatusCodeInternalServerError = 500,
     
     /** Server returned an invalid response. */
-    NOErrorCodeInvalidServerResponse
+    NOErrorCodeInvalidServerResponse = 1000
     
 };
