@@ -3,6 +3,8 @@ NetworkObjects
 
 NetworkObjects is a distributed object graph inspired by Apple's WebObjects. This framework compiles for OS X and iOS and serves as the foundation for building powerful Objective-C servers as well as serving as a cross-platform alternative to Cocoa's Distributed Objects. Powered by Core Data and Grand Central Dispatch, the framework comes with server and client classes which abstract away advanced networking code so the developer can focus on distributing Core Data entities over a network.
 
+# Legacy NetworkObjects
+
 ## Installation
 
 This framework compiles for OS X 10.9 and iOS 7. It cannot be ported to older versions since it uses NSURLSession and the new Base64 categories.
