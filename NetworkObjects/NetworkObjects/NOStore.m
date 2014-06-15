@@ -9,6 +9,7 @@
 #import "NOStore.h"
 #import "NODefines.h"
 #import "NOError.h"
+#import "NSManagedObject+CoreDataJSONCompatibility.h"
 
 #pragma mark - Category Declarations
 
@@ -33,7 +34,8 @@
 
 @interface NSEntityDescription (Convert)
 
--(NSDictionary *)jsonObjectFromCoreDataValues:(NSDictionary *)values;
+-(NSDictionary *)jsonObjectFromCoreDataValues:(NSDictionary *)values
+                 usingResourceIDAttributeName:(NSString *)resourceIDAttributeName;
 
 @end
 
@@ -160,7 +162,8 @@
     
     if (self) {
         
-        [self setupManagedObjectContextsWithPersistentStoreCoordinator:psc];
+        [self setupManagedObjectContextsWithPersistentStoreCoordinator:psc
+                                   managedObjectContextConcurrencyType:managedObjectContextConcurrencyType];
         
         self.serverURL = serverURL;
         
@@ -212,7 +215,7 @@
         
         // convert value to from Core Data to JSON
         
-        id jsonValue = [fetchRequest.entity jsonObjectFromCoreDataValues:@{predicate.leftExpression.keyPath: predicate.rightExpression.constantValue}].allValues.firstObject;
+        id jsonValue = [fetchRequest.entity jsonObjectFromCoreDataValues:@{predicate.leftExpression.keyPath: predicate.rightExpression.constantValue} usingResourceIDAttributeName:_resourceIDAttributeName].allValues.firstObject;
         
         jsonObject[[NSString stringWithFormat:@"%lu", (unsigned long)NOSearchParameterPredicateValue]] = jsonValue;
         
@@ -422,7 +425,7 @@
     NSEntityDescription *entity = self.model.entitiesByName[entityName];
     
     // convert those Core Data values to JSON
-    NSDictionary *jsonValues = [entity jsonObjectFromCoreDataValues:initialValues];
+    NSDictionary *jsonValues = [entity jsonObjectFromCoreDataValues:initialValues usingResourceIDAttributeName:_resourceIDAttributeName];
     
     return [self createResource:entity withInitialValues:jsonValues URLSession:urlSession completion:^(NSError *error, NSNumber *resourceID) {
         
@@ -440,7 +443,7 @@
             // create new entity
             
             resource = [NSEntityDescription insertNewObjectForEntityForName:entityName
-                                                     inManagedObjectContext:_managedObjectContext];
+                                                     inManagedObjectContext:_privateQueueManagedObjectContext];
             
             // set resource ID
             
@@ -465,13 +468,13 @@
             
             // set date cached
             
-            [self didCacheResource:resource];
+            [self didCacheManagedObject:resource];
             
             // save
             
             NSError *saveError;
             
-            if (![self.context save:&saveError]) {
+            if (![_privateQueueManagedObjectContext save:&saveError]) {
                 
                 [NSException raise:NSInternalInconsistencyException
                             format:@"%@", saveError.localizedDescription];
@@ -479,27 +482,33 @@
             
         }];
         
+        // get the corresponding managed object that belongs to the main queue context
+        
+        __block NSManagedObject *mainContextManagedObject;
+        
+        [self.managedObjectContext performBlockAndWait:^{
+            
+            mainContextManagedObject = [_managedObjectContext objectWithID:resource.objectID];
+            
+        }];
+        
         completionBlock(nil, resource);
     }];
 }
 
--(NSURLSessionDataTask *)editCachedResource:(NSManagedObject<NOResourceKeysProtocol> *)resource
-                                    changes:(NSDictionary *)values
-                                 URLSession:(NSURLSession *)urlSession
-                                 completion:(void (^)(NSError *))completionBlock
+-(NSURLSessionDataTask *)editManagedObject:(NSManagedObject *)resource
+                                   changes:(NSDictionary *)values
+                                URLSession:(NSURLSession *)urlSession
+                                completion:(void (^)(NSError *))completionBlock
 {
     // convert those Core Data values to JSON
-    NSDictionary *jsonValues = [resource.entity jsonObjectFromCoreDataValues:values];
+    NSDictionary *jsonValues = [resource.entity jsonObjectFromCoreDataValues:values usingResourceIDAttributeName:_resourceIDAttributeName];
     
     // get resourceID
     
-    Class entityClass = NSClassFromString(resource.entity.managedObjectClassName);
+    NSNumber *resourceID = [resource valueForKey:_resourceIDAttributeName];
     
-    NSString *resourceIDKey = [entityClass resourceIDKey];
-    
-    NSNumber *resourceID = [resource valueForKey:resourceIDKey];
-    
-    return [self editResource:resource.entity.name withID:resourceID.integerValue changes:jsonValues URLSession:urlSession completion:^(NSError *error) {
+    return [self editResource:resource.entity withID:resourceID.integerValue changes:jsonValues URLSession:urlSession completion:^(NSError *error) {
         
         if (error) {
             
@@ -508,11 +517,11 @@
             return;
         }
         
-        [self.context performBlockAndWait:^{
+        [self.privateQueueManagedObjectContext performBlockAndWait:^{
             
             // get object on this context
             
-            NSManagedObject *contextResource = [self.context objectWithID:resource.objectID];
+            NSManagedObject *contextResource = [_privateQueueManagedObjectContext objectWithID:resource.objectID];
             
             // set values
             for (NSString *key in values) {
@@ -534,7 +543,7 @@
             
             NSError *saveError;
             
-            if (![self.context save:&saveError]) {
+            if (![_privateQueueManagedObjectContext save:&saveError]) {
                 
                 [NSException raise:NSInternalInconsistencyException
                             format:@"%@", saveError.localizedDescription];
@@ -547,19 +556,15 @@
     }];
 }
 
--(NSURLSessionDataTask *)deleteCachedResource:(NSManagedObject<NOResourceKeysProtocol> *)resource
-                                   URLSession:(NSURLSession *)urlSession
-                                   completion:(void (^)(NSError *))completionBlock
+-(NSURLSessionDataTask *)deleteManagedObject:(NSManagedObject *)resource
+                                  URLSession:(NSURLSession *)urlSession
+                                  completion:(void (^)(NSError *))completionBlock
 {
     // get resourceID
     
-    Class entityClass = NSClassFromString(resource.entity.managedObjectClassName);
+    NSNumber *resourceID = [resource valueForKey:_resourceIDAttributeName];
     
-    NSString *resourceIDKey = [entityClass resourceIDKey];
-    
-    NSNumber *resourceID = [resource valueForKey:resourceIDKey];
-    
-    return [self deleteResource:resource.entity.name withID:resourceID.integerValue URLSession:urlSession completion:^(NSError *error) {
+    return [self deleteResource:resource.entity withID:resourceID.integerValue URLSession:urlSession completion:^(NSError *error) {
         
         if (error) {
             
@@ -570,19 +575,19 @@
         
         // delete...
         
-        [self.context performBlock:^{
+        [self.privateQueueManagedObjectContext performBlock:^{
             
             // get object on this context
             
-            NSManagedObject *contextResource = [self.context objectWithID:resource.objectID];
+            NSManagedObject *contextResource = [_privateQueueManagedObjectContext objectWithID:resource.objectID];
             
-            [self.context deleteObject:contextResource];
+            [_privateQueueManagedObjectContext deleteObject:contextResource];
             
             // save
             
             NSError *saveError;
             
-            if (![self.context save:&saveError]) {
+            if (![_privateQueueManagedObjectContext save:&saveError]) {
                 
                 [NSException raise:NSInternalInconsistencyException
                             format:@"%@", saveError.localizedDescription];
@@ -594,17 +599,17 @@
 }
 
 -(NSURLSessionDataTask *)performFunction:(NSString *)functionName
-                        onCachedResource:(NSManagedObject *)resource
+                        forManagedObject:(NSManagedObject *)managedObject
                           withJSONObject:(NSDictionary *)jsonObject
                               URLSession:(NSURLSession *)urlSession
                               completion:(void (^)(NSError *, NSNumber *, NSDictionary *))completionBlock
 {
     // get resourceID
     
-    NSNumber *resourceID = [resource valueForKey:_resourceIDAttributeName];
+    NSNumber *resourceID = [managedObject valueForKey:_resourceIDAttributeName];
     
     return [self performFunction:functionName
-                      onResource:resource.entity
+                      onResource:managedObject.entity
                           withID:resourceID.integerValue
                   withJSONObject:jsonObject
                       URLSession:urlSession
@@ -1370,6 +1375,7 @@
 @implementation NSEntityDescription (Convert)
 
 -(NSDictionary *)jsonObjectFromCoreDataValues:(NSDictionary *)values
+                 usingResourceIDAttributeName:(NSString *)resourceIDAttributeName
 {
     NSMutableDictionary *jsonObject = [[NSMutableDictionary alloc] init];
     
@@ -1403,21 +1409,14 @@
             // found matching key (will only run once because dictionaries dont have duplicates)
             if ([key isEqualToString:relationshipName]) {
                 
-                // destination entity
-                NSEntityDescription *destinationEntity = relationship.destinationEntity;
-                
-                Class entityClass = NSClassFromString(destinationEntity.managedObjectClassName);
-                
-                NSString *destinationResourceIDKey = [entityClass resourceIDKey];
-                
                 // to-one relationship
                 if (!relationship.isToMany) {
                     
                     // get resource ID of object
                     
-                    NSManagedObject<NOResourceKeysProtocol> *destinationResource = values[key];
+                    NSManagedObject *destinationResource = values[key];
                     
-                    NSNumber *destinationResourceID = [destinationResource valueForKey:destinationResourceIDKey];
+                    NSNumber *destinationResourceID = [destinationResource valueForKey:resourceIDAttributeName];
                     
                     jsonObject[key] = destinationResourceID;
                     
@@ -1432,7 +1431,7 @@
                     
                     for (NSManagedObject *destinationResource in destinationResources) {
                         
-                        NSNumber *destinationResourceID = [destinationResource valueForKey:destinationResourceIDKey];
+                        NSNumber *destinationResourceID = [destinationResource valueForKey:resourceIDAttributeName];
                         
                         [destinationResourceIDs addObject:destinationResourceID];
                     }
@@ -1451,7 +1450,7 @@
 
 @end
 
-@implementation NOAPI (CommonErrors)
+@implementation NOStore (CommonErrors)
 
 -(NSError *)invalidServerResponseError
 {
@@ -1459,7 +1458,7 @@
     NSString *description = NSLocalizedString(@"The server returned a invalid response",
                                               @"The server returned a invalid response");
     
-    NSError *error = [NSError errorWithDomain:NetworkObjectsErrorDomain
+    NSError *error = [NSError errorWithDomain:(NSString *)NOErrorDomain
                                          code:NOAPIInvalidServerResponseErrorCode
                                      userInfo:@{NSLocalizedDescriptionKey: description}];
     
@@ -1475,7 +1474,7 @@
         NSString *description = NSLocalizedString(@"Invalid request",
                                                   @"Invalid request");
         
-        error = [NSError errorWithDomain:NetworkObjectsErrorDomain
+        error = [NSError errorWithDomain:(NSString *)NOErrorDomain
                                     code:NOAPIBadRequestErrorCode
                                 userInfo:@{NSLocalizedDescriptionKey: description}];
         
@@ -1493,7 +1492,7 @@
         NSString *description = NSLocalizedString(@"The server suffered an internal error",
                                                   @"The server suffered an internal error");
         
-        error = [NSError errorWithDomain:NetworkObjectsErrorDomain
+        error = [NSError errorWithDomain:(NSString *)NOErrorDomain
                                     code:NOAPIServerInternalErrorCode
                                 userInfo:@{NSLocalizedDescriptionKey: description}];
         
@@ -1511,7 +1510,7 @@
         NSString *description = NSLocalizedString(@"Authentication is required",
                                                   @"Authentication is required");
         
-        error = [NSError errorWithDomain:NetworkObjectsErrorDomain
+        error = [NSError errorWithDomain:(NSString *)NOErrorDomain
                                     code:NOAPIUnauthorizedErrorCode
                                 userInfo:@{NSLocalizedDescriptionKey: description}];
     }
@@ -1528,7 +1527,7 @@
         NSString *description = NSLocalizedString(@"Resource was not found",
                                                   @"Resource was not found");
         
-        error = [NSError errorWithDomain:NetworkObjectsErrorDomain
+        error = [NSError errorWithDomain:(NSString *)NOErrorDomain
                                     code:NOAPINotFoundErrorCode
                                 userInfo:@{NSLocalizedDescriptionKey: description}];
     }
@@ -1624,7 +1623,7 @@
         
         // create new entity
         
-        resource = [NSEntityDescription insertNewObjectForEntityForName:resourceName
+        resource = [NSEntityDescription insertNewObjectForEntityForName:entity.name
                                                  inManagedObjectContext:context];
         
         // set resource ID
@@ -1637,14 +1636,14 @@
     return resource;
 }
 
--(NSManagedObject *)setJSONObject:(NSDictionary *)jsonObject
-                 forManagedObject:(NSManagedObject *)managedObject
+-(NSManagedObject *)setJSONObject:(NSDictionary *)resourceDict
+                 forManagedObject:(NSManagedObject *)resource
 {
     // set values...
     
     NSEntityDescription *entity = resource.entity;
     
-    [self.context performBlockAndWait:^{
+    [self.privateQueueManagedObjectContext performBlockAndWait:^{
         
         for (NSString *attributeName in entity.attributesByName) {
             
@@ -1744,9 +1743,9 @@
                         // get the resource ID
                         NSNumber *destinationResourceID = [resourceDict valueForKey:relationshipName];
                         
-                        NSManagedObject<NOResourceKeysProtocol> *destinationResource = [self findOrCreateResource:destinationEntity.name
-                                                                                                   withResourceID:destinationResourceID
-                                                                                                          context:resource.managedObjectContext];
+                        NSManagedObject *destinationResource = [self findOrCreateEntity:destinationEntity
+                                                                         withResourceID:destinationResourceID
+                                                                                context:resource.managedObjectContext];
                         
                         // dont set value if its the same as current value
                         
@@ -1769,9 +1768,7 @@
                         
                         for (NSNumber *destinationResourceID in destinationResourceIDs) {
                             
-                            NSManagedObject *destinationResource = [self findOrCreateResource:destinationEntity.name
-                                                                               withResourceID:destinationResourceID
-                                                                                      context:resource.managedObjectContext];
+                            NSManagedObject *destinationResource = [self findOrCreateEntity:destinationEntity withResourceID:destinationResourceID context:resource.managedObjectContext];
                             
                             [destinationResources addObject:destinationResource];
                         }
