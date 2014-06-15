@@ -693,7 +693,7 @@
                                                                @"Permission to perform search is denied");
                 
                 NSError *forbiddenError = [NSError errorWithDomain:(NSString *)NOErrorDomain
-                                                              code:NOServerStatusCodeForbidden
+                                                              code:NOErrorCodeServerStatusCodeForbidden
                                                           userInfo:@{NSLocalizedDescriptionKey: errorDescription}];
                 
                 completionBlock(forbiddenError, nil);
@@ -821,7 +821,7 @@
                                                                @"Access to resource is denied");
                 
                 NSError *forbiddenError = [NSError errorWithDomain:(NSString *)NOErrorDomain
-                                                              code:NOServerStatusCodeForbidden
+                                                              code:NOErrorCodeServerStatusCodeForbidden
                                                           userInfo:@{NSLocalizedDescriptionKey: errorDescription}];
                 
                 completionBlock(forbiddenError, nil);
@@ -945,7 +945,7 @@
                                                                @"Permission to create new resource is denied");
                 
                 NSError *forbiddenError = [NSError errorWithDomain:(NSString *)NOErrorDomain
-                                                              code:NOServerStatusCodeForbidden
+                                                              code:NOErrorCodeServerStatusCodeForbidden
                                                           userInfo:@{NSLocalizedDescriptionKey: errorDescription}];
                 
                 completionBlock(forbiddenError, nil);
@@ -1459,7 +1459,7 @@
                                               @"The server returned a invalid response");
     
     NSError *error = [NSError errorWithDomain:(NSString *)NOErrorDomain
-                                         code:NOAPIInvalidServerResponseErrorCode
+                                         code:NOErrorCodeInvalidServerResponse
                                      userInfo:@{NSLocalizedDescriptionKey: description}];
     
     return error;
@@ -1475,7 +1475,7 @@
                                                   @"Invalid request");
         
         error = [NSError errorWithDomain:(NSString *)NOErrorDomain
-                                    code:NOAPIBadRequestErrorCode
+                                    code:NOErrorCodeServerStatusCodeBadRequest
                                 userInfo:@{NSLocalizedDescriptionKey: description}];
         
     }
@@ -1493,7 +1493,7 @@
                                                   @"The server suffered an internal error");
         
         error = [NSError errorWithDomain:(NSString *)NOErrorDomain
-                                    code:NOAPIServerInternalErrorCode
+                                    code:NOErrorCodeServerStatusCodeInternalServerError
                                 userInfo:@{NSLocalizedDescriptionKey: description}];
         
     }
@@ -1511,7 +1511,7 @@
                                                   @"Authentication is required");
         
         error = [NSError errorWithDomain:(NSString *)NOErrorDomain
-                                    code:NOAPIUnauthorizedErrorCode
+                                    code:NOErrorCodeServerStatusCodeUnauthorized
                                 userInfo:@{NSLocalizedDescriptionKey: description}];
     }
     
@@ -1528,7 +1528,7 @@
                                                   @"Resource was not found");
         
         error = [NSError errorWithDomain:(NSString *)NOErrorDomain
-                                    code:NOAPINotFoundErrorCode
+                                    code:NOErrorCodeServerStatusCodeNotFound
                                 userInfo:@{NSLocalizedDescriptionKey: description}];
     }
     

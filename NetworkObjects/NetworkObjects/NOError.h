@@ -39,6 +39,9 @@ typedef NS_ENUM(NSUInteger, NOErrorCode) {
     NOErrorCodeServerStatusCodeConflict = 409, // user already exists
     
     /** Internal Server Error status code. e.g. Used when a JSON cannot be converted to NSData for a HTTP response. */
-    NOErrorCodeServerStatusCodeInternalServerError = 500
+    NOErrorCodeServerStatusCodeInternalServerError = 500,
+    
+    /** Server returned an invalid response. */
+    NOErrorCodeInvalidServerResponse
     
 };
