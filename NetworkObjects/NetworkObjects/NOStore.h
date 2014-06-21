@@ -36,7 +36,7 @@
 
 @property (nonatomic, readonly) NSManagedObjectContext *managedObjectContext;
 
-/** The string value that will be used to add a date attribute to all the resources NOStore caches. */
+/** The string value that will be used to add a date attribute to all the resources that NOStore caches. */
 
 @property (nonatomic, readonly) NSString *dateCachedAttributeName;
 
