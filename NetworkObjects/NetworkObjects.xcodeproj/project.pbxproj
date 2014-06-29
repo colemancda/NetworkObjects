@@ -77,8 +77,6 @@
 		6E38BF84194A97A900FD5513 /* GCDAsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E38BF82194A97A900FD5513 /* GCDAsyncSocket.m */; };
 		6E38BF9E194A995A00FD5513 /* RouteResponse+IPAddress.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E38BF98194A995A00FD5513 /* RouteResponse+IPAddress.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		6E38BF9F194A995A00FD5513 /* RouteResponse+IPAddress.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E38BF99194A995A00FD5513 /* RouteResponse+IPAddress.m */; };
-		6E38BFA2194A995A00FD5513 /* NOHTTPServer.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E38BF9C194A995A00FD5513 /* NOHTTPServer.h */; settings = {ATTRIBUTES = (Private, ); }; };
-		6E38BFA3194A995A00FD5513 /* NOHTTPServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E38BF9D194A995A00FD5513 /* NOHTTPServer.m */; };
 		6E38BFAA194AAAEE00FD5513 /* NSDate+ISO8601.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E38BFA6194AAAEE00FD5513 /* NSDate+ISO8601.h */; };
 		6E38BFAB194AAAEE00FD5513 /* NSDate+ISO8601.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E38BFA7194AAAEE00FD5513 /* NSDate+ISO8601.m */; };
 		6E38BFAC194AAAEE00FD5513 /* NSManagedObject+CoreDataJSONCompatibility.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E38BFA8194AAAEE00FD5513 /* NSManagedObject+CoreDataJSONCompatibility.h */; };
@@ -175,8 +173,6 @@
 		6E38BF82194A97A900FD5513 /* GCDAsyncSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GCDAsyncSocket.m; path = ../../Dependencies/CocoaAsyncSocket/GCD/GCDAsyncSocket.m; sourceTree = "<group>"; };
 		6E38BF98194A995A00FD5513 /* RouteResponse+IPAddress.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RouteResponse+IPAddress.h"; sourceTree = "<group>"; };
 		6E38BF99194A995A00FD5513 /* RouteResponse+IPAddress.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "RouteResponse+IPAddress.m"; sourceTree = "<group>"; };
-		6E38BF9C194A995A00FD5513 /* NOHTTPServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NOHTTPServer.h; sourceTree = "<group>"; };
-		6E38BF9D194A995A00FD5513 /* NOHTTPServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NOHTTPServer.m; sourceTree = "<group>"; };
 		6E38BFA6194AAAEE00FD5513 /* NSDate+ISO8601.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDate+ISO8601.h"; sourceTree = "<group>"; };
 		6E38BFA7194AAAEE00FD5513 /* NSDate+ISO8601.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDate+ISO8601.m"; sourceTree = "<group>"; };
 		6E38BFA8194AAAEE00FD5513 /* NSManagedObject+CoreDataJSONCompatibility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSManagedObject+CoreDataJSONCompatibility.h"; sourceTree = "<group>"; };
@@ -234,9 +230,9 @@
 				6E73AE59194CEECE008BE32A /* NODefines.m */,
 				6E73AE54194CEE76008BE32A /* NOError.h */,
 				6E73AE55194CEE76008BE32A /* NOError.m */,
+				6E38BF96194A987800FD5513 /* Controllers */,
 				6E73AE4D194BC697008BE32A /* Stores */,
 				6E38BFA4194AAAD800FD5513 /* Model */,
-				6E38BF96194A987800FD5513 /* Controllers */,
 				6E38BEFF194A970B00FD5513 /* Dependencies */,
 				6E38BEDE194A6F0800FD5513 /* Supporting Files */,
 			);
@@ -403,8 +399,6 @@
 				6E38BF97194A988A00FD5513 /* Categories */,
 				6E38BEF9194A6F7E00FD5513 /* NOServer.h */,
 				6E38BEFA194A6F7E00FD5513 /* NOServer.m */,
-				6E38BF9C194A995A00FD5513 /* NOHTTPServer.h */,
-				6E38BF9D194A995A00FD5513 /* NOHTTPServer.m */,
 			);
 			name = Controllers;
 			sourceTree = "<group>";
@@ -457,7 +451,6 @@
 				6E38BEFB194A6F7E00FD5513 /* NOServer.h in Headers */,
 				6E73AE50194BC6B5008BE32A /* NOStore.h in Headers */,
 				6E38BF9E194A995A00FD5513 /* RouteResponse+IPAddress.h in Headers */,
-				6E38BFA2194A995A00FD5513 /* NOHTTPServer.h in Headers */,
 				6E38BF0F194A974300FD5513 /* Route.h in Headers */,
 				6E38BF11194A974300FD5513 /* RouteRequest.h in Headers */,
 				6E38BF13194A974300FD5513 /* RouteResponse.h in Headers */,
@@ -608,7 +601,6 @@
 				6E38BEFC194A6F7E00FD5513 /* NOServer.m in Sources */,
 				6E38BF46194A976100FD5513 /* DDRange.m in Sources */,
 				6E38BF76194A978B00FD5513 /* DDASLLogCapture.m in Sources */,
-				6E38BFA3194A995A00FD5513 /* NOHTTPServer.m in Sources */,
 				6E38BF84194A97A900FD5513 /* GCDAsyncSocket.m in Sources */,
 				6E38BF4A194A976100FD5513 /* HTTPConnection.m in Sources */,
 				6E38BF18194A974300FD5513 /* RoutingHTTPServer.m in Sources */,

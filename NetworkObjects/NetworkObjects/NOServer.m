@@ -7,9 +7,9 @@
 //
 
 #import "NOServer.h"
-#import "NOHTTPServer.h"
 #import "NSManagedObject+CoreDataJSONCompatibility.h"
 #import "RoutingConnection.h"
+#import "RoutingHTTPServer.h"
 
 NSString const* NOServerFetchRequestKey = @"NOServerFetchRequestKey";
 
@@ -26,6 +26,12 @@ NSString const* NOServerFunctionNameKey = @"NOServerFunctionNameKey";
 NSString const* NOServerFunctionJSONInputKey = @"NOServerFunctionJSONInputKey";
 
 NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey";
+
+@interface NOHTTPServer : RoutingHTTPServer
+
+@property (nonatomic) NOServer *server;
+
+@end
 
 @interface NOHTTPConnection : RoutingConnection
 
@@ -1911,6 +1917,10 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
     
     return server.sslIdentityAndCertificates;
 }
+
+@end
+
+@implementation NOHTTPServer
 
 @end
 
