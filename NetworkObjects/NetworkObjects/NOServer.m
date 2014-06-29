@@ -10,6 +10,7 @@
 #import "NSManagedObject+CoreDataJSONCompatibility.h"
 #import "RoutingConnection.h"
 #import "RoutingHTTPServer.h"
+#import "WebSocket.h"
 
 NSString const* NOServerFetchRequestKey = @"NOServerFetchRequestKey";
 
@@ -1916,6 +1917,16 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
     NOServer *server = httpServer.server;
     
     return server.sslIdentityAndCertificates;
+}
+
+-(WebSocket *)webSocketForURI:(NSString *)path
+{
+    if ([path isEqualToString:@"/"]) {
+        
+        return [[WebSocket alloc] initWithRequest:request socket:asyncSocket];
+    }
+    
+    return [super webSocketForURI:path];
 }
 
 @end

@@ -102,7 +102,9 @@ extern NSString const* NOServerFunctionJSONOutputKey;
 
 #pragma mark - Caches
 
--(NSDictionary *)resourcePaths;
+/**  Resource path strings mapped to entity descriptions. */
+
+@property (nonatomic, readonly) NSDictionary *entitiesByResourcePath;
 
 #pragma mark - Request Handlers
 
