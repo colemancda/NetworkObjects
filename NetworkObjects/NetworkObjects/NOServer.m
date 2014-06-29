@@ -157,11 +157,11 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
 
 #pragma mark - Caches
 
--(NSDictionary *)resourcePaths
+-(NSDictionary *)entitiesByResourcePath
 {
-    if (!_resourcePaths) {
+    if (!_entitiesByResourcePath) {
         
-        NSMutableDictionary *resourcePaths = [[NSMutableDictionary alloc] init];
+        NSMutableDictionary *entitiesByResourcePath = [[NSMutableDictionary alloc] init];
         
         for (NSEntityDescription *entity in _managedObjectModel) {
             
@@ -170,14 +170,14 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
                 NSString *path = [self.dataSource server:self
                                    resourcePathForEntity:entity];
                 
-                resourcePaths[path] = entity;
+                entitiesByResourcePath[path] = entity;
             }
         }
         
-        _resourcePaths = [NSDictionary dictionaryWithDictionary:resourcePaths];
+        _entitiesByResourcePath = [NSDictionary dictionaryWithDictionary:entitiesByResourcePath];
     }
     
-    return _resourcePaths;
+    return _entitiesByResourcePath;
 }
 
 #pragma mark - Request Handlers
@@ -642,7 +642,7 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
             
             // get the resourcePath for the entity
             
-            NSString *resourcePath = [self.resourcePaths allKeysForObject:managedObject.entity].firstObject;
+            NSString *resourcePath = [self.entitiesByResourcePath allKeysForObject:managedObject.entity].firstObject;
             
             NSNumber *resourceID = [managedObject valueForKey:_resourceIDAttributeName];
             
@@ -1313,9 +1313,9 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
         
     // setup routes
     
-    for (NSString *path in self.resourcePaths) {
+    for (NSString *path in self.entitiesByResourcePath) {
         
-        NSEntityDescription *entity = self.resourcePaths[path];
+        NSEntityDescription *entity = self.entitiesByResourcePath[path];
         
         // add search handler
         
@@ -1834,9 +1834,8 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
             // get attribute
             NSAttributeDescription *attribute = managedObject.entity.attributesByName[attributeName];
             
-            // make sure the attribute is not transformable or undefined
-            if (attribute.attributeType != NSTransformableAttributeType ||
-                attribute.attributeType != NSUndefinedAttributeType) {
+            // make sure the attribute is not undefined
+            if (attribute.attributeType != NSUndefinedAttributeType) {
                 
                 // add to JSON representation
                 jsonObject[attributeName] = [managedObject JSONCompatibleValueForAttribute:attributeName];

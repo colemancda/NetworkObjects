@@ -33,7 +33,7 @@ extern NSString const* NOServerFunctionJSONOutputKey;
 
 @interface NOServer : NSObject
 {
-    NSDictionary *_resourcePaths;
+    NSDictionary *_entitiesByResourcePath;
 }
 
 #pragma mark - Initializer
