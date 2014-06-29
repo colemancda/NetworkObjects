@@ -28,6 +28,8 @@ NSString const* NOServerFunctionJSONInputKey = @"NOServerFunctionJSONInputKey";
 
 NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey";
 
+#pragma mark - Interface Declarations for Private Classes
+
 @interface NOHTTPServer : RoutingHTTPServer
 
 @property (nonatomic) NOServer *server;
@@ -37,6 +39,12 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
 @interface NOHTTPConnection : RoutingConnection
 
 @end
+
+@interface NOWebSocket : WebSocket
+
+@end
+
+#pragma mark - Category and Externsions Declarations
 
 @interface NOServer (Internal)
 
@@ -83,11 +91,12 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
 
 {
     BOOL _permissionsEnabled;
-    
 }
 
 
 @end
+
+#pragma mark - NOServer Implementation
 
 @implementation NOServer
 
@@ -178,6 +187,18 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
     }
     
     return _entitiesByResourcePath;
+}
+
+#pragma mark - WebSocketDelegate
+
+-(void)webSocket:(WebSocket *)ws didReceiveMessage:(NSString *)msg
+{
+    if ([msg isEqualToString:@"GET "]) {
+        <#statements#>
+    }
+    
+    
+    [ws sendMessage:[NSString stringWithFormat:@"%ld", NOServerStatusCodeMethodNotAllowed]];
 }
 
 #pragma mark - Request Handlers
@@ -1301,6 +1322,8 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
 
 @end
 
+#pragma mark - Category Implementation
+
 @implementation NOServer (Internal)
 
 -(void)setupHTTPServer
@@ -1902,6 +1925,8 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
 
 @end
 
+#pragma mark - Private Classes Implementation
+
 @implementation NOHTTPConnection
 
 -(BOOL)isSecureServer
@@ -1922,7 +1947,9 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
 {
     if ([path isEqualToString:@"/"]) {
         
-        return [[WebSocket alloc] initWithRequest:request socket:asyncSocket];
+        NOWebSocket *webSocket = [[NOWebSocket alloc] initWithRequest:request socket:asyncSocket];
+        
+        return webSocket;
     }
     
     return [super webSocketForURI:path];
@@ -1933,4 +1960,15 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
 @implementation NOHTTPServer
 
 @end
+
+@implementation NOWebSocket
+
+-(void)didReceiveMessage:(NSString *)msg
+{
+    
+    
+}
+
+@end
+
 

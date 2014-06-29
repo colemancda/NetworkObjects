@@ -13,7 +13,7 @@
 @protocol NOServerDelegate;
 @protocol NOServerDataSource;
 
-@class RouteRequest, RouteResponse, NOHTTPServer;
+@class RouteRequest, RouteResponse, NOHTTPServer, NOWebSocket;
 
 extern NSString const* NOServerFetchRequestKey;
 
@@ -136,6 +136,10 @@ extern NSString const* NOServerFunctionJSONOutputKey;
                           resourceID:(NSNumber *)resourceID
                         functionName:(NSString *)functionName
                             response:(RouteResponse *)response;
+
+#pragma mark - WebSocket
+
+-(void)webSocket:(NOWebSocket *)webSocket didReceiveMessage:(NSString *)message;
 
 @end
 
