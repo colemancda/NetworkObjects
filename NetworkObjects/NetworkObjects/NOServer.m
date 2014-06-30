@@ -282,7 +282,7 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
                     
                     if (_delegate) {
                         
-                        [_delegate server:self didEncounterInternalError:error forRequest:request withType:NOServerRequestTypeSearch entity:entity userInfo:userInfo];
+                        [_delegate server:self didEncounterInternalError:error forRequest:request userInfo:userInfo];
                     }
                     
                     response.statusCode = NOServerStatusCodeInternalServerError;
@@ -334,7 +334,7 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
                     
                     if (_delegate) {
                         
-                        [_delegate server:self didEncounterInternalError:error forRequest:request withType:NOServerRequestTypeSearch entity:entity userInfo:userInfo];
+                        [_delegate server:self didEncounterInternalError:error forRequest:request userInfo:userInfo];
                     }
                     
                     response.statusCode = NOServerStatusCodeInternalServerError;
@@ -534,7 +534,7 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
     
     if (self.delegate) {
         
-        NOServerStatusCode statusCode = [_delegate server:self statusCodeForRequest:request withType:NOServerRequestTypeSearch entity:entity userInfo:userInfo];
+        NOServerStatusCode statusCode = [_delegate server:self statusCodeForRequest:request userInfo:userInfo];
         
         if (statusCode != NOServerStatusCodeOK) {
             
@@ -586,7 +586,7 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
             
             // permission to view resource
             
-            if ([_delegate server:self permissionForRequest:request withType:NOServerRequestTypeSearch entity:managedObject.entity managedObject:managedObject context:context key:nil] >= NOServerPermissionReadOnly) {
+            if ([_delegate server:self permissionForRequest:request managedObject:managedObject context:context key:nil] >= NOServerPermissionReadOnly) {
                 
                 // must have permission for keys accessed
                 
@@ -761,7 +761,7 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
                 
                 if (_delegate) {
                     
-                    [_delegate server:self didEncounterInternalError:error forRequest:request withType:NOServerRequestTypePUT entity:entity userInfo:userInfo];
+                    [_delegate server:self didEncounterInternalError:error forRequest:request userInfo:userInfo];
                 }
             }
             
@@ -796,7 +796,7 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
         
         if (_delegate) {
             
-            [_delegate server:self didEncounterInternalError:error forRequest:request withType:NOServerRequestTypePOST entity:entity userInfo:userInfo];
+            [_delegate server:self didEncounterInternalError:error forRequest:request userInfo:userInfo];
         }
         
         response.statusCode = NOServerStatusCodeInternalServerError;
@@ -812,7 +812,7 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
     
     if (_delegate) {
         
-        [_delegate server:self didPerformRequest:request withType:NOServerRequestTypePOST userInfo:userInfo];
+        [_delegate server:self didPerformRequest:request userInfo:userInfo];
     }
 }
 
@@ -838,7 +838,7 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
         
         if (_delegate) {
             
-            [_delegate server:self didEncounterInternalError:error forRequest:request withType:NOServerRequestTypeGET entity:entity userInfo:userInfo];
+            [_delegate server:self didEncounterInternalError:error forRequest:request userInfo:userInfo];
         }
         
         response.statusCode = NOServerStatusCodeInternalServerError;
@@ -863,7 +863,7 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
     
     if (_delegate) {
         
-        NOServerStatusCode statusCode = [_delegate server:self statusCodeForRequest:request withType:NOServerRequestTypeGET entity:entity userInfo:userInfo];
+        NOServerStatusCode statusCode = [_delegate server:self statusCodeForRequest:request userInfo:userInfo];
         
         if (statusCode != NOServerStatusCodeOK) {
             
@@ -877,7 +877,7 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
     
     if (_permissionsEnabled) {
         
-        if ([_delegate server:self permissionForRequest:request withType:NOServerRequestTypeGET entity:entity managedObject:managedObject context:context key:nil] < NOServerPermissionReadOnly) {
+        if ([_delegate server:self permissionForRequest:request managedObject:managedObject context:context key:nil] < NOServerPermissionReadOnly) {
             
             response.statusCode = NOServerStatusCodeForbidden;
             
@@ -914,7 +914,7 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
         
         if (_delegate) {
             
-            [_delegate server:self didEncounterInternalError:error forRequest:request withType:NOServerRequestTypeGET entity:entity userInfo:userInfo];
+            [_delegate server:self didEncounterInternalError:error forRequest:request userInfo:userInfo];
         }
         
         response.statusCode = NOServerStatusCodeInternalServerError;
@@ -929,7 +929,7 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
     
     if (_delegate) {
         
-        [_delegate server:self didPerformRequest:request withType:NOServerRequestTypeGET userInfo:userInfo];
+        [_delegate server:self didPerformRequest:request userInfo:userInfo];
     }
 }
 
@@ -968,7 +968,7 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
         
         if (_delegate) {
             
-            [_delegate server:self didEncounterInternalError:error forRequest:request withType:NOServerRequestTypePUT entity:entity userInfo:userInfo];
+            [_delegate server:self didEncounterInternalError:error forRequest:request userInfo:userInfo];
         }
         
         response.statusCode = NOServerStatusCodeInternalServerError;
@@ -1409,7 +1409,130 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
     
     // setup WebSocket routes
     
-    
+    for (NSString *path in self.entitiesByResourcePath) {
+        
+        NSEntityDescription *entity = self.entitiesByResourcePath[path];
+        
+        // add search handler
+        
+        if (self.searchPath) {
+            
+            NSString *searchPathExpression = [NSString stringWithFormat:@"{^POST /%@/%@$^(\.+)}", _searchPath, path];
+            
+            [_httpServer addWebSocketCommandForExpression:searchPathExpression block:^(NSDictionary *parameters, NOWebSocket *webSocket) {
+                
+                // parse JSON
+                
+                NSString *JSONString = parameters[@"captures"].firstObject;
+                
+                NSData *JSONData = [[NSString alloc] initWithData:JSONData
+                                                         encoding:NSUTF8StringEncoding];
+                
+                NSDictionary *JSONDictionary = [NSJSONSerialization JSONObjectWithData:JSONData
+                                                                               options:NSJSONReadingAllowFragments
+                                                                                 error:nil];
+                
+                if (![JSONDictionary isKindOfClass:[NSDictionary class]]) {
+                    
+                    [webSocket sendMessage:[NSString stringWithFormat:@"%d", NOServerStatusCodeBadRequest]];
+                    
+                    return;
+                }
+               
+                // make request
+                
+                NOServerRequest *request = [[NOServerRequest alloc] initWithRequestType:NOServerRequestTypeSearch
+                                                                         connectionType:NOServerConnectionTypeWebSocket
+                                                                                 entity:entity
+                                                                             resourceID:nil
+                                                                         JSONDictionary:JSONDictionary
+                                                                        originalRequest:webSocket]
+                
+            }];
+        }
+        
+        // setup routes for resources...
+        
+        NSString *allInstancesPathExpression = [NSString stringWithFormat:@"/%@", path];
+        
+        void (^allInstancesRequestHandler) (RouteRequest *, RouteResponse *) = ^(RouteRequest *request, RouteResponse *response) {
+            
+            [self handleCreateNewInstanceRequest:request forEntity:entity response:response];
+        };
+        
+        // POST (create new resource)
+        [_httpServer post:allInstancesPathExpression
+                withBlock:allInstancesRequestHandler];
+        
+        // setup routes for resource instances
+        
+        NSString *instancePathExpression = [NSString stringWithFormat:@"{^/%@/(\\d+)}", path];
+        
+        void (^instanceRequestHandler) (RouteRequest *, RouteResponse *) = ^(RouteRequest *request, RouteResponse *response) {
+            
+            NSArray *captures = request.params[@"captures"];
+            
+            NSString *capturedResourceID = captures[0];
+            
+            NSNumber *resourceID = [NSNumber numberWithInteger:capturedResourceID.integerValue];
+            
+            if ([request.method isEqualToString:@"GET"]) {
+                
+                [self handleGetInstanceRequest:request forEntity:entity resourceID:resourceID response:response];
+            }
+            
+            if ([request.method isEqualToString:@"PUT"]) {
+                
+                [self handleEditInstanceRequest:request forEntity:entity resourceID:resourceID response:response];
+            }
+            
+            if ([request.method isEqualToString:@"DELETE"]) {
+                
+                [self handleDeleteInstanceRequest:request forEntity:entity resourceID:resourceID response:response];
+            }
+        };
+        
+        // GET (read resource)
+        [_httpServer get:instancePathExpression
+               withBlock:instanceRequestHandler];
+        
+        // PUT (edit resource)
+        [_httpServer put:instancePathExpression
+               withBlock:instanceRequestHandler];
+        
+        // DELETE (delete resource)
+        [_httpServer delete:instancePathExpression
+                  withBlock:instanceRequestHandler];
+        
+        // add function routes
+        
+        NSSet *functions = [self.dataSource server:self functionsForEntity:entity];
+        
+        for (NSString *functionName in functions) {
+            
+            NSString *functionExpression = [NSString stringWithFormat:@"{^/%@/(\\d+)/%@}", path, functionName];
+            
+            void (^instanceFunctionRequestHandler) (RouteRequest *, RouteResponse *) = ^(RouteRequest *request, RouteResponse *response) {
+                
+                NSArray *captures = request.params[@"captures"];
+                
+                NSString *capturedResourceID = captures[0];
+                
+                NSNumber *resourceID = [NSNumber numberWithInteger:capturedResourceID.integerValue];
+                
+                [self handleFunctionInstanceRequest:request
+                                          forEntity:entity
+                                         resourceID:resourceID
+                                       functionName:functionName
+                                           response:response];
+            };
+            
+            // functions use POST
+            [_httpServer post:functionExpression
+                    withBlock:instanceFunctionRequestHandler];
+            
+        }
+    }
     
 }
 
@@ -1999,8 +2122,67 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
 
 -(void)webSocket:(NOWebSocket *)webSocket didReceiveMessage:(NSString *)message
 {
+    // look for matching command
     
+    for (NOWebSocketCommand *command in _webSocketCommands) {
+        
+        NSTextCheckingResult *result = [command.regularExpression firstMatchInString:path
+                                                                             options:0
+                                                                               range:NSMakeRange(0, path.length)];
+        if (!result)
+            continue;
+        
+        NSDictionary *params = [[NSMutableDictionary alloc] init];
+        
+        // The first range is all of the text matched by the regex.
+        NSUInteger captureCount = [result numberOfRanges];
+        
+        if (command.keys) {
+            // Add the route's parameters to the parameter dictionary, accounting for
+            // the first range containing the matched text.
+            if (captureCount == [command.keys count] + 1) {
+                NSMutableDictionary *newParams = [params mutableCopy];
+                NSUInteger index = 1;
+                BOOL firstWildcard = YES;
+                for (NSString *key in route.keys) {
+                    NSString *capture = [path substringWithRange:[result rangeAtIndex:index]];
+                    if ([key isEqualToString:@"wildcards"]) {
+                        NSMutableArray *wildcards = [newParams objectForKey:key];
+                        if (firstWildcard) {
+                            // Create a new array and replace any existing object with the same key
+                            wildcards = [NSMutableArray array];
+                            [newParams setObject:wildcards forKey:key];
+                            firstWildcard = NO;
+                        }
+                        [wildcards addObject:capture];
+                    } else {
+                        [newParams setObject:capture forKey:key];
+                    }
+                    index++;
+                }
+                params = newParams;
+            }
+        } else if (captureCount > 1) {
+            // For custom regular expressions place the anonymous captures in the captures parameter
+            NSMutableDictionary *newParams = [params mutableCopy];
+            NSMutableArray *captures = [NSMutableArray array];
+            for (NSUInteger i = 1; i < captureCount; i++) {
+                [captures addObject:[path substringWithRange:[result rangeAtIndex:i]]];
+            }
+            [newParams setObject:captures forKey:@"captures"];
+            params = newParams;
+        }
+        
+        // execute command
+        
+        command.block(params);
+        
+        return;
+    }
     
+    // unknown command
+    
+    [webSocket sendMessage:[NSString stringWithFormat:@"%lu", NOServerStatusCodeMethodNotAllowed]];
 }
 
 @end

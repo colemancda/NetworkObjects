@@ -118,55 +118,15 @@ extern NSString const* NOServerFunctionJSONOutputKey;
 -(NOServerResponse *)handleCreateNewInstanceRequest:(NOServerRequest *)request
                                           forEntity:(NSEntityDescription *)entity;
 
--(void)handleGetInstanceRequest:(RouteRequest *)request
-                      forEntity:(NSEntityDescription *)entity
-                     resourceID:(NSNumber *)resourceID
-                       response:(RouteResponse *)response;
+-(NOServerResponse *)handleGetInstanceRequest:(NOServerRequest *)request
+                                     response:(RouteResponse *)response;
 
--(void)handleEditInstanceRequest:(RouteRequest *)request
-                       forEntity:(NSEntityDescription *)entity
-                      resourceID:(NSNumber *)resourceID
-                        response:(RouteResponse *)response;
+-(NOServerResponse *)handleEditInstanceRequest:(NOServerRequest *)request;
 
--(void)handleDeleteInstanceRequest:(RouteRequest *)request
-                         forEntity:(NSEntityDescription *)entity
-                        resourceID:(NSNumber *)resourceID
-                          response:(RouteResponse *)response;
+-(NOServerResponse *)handleDeleteInstanceRequest:(NOServerRequest *)request;
 
--(void)handleFunctionInstanceRequest:(RouteRequest *)request
-                           forEntity:(NSEntityDescription *)entity
-                          resourceID:(NSNumber *)resourceID
-                        functionName:(NSString *)functionName
-                            response:(RouteResponse *)response;
-
--(void)handleSearchRequest:(RouteRequest *)request
-                 forEntity:(NSEntityDescription *)entity
-                  response:(RouteResponse *)response;
-
--(void)handleCreateNewInstanceRequest:(RouteRequest *)request
-                            forEntity:(NSEntityDescription *)entity
-                             response:(RouteResponse *)response;
-
--(void)handleGetInstanceRequest:(RouteRequest *)request
-                      forEntity:(NSEntityDescription *)entity
-                     resourceID:(NSNumber *)resourceID
-                       response:(RouteResponse *)response;
-
--(void)handleEditInstanceRequest:(RouteRequest *)request
-                       forEntity:(NSEntityDescription *)entity
-                      resourceID:(NSNumber *)resourceID
-                        response:(RouteResponse *)response;
-
--(void)handleDeleteInstanceRequest:(RouteRequest *)request
-                         forEntity:(NSEntityDescription *)entity
-                        resourceID:(NSNumber *)resourceID
-                          response:(RouteResponse *)response;
-
--(void)handleFunctionInstanceRequest:(RouteRequest *)request
-                           forEntity:(NSEntityDescription *)entity
-                          resourceID:(NSNumber *)resourceID
-                        functionName:(NSString *)functionName
-                            response:(RouteResponse *)response;
+-(NOServerResponse *)handleFunctionInstanceRequest:(NOServerRequest *)request
+                                      functionName:(NSString *)functionName;
 
 @end
 
@@ -205,6 +165,8 @@ extern NSString const* NOServerFunctionJSONOutputKey;
 
 #pragma mark - Other Interface Declarations
 
+typedef void (^NOWebSocketCommandBlock)(NSDictionary *parameters, NOWebSocket *webSocket);
+
 @interface NOHTTPServer : RoutingHTTPServer
 {
     NSMutableArray *_webSocketCommands;
@@ -214,7 +176,8 @@ extern NSString const* NOServerFunctionJSONOutputKey;
 
 @property (nonatomic, readonly) NSArray *webSocketCommands;
 
--(void)addWebSocketCommandForExpression:(NSString *)expressionString block:(void (^)())block;
+-(void)addWebSocketCommandForExpression:(NSString *)expressionString
+                                  block:(NOWebSocketCommandBlock)block;
 
 - (void)webSocket:(NOWebSocket *)webSocket didReceiveMessage:(NSString *)message;
 
@@ -280,7 +243,7 @@ extern NSString const* NOServerFunctionJSONOutputKey;
 
 @property (nonatomic) NSRegularExpression *regularExpression;
 
-@property (nonatomic, copy) void (^block)();
+@property (nonatomic, copy) NOWebSocketCommandBlock block;
 
 @property (nonatomic) NSArray *keys;
 
