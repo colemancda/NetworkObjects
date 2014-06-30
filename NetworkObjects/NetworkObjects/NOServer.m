@@ -8,9 +8,6 @@
 
 #import "NOServer.h"
 #import "NSManagedObject+CoreDataJSONCompatibility.h"
-#import "RoutingConnection.h"
-#import "RoutingHTTPServer.h"
-#import "WebSocket.h"
 
 NSString const* NOServerFetchRequestKey = @"NOServerFetchRequestKey";
 
@@ -27,22 +24,6 @@ NSString const* NOServerFunctionNameKey = @"NOServerFunctionNameKey";
 NSString const* NOServerFunctionJSONInputKey = @"NOServerFunctionJSONInputKey";
 
 NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey";
-
-#pragma mark - Interface Declarations for Private Classes
-
-@interface NOHTTPServer : RoutingHTTPServer
-
-@property (nonatomic) NOServer *server;
-
-@end
-
-@interface NOHTTPConnection : RoutingConnection
-
-@end
-
-@interface NOWebSocket : WebSocket
-
-@end
 
 #pragma mark - Category and Externsions Declarations
 
@@ -187,18 +168,6 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
     }
     
     return _entitiesByResourcePath;
-}
-
-#pragma mark - WebSocketDelegate
-
--(void)webSocket:(WebSocket *)ws didReceiveMessage:(NSString *)msg
-{
-    if ([msg isEqualToString:@"GET "]) {
-        <#statements#>
-    }
-    
-    
-    [ws sendMessage:[NSString stringWithFormat:@"%ld", NOServerStatusCodeMethodNotAllowed]];
 }
 
 #pragma mark - Request Handlers
@@ -1322,7 +1291,7 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
 
 @end
 
-#pragma mark - Category Implementation
+#pragma mark - Category Implementations
 
 @implementation NOServer (Internal)
 
@@ -1437,6 +1406,10 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
             
         }
     }
+    
+    // setup WebSocket routes
+    
+    
     
 }
 
@@ -1949,6 +1922,8 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
         
         NOWebSocket *webSocket = [[NOWebSocket alloc] initWithRequest:request socket:asyncSocket];
         
+        webSocket.server = config.server;
+        
         return webSocket;
     }
     
@@ -1959,14 +1934,82 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
 
 @implementation NOHTTPServer
 
+-(void)addWebSocketCommandForExpression:(NSString *)expressionString block:(void (^)())block
+{
+    NOWebSocketCommand *command = [[NOWebSocketCommand alloc] init];
+    
+    NSMutableArray *keys = [NSMutableArray array];
+    
+    NSString *path = expressionString;
+    
+    if ([path length] > 2 && [path characterAtIndex:0] == '{') {
+        // This is a custom regular expression, just remove the {}
+        path = [path substringWithRange:NSMakeRange(1, [path length] - 2)];
+    } else {
+        NSRegularExpression *regex = nil;
+        
+        // Escape regex characters
+        regex = [NSRegularExpression regularExpressionWithPattern:@"[.+()]" options:0 error:nil];
+        path = [regex stringByReplacingMatchesInString:path options:0 range:NSMakeRange(0, path.length) withTemplate:@"\\\\$0"];
+        
+        // Parse any :parameters and * in the path
+        regex = [NSRegularExpression regularExpressionWithPattern:@"(:(\\w+)|\\*)"
+                                                          options:0
+                                                            error:nil];
+        NSMutableString *regexPath = [NSMutableString stringWithString:path];
+        __block NSInteger diff = 0;
+        [regex enumerateMatchesInString:path options:0 range:NSMakeRange(0, path.length)
+                             usingBlock:^(NSTextCheckingResult *result, NSMatchingFlags flags, BOOL *stop) {
+                                 NSRange replacementRange = NSMakeRange(diff + result.range.location, result.range.length);
+                                 NSString *replacementString;
+                                 
+                                 NSString *capturedString = [path substringWithRange:result.range];
+                                 if ([capturedString isEqualToString:@"*"]) {
+                                     [keys addObject:@"wildcards"];
+                                     replacementString = @"(.*?)";
+                                 } else {
+                                     NSString *keyString = [path substringWithRange:[result rangeAtIndex:2]];
+                                     [keys addObject:keyString];
+                                     replacementString = @"([^/]+)";
+                                 }
+                                 
+                                 [regexPath replaceCharactersInRange:replacementRange withString:replacementString];
+                                 diff += replacementString.length - result.range.length;
+                             }];
+        
+        path = [NSString stringWithFormat:@"^%@$", regexPath];
+    }
+    
+    command.regularExpression = [NSRegularExpression regularExpressionWithPattern:path options:NSRegularExpressionCaseInsensitive error:nil];
+    
+    if ([keys count] > 0) {
+        
+        command.keys = keys;
+    }
+    
+    command.block = block;
+    
+    if (!_webSocketCommands) {
+        
+        _webSocketCommands = [[NSMutableArray alloc] init];
+    }
+    
+    [_webSocketCommands addObject:command];
+}
+
+-(void)webSocket:(NOWebSocket *)webSocket didReceiveMessage:(NSString *)message
+{
+    
+    
+}
+
 @end
 
 @implementation NOWebSocket
 
 -(void)didReceiveMessage:(NSString *)msg
-{
-    
-    
+{    
+    [_server webSocket:self didReceiveMessage:message];
 }
 
 @end

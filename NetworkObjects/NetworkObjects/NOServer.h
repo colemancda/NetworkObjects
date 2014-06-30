@@ -10,10 +10,14 @@
 #import <CoreData/CoreData.h>
 #import <NetworkObjects/NODefines.h>
 
+#import "RoutingConnection.h"
+#import "RoutingHTTPServer.h"
+#import "WebSocket.h"
+
 @protocol NOServerDelegate;
 @protocol NOServerDataSource;
 
-@class RouteRequest, RouteResponse, NOHTTPServer, NOWebSocket;
+@class NOHTTPServer, NOWebSocket, NOServerRequest, NOServerResponse;
 
 extern NSString const* NOServerFetchRequestKey;
 
@@ -108,6 +112,33 @@ extern NSString const* NOServerFunctionJSONOutputKey;
 
 #pragma mark - Request Handlers
 
+-(NOServerResponse *)handleSearchRequest:(NOServerRequest *)request
+                               forEntity:(NSEntityDescription *)entity;
+
+-(NOServerResponse *)handleCreateNewInstanceRequest:(NOServerRequest *)request
+                                          forEntity:(NSEntityDescription *)entity;
+
+-(void)handleGetInstanceRequest:(RouteRequest *)request
+                      forEntity:(NSEntityDescription *)entity
+                     resourceID:(NSNumber *)resourceID
+                       response:(RouteResponse *)response;
+
+-(void)handleEditInstanceRequest:(RouteRequest *)request
+                       forEntity:(NSEntityDescription *)entity
+                      resourceID:(NSNumber *)resourceID
+                        response:(RouteResponse *)response;
+
+-(void)handleDeleteInstanceRequest:(RouteRequest *)request
+                         forEntity:(NSEntityDescription *)entity
+                        resourceID:(NSNumber *)resourceID
+                          response:(RouteResponse *)response;
+
+-(void)handleFunctionInstanceRequest:(RouteRequest *)request
+                           forEntity:(NSEntityDescription *)entity
+                          resourceID:(NSNumber *)resourceID
+                        functionName:(NSString *)functionName
+                            response:(RouteResponse *)response;
+
 -(void)handleSearchRequest:(RouteRequest *)request
                  forEntity:(NSEntityDescription *)entity
                   response:(RouteResponse *)response;
@@ -137,23 +168,21 @@ extern NSString const* NOServerFunctionJSONOutputKey;
                         functionName:(NSString *)functionName
                             response:(RouteResponse *)response;
 
-#pragma mark - WebSocket
-
--(void)webSocket:(NOWebSocket *)webSocket didReceiveMessage:(NSString *)message;
-
 @end
+
+#pragma mark - Protocols
 
 @protocol NOServerDelegate <NSObject>
 
--(void)server:(NOServer *)server didEncounterInternalError:(NSError *)error forRequest:(RouteRequest *)request withType:(NOServerRequestType)requestType entity:(NSEntityDescription *)entity userInfo:(NSDictionary *)userInfo;
+-(void)server:(NOServer *)server didEncounterInternalError:(NSError *)error forRequest:(NOServerRequest *)request userInfo:(NSDictionary *)userInfo;
 
--(NOServerStatusCode)server:(NOServer *)server statusCodeForRequest:(RouteRequest *)request withType:(NOServerRequestType)requestType entity:(NSEntityDescription *)entity userInfo:(NSDictionary *)userInfo;
+-(NOServerStatusCode)server:(NOServer *)server statusCodeForRequest:(NOServerRequest *)request userInfo:(NSDictionary *)userInfo;
 
--(void)server:(NOServer *)server didPerformRequest:(RouteRequest *)request withType:(NOServerRequestType)requestType userInfo:(NSDictionary *)userInfo;
+-(void)server:(NOServer *)server didPerformRequest:(NOServerRequest *)request userInfo:(NSDictionary *)userInfo;
 
 @optional
 
--(NOServerPermission)server:(NOServer *)server permissionForRequest:(RouteRequest *)request withType:(NOServerRequestType)requestType entity:(NSEntityDescription *)entity managedObject:(NSManagedObject *)managedObject context:(NSManagedObjectContext *)context key:(NSString *)key;
+-(NOServerPermission)server:(NOServer *)server permissionForRequest:(NOServerRequest *)request managedObject:(NSManagedObject *)managedObject context:(NSManagedObjectContext *)context key:(NSString *)key;
 
 
 @end
@@ -173,4 +202,88 @@ extern NSString const* NOServerFunctionJSONOutputKey;
 -(NOServerFunctionCode)server:(NOServer *)server performFunction:(NSString *)functionName forManagedObject:(NSManagedObject *)managedObject context:(NSManagedObjectContext *)context recievedJsonObject:(NSDictionary *)recievedJsonObject response:(NSDictionary **)jsonObjectResponse;
 
 @end
+
+#pragma mark - Other Interface Declarations
+
+@interface NOHTTPServer : RoutingHTTPServer
+{
+    NSMutableArray *_webSocketCommands;
+}
+
+@property (nonatomic) NOServer *server;
+
+@property (nonatomic, readonly) NSArray *webSocketCommands;
+
+-(void)addWebSocketCommandForExpression:(NSString *)expressionString block:(void (^)())block;
+
+- (void)webSocket:(NOWebSocket *)webSocket didReceiveMessage:(NSString *)message;
+
+@end
+
+@interface NOHTTPConnection : RoutingConnection
+
+@end
+
+/** This class abstracts the requests objects that vary according the to connection protocol. It contains the request parameters that are common to any request regardless of what connection protocol is being used.
+ */
+
+@interface NOServerRequest : NSObject
+
+/** The designated initializer. Do not use @c -init: */
+
+-(instancetype)initWithRequestType:(NOServerRequestType)requestType
+                    connectionType:(NOServerConnectionType)connectionType
+                            entity:(NSEntityDescription *)entity
+                        resourceID:(NSNumber *)resourceID
+                    JSONDictionary:(NSDictionary *)JSONDictionary
+                   originalRequest:(id)originalRequest NS_DESIGNATED_INITIALIZER;
+
+@property (nonatomic, readonly) NOServerRequestType requestType;
+
+@property (nonatomic, readonly) NOServerConnectionType connectionType;
+
+@property (nonatomic, readonly) NSEntityDescription *entity;
+
+/** The resourceID of the requested instance. Will be nil for @c POST requests. */
+
+@property (nonatomic, readonly) NSNumber *resourceID;
+
+@property (nonatomic, readonly) NSDictionary *JSONDictionary;
+
+/** The original request object.
+ 
+ If the reciever's connectionType is @c NOServerConnectionTypeHTTP, then this will be an instance of @c RouteRequest.
+ 
+ */
+
+@property (nonatomic, readonly) id originalRequest;
+
+@end
+
+@interface NOServerResponse : NSObject
+
+@property (nonatomic) NOServerStatusCode statusCode;
+
+/** A JSON-compatible array or dictionary that will be sent as a response. */
+
+@property (nonatomic) id JSONResponse;
+
+@end
+
+@interface NOWebSocket : WebSocket
+
+@property (nonatomic) NOHTTPServer *server;
+
+@end
+
+@interface NOWebSocketCommand : NSObject
+
+@property (nonatomic) NSRegularExpression *regularExpression;
+
+@property (nonatomic, copy) void (^block)();
+
+@property (nonatomic) NSArray *keys;
+
+@end
+
 
