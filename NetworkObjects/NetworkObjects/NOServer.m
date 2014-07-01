@@ -180,7 +180,7 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
     
     // get search parameters
     
-    NSDictionary *searchParameters = request.JSONDictionary;
+    NSDictionary *searchParameters = request.jsonObject;
     
     NSEntityDescription *entity = request.entity;
     
@@ -1198,40 +1198,20 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
                                      recievedJsonObject:recievedJSONObject
                                                response:&jsonObject];
     
+    response.statusCode = statusCode;
+    
     if (jsonObject) {
-        
-        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonObject
-                                                           options:self.jsonWritingOption
-                                                             error:&error];
         
         // add to userInfo
         
         userInfo[NOServerFunctionJSONOutputKey] = jsonObject;
         
-        if (!jsonData) {
-            
-            if (_delegate) {
-                
-                [_delegate server:self didEncounterInternalError:error forRequest:request withType:NOServerRequestTypeFunction entity:entity userInfo:userInfo];
-            }
-            
-            response.statusCode = NOServerStatusCodeInternalServerError;
-            
-            return;
-        }
+        // add to response
         
-        [response respondWithData:jsonData];
+        response.jsonObject = jsonObject;
     }
     
-    response.statusCode = statusCode;
-    
-    // tell delegate
-    
-    if (_delegate) {
-        
-        [_delegate server:self didPerformRequest:request withType:NOServerRequestTypeFunction userInfo:userInfo];
-    }
-    
+    return response;
 }
 
 @end
@@ -1333,7 +1313,7 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
         
         NSString *allInstancesPathExpression = [NSString stringWithFormat:@"/%@", path];
         
-        void (^allInstancesRequestHandler) (RouteRequest *, RouteResponse *) = ^(RouteRequest *request, RouteResponse *response) {
+        void (^allInstancesRequestHandler) (RouteRequest *, RouteResponse *) = ^(RouteRequest *routeRequest, RouteResponse *routeResponse) {
             
             // get initial values
             
@@ -1434,16 +1414,19 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
             
             NOServerRequest *serverRequest = [[NOServerRequest alloc] init];
             
-            serverRequest.requestType = NOServerRequestTypeSearch;
             serverRequest.connectionType = NOServerConnectionTypeHTTP;
             serverRequest.entity = entity;
             serverRequest.resourceID = resourceID;
             serverRequest.JSONDictionary = searchParameters;
             serverRequest.originalRequest = request;
             
-            NOServerResponse *serverResponse = [[NOServerResponse alloc] init];
+            NOServerResponse *serverResponse;
             
             if ([request.method isEqualToString:@"GET"]) {
+                
+                serverRequest.requestType = NOServerRequestTypeGET;
+                
+                // should not have a body
                 
                 if (jsonObject) {
                     
@@ -1452,44 +1435,69 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
                     return;
                 }
                 
-                [self handleGetInstanceRequest:request forEntity:entity resourceID:resourceID response:response];
+                serverResponse = [self responseForGetInstanceRequest:serverRequest];
+                
+                // serialize JSON data
+                
+                NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonObject
+                                                                   options:self.jsonWritingOption
+                                                                     error:&error];
+                if (!jsonData) {
+                    
+                    if (_delegate) {
+                        
+                        [_delegate server:self didEncounterInternalError:error forRequest:request userInfo:userInfo];
+                    }
+                    
+                    response.statusCode = NOServerStatusCodeInternalServerError;
+                    
+                    return;
+                }
+                
+                // return JSON representation of resource
+                [response respondWithData:jsonData];
+                
             }
             
             if ([request.method isEqualToString:@"PUT"]) {
                 
-                [self handleEditInstanceRequest:request forEntity:entity resourceID:resourceID response:response];
+                serverRequest.requestType = NOServerRequestTypePUT;
+                
+                // body required
+                
+                if (!jsonObject) {
+                    
+                    response.statusCode = NOServerStatusCodeBadRequest;
+                    
+                    return;
+                }
+                
+                serverResponse = [self responseForEditInstanceRequest:serverRequest];
+                
             }
             
             if ([request.method isEqualToString:@"DELETE"]) {
                 
-                [self handleDeleteInstanceRequest:request forEntity:entity resourceID:resourceID response:response];
-            }
-            
-            // serialize JSON data
-            
-            NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonObject
-                                                               options:self.jsonWritingOption
-                                                                 error:&error];
-            if (!jsonData) {
+                serverRequest.requestType = NOServerRequestTypeDELETE;
                 
-                if (_delegate) {
+                // should not have a body
+                
+                if (jsonObject) {
                     
-                    [_delegate server:self didEncounterInternalError:error forRequest:request userInfo:userInfo];
+                    response.statusCode = NOServerStatusCodeBadRequest;
+                    
+                    return;
                 }
                 
-                response.statusCode = NOServerStatusCodeInternalServerError;
+                serverResponse = [self responseForDeleteInstanceRequest:serverRequest];
                 
-                return;
             }
-            
-            // return JSON representation of resource
-            [response respondWithData:jsonData];
             
             // tell delegate
             
             if (_delegate) {
                 
-                [_delegate server:self didPerformRequest:request userInfo:userInfo];
+                [_delegate server:self didPerformRequest:request withResponse:serverResponse userInfo:userInfo];
             }
         };
         
@@ -1513,7 +1521,7 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
             
             NSString *functionExpression = [NSString stringWithFormat:@"{^/%@/(\\d+)/%@}", path, functionName];
             
-            void (^instanceFunctionRequestHandler) (RouteRequest *, RouteResponse *) = ^(RouteRequest *request, RouteResponse *response) {
+            void (^instanceFunctionRequestHandler) (RouteRequest *, RouteResponse *) = ^(RouteRequest *routeRequest, RouteResponse *routeResponse) {
                 
                 NSArray *captures = request.params[@"captures"];
                 
@@ -1521,11 +1529,61 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
                 
                 NSNumber *resourceID = [NSNumber numberWithInteger:capturedResourceID.integerValue];
                 
-                [self handleFunctionInstanceRequest:request
-                                          forEntity:entity
-                                         resourceID:resourceID
-                                       functionName:functionName
-                                           response:response];
+                // get initial values
+                
+                NSDictionary *jsonObject  = [NSJSONSerialization JSONObjectWithData:request.body
+                                                                            options:NSJSONReadingAllowFragments
+                                                                              error:nil];
+                
+                if (jsonObject && ![jsonObject isKindOfClass:[NSDictionary class]]) {
+                    
+                    response.statusCode = NOServerStatusCodeBadRequest;
+                    
+                    return;
+                }
+                
+                // convert to server request
+                
+                NOServerRequest *serverRequest = [[NOServerRequest alloc] init];
+                
+                serverRequest.requestType = NOServerRequestTypeFunction;
+                serverRequest.connectionType = NOServerConnectionTypeHTTP;
+                serverRequest.entity = entity;
+                serverRequest.resourceID = resourceID;
+                serverRequest.JSONDictionary = jsonObject;
+                serverRequest.originalRequest = request;
+                
+                NOServerResponse *serverResponse = [self responseForFunctionInstanceRequest:request];
+                
+                if (serverResponse.JSONResponse) {
+                    
+                    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonObject
+                                                                       options:self.jsonWritingOption
+                                                                         error:&error];
+                    
+                    if (!jsonData) {
+                        
+                        if (_delegate) {
+                            
+                            [_delegate server:self didEncounterInternalError:error forRequest:request withType:NOServerRequestTypeFunction entity:entity userInfo:userInfo];
+                        }
+                        
+                        response.statusCode = NOServerStatusCodeInternalServerError;
+                        
+                        return;
+                    }
+                    
+                    [response respondWithData:jsonData];
+                }
+                
+                response.statusCode = statusCode;
+                
+                // tell delegate
+                
+                if (_delegate) {
+                    
+                    [_delegate server:self didPerformRequest:request withType:NOServerRequestTypeFunction userInfo:userInfo];
+                }
             };
             
             // functions use POST

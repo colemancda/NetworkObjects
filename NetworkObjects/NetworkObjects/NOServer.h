@@ -198,7 +198,7 @@ typedef void (^NOWebSocketCommandBlock)(NSDictionary *parameters, NOWebSocket *w
 
 @property (nonatomic) NSNumber *resourceID;
 
-@property (nonatomic) NSDictionary *JSONDictionary;
+@property (nonatomic) NSDictionary *jsonObject;
 
 @property (nonatomic) NSString *functionName;
 
