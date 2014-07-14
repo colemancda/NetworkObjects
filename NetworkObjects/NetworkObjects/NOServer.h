@@ -112,17 +112,17 @@ extern NSString const* NOServerFunctionJSONOutputKey;
 
 #pragma mark - Request Handlers
 
--(NOServerResponse *)responseForSearchRequest:(NOServerRequest *)request;
+-(NOServerResponse *)responseForSearchRequest:(NOServerRequest *)request userInfo:(NSDictionary **)userInfo;
 
--(NOServerResponse *)responseForCreateNewInstanceRequest:(NOServerRequest *)request;
+-(NOServerResponse *)responseForCreateNewInstanceRequest:(NOServerRequest *)request userInfo:(NSDictionary **)userInfo;
 
--(NOServerResponse *)responseForGetInstanceRequest:(NOServerRequest *)request;
+-(NOServerResponse *)responseForGetInstanceRequest:(NOServerRequest *)request userInfo:(NSDictionary **)userInfo;
 
--(NOServerResponse *)responseForEditInstanceRequest:(NOServerRequest *)request;
+-(NOServerResponse *)responseForEditInstanceRequest:(NOServerRequest *)request userInfo:(NSDictionary **)userInfo;
 
--(NOServerResponse *)responseForDeleteInstanceRequest:(NOServerRequest *)request;
+-(NOServerResponse *)responseForDeleteInstanceRequest:(NOServerRequest *)request userInfo:(NSDictionary **)userInfo;
 
--(NOServerResponse *)responseForFunctionInstanceRequest:(NOServerRequest *)request;
+-(NOServerResponse *)responseForFunctionInstanceRequest:(NOServerRequest *)request userInfo:(NSDictionary **)userInfo;
 
 @end
 
@@ -198,7 +198,7 @@ typedef void (^NOWebSocketCommandBlock)(NSDictionary *parameters, NOWebSocket *w
 
 @property (nonatomic) NSNumber *resourceID;
 
-@property (nonatomic) NSDictionary *jsonObject;
+@property (nonatomic) NSDictionary *JSONObject;
 
 @property (nonatomic) NSString *functionName;
 
@@ -208,7 +208,7 @@ typedef void (^NOWebSocketCommandBlock)(NSDictionary *parameters, NOWebSocket *w
  
  */
 
-@property (nonatomic) id originalRequest;
+@property (nonatomic) id underlyingRequest;
 
 @end
 
