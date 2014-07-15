@@ -222,14 +222,6 @@ typedef void (^NOWebSocketCommandBlock)(NSDictionary *parameters, NOWebSocket *w
 
 @end
 
-@interface NOWebSocketRequest : NSObject
-
-@property (nonatomic) NOWebSocket *webSocket;
-
-@property (nonatomic) NSString *recievedMessage;
-
-@end
-
 @interface NOWebSocket : WebSocket
 
 @property (nonatomic) NOHTTPServer *server;

@@ -8,6 +8,7 @@
 
 #import "NOServer.h"
 #import "NSManagedObject+CoreDataJSONCompatibility.h"
+#import "NOError.h"
 
 NSString const* NOServerFetchRequestKey = @"NOServerFetchRequestKey";
 
@@ -1599,33 +1600,101 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
                 
                 // parse JSON
                 
-                NSString *JSONString = parameters[@"captures"].firstObject;
+                NSString *jsonString = [parameters[@"captures"] firstObject];
                 
-                NSData *JSONData = [[NSString alloc] initWithData:JSONData
-                                                         encoding:NSUTF8StringEncoding];
+                NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
                 
-                NSDictionary *JSONDictionary = [NSJSONSerialization JSONObjectWithData:JSONData
+                NSDictionary *jsonObject = [NSJSONSerialization JSONObjectWithData:jsonData
                                                                                options:NSJSONReadingAllowFragments
                                                                                  error:nil];
                 
-                if (![JSONDictionary isKindOfClass:[NSDictionary class]]) {
+                if (![jsonObject isKindOfClass:[NSDictionary class]]) {
                     
-                    [webSocket sendMessage:[NSString stringWithFormat:@"%d", NOServerStatusCodeBadRequest]];
+                    [webSocket sendMessage:[NSString stringWithFormat:@"%lu", (unsigned long)NOServerStatusCodeBadRequest]];
                     
                     return;
                 }
                
                 // make request
                 
-                NOWebSocketRequest *webSocketRequest = [[NOWebSocketRequest alloc] initWithWebSocket:webSocket
-                                                                                     recievedMessage:mess]
+                NOServerRequest *serverRequest = [[NOServerRequest alloc] init];
                 
-                NOServerRequest *request = [[NOServerRequest alloc] initWithRequestType:NOServerRequestTypeSearch
-                                                                         connectionType:NOServerConnectionTypeWebSocket
-                                                                                 entity:entity
-                                                                             resourceID:nil
-                                                                         JSONDictionary:JSONDictionary
-                                                                        originalRequest:[NOWebSocketRequest]]
+                serverRequest.requestType = NOServerRequestTypeSearch;
+                serverRequest.connectionType = NOServerConnectionTypeWebSocket;
+                serverRequest.entity = entity;
+                serverRequest.JSONObject = jsonObject;
+                serverRequest.underlyingRequest = webSocket;
+                
+                // userInfo
+                
+                NSDictionary *userInfo;
+                
+                // process request and return a response
+                
+                NOServerResponse *serverResponse = [self responseForSearchRequest:serverRequest
+                                                                         userInfo:&userInfo];
+                
+                if (serverResponse.statusCode != NOServerStatusCodeOK) {
+                    
+                    [webSocket sendMessage:[NSString stringWithFormat:@"%lu", (unsigned long)serverResponse.statusCode]];
+                    
+                }
+                else {
+                    
+                    // write to socket
+                    
+                    NSError *error;
+                    
+                    jsonData = [NSJSONSerialization dataWithJSONObject:serverResponse.JSONResponse
+                                                                       options:self.jsonWritingOption
+                                                                         error:&error];
+                    
+                    if (!jsonData) {
+                        
+                        if (_delegate) {
+                            
+                            [_delegate server:self didEncounterInternalError:error forRequest:serverRequest userInfo:userInfo];
+                        }
+                        
+                        [webSocket sendMessage:[NSString stringWithFormat:@"%lu", (unsigned long)NOServerStatusCodeInternalServerError]];
+                        
+                        return;
+                    }
+                    
+                    // output JSON string
+                    
+                    jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+                    
+                    if (!jsonString) {
+                        
+                        if (_delegate) {
+                            
+                            NSString *localizedDescription = NSLocalizedString(@"Could not convert the serialized JSON data to a string.", @"NOErrorCodeCouldNotConvertJSONDataToString localized description");
+                            
+                            NSDictionary *errorUserInfo = @{NSLocalizedDescriptionKey: localizedDescription};
+                            
+                            error = [NSError errorWithDomain:(NSString *)NOErrorDomain
+                                                        code:NOErrorCodeCouldNotConvertJSONDataToString
+                                                    userInfo:errorUserInfo];
+                            
+                            [_delegate server:self didEncounterInternalError:error forRequest:serverRequest userInfo:userInfo];
+                        }
+                        
+                        [webSocket sendMessage:[NSString stringWithFormat:@"%lu", (unsigned long)NOServerStatusCodeInternalServerError]];
+                        
+                        return;
+                    }
+                    
+                    [webSocket sendMessage:jsonString];
+                    
+                }
+                
+                // tell delegate
+                
+                if (_delegate) {
+                    
+                    [_delegate server:self didPerformRequest:serverRequest withResponse:serverResponse userInfo:userInfo];
+                }
                 
             }];
         }

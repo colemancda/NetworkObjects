@@ -42,6 +42,9 @@ typedef NS_ENUM(NSUInteger, NOErrorCode) {
     NOErrorCodeServerStatusCodeInternalServerError = 500,
     
     /** Server returned an invalid response. */
-    NOErrorCodeInvalidServerResponse = 1000
+    NOErrorCodeInvalidServerResponse = 1000,
+    
+    /** Could not convert a serialized JSON data to a string. */
+    NOErrorCodeCouldNotConvertJSONDataToString
     
 };
