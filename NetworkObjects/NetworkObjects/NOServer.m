@@ -1701,84 +1701,327 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
         
         // setup routes for resources...
         
-        NSString *allInstancesPathExpression = [NSString stringWithFormat:@"/%@", path];
+        NSString *createInstanceExpression = [NSString stringWithFormat:@"{^POST /%@$^(\\.+)}", path];
         
-        void (^allInstancesRequestHandler) (RouteRequest *, RouteResponse *) = ^(RouteRequest *request, RouteResponse *response) {
+        [_httpServer addWebSocketCommandForExpression:createInstanceExpression block:^(NSDictionary *parameters, NOWebSocket *webSocket) {
             
-            [self handleCreateNewInstanceRequest:request forEntity:entity response:response];
-        };
-        
-        // POST (create new resource)
-        [_httpServer post:allInstancesPathExpression
-                withBlock:allInstancesRequestHandler];
+            // parse JSON
+            
+            NSString *jsonString = [parameters[@"captures"] firstObject];
+            
+            NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+            
+            NSDictionary *jsonObject = [NSJSONSerialization JSONObjectWithData:jsonData
+                                                                       options:NSJSONReadingAllowFragments
+                                                                         error:nil];
+            
+            if (![jsonObject isKindOfClass:[NSDictionary class]]) {
+                
+                [webSocket sendMessage:[NSString stringWithFormat:@"%lu", (unsigned long)NOServerStatusCodeBadRequest]];
+                
+                return;
+            }
+            
+            // make request
+            
+            NOServerRequest *serverRequest = [[NOServerRequest alloc] init];
+            
+            serverRequest.requestType = NOServerRequestTypePOST;
+            serverRequest.connectionType = NOServerConnectionTypeWebSocket;
+            serverRequest.entity = entity;
+            serverRequest.JSONObject = jsonObject;
+            serverRequest.underlyingRequest = webSocket;
+            
+            // userInfo
+            
+            NSDictionary *userInfo;
+            
+            // process request and return a response
+            
+            NOServerResponse *serverResponse = [self responseForCreateNewInstanceRequest:serverRequest
+                                                                                userInfo:&userInfo];
+            
+            if (serverResponse.statusCode != NOServerStatusCodeOK) {
+                
+                [webSocket sendMessage:[NSString stringWithFormat:@"%lu", (unsigned long)serverResponse.statusCode]];
+                
+            }
+            else {
+                
+                // write to socket
+                
+                NSError *error;
+                
+                jsonData = [NSJSONSerialization dataWithJSONObject:serverResponse.JSONResponse
+                                                           options:self.jsonWritingOption
+                                                             error:&error];
+                
+                if (!jsonData) {
+                    
+                    if (_delegate) {
+                        
+                        [_delegate server:self didEncounterInternalError:error forRequest:serverRequest userInfo:userInfo];
+                    }
+                    
+                    [webSocket sendMessage:[NSString stringWithFormat:@"%lu", (unsigned long)NOServerStatusCodeInternalServerError]];
+                    
+                    return;
+                }
+                
+                // output JSON string
+                
+                jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+                
+                if (!jsonString) {
+                    
+                    if (_delegate) {
+                        
+                        NSString *localizedDescription = NSLocalizedString(@"Could not convert the serialized JSON data to a string.", @"NOErrorCodeCouldNotConvertJSONDataToString localized description");
+                        
+                        NSDictionary *errorUserInfo = @{NSLocalizedDescriptionKey: localizedDescription};
+                        
+                        error = [NSError errorWithDomain:(NSString *)NOErrorDomain
+                                                    code:NOErrorCodeCouldNotConvertJSONDataToString
+                                                userInfo:errorUserInfo];
+                        
+                        [_delegate server:self didEncounterInternalError:error forRequest:serverRequest userInfo:userInfo];
+                    }
+                    
+                    [webSocket sendMessage:[NSString stringWithFormat:@"%lu", (unsigned long)NOServerStatusCodeInternalServerError]];
+                    
+                    return;
+                }
+                
+                [webSocket sendMessage:jsonString];
+                
+            }
+            
+            // tell delegate
+            
+            if (_delegate) {
+                
+                [_delegate server:self didPerformRequest:serverRequest withResponse:serverResponse userInfo:userInfo];
+            }
+            
+        }];
         
         // setup routes for resource instances
         
         NSString *instancePathExpression = [NSString stringWithFormat:@"{^/%@/(\\d+)}", path];
         
-        void (^instanceRequestHandler) (RouteRequest *, RouteResponse *) = ^(RouteRequest *request, RouteResponse *response) {
-            
-            NSArray *captures = request.params[@"captures"];
+        // GET
+        
+        [_httpServer addWebSocketCommandForExpression:[NSString stringWithFormat:@"{^GET /%@/(\\d+)}", path] block:^(NSDictionary *parameters, NOWebSocket *webSocket) {
+           
+            NSArray *captures = parameters[@"captures"];
             
             NSString *capturedResourceID = captures[0];
             
             NSNumber *resourceID = [NSNumber numberWithInteger:capturedResourceID.integerValue];
             
-            if ([request.method isEqualToString:@"GET"]) {
+            // make request
+            
+            NOServerRequest *serverRequest = [[NOServerRequest alloc] init];
+            
+            serverRequest.requestType = NOServerRequestTypeGET;
+            serverRequest.connectionType = NOServerConnectionTypeWebSocket;
+            serverRequest.entity = entity;
+            serverRequest.resourceID = resourceID;
+            serverRequest.underlyingRequest = webSocket;
+            
+            // userInfo
+            
+            NSDictionary *userInfo;
+            
+            // process request and return a response
+            
+            NOServerResponse *serverResponse = [self responseForGetInstanceRequest:serverRequest
+                                                                          userInfo:&userInfo];
+            
+            if (serverResponse.statusCode != NOServerStatusCodeOK) {
                 
-                [self handleGetInstanceRequest:request forEntity:entity resourceID:resourceID response:response];
+                [webSocket sendMessage:[NSString stringWithFormat:@"%lu", (unsigned long)serverResponse.statusCode]];
+                
+            }
+            else {
+                
+                // write to socket
+                
+                NSError *error;
+                
+                NSData *jsonData = [NSJSONSerialization dataWithJSONObject:serverResponse.JSONResponse
+                                                                   options:self.jsonWritingOption
+                                                                     error:&error];
+                
+                if (!jsonData) {
+                    
+                    if (_delegate) {
+                        
+                        [_delegate server:self didEncounterInternalError:error forRequest:serverRequest userInfo:userInfo];
+                    }
+                    
+                    [webSocket sendMessage:[NSString stringWithFormat:@"%lu", (unsigned long)NOServerStatusCodeInternalServerError]];
+                    
+                    return;
+                }
+                
+                // output JSON string
+                
+                NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+                
+                if (!jsonString) {
+                    
+                    if (_delegate) {
+                        
+                        NSString *localizedDescription = NSLocalizedString(@"Could not convert the serialized JSON data to a string.", @"NOErrorCodeCouldNotConvertJSONDataToString localized description");
+                        
+                        NSDictionary *errorUserInfo = @{NSLocalizedDescriptionKey: localizedDescription};
+                        
+                        error = [NSError errorWithDomain:(NSString *)NOErrorDomain
+                                                    code:NOErrorCodeCouldNotConvertJSONDataToString
+                                                userInfo:errorUserInfo];
+                        
+                        [_delegate server:self didEncounterInternalError:error forRequest:serverRequest userInfo:userInfo];
+                    }
+                    
+                    [webSocket sendMessage:[NSString stringWithFormat:@"%lu", (unsigned long)NOServerStatusCodeInternalServerError]];
+                    
+                    return;
+                }
+                
+                [webSocket sendMessage:jsonString];
+                
             }
             
-            if ([request.method isEqualToString:@"PUT"]) {
+            // tell delegate
+            
+            if (_delegate) {
                 
-                [self handleEditInstanceRequest:request forEntity:entity resourceID:resourceID response:response];
+                [_delegate server:self didPerformRequest:serverRequest withResponse:serverResponse userInfo:userInfo];
             }
             
-            if ([request.method isEqualToString:@"DELETE"]) {
+        }];
+        
+        // PUT
+        
+        [_httpServer addWebSocketCommandForExpression:[NSString stringWithFormat:@"{^PUT /%@/(\\d+)$^(\\.+)}", path] block:^(NSDictionary *parameters, NOWebSocket *webSocket) {
+            
+            NSArray *captures = parameters[@"captures"];
+            
+            NSString *capturedResourceID = captures[0];
+            
+            NSNumber *resourceID = [NSNumber numberWithInteger:capturedResourceID.integerValue];
+            
+            NSString *jsonString = captures[1];
+            
+            // parse JSON string
+            
+            NSData *jsonStringData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+            
+            NSDictionary *jsonObject = [NSJSONSerialization JSONObjectWithData:jsonStringData
+                                                                       options:NSJSONReadingAllowFragments
+                                                                         error:nil];
+            
+            // invalid json
+            
+            if (![jsonObject isKindOfClass:[NSDictionary class]]) {
                 
-                [self handleDeleteInstanceRequest:request forEntity:entity resourceID:resourceID response:response];
+                [webSocket sendMessage:[NSString stringWithFormat:@"%lu", (unsigned long)NOServerStatusCodeBadRequest]];
+                
+                return;
             }
-        };
+            
+            // make request
+            
+            NOServerRequest *serverRequest = [[NOServerRequest alloc] init];
+            
+            serverRequest.requestType = NOServerRequestTypePUT;
+            serverRequest.connectionType = NOServerConnectionTypeWebSocket;
+            serverRequest.entity = entity;
+            serverRequest.resourceID = resourceID;
+            serverRequest.underlyingRequest = webSocket;
+            
+            // userInfo
+            
+            NSDictionary *userInfo;
+            
+            // process request and return a response
+            
+            NOServerResponse *serverResponse = [self responseForEditInstanceRequest:serverRequest
+                                                                          userInfo:&userInfo];
+            
+            // respond
+            
+            [webSocket sendMessage:[NSString stringWithFormat:@"%lu", (unsigned long)serverResponse.statusCode]];
+            
+            // tell delegate
+            
+            if (_delegate) {
+                
+                [_delegate server:self didPerformRequest:serverRequest withResponse:serverResponse userInfo:userInfo];
+            }
+            
+        }];
         
-        // GET (read resource)
-        [_httpServer get:instancePathExpression
-               withBlock:instanceRequestHandler];
+        // DELETE
         
-        // PUT (edit resource)
-        [_httpServer put:instancePathExpression
-               withBlock:instanceRequestHandler];
+        [_httpServer addWebSocketCommandForExpression:[NSString stringWithFormat:@"{^DELETE /%@/(\\d+)}", path] block:^(NSDictionary *parameters, NOWebSocket *webSocket) {
+            
+            NSArray *captures = parameters[@"captures"];
+            
+            NSString *capturedResourceID = captures[0];
+            
+            NSNumber *resourceID = [NSNumber numberWithInteger:capturedResourceID.integerValue];
+            
+            // make request
+            
+            NOServerRequest *serverRequest = [[NOServerRequest alloc] init];
+            
+            serverRequest.requestType = NOServerRequestTypeDELETE;
+            serverRequest.connectionType = NOServerConnectionTypeWebSocket;
+            serverRequest.entity = entity;
+            serverRequest.resourceID = resourceID;
+            serverRequest.underlyingRequest = webSocket;
+            
+            // userInfo
+            
+            NSDictionary *userInfo;
+            
+            // process request and return a response
+            
+            NOServerResponse *serverResponse = [self responseForDeleteInstanceRequest:serverRequest
+                                                                             userInfo:&userInfo];
+            
+            [webSocket sendMessage:[NSString stringWithFormat:@"%lu", (unsigned long)serverResponse.statusCode]];
+            
+            // tell delegate
+            
+            if (_delegate) {
+                
+                [_delegate server:self didPerformRequest:serverRequest withResponse:serverResponse userInfo:userInfo];
+            }
+            
+        }];
         
-        // DELETE (delete resource)
-        [_httpServer delete:instancePathExpression
-                  withBlock:instanceRequestHandler];
-        
-        // add function routes
+        // add function Web Socket commands
         
         NSSet *functions = [self.dataSource server:self functionsForEntity:entity];
         
         for (NSString *functionName in functions) {
             
-            NSString *functionExpression = [NSString stringWithFormat:@"{^/%@/(\\d+)/%@}", path, functionName];
+            NSString *functionExpression = [NSString stringWithFormat:@"{^/%@/(\\d+)/%@}^(\\.+)", path, functionName];
             
-            void (^instanceFunctionRequestHandler) (RouteRequest *, RouteResponse *) = ^(RouteRequest *request, RouteResponse *response) {
+            [_httpServer addWebSocketCommandForExpression:functionExpression block:^(NSDictionary *parameters, NOWebSocket *webSocket) {
                 
-                NSArray *captures = request.params[@"captures"];
+                NSArray *captures = parameters[@"captures"];
                 
                 NSString *capturedResourceID = captures[0];
                 
                 NSNumber *resourceID = [NSNumber numberWithInteger:capturedResourceID.integerValue];
                 
-                [self handleFunctionInstanceRequest:request
-                                          forEntity:entity
-                                         resourceID:resourceID
-                                       functionName:functionName
-                                           response:response];
-            };
-            
-            // functions use POST
-            [_httpServer post:functionExpression
-                    withBlock:instanceFunctionRequestHandler];
-            
+                
+                
+            }];
         }
     }
     
@@ -2293,7 +2536,7 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
         
         NOWebSocket *webSocket = [[NOWebSocket alloc] initWithRequest:request socket:asyncSocket];
         
-        webSocket.server = config.server;
+        webSocket.server = (NOHTTPServer *)config.server;
         
         return webSocket;
     }
@@ -2305,7 +2548,7 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
 
 @implementation NOHTTPServer
 
--(void)addWebSocketCommandForExpression:(NSString *)expressionString block:(void (^)())block
+-(void)addWebSocketCommandForExpression:(NSString *)expressionString block:(NOWebSocketCommandBlock)block
 {
     NOWebSocketCommand *command = [[NOWebSocketCommand alloc] init];
     
@@ -2374,6 +2617,8 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
     
     for (NOWebSocketCommand *command in _webSocketCommands) {
         
+        NSString *path = message;
+        
         NSTextCheckingResult *result = [command.regularExpression firstMatchInString:path
                                                                              options:0
                                                                                range:NSMakeRange(0, path.length)];
@@ -2392,7 +2637,7 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
                 NSMutableDictionary *newParams = [params mutableCopy];
                 NSUInteger index = 1;
                 BOOL firstWildcard = YES;
-                for (NSString *key in route.keys) {
+                for (NSString *key in command.keys) {
                     NSString *capture = [path substringWithRange:[result rangeAtIndex:index]];
                     if ([key isEqualToString:@"wildcards"]) {
                         NSMutableArray *wildcards = [newParams objectForKey:key];
@@ -2423,7 +2668,7 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
         
         // execute command
         
-        command.block(params);
+        command.block(params, webSocket);
         
         return;
     }
@@ -2437,7 +2682,7 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
 
 @implementation NOWebSocket
 
--(void)didReceiveMessage:(NSString *)msg
+-(void)didReceiveMessage:(NSString *)message
 {    
     [_server webSocket:self didReceiveMessage:message];
 }
