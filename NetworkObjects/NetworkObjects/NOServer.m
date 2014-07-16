@@ -50,7 +50,6 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
 
 -(NOServerStatusCode)verifyEditResource:(NSManagedObject *)resource
                              forRequest:(NOServerRequest *)request
-                     recievedJsonObject:(NSDictionary *)recievedJsonObject
                                 context:(NSManagedObjectContext *)context
                                   error:(NSError **)error
                         convertedValues:(NSDictionary **)convertedValues;
@@ -171,9 +170,11 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
 
 #pragma mark - Request Handlers
 
--(NOServerResponse *)responseForSearchRequest:(NOServerRequest *)request
+-(NOServerResponse *)responseForSearchRequest:(NOServerRequest *)request userInfo:(NSDictionary *__autoreleasing *)userInfoPointer
 {
     NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
+    
+    *userInfoPointer = userInfo;
     
     NOServerResponse *response = [[NOServerResponse alloc] init];
     
@@ -640,19 +641,19 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
     return response;
 }
 
--(NOServerResponse *)responseForCreateNewInstanceRequest:(NOServerRequest *)request
+-(NOServerResponse *)responseForCreateNewInstanceRequest:(NOServerRequest *)request userInfo:(NSDictionary *__autoreleasing *)userInfoPointer
 {
     NOServerResponse *response = [[NOServerResponse alloc] init];
     
     NSEntityDescription *entity = request.entity;
-    
-    NSDictionary *jsonObject = request.JSONObject;
     
     // get context
     
     NSManagedObjectContext *context = [_dataSource server:self managedObjectContextForRequest:request];
     
     NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithDictionary:@{NOServerManagedObjectContextKey : context}];
+    
+    *userInfoPointer = userInfo;
     
     // ask delegate
     
@@ -698,7 +699,7 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
         
     }];
     
-    if (jsonObject) {
+    if (request.JSONObject) {
         
         // convert to core data values
         
@@ -712,7 +713,6 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
             
             editStatusCode = [self verifyEditResource:managedObject
                                            forRequest:request
-                                   recievedJsonObject:jsonObject
                                               context:context
                                                 error:&error
                                       convertedValues:&newValues];
@@ -770,7 +770,7 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
     return response;
 }
 
--(NOServerResponse *)responseForGetInstanceRequest:(NOServerRequest *)request
+-(NOServerResponse *)responseForGetInstanceRequest:(NOServerRequest *)request userInfo:(NSDictionary *__autoreleasing *)userInfoPointer
 {
     NSNumber *resourceID = request.resourceID;
     
@@ -781,6 +781,8 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
     NOServerResponse *response = [[NOServerResponse alloc] init];
     
     NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithDictionary:@{NOServerResourceIDKey : resourceID}];
+    
+    *userInfoPointer = userInfo;
     
     // get context
     
@@ -875,11 +877,14 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
     return response;
 }
 
--(NOServerResponse *)responseForEditInstanceRequest:(NOServerRequest *)request
+-(NOServerResponse *)responseForEditInstanceRequest:(NOServerRequest *)request userInfo:(NSDictionary *__autoreleasing *)userInfoPointer
 {
     NOServerResponse *response = [[NOServerResponse alloc] init];
     
+    
     NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithDictionary:@{NOServerResourceIDKey : request.resourceID}];
+    
+    *userInfoPointer = userInfo;
     
     // get JSON object
     
@@ -958,7 +963,6 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
         
         editStatusCode = [self verifyEditResource:managedObject
                                        forRequest:request
-                               recievedJsonObject:request.JSONObject
                                           context:context
                                             error:&error
                                   convertedValues:&newValues];
@@ -995,13 +999,13 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
     return response;
 }
 
--(NOServerResponse *)responseForDeleteInstanceRequest:(NOServerRequest *)request
+-(NOServerResponse *)responseForDeleteInstanceRequest:(NOServerRequest *)request userInfo:(NSDictionary *__autoreleasing *)userInfoPointer
 {
     NOServerResponse *response = [[NOServerResponse alloc] init];
     
-    
-    
     NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithDictionary:@{NOServerResourceIDKey : request.resourceID}];
+    
+    *userInfoPointer = userInfo;
     
     // get context
     
@@ -1081,11 +1085,13 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
     return response;
 }
 
--(NOServerResponse *)responseForFunctionInstanceRequest:(NOServerRequest *)request
+-(NOServerResponse *)responseForFunctionInstanceRequest:(NOServerRequest *)request userInfo:(NSDictionary *__autoreleasing *)userInfoPointer
 {
     NOServerResponse *response = [[NOServerResponse alloc] init];
     
     NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithDictionary:@{NOServerResourceIDKey : request.resourceID}];
+    
+    *userInfoPointer = userInfo;
     
     // get context
     
@@ -1594,7 +1600,7 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
         
         if (self.searchPath) {
             
-            NSString *searchPathExpression = [NSString stringWithFormat:@"{^POST /%@/%@$^(\\.+)}", _searchPath, path];
+            NSString *searchPathExpression = [NSString stringWithFormat:@"{^/%@/%@$^(\\.+)}", _searchPath, path];
             
             [_httpServer addWebSocketCommandForExpression:searchPathExpression block:^(NSDictionary *parameters, NOWebSocket *webSocket) {
                 
@@ -1805,10 +1811,6 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
             
         }];
         
-        // setup routes for resource instances
-        
-        NSString *instancePathExpression = [NSString stringWithFormat:@"{^/%@/(\\d+)}", path];
-        
         // GET
         
         [_httpServer addWebSocketCommandForExpression:[NSString stringWithFormat:@"{^GET /%@/(\\d+)}", path] block:^(NSDictionary *parameters, NOWebSocket *webSocket) {
@@ -2009,7 +2011,7 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
         
         for (NSString *functionName in functions) {
             
-            NSString *functionExpression = [NSString stringWithFormat:@"{^/%@/(\\d+)/%@}^(\\.+)", path, functionName];
+            NSString *functionExpression = [NSString stringWithFormat:@"{^/%@/(\\d+)/%@^(\\.+)}", path, functionName];
             
             [_httpServer addWebSocketCommandForExpression:functionExpression block:^(NSDictionary *parameters, NOWebSocket *webSocket) {
                 
@@ -2019,8 +2021,108 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
                 
                 NSNumber *resourceID = [NSNumber numberWithInteger:capturedResourceID.integerValue];
                 
+                NSString *jsonString = captures[1];
                 
+                NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
                 
+                NSDictionary *jsonObject = [NSJSONSerialization JSONObjectWithData:jsonData
+                                                                           options:NSJSONReadingAllowFragments
+                                                                             error:nil];
+                
+                if (![jsonObject isKindOfClass:[NSDictionary class]]) {
+                    
+                    [webSocket sendMessage:[NSString stringWithFormat:@"%lu", (unsigned long)NOServerStatusCodeBadRequest]];
+                    
+                    return;
+                }
+                
+                // make request
+                
+                NOServerRequest *serverRequest = [[NOServerRequest alloc] init];
+                
+                serverRequest.requestType = NOServerRequestTypeFunction;
+                serverRequest.connectionType = NOServerConnectionTypeWebSocket;
+                serverRequest.entity = entity;
+                serverRequest.resourceID = resourceID;
+                serverRequest.JSONObject = jsonObject;
+                serverRequest.underlyingRequest = webSocket;
+                
+                // userInfo
+                
+                NSDictionary *userInfo;
+                
+                // process request and return a response
+                
+                NOServerResponse *serverResponse = [self responseForFunctionInstanceRequest:serverRequest
+                                                                                   userInfo:&userInfo];
+                
+                NSString *responseString;
+                
+                if (!serverResponse.JSONResponse) {
+                    
+                    responseString = [NSString stringWithFormat:@"%lu", serverResponse.statusCode];
+
+                }
+                
+                else {
+                    
+                    // make a string that contains the status code and the json response
+                    
+                    NSError *error;
+                    
+                    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:serverResponse.JSONResponse
+                                                                       options:self.jsonWritingOption
+                                                                         error:&error];
+                    
+                    if (!jsonData) {
+                        
+                        if (_delegate) {
+                            
+                            [_delegate server:self didEncounterInternalError:error forRequest:serverRequest userInfo:userInfo];
+                        }
+                        
+                        [webSocket sendMessage:[NSString stringWithFormat:@"%lu", (unsigned long)NOServerStatusCodeInternalServerError]];
+                        
+                        return;
+                    }
+                    
+                    // output JSON string
+                    
+                    NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+                    
+                    if (!jsonString) {
+                        
+                        if (_delegate) {
+                            
+                            NSString *localizedDescription = NSLocalizedString(@"Could not convert the serialized JSON data to a string.", @"NOErrorCodeCouldNotConvertJSONDataToString localized description");
+                            
+                            NSDictionary *errorUserInfo = @{NSLocalizedDescriptionKey: localizedDescription};
+                            
+                            error = [NSError errorWithDomain:(NSString *)NOErrorDomain
+                                                        code:NOErrorCodeCouldNotConvertJSONDataToString
+                                                    userInfo:errorUserInfo];
+                            
+                            [_delegate server:self didEncounterInternalError:error forRequest:serverRequest userInfo:userInfo];
+                        }
+                        
+                        [webSocket sendMessage:[NSString stringWithFormat:@"%lu", (unsigned long)NOServerStatusCodeInternalServerError]];
+                        
+                        return;
+                    }
+                    
+                    // append json string to status code
+                    
+                    responseString = [NSString stringWithFormat:@"%lu\n%@", serverResponse.statusCode, jsonString];
+                }
+                
+                [webSocket sendMessage:responseString];
+
+                // tell delegate
+                
+                if (_delegate) {
+                    
+                    [_delegate server:self didPerformRequest:serverRequest withResponse:serverResponse userInfo:userInfo];
+                }
             }];
         }
     }
@@ -2187,13 +2289,13 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
 }
 
 -(NOServerStatusCode)verifyEditResource:(NSManagedObject *)resource
-                             forRequest:(RouteRequest *)request
-                            requestType:(NOServerRequestType)requestType
-                     recievedJsonObject:(NSDictionary *)recievedJsonObject
+                             forRequest:(NOServerRequest *)request
                                 context:(NSManagedObjectContext *)context
                                   error:(NSError **)error
                         convertedValues:(NSDictionary **)convertedValues
 {
+    NSDictionary *recievedJsonObject = request.JSONObject;
+    
     NSMutableDictionary *newConvertedValues = [[NSMutableDictionary alloc] initWithCapacity:recievedJsonObject.count];
     
     for (NSString *key in recievedJsonObject) {
@@ -2227,7 +2329,7 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
                 
                 if (_permissionsEnabled) {
                     
-                    if ([_delegate server:self permissionForRequest:request withType:requestType entity:resource.entity managedObject:resource context:context key:attributeName] < NOServerPermissionEditPermission) {
+                    if ([_delegate server:self permissionForRequest:request managedObject:resource context:context key:attributeName] < NOServerPermissionEditPermission) {
                         
                         return NOServerStatusCodeForbidden;
                     }
@@ -2277,7 +2379,7 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
                 
                 if (_permissionsEnabled) {
                     
-                    if ([_delegate server:self permissionForRequest:request withType:requestType entity:resource.entity managedObject:resource context:context key:relationshipName] < NOServerPermissionEditPermission) {
+                    if ([_delegate server:self permissionForRequest:request managedObject:resource context:context key:relationshipName] < NOServerPermissionEditPermission) {
                         
                         return NOServerStatusCodeForbidden;
                     }
@@ -2316,7 +2418,7 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
                     
                     if (_permissionsEnabled) {
                         
-                        if ([_delegate server:self permissionForRequest:request withType:requestType entity:relationshipDescription.destinationEntity managedObject:newValue context:context key:nil] < NOServerPermissionReadOnly) {
+                        if ([_delegate server:self permissionForRequest:request managedObject:newValue context:context key:nil] < NOServerPermissionReadOnly) {
                             
                             return NOServerStatusCodeForbidden;
                         }
@@ -2382,7 +2484,7 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
                         
                         if (_permissionsEnabled) {
                             
-                            if ([_delegate server:self permissionForRequest:request withType:requestType entity:relationshipDescription.destinationEntity managedObject:destinationResource context:context key:nil] < NOServerPermissionReadOnly) {
+                            if ([_delegate server:self permissionForRequest:request managedObject:destinationResource context:context key:nil] < NOServerPermissionReadOnly) {
                                 
                                 return NOServerStatusCodeForbidden;
                             }
@@ -2421,13 +2523,12 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
 
 -(void)checkForDelegatePermissions
 {
-    _permissionsEnabled = (_delegate && [_delegate respondsToSelector:@selector(server:permissionForRequest:withType:entity:managedObject:context:key:)]);
+    _permissionsEnabled = (_delegate && [_delegate respondsToSelector:@selector(server:permissionForRequest:managedObject:context:key:)]);
 }
 
 -(NSDictionary *)filteredJSONRepresentationOfManagedObject:(NSManagedObject *)managedObject
                                                    context:(NSManagedObjectContext *)context
-                                                   request:(RouteRequest *)request
-                                               requestType:(NOServerRequestType)requestType
+                                                   request:(NOServerRequest *)request
 {
     // build JSON object...
     
@@ -2438,7 +2539,7 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
     for (NSString *attributeName in managedObject.entity.attributesByName) {
         
         // check access permissions (unless its the resourceID, thats always visible)
-        if ([_delegate server:self permissionForRequest:request withType:requestType entity:managedObject.entity managedObject:managedObject context:context key:attributeName] >= NOServerPermissionReadOnly ||
+        if ([_delegate server:self permissionForRequest:request managedObject:managedObject context:context key:attributeName] >= NOServerPermissionReadOnly ||
             [attributeName isEqualToString:_resourceIDAttributeName]) {
             
             // get attribute
@@ -2458,11 +2559,9 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
     for (NSString *relationshipName in managedObject.entity.relationshipsByName) {
         
         NSRelationshipDescription *relationshipDescription = managedObject.entity.relationshipsByName[relationshipName];
-        
-        NSEntityDescription *destinationEntity = relationshipDescription.destinationEntity;
-        
+                
         // make sure relationship is visible
-        if ([_delegate server:self permissionForRequest:request withType:requestType entity:managedObject.entity managedObject:managedObject context:context key:relationshipName] >= NOServerPermissionReadOnly) {
+        if ([_delegate server:self permissionForRequest:request managedObject:managedObject context:context key:relationshipName] >= NOServerPermissionReadOnly) {
             
             // to-one relationship
             if (!relationshipDescription.isToMany) {
@@ -2471,7 +2570,7 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
                 NSManagedObject *destinationResource = [managedObject valueForKey:relationshipName];
                 
                 // check access permissions (the relationship & the single distination object must be visible)
-                if ([_delegate server:self permissionForRequest:request withType:requestType entity:destinationEntity managedObject:destinationResource context:context key:nil] >= NOServerPermissionReadOnly) {
+                if ([_delegate server:self permissionForRequest:request managedObject:destinationResource context:context key:nil] >= NOServerPermissionReadOnly) {
                     
                     NSNumber *destinationResourceID = [destinationResource valueForKey:_resourceIDAttributeName];
                     
@@ -2491,7 +2590,7 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
                 
                 for (NSManagedObject *destinationResource in toManyRelationship) {
                     
-                    if ([_delegate server:self permissionForRequest:request withType:requestType entity:destinationEntity managedObject:destinationResource context:context key:nil] >= NOServerPermissionReadOnly) {
+                    if ([_delegate server:self permissionForRequest:request managedObject:destinationResource context:context key:nil] >= NOServerPermissionReadOnly) {
                         
                         // get destination resource ID
                         
@@ -2704,4 +2803,11 @@ NSString const* NOServerFunctionJSONOutputKey = @"NOServerFunctionJSONOutputKey"
 
 @end
 
+@implementation NOServerRequest
+
+@end
+
+@implementation NOWebSocketCommand
+
+@end
 
