@@ -38,7 +38,7 @@ public class Server {
     public let dataSource: ServerDataSource
     
     /** The server's delegate. */
-    public let delegate: ServerDelegate
+    public let delegate: ServerDelegate?
     
     /** The string that will be used to generate a URL for search requests. 
     NOTE Must not conflict with the resourcePath of entities.*/
@@ -79,18 +79,18 @@ public class Server {
         }
     }
     
-    /**  */
+    /** Lazily initializes self.entitiesByResourcePath. */
     private func initEntitiesByResourcePath() -> [String: NSEntityDescription] {
         
-        var entitiesByResourcePathDictionary: [String: NSEntityDescription];
+        var entitiesByResourcePathDictionary = [String: NSEntityDescription]();
         
-        var entities = managedObjectModel.entities as [NSEntityDescription];
+        var entities = managedObjectModel.entities as [NSEntityDescription]
         
         for entity in entities {
             
             if !entity.abstract {
                 
-                let path = self.dataSource.server(self, resourcePathForEntity: entity);
+                let path = self.dataSource.server(self, resourcePathForEntity: entity)
                 
                 entitiesByResourcePathDictionary[path] = entity
             }
