@@ -215,22 +215,113 @@ public class HTTPServer: RoutingHTTPServer {
 
 // MARK: Enumerations
 
-public enum ErrorCode: Int {
+public enum SearchParameter: Int {
     
+    case SearchParameterPredicateKey = 1
+    case SearchParameterPredicateValue = 2
+    case SearchParameterPredicateOperator = 3
+    case SearchParameterPredicateOption = 4
+    case SearchParameterPredicateModifier = 5
+    case SearchParameterFetchLimit = 6
+    case SearchParameterFetchOffset = 7
+    case SearchParameterIncludesSubentities = 8
+    case SearchParameterSortDescriptors = 9
+    
+};
+
+/** These are HTTP status codes used with NOServer instances. */
+public enum ServerStatusCode: Int {
+    
+    /** OK status code. */
     case ServerStatusCodeOK = 200
-}
+    
+    /** Bad request status code. */
+    case ServerStatusCodeBadRequest = 400
+    
+    /** Unauthorized status code. e.g. Used when authentication is required. */
+    case ServerStatusCodeUnauthorized = 401 // not logged in
+    
+    case ServerStatusCodePaymentRequired = 402
+    
+    /** Forbidden status code. e.g. Used when permission is denied. */
+    case ServerStatusCodeForbidden = 403 // item is invisible to user or api app
+    
+    /** Not Found status code. e.g. Used when a Resource instance cannot be found. */
+    case ServerStatusCodeNotFound = 404 // item doesnt exist
+    
+    /** Method Not Allowed status code. e.g. Used for invalid requests. */
+    case ServerStatusCodeMethodNotAllowed = 405
+    
+    /** Conflict status code. e.g. Used when a user with the specified username already exists. */
+    case ServerStatusCodeConflict = 409 // user already exists
+    
+    /** Internal Server Error status code. e.g. Used when a JSON cannot be converted to NSData for a HTTP response. */
+    case ServerStatusCodeInternalServerError = 500
+    
+};
 
 /** Server Permission Enumeration */
 
-public enum ServerPermission: Int {
+public enum ServerPermission {
     
     /**  No access permission */
-    case NoAccess = 0
+    case NoAccess
     
     /**  Read Only permission */
     case ReadOnly
     
     /**  Read and Write permission */
     case EditPermission
+}
+
+/** Server Request Type */
+public enum ServerRequestType {
+    
+    /** Undetermined request */
+    case Undetermined
+    
+    /** GET request */
+    case GET
+    
+    /** PUT (edit) request */
+    case PUT
+    
+    /** DELETE request */
+    case DELETE
+    
+    /** POST (create new) request */
+    case POST
+    
+    /** Search request */
+    case Search
+    
+    /** Function request */
+    case Function
+}
+
+/** Resource Function constants */
+public enum ServerFunctionCode: Int {
+    
+    /** The function performed successfully */
+    case PerformedSuccesfully = 200
+    
+    /** The function recieved an invalid JSON object */
+    case RecievedInvalidJSONObject = 400
+    
+    /** The function cannot be performed, possibly due to session permissions */
+    case CannotPerformFunction = 403
+    
+    /** There was an internal error while performing the function */
+    case InternalErrorPerformingFunction = 500
+};
+
+/** Defines the connection protocols used communicate with the server. */
+public enum ServerConnectionProtocol {
+    
+    /** The connection to the server was made via the HTTP protocol. */
+    case HTTP
+    
+    /** The connection to the server was made via the WebSockets protocol. */
+    case WebSocket
 }
 

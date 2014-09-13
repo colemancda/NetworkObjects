@@ -84,6 +84,8 @@
 		6EAD58FC19C3E6D200DC080A /* RoutingConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EAD58F019C3E6D200DC080A /* RoutingConnection.m */; };
 		6EAD58FD19C3E6D200DC080A /* RoutingHTTPServer.h in Headers */ = {isa = PBXBuildFile; fileRef = 6EAD58F119C3E6D200DC080A /* RoutingHTTPServer.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		6EAD58FE19C3E6D200DC080A /* RoutingHTTPServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EAD58F219C3E6D200DC080A /* RoutingHTTPServer.m */; };
+		6EC750F319C3F5DD009F0E00 /* Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EC750F219C3F5DD009F0E00 /* Error.swift */; };
+		6EC750F419C3F5DD009F0E00 /* Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EC750F219C3F5DD009F0E00 /* Error.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -167,6 +169,7 @@
 		6EAD58F019C3E6D200DC080A /* RoutingConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RoutingConnection.m; path = ../../Dependencies/RoutingHTTPServer/Source/RoutingConnection.m; sourceTree = "<group>"; };
 		6EAD58F119C3E6D200DC080A /* RoutingHTTPServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RoutingHTTPServer.h; path = ../../Dependencies/RoutingHTTPServer/Source/RoutingHTTPServer.h; sourceTree = "<group>"; };
 		6EAD58F219C3E6D200DC080A /* RoutingHTTPServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RoutingHTTPServer.m; path = ../../Dependencies/RoutingHTTPServer/Source/RoutingHTTPServer.m; sourceTree = "<group>"; };
+		6EC750F219C3F5DD009F0E00 /* Error.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Error.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -211,6 +214,7 @@
 				6EAD584B19C3B58300DC080A /* NetworkObjects.h */,
 				6EAD585F19C3B6CB00DC080A /* Server.swift */,
 				6EAD586019C3B6CB00DC080A /* Store.swift */,
+				6EC750F219C3F5DD009F0E00 /* Error.swift */,
 				6EAD586319C3D2A500DC080A /* Dependencies */,
 				6EAD584919C3B58300DC080A /* Supporting Files */,
 			);
@@ -574,6 +578,7 @@
 				6EAD589E19C3E6A000DC080A /* HTTPConnection.m in Sources */,
 				6EAD58DA19C3E6BB00DC080A /* DDFileLogger.m in Sources */,
 				6EAD58DC19C3E6BB00DC080A /* DDLog.m in Sources */,
+				6EC750F319C3F5DD009F0E00 /* Error.swift in Sources */,
 				6EAD589C19C3E6A000DC080A /* HTTPAuthenticationRequest.m in Sources */,
 				6EAD589A19C3E6A000DC080A /* DDRange.m in Sources */,
 				6EAD589819C3E6A000DC080A /* DDNumber.m in Sources */,
@@ -586,6 +591,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				6EAD586A19C3D2D400DC080A /* GCDAsyncSocket.m in Sources */,
+				6EC750F419C3F5DD009F0E00 /* Error.swift in Sources */,
 				6EAD585619C3B58300DC080A /* NetworkObjectsTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
