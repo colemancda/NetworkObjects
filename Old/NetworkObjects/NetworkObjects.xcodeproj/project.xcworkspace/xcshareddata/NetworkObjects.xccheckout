@@ -10,14 +10,14 @@
 	<string>NetworkObjects</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
-		<key>2D2486A9-EB6C-48FC-8637-D4B3E1020FF6</key>
-		<string>https://github.com/colemancda/NetworkObjects.git</string>
 		<key>2FAAA3F8-5F83-496C-8999-BF0F0A56D77E</key>
 		<string>https://github.com/colemancda/CocoaAsyncSocket.git</string>
 		<key>3C060B19-5EA7-4AA2-862D-2EE499E478D7</key>
 		<string>https://github.com/CocoaLumberjack/CocoaLumberjack.git</string>
 		<key>4A537C2D-38B6-4A30-A292-9FE74991D0BF</key>
 		<string>https://github.com/robbiehanson/CocoaHTTPServer.git</string>
+		<key>A5260C930E0CFC29BE4E638F3BCB24458F4E5121</key>
+		<string>https://github.com/colemancda/NetworkObjects.git</string>
 		<key>B3783048-6722-4595-A005-B869AD0BB51B</key>
 		<string>https://github.com/mattstevens/RoutingHTTPServer.git</string>
 	</dict>
@@ -25,23 +25,23 @@
 	<string>NetworkObjects/NetworkObjects.xcodeproj/project.xcworkspace</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
-		<key>2D2486A9-EB6C-48FC-8637-D4B3E1020FF6</key>
-		<string>../../..</string>
 		<key>2FAAA3F8-5F83-496C-8999-BF0F0A56D77E</key>
 		<string>../../../Dependencies/CocoaAsyncSocket</string>
 		<key>3C060B19-5EA7-4AA2-862D-2EE499E478D7</key>
 		<string>../../../Dependencies/CocoaLumberjack</string>
 		<key>4A537C2D-38B6-4A30-A292-9FE74991D0BF</key>
 		<string>../../../Dependencies/CocoaHTTPServer</string>
+		<key>A5260C930E0CFC29BE4E638F3BCB24458F4E5121</key>
+		<string>../../..</string>
 		<key>B3783048-6722-4595-A005-B869AD0BB51B</key>
 		<string>../../../Dependencies/RoutingHTTPServer</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
 	<string>https://github.com/colemancda/NetworkObjects.git</string>
 	<key>IDESourceControlProjectVersion</key>
-	<integer>110</integer>
+	<integer>111</integer>
 	<key>IDESourceControlProjectWCCIdentifier</key>
-	<string>2D2486A9-EB6C-48FC-8637-D4B3E1020FF6</string>
+	<string>A5260C930E0CFC29BE4E638F3BCB24458F4E5121</string>
 	<key>IDESourceControlProjectWCConfigurations</key>
 	<array>
 		<dict>
@@ -72,7 +72,7 @@
 			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
 			<string>public.vcs.git</string>
 			<key>IDESourceControlWCCIdentifierKey</key>
-			<string>2D2486A9-EB6C-48FC-8637-D4B3E1020FF6</string>
+			<string>A5260C930E0CFC29BE4E638F3BCB24458F4E5121</string>
 			<key>IDESourceControlWCCName</key>
 			<string>NetworkObjects</string>
 		</dict>
