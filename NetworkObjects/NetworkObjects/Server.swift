@@ -208,9 +208,85 @@ public class Server {
                     return
                 }
                 
+                // respond with serialized json
+                response.respondWithData(jsonData);
                 
+                // tell the delegate
+                self.delegate!.server(self, didPerformRequest: serverRequest, withResponse: serverResponse, userInfo: userInfo)
+            }
+            
+            httpServer.post(createInstancePathExpression, withBlock: createInstanceRequestHandler)
+            
+            // setup routes for resource instances...
+            
+            // MARK: HTTP GET, PUT, DELETE Request Handler Block
+            
+            let instancePathExpression = "{^/" + path + "(\\d+)}"
+            
+            let instanceRequestHandler: RequestHandler = { (request: RouteRequest!, response: RouteResponse!) -> Void in
+                
+                let parameters = request.params
+                
+                let captures: AnyObject? = parameters["captures"]
+                
+                // had to do this in more lines of code becuase the compiler would complain
+                let capturesArray = captures as [String]
+                
+                let resourceID = capturesArray.first?.toInt()
+                
+                // get json body
+                
+                let jsonBody: AnyObject? = NSJSONSerialization.JSONObjectWithData(request.body(), options: NSJSONReadingOptions.AllowFragments, error: nil)
+                
+                let jsonObject = jsonBody as? [String: AnyObject]
+                
+                // JSON recieved is not a dictionary
+                if (jsonBody != nil) && (jsonObject == nil) {
+                    
+                    response.statusCode = ServerStatusCode.BadRequest.toRaw()
+                    
+                    return
+                }
+                
+                // GET
+                if request.method() == "GET" {
+                    
+                    // convert to server request
+                    let serverRequest = ServerRequest(requestType: ServerRequestType.GET, connectionType: ServerConnectionType.HTTP, entity: entity, underlyingRequest: request, resourceID: resourceID, JSONObject: jsonObject, functionName: nil)
+                    
+                    // should not have a body
+                    
+                    if (jsonBody != nil) {
+                        
+                        response.statusCode = ServerStatusCode.BadRequest.toRaw()
+                        
+                        return
+                    }
+                    
+                    // get response
+                    let (serverResponse, userInfo) = self.responseForGetRequest(serverRequest)
+                    
+                    // serialize json data
+                    
+                    let error = NSErrorPointer()
+                    
+                    let jsonData = NSJSONSerialization.dataWithJSONObject(serverResponse.JSONResponse, options: self.jsonWritingOption(), error: error);
+                    
+                    
+                    
+                }
                 
             }
+            
+            // GET (read resource)
+            httpServer.get(instancePathExpression, withBlock: instanceRequestHandler);
+            
+            // PUT (edit resource)
+            httpServer.put(instancePathExpression, withBlock: instanceRequestHandler);
+            
+            // DELETE (delete resource)
+            httpServer.delete(instancePathExpression, withBlock: instanceRequestHandler);
+            
             
         }
         
