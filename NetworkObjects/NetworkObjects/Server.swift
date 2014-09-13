@@ -216,17 +216,18 @@ public class HTTPServer: RoutingHTTPServer {
 
 // MARK: Enumerations
 
-public enum SearchParameter: Int {
+/** Defines the different search parameters */
+public enum SearchParameter: String {
     
-    case SearchParameterPredicateKey = 1
-    case SearchParameterPredicateValue = 2
-    case SearchParameterPredicateOperator = 3
-    case SearchParameterPredicateOption = 4
-    case SearchParameterPredicateModifier = 5
-    case SearchParameterFetchLimit = 6
-    case SearchParameterFetchOffset = 7
-    case SearchParameterIncludesSubentities = 8
-    case SearchParameterSortDescriptors = 9
+    case PredicateKey = "Predicate"
+    case PredicateValue = "PredicateValue"
+    case PredicateOperator = "PredicateOperator"
+    case PredicateOption = "PredicateOption"
+    case PredicateModifier = "PredicateModifier"
+    case FetchLimit = "FetchLimit"
+    case FetchOffset = "FetchOffset"
+    case IncludesSubentities = "IncludesSubentities"
+    case SortDescriptors = "SortDescriptors"
     
 };
 
