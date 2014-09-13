@@ -272,10 +272,88 @@ public class Server {
                     
                     let jsonData = NSJSONSerialization.dataWithJSONObject(serverResponse.JSONResponse, options: self.jsonWritingOption(), error: error);
                     
+                    // could not serialize json response, internal error
+                    if (jsonData == nil) {
+                        
+                        self.delegate!.server(self, didEncounterInternalError: error.memory!, forRequest: serverRequest, userInfo: userInfo)
+                        
+                        response.statusCode = ServerStatusCode.InternalServerError.toRaw()
+                        
+                        return
+                    }
                     
+                    // respond with serialized json
+                    response.respondWithData(jsonData);
                     
+                    // tell the delegate
+                    self.delegate!.server(self, didPerformRequest: serverRequest, withResponse: serverResponse, userInfo: userInfo)
                 }
                 
+                // PUT
+                if request.method() == "PUT" {
+                    
+                    // convert to server request
+                    let serverRequest = ServerRequest(requestType: ServerRequestType.PUT, connectionType: ServerConnectionType.HTTP, entity: entity, underlyingRequest: request, resourceID: resourceID, JSONObject: jsonObject, functionName: nil)
+                    
+                    // should have a body
+                    
+                    if (jsonBody == nil) {
+                        
+                        response.statusCode = ServerStatusCode.BadRequest.toRaw()
+                        
+                        return
+                    }
+                    
+                    // get response
+                    let (serverResponse, userInfo) = self.responseForEditRequest(serverRequest)
+                    
+                    // serialize json data
+                    
+                    let error = NSErrorPointer()
+                    
+                    let jsonData = NSJSONSerialization.dataWithJSONObject(serverResponse.JSONResponse, options: self.jsonWritingOption(), error: error);
+                    
+                    // could not serialize json response, internal error
+                    if (jsonData == nil) {
+                        
+                        self.delegate!.server(self, didEncounterInternalError: error.memory!, forRequest: serverRequest, userInfo: userInfo)
+                        
+                        response.statusCode = ServerStatusCode.InternalServerError.toRaw()
+                        
+                        return
+                    }
+                    
+                    // respond with serialized json
+                    response.respondWithData(jsonData);
+                    
+                    // tell the delegate
+                    self.delegate!.server(self, didPerformRequest: serverRequest, withResponse: serverResponse, userInfo: userInfo)
+                }
+                
+                // DELETE
+                if request.method() == "DELETE" {
+                    
+                    // convert to server request
+                    let serverRequest = ServerRequest(requestType: ServerRequestType.DELETE, connectionType: ServerConnectionType.HTTP, entity: entity, underlyingRequest: request, resourceID: resourceID, JSONObject: jsonObject, functionName: nil)
+                    
+                    // should not have a body
+                    
+                    if (jsonBody != nil) {
+                        
+                        response.statusCode = ServerStatusCode.BadRequest.toRaw()
+                        
+                        return
+                    }
+                    
+                    // get response
+                    let (serverResponse, userInfo) = self.responseForDeleteRequest(serverRequest)
+                    
+                    // respond with status code
+                    response.statusCode = serverResponse.statusCode.toRaw()
+                    
+                    // tell the delegate
+                    self.delegate!.server(self, didPerformRequest: serverRequest, withResponse: serverResponse, userInfo: userInfo)
+                }
             }
             
             // GET (read resource)
@@ -287,7 +365,22 @@ public class Server {
             // DELETE (delete resource)
             httpServer.delete(instancePathExpression, withBlock: instanceRequestHandler);
             
+            // Add function routes...
             
+            let functions = self.dataSource.server(self, functionsForEntity: entity)
+            
+            for functionName in functions {
+                
+                // MARK: HTTP Function Request Handler Block
+                
+                let functionExpression = "{^/" + path + "/(\\d+)/" + functionName + "}"
+                
+                let functionRequestHandler: RequestHandler = { (request: RouteRequest!, response: RouteResponse!) -> Void in
+                    
+                    
+                    
+                }
+            }
         }
         
         return httpServer;
@@ -335,7 +428,7 @@ public class Server {
         return (ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: ""), [ServerUserInfoKey.ResourceID:0])
     }
     
-    private func responseForEditSearchRequest(request: ServerRequest) -> (ServerResponse, [ServerUserInfoKey: AnyObject]) {
+    private func responseForEditRequest(request: ServerRequest) -> (ServerResponse, [ServerUserInfoKey: AnyObject]) {
         
         return (ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: ""), [ServerUserInfoKey.ResourceID:0])
     }
