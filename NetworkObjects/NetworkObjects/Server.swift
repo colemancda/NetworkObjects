@@ -9,26 +9,7 @@
 import Foundation
 import CoreData
 
-// Constants
-
-public let ServerFetchRequestKey: String = "NetworkObjects.ServerFetchRequestKey"
-
-public let ServerResourceIDKey: String = "NetworkObjects.ServerResourceIDKey"
-
-public let ServerManagedObjectKey: String = "NetworkObjects.ServerManagedObjectKey"
-
-public let ServerManagedObjectContextKey: String = "NetworkObjects.ServerManagedObjectContextKey"
-
-public let ServerNewValuesKey: String = "NetworkObjects.ServerNewValuesKey"
-
-public let ServerFunctionNameKey: String = "NetworkObjects.ServerFunctionNameKey"
-
-public let ServerFunctionJSONInputKey: String = "NetworkObjects.ServerFunctionJSONInputKey"
-
-public let ServerFunctionJSONOutputKey: String = "NetworkObjects.ServerFunctionJSONOutputKey"
-
-/** The class that will accept incoming connections 
-*/
+/** This class that will broadcast a managed object context for the network. */
 
 public class Server {
     
@@ -182,9 +163,11 @@ public protocol ServerDataSource {
 /**  */
 public protocol ServerDelegate {
     
-    func server(Server, didEncounterInternalError error: NSError, forRequest request: ServerRequest, userInfo: Dictionary<String, AnyObject>)
+    func server(Server, didEncounterInternalError error: NSError, forRequest request: ServerRequest, userInfo: [ServerUserInfoKey: AnyObject])
     
     func server(Server, statusCodeForRequest request: ServerRequest, managedObject: NSManagedObject?) -> ServerPermission
+    
+    func server(Server, didPerformRequest request: ServerRequest, withResponse response: ServerResponse, userInfo: [ServerUserInfoKey: AnyObject])
 }
 
 // MARK: Supporting Classes
@@ -215,6 +198,26 @@ public class HTTPServer: RoutingHTTPServer {
 }
 
 // MARK: Enumerations
+
+/** Keys used in userInfo dictionaries. */
+public enum ServerUserInfoKey: String {
+    
+    case FetchRequest = "FetchRequest"
+    
+    case ResourceID = "ResourceID"
+    
+    case ManagedObject = "ManagedObject"
+    
+    case ManagedObjectContext = "ManagedObjectContext"
+    
+    case NewValues = "NewValues"
+    
+    case FunctionName = "FunctionName"
+    
+    case FunctionJSONInput = "FunctionJSONInput"
+    
+    case FunctionJSONOutput = "FunctionJSONOutput"
+}
 
 /** Defines the different search parameters */
 public enum SearchParameter: String {
