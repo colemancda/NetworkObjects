@@ -13,7 +13,7 @@ import CoreData
 
 public class Server {
     
-    // MARK: Properties
+    // MARK: - Properties
     
     /** The server's data source. */
     public let dataSource: ServerDataSource
@@ -43,12 +43,12 @@ public class Server {
     /** Resource path strings mapped to entity descriptions. */
     public lazy var entitiesByResourcePath: [String: NSEntityDescription] = self.initEntitiesByResourcePath();
     
-    // MARK: Private Properties
+    // MARK: - Private Properties
     
     /** The underlying HTTP server. */
     private lazy var httpServer: HTTPServer = self.initHTTPServer();
     
-    // MARK: Initialization
+    // MARK: - Initialization
     
     public init(dataSource: ServerDataSource, delegate: ServerDelegate?, managedObjectModel: NSManagedObjectModel, searchPath:String?, resourceIDAttributeName:String?, prettyPrintJSON:Bool, sslIdentityAndCertificates: [AnyObject]?, permissionsEnabled: Bool?) {
         
@@ -79,9 +79,7 @@ public class Server {
         
         var entitiesByResourcePathDictionary = [String: NSEntityDescription]();
         
-        let entities = managedObjectModel.entities as [NSEntityDescription]
-        
-        for entity in entities {
+        for entity in managedObjectModel.entities as [NSEntityDescription] {
             
             if !entity.abstract {
                 
@@ -101,13 +99,15 @@ public class Server {
         
         httpServer.setConnectionClass(HTTPConnection);
         
+        // add HTTP REST handlers...
+        
         for (path, entity) in self.entitiesByResourcePath {
             
-            // add search handler
+            // MARK: HTTP Search Request Handler Block
             
             if (self.searchPath != nil) {
                 
-                let searchExpression = "/" + self.searchPath! + "/" + path
+                let searchPathExpression = "/" + self.searchPath! + "/" + path
                 
                 let searchRequestHandler: RequestHandler = { (request: RouteRequest!, response: RouteResponse!) -> Void in
                     
@@ -115,7 +115,7 @@ public class Server {
                     
                     let searchParameters = NSJSONSerialization.JSONObjectWithData(request.body(), options: NSJSONReadingOptions.AllowFragments, error: jsonErrorPointer) as? [String: AnyObject]
                     
-                    if ((jsonErrorPointer.memory != nil) || (searchParameters != nil)) {
+                    if ((jsonErrorPointer.memory != nil) || (searchParameters == nil)) {
                         
                         response.statusCode = ServerStatusCode.BadRequest.toRaw();
                         
@@ -127,7 +127,89 @@ public class Server {
                     let serverRequest = ServerRequest(requestType: ServerRequestType.Search, connectionType: ServerConnectionType.HTTP, entity: entity, underlyingRequest: request, resourceID: nil, JSONObject: searchParameters, functionName: nil);
                     
                     
+                    let (serverResponse, userInfo) = self.responseForSearchRequest(serverRequest)
+                    
+                    if serverResponse.statusCode != ServerStatusCode.OK {
+                        
+                        response.statusCode = serverResponse.statusCode.toRaw()
+                    }
+                    else {
+                        
+                        // respond with data
+                        
+                        let jsonSerializationError = NSErrorPointer()
+                        
+                        let jsonData = NSJSONSerialization.dataWithJSONObject(serverResponse.JSONResponse, options: self.jsonWritingOption(), error: jsonErrorPointer)
+                        
+                        if (jsonData == nil) {
+                            
+                            // tell the delegate about the error
+                            self.delegate!.server(self, didEncounterInternalError: jsonErrorPointer.memory!, forRequest: serverRequest, userInfo: userInfo)
+                            
+                            response.statusCode = ServerStatusCode.InternalServerError.toRaw()
+                            
+                            return
+                        }
+                        
+                        response.respondWithData(jsonData)
+                    }
+                    
+                    // tell the delegate
+                    
+                    self.delegate!.server(self, didPerformRequest: serverRequest, withResponse: serverResponse, userInfo: userInfo)
                 }
+                
+                httpServer.post(searchPathExpression, withBlock: searchRequestHandler)
+            }
+            
+            // MARK: HTTP POST Request Handler Block
+            
+            let createInstancePathExpression = "/" + path
+            
+            let createInstanceRequestHandler: RequestHandler = { (request: RouteRequest!, response: RouteResponse!) -> Void in
+                
+                // get initial values
+                
+                let jsonObject = NSJSONSerialization.JSONObjectWithData(request.body(), options: NSJSONReadingOptions.AllowFragments, error: nil) as? [String: AnyObject]
+                
+                if (jsonObject == nil) {
+                    
+                    response.statusCode = ServerStatusCode.BadRequest.toRaw()
+                    
+                    return
+                }
+                
+                // convert to server request
+                let serverRequest = ServerRequest(requestType: ServerRequestType.POST, connectionType: ServerConnectionType.HTTP, entity: entity, underlyingRequest: request, resourceID: nil, JSONObject: jsonObject, functionName: nil)
+                
+                // process request and return a response
+                let (serverResponse, userInfo) = self.responseForCreateRequest(serverRequest)
+                
+                if serverResponse.statusCode != ServerStatusCode.OK {
+                    
+                    response.statusCode = serverResponse.statusCode.toRaw()
+                    
+                    return
+                }
+                
+                // write to socket
+                
+                let errorPointer = NSErrorPointer()
+                
+                let jsonData = NSJSONSerialization.dataWithJSONObject(serverResponse.JSONResponse, options: self.jsonWritingOption(), error: errorPointer)
+                
+                // could not serialize json response, internal error
+                if (jsonData == nil) {
+                    
+                    self.delegate!.server(self, didEncounterInternalError: errorPointer.memory!, forRequest: serverRequest, userInfo: userInfo)
+                    
+                    response.statusCode = ServerStatusCode.InternalServerError.toRaw()
+                    
+                    return
+                }
+                
+                
+                
             }
             
         }
@@ -135,7 +217,7 @@ public class Server {
         return httpServer;
     }
     
-    // MARK: Server Control
+    // MARK: - Server Control
     
     /** Starts broadcasting the server. */
     public func start(onPort port: UInt) -> NSError? {
@@ -160,47 +242,39 @@ public class Server {
         self.httpServer.stop();
     }
     
-    /*
+    // MARK: - Request Handlers
     
-    // MARK: Request Handlers
-    private func responseForRequest(request: ServerRequest) -> (ServerResponse, [String: AnyObject]) {
+    private func responseForSearchRequest(request: ServerRequest) -> (ServerResponse, [ServerUserInfoKey: AnyObject]) {
         
-        
+        return (ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: ""), [ServerUserInfoKey.ResourceID:0])
     }
     
-    private func responseForSearchRequest(request: ServerRequest) -> (ServerResponse, [String: AnyObject]) {
+    private func responseForCreateRequest(request: ServerRequest) -> (ServerResponse, [ServerUserInfoKey: AnyObject]) {
         
-        return []
+        return (ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: ""), [ServerUserInfoKey.ResourceID:0])
     }
     
-    private func responseForCreateRequest(request: ServerRequest) -> (ServerResponse, [String: AnyObject]) {
+    private func responseForGetRequest(request: ServerRequest) -> (ServerResponse, [ServerUserInfoKey: AnyObject]) {
         
-        return nil
+        return (ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: ""), [ServerUserInfoKey.ResourceID:0])
     }
     
-    private func responseForGetRequest(request: ServerRequest) -> (ServerResponse, [String: AnyObject]) {
+    private func responseForEditSearchRequest(request: ServerRequest) -> (ServerResponse, [ServerUserInfoKey: AnyObject]) {
         
-        return nil
+        return (ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: ""), [ServerUserInfoKey.ResourceID:0])
     }
     
-    private func responseForEditSearchRequest(request: ServerRequest) -> (ServerResponse, [String: AnyObject]) {
+    private func responseForDeleteRequest(request: ServerRequest) -> (ServerResponse, [ServerUserInfoKey: AnyObject]) {
         
-        return nil
+        return (ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: ""), [ServerUserInfoKey.ResourceID:0])
     }
     
-    private func responseForDeleteRequest(request: ServerRequest) -> (ServerResponse, [String: AnyObject]) {
+    private func responseForFunctionRequest(request: ServerRequest) -> (ServerResponse, [ServerUserInfoKey: AnyObject]) {
         
-        return nil
+        return (ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: ""), [ServerUserInfoKey.ResourceID:0])
     }
     
-    private func responseForFunctionRequest(request: ServerRequest) -> (ServerResponse, [String: AnyObject]) {
-        
-        return nil
-    }
-    
-    */
-    
-    // MARK: Internal Methods
+    // MARK: - Internal Methods
     
     private func jsonWritingOption() -> NSJSONWritingOptions {
         
@@ -215,12 +289,12 @@ public class Server {
         }
     }
     
-    // MARK: Private Classes
+    // MARK: - Private Classes
     
     
 }
 
-// MARK: Supporting Classes
+// MARK: - Supporting Classes
 
 public class ServerRequest {
     
@@ -259,6 +333,22 @@ public class ServerRequest {
     }
 }
 
+public class ServerResponse {
+    
+    let statusCode: ServerStatusCode
+    
+    /** A JSON-compatible array or dictionary that will be sent as a response. */
+    
+    let JSONResponse: AnyObject
+    
+    init(statusCode: ServerStatusCode, JSONResponse: AnyObject) {
+        
+        self.statusCode = statusCode
+        
+        self.JSONResponse = JSONResponse
+    }
+}
+
 public class HTTPServer: RoutingHTTPServer {
     
     let server: Server;
@@ -288,11 +378,13 @@ public class HTTPConnection: RoutingConnection {
     }
 }
 
-// MARK: Protocols
+// MARK: - Protocols
 
-/** Data Source protocol */
+/** Server Data Source Protocol */
 public protocol ServerDataSource {
     
+    /** Data Source should return a unique string will represent the entity when broadcasting the managed object context.
+    */
     func server(Server, resourcePathForEntity entity: NSEntityDescription) -> String;
     
     func server(Server, managedObjectContextForRequest request: ServerRequest) -> NSManagedObjectContext
@@ -300,9 +392,16 @@ public protocol ServerDataSource {
     func server(Server, newResourceIDForEntity entity: NSEntityDescription) -> Int
     
     func server(Server, functionsForEntity entity: NSEntityDescription) -> [String]
+    
+    /** Asks the data source to perform a function on a managed object. 
+    
+    Returns a tuple containing a ServerFunctionCode and JSON-compatible dictionary.
+    */
+    func server(Server, performFunction functionName:String, forManagedObject managedObject: NSManagedObject,
+        context: NSManagedObjectContext, recievedJsonObject: [String: AnyObject]?) -> (ServerFunctionCode, [String: AnyObject]?)
 }
 
-/**  */
+/** Server Delegate Protocol */
 public protocol ServerDelegate {
     
     func server(Server, didEncounterInternalError error: NSError, forRequest request: ServerRequest, userInfo: [ServerUserInfoKey: AnyObject])
@@ -310,9 +409,11 @@ public protocol ServerDelegate {
     func server(Server, statusCodeForRequest request: ServerRequest, managedObject: NSManagedObject?) -> ServerPermission
     
     func server(Server, didPerformRequest request: ServerRequest, withResponse response: ServerResponse, userInfo: [ServerUserInfoKey: AnyObject])
+    
+    func server(Server, permissionForRequest request: ServerRequest, managedObject: NSManagedObject?, context: NSManagedObjectContext?, key: String?)
 }
 
-// MARK: Enumerations
+// MARK: - Enumerations
 
 /** Keys used in userInfo dictionaries. */
 public enum ServerUserInfoKey: String {
