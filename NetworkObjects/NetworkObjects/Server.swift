@@ -99,6 +99,8 @@ public class Server {
         
         let httpServer = HTTPServer();
         
+        httpServer.setConnectionClass(HTTPConnection);
+        
         return httpServer;
     }
     
@@ -107,13 +109,24 @@ public class Server {
     /** Starts broadcasting the server. */
     public func start(onPort port: UInt) -> NSError? {
         
-        return nil
+        let errorPointer: NSErrorPointer = NSErrorPointer()
+        
+        let success: Bool = self.httpServer.start(errorPointer);
+        
+        if !success {
+            
+            return errorPointer.memory
+        }
+        else {
+            
+            return nil
+        }
     }
     
     /** Stops broadcasting the server. */
     public func stop() {
         
-        
+        self.httpServer.stop();
     }
     
     /*
@@ -123,8 +136,6 @@ public class Server {
         
         
     }
-    
-    
     
     private func responseForSearchRequest(request: ServerRequest) -> (ServerResponse, [String: AnyObject]) {
         
@@ -193,6 +204,11 @@ public class ServerResponse {
 }
 
 public class HTTPServer: RoutingHTTPServer {
+    
+    
+}
+
+public class HTTPConnection: RoutingConnection {
     
     
 }
