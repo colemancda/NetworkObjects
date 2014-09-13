@@ -116,11 +116,15 @@ public class Server {
         
     }
     
+    /*
+    
     // MARK: Request Handlers
     private func responseForRequest(request: ServerRequest) -> (ServerResponse, [String: AnyObject]) {
         
         
     }
+    
+    
     
     private func responseForSearchRequest(request: ServerRequest) -> (ServerResponse, [String: AnyObject]) {
         
@@ -152,6 +156,8 @@ public class Server {
         return nil
     }
     
+    */
+    
     // MARK: Internal Methods
     
     private func jsonWritingOption() -> NSJSONWritingOptions {
@@ -181,14 +187,6 @@ public class ServerRequest {
 }
 
 public class ServerResponse {
-    
-    
-    
-}
-
-// TODO: Delete temporary class
-
-public class RoutingHTTPServer {
     
     
     
