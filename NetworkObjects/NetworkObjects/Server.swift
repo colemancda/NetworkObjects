@@ -97,9 +97,11 @@ public class Server {
     // ** Configures the underlying HTTP server. */
     private func initHTTPServer() -> HTTPServer {
         
-        let httpServer = HTTPServer();
+        let httpServer = HTTPServer(server: self);
         
         httpServer.setConnectionClass(HTTPConnection);
+        
+        
         
         return httpServer;
     }
@@ -205,10 +207,20 @@ public class ServerResponse {
 
 public class HTTPServer: RoutingHTTPServer {
     
+    let server: Server;
     
+    init(server: Server) {
+        
+        self.server = server;
+    }
 }
 
 public class HTTPConnection: RoutingConnection {
+    
+    override public func isSecureServer() -> Bool {
+        
+        return !self.sslIdentityAndCertificates().isEmpty
+    }
     
     
 }
