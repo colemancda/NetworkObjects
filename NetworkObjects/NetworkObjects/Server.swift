@@ -27,41 +27,42 @@ public let ServerFunctionJSONInputKey: String = "NetworkObjects.ServerFunctionJS
 
 public let ServerFunctionJSONOutputKey: String = "NetworkObjects.ServerFunctionJSONOutputKey"
 
+/** The class that will accept incoming connections 
+*/
+
 public class Server {
     
-    public let dataSource: AnyObject
+    // MARK: Properties
     
-    public let delegate: AnyObject
+    /** The server's data source. */
+    public let dataSource: ServerDataSource
     
-    public let searchPath: String
+    /** The server's delegate. */
+    public let delegate: ServerDelegate
     
-    public let prettyPrintJSON: Bool
+    /** The string that will be used to generate a URL for search requests. 
+    NOTE Must not conflict with the resourcePath of entities.*/
+    public let searchPath: String = "search"
     
-    public let resourceIDAttributeName: String
+    /** Determines whether the exported JSON should have whitespace for easier readability. */
+    public let prettyPrintJSON: Bool = false
     
+    /** The name of the Integer attribute that will be used for identifying instances of entities. */
+    public let resourceIDAttributeName: String = "resourceID"
+    
+    /** To enable HTTPS for all incoming connections set this value to an array appropriate for use in kCFStreamSSLCertificates SSL Settings. It should be an array of SecCertificateRefs except for the first element in the array, which is a SecIdentityRef.  */
     public let sslIdentityAndCertificates: [AnyObject]
     
+    /** The managed object model */
     public let managedObjectModel: NSManagedObjectModel
     
-    internal func initEntitiesByResourcePath() -> Dictionary<String, NSEntityDescription> {
-        
-        var entitiesByResourcePath: Dictionary<String, NSEntityDescription>;
-        
-        var entities = managedObjectModel.entities as [NSEntityDescription];
-        
-        for entity in entities {
-            
-            if !entity.abstract {
-                
-                
-            }
-        }
-        
-    }
+    /** Resource path strings mapped to entity descriptions. */
+    public lazy var entitiesByResourcePath: [String: NSEntityDescription] = initEntitiesByResourcePath();
     
-    public let entitiesByResourcePath: Dictionary<String, NSEntityDescription> = initEntitiesByResourcePath();
+    // MARK: Initialization
     
-    public init(dataSource: AnyObject, delegate: AnyObject?, managedObjectModel: NSManagedObjectModel, searchPath:String?, resourceIDAttributeName:String, prettyPrintJSON:Bool, sslIdentityAndCertificates: [AnyObject]) {
+    /**  */
+    public init(dataSource: ServerDataSource, delegate: ServerDelegate?, managedObjectModel: NSManagedObjectModel, searchPath:String?, resourceIDAttributeName:String, prettyPrintJSON:Bool, sslIdentityAndCertificates: [AnyObject]) {
         
         // set values
         self.dataSource = dataSource;
@@ -70,27 +71,56 @@ public class Server {
         self.sslIdentityAndCertificates = sslIdentityAndCertificates;
         
         // optional values
-        if (delegate != nil) {
+        if (delegate? != nil) {
             self.delegate = delegate!;
         }
-        if (searchPath  != nil){
+        if (searchPath?  != nil){
             self.searchPath = searchPath!;
         }
     }
     
+    /**  */
+    private func initEntitiesByResourcePath() -> [String: NSEntityDescription] {
+        
+        var entitiesByResourcePathDictionary: [String: NSEntityDescription];
+        
+        var entities = managedObjectModel.entities as [NSEntityDescription];
+        
+        for entity in entities {
+            
+            if !entity.abstract {
+                
+                let path = self.dataSource.server(self, resourcePathForEntity: entity);
+                
+                entitiesByResourcePathDictionary[path] = entity
+            }
+        }
+        
+        return entitiesByResourcePathDictionary
+    }
 }
 
-protocol ServerDelegate {
+/**  */
+public protocol ServerDataSource: class {
+    
+    func server(Server, managedObjectContextForRequest request: ServerRequest) -> NSManagedObjectContext
+    
+    func server(Server, newResourceIDForEntity entity: NSEntityDescription) -> Int
+    
+    func server(Server, resourcePathForEntity entity: NSEntityDescription) -> String;
+    
+    func server(Server, functionsForEntity entity: NSEntityDescription) -> [String]
+}
+
+/**  */
+public protocol ServerDelegate: class {
     
     func server(Server, didEncounterInternalError error: NSError, forRequest request: ServerRequest, userInfo: Dictionary<String, AnyObject>)
     
-}
-
-protocol ServerDataSource {
     
 }
 
-class ServerRequest {
+public class ServerRequest {
     
     
     
