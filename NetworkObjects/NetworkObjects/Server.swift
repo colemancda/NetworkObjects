@@ -56,12 +56,12 @@ public class Server {
     /** The managed object model */
     public let managedObjectModel: NSManagedObjectModel
     
+    // TODO: Fix lazy initializer
     /** Resource path strings mapped to entity descriptions. */
-    public lazy var entitiesByResourcePath: [String: NSEntityDescription] = initEntitiesByResourcePath();
+    //public lazy var entitiesByResourcePath: [String: NSEntityDescription] = initEntitiesByResourcePath();
     
     // MARK: Initialization
     
-    /**  */
     public init(dataSource: ServerDataSource, delegate: ServerDelegate?, managedObjectModel: NSManagedObjectModel, searchPath:String?, resourceIDAttributeName:String, prettyPrintJSON:Bool, sslIdentityAndCertificates: [AnyObject]) {
         
         // set values
@@ -98,30 +98,88 @@ public class Server {
         
         return entitiesByResourcePathDictionary
     }
+    
+    // MARK: Server Control
+    public func start(onPort port: UInt) -> NSError? {
+        
+        
+    }
+    
+    public func stop() {
+        
+        
+    }
+    
+    // MARK: Request Handlers
+    private func response(forRequest request: ServerRequest) -> (ServerResponse, [String: AnyObject]) {
+        
+        func response(forSearchRequest request: ServerRequest) -> (ServerResponse, [String: AnyObject]) {
+            
+            
+        }
+        
+        func responseForCreateRequest(request: ServerRequest) -> (ServerResponse, [String: AnyObject]) {
+            
+            
+        }
+        
+        func responseForGetRequest(request: ServerRequest) -> (ServerResponse, [String: AnyObject]) {
+            
+            
+        }
+        
+        func responseForEditSearchRequest(request: ServerRequest) -> (ServerResponse, [String: AnyObject]) {
+            
+            
+        }
+        
+        func responseForDeleteRequest(request: ServerRequest) -> (ServerResponse, [String: AnyObject]) {
+            
+            
+        }
+        
+        func responseForFunctionRequest(request: ServerRequest) -> (ServerResponse, [String: AnyObject]) {
+            
+            
+        }
+        
+    }
 }
 
-/**  */
-public protocol ServerDataSource: class {
+// MARK: Protocols
+
+/** Data Source protocol */
+public protocol ServerDataSource {
+    
+    func server(Server, resourcePathForEntity entity: NSEntityDescription) -> String;
     
     func server(Server, managedObjectContextForRequest request: ServerRequest) -> NSManagedObjectContext
     
     func server(Server, newResourceIDForEntity entity: NSEntityDescription) -> Int
     
-    func server(Server, resourcePathForEntity entity: NSEntityDescription) -> String;
-    
     func server(Server, functionsForEntity entity: NSEntityDescription) -> [String]
 }
 
 /**  */
-public protocol ServerDelegate: class {
+public protocol ServerDelegate {
     
     func server(Server, didEncounterInternalError error: NSError, forRequest request: ServerRequest, userInfo: Dictionary<String, AnyObject>)
     
     
 }
 
+// MARK: Supporting Classes
+
 public class ServerRequest {
     
     
     
 }
+
+public class ServerResponse {
+    
+    
+    
+}
+
+
