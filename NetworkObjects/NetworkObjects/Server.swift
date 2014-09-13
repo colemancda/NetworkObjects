@@ -23,7 +23,7 @@ public class Server {
     
     /** The string that will be used to generate a URL for search requests. 
     NOTE: Must not conflict with the resourcePath of entities.*/
-    public let searchPath: String = "search"
+    public let searchPath: String?;
     
     /** Determines whether the exported JSON should have whitespace for easier readability. */
     public let prettyPrintJSON: Bool = false
@@ -60,9 +60,6 @@ public class Server {
         if (delegate? != nil) {
             self.delegate = delegate!;
         }
-        if (searchPath?  != nil){
-            self.searchPath = searchPath!;
-        }
         if (sslIdentityAndCertificates != nil) {
             self.sslIdentityAndCertificates = sslIdentityAndCertificates;
         }
@@ -71,6 +68,9 @@ public class Server {
         }
         if (permissionsEnabled != nil) {
             self.permissionsEnabled = permissionsEnabled!;
+        }
+        if (searchPath != nil) {
+            self.searchPath = searchPath!
         }
     }
     
@@ -101,7 +101,36 @@ public class Server {
         
         httpServer.setConnectionClass(HTTPConnection);
         
-        
+        for (path, entity) in self.entitiesByResourcePath {
+            
+            // add search handler
+            
+            if (self.searchPath != nil) {
+                
+                let searchExpression = "/" + self.searchPath! + "/" + path
+                
+                let searchRequestHandler: RequestHandler = { (request: RouteRequest!, response: RouteResponse!) -> Void in
+                    
+                    let jsonErrorPointer = NSErrorPointer();
+                    
+                    let searchParameters = NSJSONSerialization.JSONObjectWithData(request.body(), options: NSJSONReadingOptions.AllowFragments, error: jsonErrorPointer) as? [String: AnyObject]
+                    
+                    if ((jsonErrorPointer.memory != nil) || (searchParameters != nil)) {
+                        
+                        response.statusCode = ServerStatusCode.BadRequest.toRaw();
+                        
+                        return
+                    }
+                    
+                    // create server request
+                    
+                    let serverRequest = ServerRequest(requestType: ServerRequestType.Search, connectionType: ServerConnectionType.HTTP, entity: entity, underlyingRequest: request, resourceID: nil, JSONObject: searchParameters, functionName: nil);
+                    
+                    
+                }
+            }
+            
+        }
         
         return httpServer;
     }
@@ -195,14 +224,39 @@ public class Server {
 
 public class ServerRequest {
     
+    let requestType: ServerRequestType
     
+    let connectionType: ServerConnectionType
     
-}
-
-public class ServerResponse {
+    let entity: NSEntityDescription
     
+    let underlyingRequest: AnyObject
     
+    /** The resourceID of the requested instance. Will be nil for @c POST (search or create instance) requests. */
     
+    let resourceID: Int?
+    
+    let JSONObject: [String: AnyObject]?
+    
+    let functionName: String?
+    
+    init(requestType: ServerRequestType, connectionType: ServerConnectionType, entity: NSEntityDescription, underlyingRequest: AnyObject, resourceID: Int?, JSONObject: [String: AnyObject]?, functionName: String?) {
+        
+        self.requestType = requestType
+        self.connectionType = connectionType
+        self.entity = entity
+        self.underlyingRequest = underlyingRequest
+        
+        if (resourceID != nil) {
+            self.resourceID = resourceID
+        }
+        if (JSONObject != nil) {
+            self.JSONObject = JSONObject
+        }
+        if (functionName != nil) {
+            self.functionName = functionName
+        }
+    }
 }
 
 public class HTTPServer: RoutingHTTPServer {
@@ -222,7 +276,16 @@ public class HTTPConnection: RoutingConnection {
         return !self.sslIdentityAndCertificates().isEmpty
     }
     
-    
+    override public func sslIdentityAndCertificates() -> [AnyObject]! {
+        
+        let cocoaHTTPServer: CocoaHTTPServer.HTTPServer = self.config().server;
+        
+        let httpServer: HTTPServer = cocoaHTTPServer as HTTPServer;
+        
+        let server = httpServer.server;
+        
+        return server.sslIdentityAndCertificates;
+    }
 }
 
 // MARK: Protocols
@@ -290,30 +353,30 @@ public enum SearchParameter: String {
 public enum ServerStatusCode: Int {
     
     /** OK status code. */
-    case ServerStatusCodeOK = 200
+    case OK = 200
     
     /** Bad request status code. */
-    case ServerStatusCodeBadRequest = 400
+    case BadRequest = 400
     
     /** Unauthorized status code. e.g. Used when authentication is required. */
-    case ServerStatusCodeUnauthorized = 401 // not logged in
+    case Unauthorized = 401 // not logged in
     
-    case ServerStatusCodePaymentRequired = 402
+    case PaymentRequired = 402
     
     /** Forbidden status code. e.g. Used when permission is denied. */
-    case ServerStatusCodeForbidden = 403 // item is invisible to user or api app
+    case Forbidden = 403 // item is invisible to user or api app
     
     /** Not Found status code. e.g. Used when a Resource instance cannot be found. */
-    case ServerStatusCodeNotFound = 404 // item doesnt exist
+    case NotFound = 404 // item doesnt exist
     
     /** Method Not Allowed status code. e.g. Used for invalid requests. */
-    case ServerStatusCodeMethodNotAllowed = 405
+    case MethodNotAllowed = 405
     
     /** Conflict status code. e.g. Used when a user with the specified username already exists. */
-    case ServerStatusCodeConflict = 409 // user already exists
+    case Conflict = 409 // user already exists
     
     /** Internal Server Error status code. e.g. Used when a JSON cannot be converted to NSData for a HTTP response. */
-    case ServerStatusCodeInternalServerError = 500
+    case InternalServerError = 500
     
 };
 
@@ -373,7 +436,7 @@ public enum ServerFunctionCode: Int {
 };
 
 /** Defines the connection protocols used communicate with the server. */
-public enum ServerConnectionProtocol {
+public enum ServerConnectionType {
     
     /** The connection to the server was made via the HTTP protocol. */
     case HTTP
