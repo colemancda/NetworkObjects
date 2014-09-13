@@ -56,9 +56,17 @@ public class Server {
     /** The managed object model */
     public let managedObjectModel: NSManagedObjectModel
     
-    // TODO: Fix lazy initializer
+    // TODO: Fix lazy initializers
     /** Resource path strings mapped to entity descriptions. */
     //public lazy var entitiesByResourcePath: [String: NSEntityDescription] = initEntitiesByResourcePath();
+    
+    // MARK: Private Properties
+    
+    /** Boolean that caches whether permissions (dynamic access control) is enabled. */
+    //private lazy var permissionsEnabled: Bool = initPermissionsEnabled();
+    
+    /** The underlying HTTP server. */
+    private let httpServer: HTTPServer = HTTPServer();
     
     // MARK: Initialization
     
@@ -99,6 +107,12 @@ public class Server {
         return entitiesByResourcePathDictionary
     }
     
+    /** Lazily initializes self.permissionsEnabled. */
+    private func initPermissionsEnabled() -> Bool {
+        
+        return (delegate.respo)
+    }
+    
     // MARK: Server Control
     public func start(onPort port: UInt) -> NSError? {
         
@@ -111,9 +125,9 @@ public class Server {
     }
     
     // MARK: Request Handlers
-    private func response(forRequest request: ServerRequest) -> (ServerResponse, [String: AnyObject]) {
+    private func responseForRequest(forRequest request: ServerRequest) -> (ServerResponse, [String: AnyObject]) {
         
-        func response(forSearchRequest request: ServerRequest) -> (ServerResponse, [String: AnyObject]) {
+        func responseForSearchRequest(request: ServerRequest) -> (ServerResponse, [String: AnyObject]) {
             
             
         }
@@ -144,6 +158,10 @@ public class Server {
         }
         
     }
+    
+    // MARK: Private Classes
+    
+    
 }
 
 // MARK: Protocols
@@ -165,7 +183,7 @@ public protocol ServerDelegate {
     
     func server(Server, didEncounterInternalError error: NSError, forRequest request: ServerRequest, userInfo: Dictionary<String, AnyObject>)
     
-    
+    func server(Server, statusCodeForRequest request: ServerRequest, managedObject: NSManagedObject?) -> ServerPermission
 }
 
 // MARK: Supporting Classes
@@ -182,4 +200,37 @@ public class ServerResponse {
     
 }
 
+// TODO: Delete temporary class
+
+public class RoutingHTTPServer {
+    
+    
+    
+}
+
+public class HTTPServer: RoutingHTTPServer {
+    
+    
+}
+
+// MARK: Enumerations
+
+public enum ErrorCode: Int {
+    
+    case ServerStatusCodeOK = 200
+}
+
+/** Server Permission Enumeration */
+
+public enum ServerPermission: Int {
+    
+    /**  No access permission */
+    case NoAccess = 0
+    
+    /**  Read Only permission */
+    case ReadOnly
+    
+    /**  Read and Write permission */
+    case EditPermission
+}
 
