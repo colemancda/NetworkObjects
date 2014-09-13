@@ -22,14 +22,14 @@ public class Server {
     public let delegate: ServerDelegate?
     
     /** The string that will be used to generate a URL for search requests. 
-    NOTE Must not conflict with the resourcePath of entities.*/
+    NOTE: Must not conflict with the resourcePath of entities.*/
     public let searchPath: String = "search"
     
     /** Determines whether the exported JSON should have whitespace for easier readability. */
     public let prettyPrintJSON: Bool = false
     
     /** The name of the Integer attribute that will be used for identifying instances of entities. */
-    public let resourceIDAttributeName: String = "resourceID"
+    public let resourceIDAttributeName: String = "ID"
     
     /** To enable HTTPS for all incoming connections set this value to an array appropriate for use in kCFStreamSSLCertificates SSL Settings. It should be an array of SecCertificateRefs except for the first element in the array, which is a SecIdentityRef.  */
     public let sslIdentityAndCertificates: [AnyObject]?
@@ -79,7 +79,7 @@ public class Server {
         
         var entitiesByResourcePathDictionary = [String: NSEntityDescription]();
         
-        var entities = managedObjectModel.entities as [NSEntityDescription]
+        let entities = managedObjectModel.entities as [NSEntityDescription]
         
         for entity in entities {
             
@@ -97,7 +97,9 @@ public class Server {
     // ** Configures the underlying HTTP server. */
     private func initHTTPServer() -> HTTPServer {
         
-        return HTTPServer()
+        let httpServer = HTTPServer();
+        
+        return httpServer;
     }
     
     // MARK: Server Control
