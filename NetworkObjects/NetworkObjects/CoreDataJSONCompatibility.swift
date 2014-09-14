@@ -98,8 +98,6 @@ internal extension NSManagedObject {
             return (data != nil)
             
         }
-        
-        return false
     }
 }
 
