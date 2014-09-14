@@ -472,6 +472,40 @@ public class Server {
     
     private func responseForSearchRequest(request: ServerRequest) -> (ServerResponse, [ServerUserInfoKey: AnyObject]) {
         
+        var userInfo = [ServerUserInfoKey: AnyObject]()
+        
+        // get search parameters
+        
+        let searchParameters = request.JSONObject
+        
+        let entity = request.entity
+        
+        // get the context this request will use
+        
+        let context = self.dataSource.server(self, managedObjectContextForRequest: request)
+        
+        userInfo[ServerUserInfoKey.ManagedObjectContext] = context
+        
+        // Put togeather fetch request
+        
+        let fetchRequest = NSFetchRequest(entityName: entity.name)
+        
+        // TODO: Move to "else" statement
+        
+        let defaultSortDescriptor = NSSortDescriptor(key: self.resourceIDAttributeName, ascending: true)
+        
+        fetchRequest.sortDescriptors = [defaultSortDescriptor]
+        
+        // add search parameters...
+        
+        // predicate...
+        
+        let predicateKeyObject: AnyObject? = searchParameters!["key"]
+        
+        let predicateKey = predicateKeyObject as? String
+        
+        
+        
         return (ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: ""), [ServerUserInfoKey.ResourceID:0])
     }
     
