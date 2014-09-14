@@ -153,19 +153,27 @@ internal extension NSEntityDescription {
                 
                 let transformer = NSValueTransformer(forName: NSKeyedUnarchiveFromDataTransformerName)
                 
-                // anything that conforms
-                return (convertedValue as? )
+                // convert to data
+                let data = transformer.reverseTransformedValue(attributeValue) as NSData
+                
+                // convert to string (for JSON export)
+                return data.base64EncodedStringWithOptions(NSDataBase64EncodingOptions.Encoding64CharacterLineLength)
             }
             
             // custom transformer
             let transformer = NSValueTransformer(forName: valueTransformerName!)
+            
+            // convert to data
+            let data = transformer.transformedValue(attributeValue) as NSData
+            
+            // convert to string (for JSON export)
+            return data.base64EncodedStringWithOptions(NSDataBase64EncodingOptions.Encoding64CharacterLineLength)
         }
         
         return nil
     }
     
     func attributeValueForJSONCompatibleValue(JSONCompatibleValue: AnyObject, forAttribute attributeName: String) -> AnyObject? {
-        
         
         // transformable value type
         if attributeType == NSAttributeType.TransformableAttributeType {
