@@ -813,7 +813,44 @@ public class Server {
             }
         }
         
+        // execute fetch request...
         
+        let fetchError = NSErrorPointer()
+        
+        var results: [NSManagedObject]?
+        
+        context.performBlockAndWait { () -> Void in
+            
+            results = context.executeFetchRequest(fetchRequest, error: fetchError) as? [NSManagedObject]
+        }
+        
+        // invalid fetch
+        if fetchError.memory != nil {
+            
+            let response = ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil)
+            
+            return (response, userInfo)
+        }
+        
+        // optionally filter results
+        if self.permissionsEnabled {
+            
+            var filteredResults = [NSManagedObject]()
+            
+            for managedObject in results! {
+                
+                var resourceID: Int?
+                
+                context.performBlockAndWait({ () -> Void in
+                    
+                    resourceID = managedObject.valueForKey(self.resourceIDAttributeName) as? Int
+                })
+                
+                // permission to view resource
+                
+                
+            }
+        }
         
         return (ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: ""), [ServerUserInfoKey.ResourceID:0])
     }
@@ -1023,10 +1060,13 @@ public protocol ServerDataSource {
     */
     func server(Server, resourcePathForEntity entity: NSEntityDescription) -> String;
     
+    /** Asks the data source for a managed object context to access. In simple setups the data source can always return the same context, but for higly concurrent servers, the data source create a separate context for each request (configured with the same backing store). */
     func server(Server, managedObjectContextForRequest request: ServerRequest) -> NSManagedObjectContext
     
+    /** Asks the data source for a numerical identifier for a newly create object. It is the data source's responsibility to keep track of the resource IDs of instances of an entity. This method should return 0 the for the first instance of an entity and increment by 1 for each newly created instance. */
     func server(Server, newResourceIDForEntity entity: NSEntityDescription) -> UInt
     
+    /** Should return an array of string specifing the names of functions an entity declares. */
     func server(Server, functionsForEntity entity: NSEntityDescription) -> [String]
     
     /** Asks the data source to perform a function on a managed object. 
@@ -1040,12 +1080,16 @@ public protocol ServerDataSource {
 /** Server Delegate Protocol */
 public protocol ServerDelegate {
     
+    /** Notifies the delegate that an internal error ocurred (e.g. could not serialize a JSON object). */
     func server(Server, didEncounterInternalError error: NSError, forRequest request: ServerRequest, userInfo: [ServerUserInfoKey: AnyObject])
     
+    /** Asks the delegate for a status code for a request. Any response that is not ServerStatusCode.OK, will be forwarded to the client and the request will end. This can be used to implement authentication or access control. */
     func server(Server, statusCodeForRequest request: ServerRequest, managedObject: NSManagedObject?) -> ServerStatusCode
     
+    /** Notifies the delegate that a request was performed successfully. */
     func server(Server, didPerformRequest request: ServerRequest, withResponse response: ServerResponse, userInfo: [ServerUserInfoKey: AnyObject])
     
+    /** Asks the delegate for access control for a request. Server must have its permissions enabled for this method to be called. */
     func server(Server, permissionForRequest request: ServerRequest, managedObject: NSManagedObject?, context: NSManagedObjectContext?, key: String?)
 }
 
