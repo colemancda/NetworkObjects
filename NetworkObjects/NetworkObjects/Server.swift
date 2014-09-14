@@ -476,6 +476,7 @@ public class Server {
         
         // get search parameters
         
+        /** The JSON-formatted dictionary */
         let searchParameters = request.JSONObject
         
         let entity = request.entity
@@ -498,13 +499,47 @@ public class Server {
         
         // add search parameters...
         
-        // predicate...
+        // MARK: Predicate
         
-        let predicateKeyObject: AnyObject? = searchParameters!["key"]
+        let predicateKeyObject: AnyObject? = searchParameters![SearchParameter.PredicateKey.toRaw()]
         
         let predicateKey = predicateKeyObject as? String
         
+        let jsonPredicateValue: AnyObject? = searchParameters![SearchParameter.PredicateValue.toRaw()]
         
+        let predicateOperatorObject: AnyObject? = searchParameters![SearchParameter.PredicateOperator.toRaw()]
+        
+        let predicateOperator = predicateOperatorObject as? UInt
+        
+        if (predicateKey != nil) && (predicateOperator != nil) && (jsonPredicateValue != nil) {
+            
+            // validate comparator
+            
+            if predicateOperator == NSPredicateOperatorType.CustomSelectorPredicateOperatorType.toRaw() {
+                
+                let response = ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil)
+                
+                return (response, userInfo)
+            }
+            
+            // convert to Core Data value...
+            
+            var value: AnyObject
+            
+            // one of these will be nil
+
+            let relationshipDescription: NSRelationshipDescription? = entity.relationshipsByName[predicateKey!] as? NSRelationshipDescription
+            
+            let attributeDescription: NSRelationshipDescription? = entity.attributesByName[predicateKey!] as? NSRelationshipDescription
+            
+            // validate that key is attribute or relationship
+            
+            if (relationshipDescription == nil) && (attributeDescription == nil) {
+                
+                
+            }
+            
+        }
         
         return (ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: ""), [ServerUserInfoKey.ResourceID:0])
     }
@@ -603,7 +638,7 @@ public class ServerResponse {
     
     let JSONResponse: AnyObject?
     
-    init(statusCode: ServerStatusCode, JSONResponse: AnyObject) {
+    init(statusCode: ServerStatusCode, JSONResponse: AnyObject?) {
         
         self.statusCode = statusCode
         
@@ -625,7 +660,7 @@ public class HTTPConnection: RoutingConnection {
     
     override public func isSecureServer() -> Bool {
         
-        return !self.sslIdentityAndCertificates().isEmpty
+        return (self.sslIdentityAndCertificates() != nil)
     }
     
     override public func sslIdentityAndCertificates() -> [AnyObject]! {
