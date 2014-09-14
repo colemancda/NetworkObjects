@@ -536,7 +536,16 @@ public class Server {
             
             if (relationshipDescription == nil) && (attributeDescription == nil) {
                 
+                let response = ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil)
                 
+                return (response, userInfo)
+            }
+            
+            // attribute value
+            
+            if attributeDescription != nil {
+                
+                value = 
             }
             
         }
