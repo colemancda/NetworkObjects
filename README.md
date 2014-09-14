@@ -27,5 +27,11 @@ By default the server provides no authentication, but the Server can use SSL and
 
 The Store class is what clients will use to communicate with the server. A dateCached attribute can be optionally added at runtime for cache validation.
 
+# Deployment
+
+The NetworkObjects framework is built as a dynamically linked framework for both OS X and iOS.  
+
+# Support and Documentation
+
 If you have any questions you can contact me on Twitter at @colemancda
 
