@@ -515,6 +515,8 @@ public class Server {
         }
     }
     
+    
+    
     // MARK: - Private Classes
     
     
@@ -760,6 +762,11 @@ public enum ServerFunctionCode: Int {
     
     /** There was an internal error while performing the function */
     case InternalErrorPerformingFunction = 500
+    
+    func toServerStatusCode() -> ServerStatusCode {
+        
+        return ServerStatusCode.fromRaw(self.toRaw())!
+    }
 };
 
 /** Defines the connection protocols used communicate with the server. */
