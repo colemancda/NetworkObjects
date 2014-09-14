@@ -736,7 +736,84 @@ public class Server {
         
         let fetchLimitObject: AnyObject? = searchParameters![SearchParameter.FetchLimit.toRaw()]
         
-        let fetchLimitNumber = fetchLimitObject as? UInt
+        let fetchLimitNumber = fetchLimitObject as? Int
+        
+        if fetchLimitObject != nil {
+            
+            // validate
+            if fetchLimitNumber == nil {
+                
+                let response = ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil)
+                
+                return (response, userInfo)
+            }
+            
+            fetchRequest.fetchLimit = fetchLimitNumber!
+        }
+        
+        // MARK: Fetch Offset
+        
+        let fetchOffsetObject: AnyObject? = searchParameters![SearchParameter.FetchLimit.toRaw()]
+        
+        let fetchOffsetNumber = fetchOffsetObject as? Int
+        
+        if fetchOffsetObject != nil {
+            
+            // validate
+            if fetchOffsetNumber == nil {
+                
+                let response = ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil)
+                
+                return (response, userInfo)
+            }
+            
+            fetchRequest.fetchOffset = fetchOffsetNumber!
+        }
+        
+        // MARK: Includes Subentities
+        
+        let includesSubentitiesObject: AnyObject? = searchParameters![SearchParameter.IncludesSubentities.toRaw()]
+        
+        let includesSubentities = includesSubentitiesObject as? Bool
+        
+        if includesSubentitiesObject != nil {
+            
+            // validate
+            if includesSubentities == nil {
+                
+                let response = ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil)
+                
+                return (response, userInfo)
+            }
+            
+            fetchRequest.includesSubentities = includesSubentities!
+        }
+        
+        // prefetch resourceID
+        
+        fetchRequest.returnsObjectsAsFaults = false
+        
+        fetchRequest.includesPropertyValues = true
+        
+        // add fully parsed fetch request to userInfo
+        
+        userInfo[ServerUserInfoKey.FetchRequest] = fetchRequest
+        
+        // check for permission (now that we have fully parsed the request)
+        
+        if self.delegate != nil {
+            
+            let statusCode = self.delegate?.server(self, statusCodeForRequest: request, managedObject: nil)
+            
+            if statusCode != ServerStatusCode.OK {
+                
+                let response = ServerResponse(statusCode: statusCode!, JSONResponse: nil)
+                
+                return (response, userInfo)
+            }
+        }
+        
+        
         
         return (ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: ""), [ServerUserInfoKey.ResourceID:0])
     }
@@ -965,7 +1042,7 @@ public protocol ServerDelegate {
     
     func server(Server, didEncounterInternalError error: NSError, forRequest request: ServerRequest, userInfo: [ServerUserInfoKey: AnyObject])
     
-    func server(Server, statusCodeForRequest request: ServerRequest, managedObject: NSManagedObject?) -> ServerPermission
+    func server(Server, statusCodeForRequest request: ServerRequest, managedObject: NSManagedObject?) -> ServerStatusCode
     
     func server(Server, didPerformRequest request: ServerRequest, withResponse response: ServerResponse, userInfo: [ServerUserInfoKey: AnyObject])
     
