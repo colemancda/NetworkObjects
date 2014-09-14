@@ -29,7 +29,7 @@ internal extension NSManagedObject {
     
     func attributeValueForJSONCompatibleValue(JSONCompatibleValue: AnyObject, forAttribute attributeName: String) -> AnyObject? {
         
-        return self.entity.attributeValueForJSONCompatibleValue(JSONCompatibleValue, forAttribute: attributeName)
+        return self.entity.attributeValueForJSONCompatibleValue(JSONCompatibleValue: JSONCompatibleValue, forAttribute: attributeName)
     }
     
     func JSONCompatibleValueForAttributeValue(attributeValue: AnyObject?, forAttribute attributeName: String) -> AnyObject? {
@@ -107,6 +107,7 @@ internal extension NSEntityDescription {
     
     // MARK: - Conversion Methods
     
+    /** Converts a JSON-compatible value to a Core Data attribute value. */
     func JSONCompatibleValueForAttributeValue(attributeValue: AnyObject?, forAttribute attributeName: String) -> AnyObject? {
         
         let attributeDescription = self.attributesByName[attributeName] as? NSAttributeDescription
@@ -140,61 +141,99 @@ internal extension NSEntityDescription {
             case "NSData":
                 let data = attributeValue as NSData
                 return data.base64EncodedStringWithOptions(NSDataBase64EncodingOptions.Encoding64CharacterLineLength)
-        }
-        
-        // transformable value type
-        if attributeDescription?.attributeType == NSAttributeType.TransformableAttributeType {
             
-            // get transformer
-            let valueTransformerName = attributeDescription?.valueTransformerName
+        default:
             
-            // default transformer: NSKeyedUnarchiveFromDataTransformerName in reverse
-            if valueTransformerName == nil {
+            // transformable value type
+            if attributeDescription?.attributeType == NSAttributeType.TransformableAttributeType {
                 
-                let transformer = NSValueTransformer(forName: NSKeyedUnarchiveFromDataTransformerName)
+                // get transformer
+                let valueTransformerName = attributeDescription?.valueTransformerName
+                
+                // default transformer: NSKeyedUnarchiveFromDataTransformerName in reverse
+                if valueTransformerName == nil {
+                    
+                    let transformer = NSValueTransformer(forName: NSKeyedUnarchiveFromDataTransformerName)
+                    
+                    // convert to data
+                    let data = transformer.reverseTransformedValue(attributeValue) as NSData
+                    
+                    // convert to string (for JSON export)
+                    return data.base64EncodedStringWithOptions(NSDataBase64EncodingOptions.Encoding64CharacterLineLength)
+                }
+                
+                // custom transformer
+                let transformer = NSValueTransformer(forName: valueTransformerName!)
                 
                 // convert to data
-                let data = transformer.reverseTransformedValue(attributeValue) as NSData
+                let data = transformer.transformedValue(attributeValue) as NSData
                 
                 // convert to string (for JSON export)
                 return data.base64EncodedStringWithOptions(NSDataBase64EncodingOptions.Encoding64CharacterLineLength)
             }
-            
-            // custom transformer
-            let transformer = NSValueTransformer(forName: valueTransformerName!)
-            
-            // convert to data
-            let data = transformer.transformedValue(attributeValue) as NSData
-            
-            // convert to string (for JSON export)
-            return data.base64EncodedStringWithOptions(NSDataBase64EncodingOptions.Encoding64CharacterLineLength)
         }
         
         return nil
     }
     
-    func attributeValueForJSONCompatibleValue(JSONCompatibleValue: AnyObject, forAttribute attributeName: String) -> AnyObject? {
+    /** Converts a Core Data attribute value to a JSON-compatible value. */
+    func attributeValueForJSONCompatibleValue(JSONCompatibleValue jsonValue: AnyObject, forAttribute attributeName: String) -> AnyObject? {
         
-        // transformable value type
-        if attributeType == NSAttributeType.TransformableAttributeType {
+        let attributeDescription = self.attributesByName[attributeName] as? NSAttributeDescription
+        
+        if attributeDescription == nil {
             
-            // get transformer
-            let valueTransformerName = attributeDescription?.valueTransformerName
-            
-            // default transformer: NSKeyedUnarchiveFromDataTransformerName in reverse
-            if valueTransformerName == nil {
-                
-                let transformer = NSValueTransformer(forName: NSKeyedUnarchiveFromDataTransformerName)
-                
-                // anything that conforms
-                return (convertedValue as? )
-            }
-            
-            // custom transformer
-            let transformer = NSValueTransformer(forName: valueTransformerName!)
-            
-            
+            return nil
         }
+        
+        // if value is NSNull
+        if jsonValue as? NSNull != nil {
+            
+            return nil
+        }
+        
+        let attributeClassName = attributeDescription!.attributeValueClassName
+        
+        switch attributeClassName {
+            
+        // strings and numbers are standard json data types
+        case "NSString", "NSNumber":
+            return jsonValue
+            
+        case "NSDate":
+            let dateString = jsonValue as String
+            return NSDate.dateWithISO8601String(dateString)
+            
+        case "NSData":
+            let dataString = jsonValue as String
+            return NSData(base64EncodedString: dataString, options: NSDataBase64DecodingOptions.IgnoreUnknownCharacters)
+            
+        default:
+            
+            // transformable value type
+            if attributeDescription?.attributeType == NSAttributeType.TransformableAttributeType {
+                
+                // get transformer
+                let valueTransformerName = attributeDescription?.valueTransformerName
+                
+                // default transformer: NSKeyedUnarchiveFromDataTransformerName in reverse
+                if valueTransformerName == nil {
+                    
+                    let transformer = NSValueTransformer(forName: NSKeyedUnarchiveFromDataTransformerName)
+                    
+                    // unarchive
+                    return transformer.transformedValue(jsonValue)
+                }
+                
+                // custom transformer
+                let transformer = NSValueTransformer(forName: valueTransformerName!)
+                
+                // convert to original type
+                return transformer.reverseTransformedValue(jsonValue)
+            }
+        }
+        
+        return nil
     }
 }
 
