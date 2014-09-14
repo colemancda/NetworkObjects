@@ -233,7 +233,9 @@ public class Server {
                 // had to do this in more lines of code becuase the compiler would complain
                 let capturesArray = captures as [String]
                 
-                let resourceID = capturesArray.first?.toInt()
+                let resourceIDInt = capturesArray.first?.toInt()
+                
+                let resourceID = UInt(resourceIDInt!)
                 
                 // get json body
                 
@@ -385,7 +387,9 @@ public class Server {
                     // had to do this in more lines of code becuase the compiler would complain
                     let capturesArray = captures as [String]
                     
-                    let resourceID = capturesArray.first?.toInt()
+                    let resourceIDInt = capturesArray.first?.toInt()
+                    
+                    let resourceID = UInt(resourceIDInt!)
                     
                     // get json body
                     
@@ -548,7 +552,7 @@ public class Server {
                 // to-one
                 if !relationshipDescription!.toMany {
                     
-                    let resourceID = jsonPredicateValue as? Int
+                    let resourceID = jsonPredicateValue as? UInt
                     
                     // verify
                     if resourceID == nil {
@@ -586,7 +590,7 @@ public class Server {
                 // to-many relationships
                 else {
                     
-                    let resourceIDs = jsonPredicateValue as? [Int]
+                    let resourceIDs = jsonPredicateValue as? [UInt]
                     
                     // verify
                     
@@ -720,7 +724,7 @@ public class Server {
             fetchRequest.sortDescriptors = sortDescriptors
         }
         
-        // Default Sort Descriptors
+        // default Sort Descriptor
         else {
             
             let defaultSortDescriptor = NSSortDescriptor(key: self.resourceIDAttributeName, ascending: true)
@@ -730,7 +734,9 @@ public class Server {
         
         // MARK: Fetch Limit
         
+        let fetchLimitObject: AnyObject? = searchParameters![SearchParameter.FetchLimit.toRaw()]
         
+        let fetchLimitNumber = fetchLimitObject as? UInt
         
         return (ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: ""), [ServerUserInfoKey.ResourceID:0])
     }
@@ -775,7 +781,7 @@ public class Server {
         }
     }
     
-    private func fetchEntity(entity: NSEntityDescription, withResourceID resourceID: Int, usingContext context: NSManagedObjectContext, shouldPrefetch: Bool) -> (NSManagedObject?, NSError?) {
+    private func fetchEntity(entity: NSEntityDescription, withResourceID resourceID: UInt, usingContext context: NSManagedObjectContext, shouldPrefetch: Bool) -> (NSManagedObject?, NSError?) {
         
         let fetchRequest = NSFetchRequest(entityName: entity.name)
         
@@ -804,7 +810,7 @@ public class Server {
         return (result!.first, error.memory)
     }
     
-    private func fetchEntity(entity: NSEntityDescription, withResourceIDs resourceIDs: [Int], usingContext context: NSManagedObjectContext, shouldPrefetch: Bool) -> ([NSManagedObject], NSError?) {
+    private func fetchEntity(entity: NSEntityDescription, withResourceIDs resourceIDs: [UInt], usingContext context: NSManagedObjectContext, shouldPrefetch: Bool) -> ([NSManagedObject], NSError?) {
         
         let fetchRequest = NSFetchRequest(entityName: entity.name)
         
@@ -880,13 +886,13 @@ public class ServerRequest {
     
     /** The resourceID of the requested instance. Will be nil for @c POST (search or create instance) requests. */
     
-    let resourceID: Int?
+    let resourceID: UInt?
     
     let JSONObject: [String: AnyObject]?
     
     let functionName: String?
     
-    init(requestType: ServerRequestType, connectionType: ServerConnectionType, entity: NSEntityDescription, underlyingRequest: AnyObject, resourceID: Int?, JSONObject: [String: AnyObject]?, functionName: String?) {
+    init(requestType: ServerRequestType, connectionType: ServerConnectionType, entity: NSEntityDescription, underlyingRequest: AnyObject, resourceID: UInt?, JSONObject: [String: AnyObject]?, functionName: String?) {
         
         self.requestType = requestType
         self.connectionType = connectionType
@@ -942,7 +948,7 @@ public protocol ServerDataSource {
     
     func server(Server, managedObjectContextForRequest request: ServerRequest) -> NSManagedObjectContext
     
-    func server(Server, newResourceIDForEntity entity: NSEntityDescription) -> Int
+    func server(Server, newResourceIDForEntity entity: NSEntityDescription) -> UInt
     
     func server(Server, functionsForEntity entity: NSEntityDescription) -> [String]
     
