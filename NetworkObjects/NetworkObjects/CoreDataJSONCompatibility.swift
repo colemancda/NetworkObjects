@@ -48,50 +48,34 @@ internal extension NSManagedObject {
             return false
         }
         
-        let attributeType = attributeDescription?.attributeType
-        
-        // no JSON conversion for these values
-        if attributeType == NSAttributeType.UndefinedAttributeType || attributeType == NSAttributeType.ObjectIDAttributeType {
-                
+        switch attributeDescription!.attributeType {
+            
+        case NSAttributeType.UndefinedAttributeType, NSAttributeType.ObjectIDAttributeType:
             return false
-        }
-        
-        // number types
-        if attributeType == NSAttributeType.Integer16AttributeType || attributeType == NSAttributeType.Integer32AttributeType || attributeType == NSAttributeType.Integer64AttributeType || attributeType == NSAttributeType.DecimalAttributeType || attributeType == NSAttributeType.DoubleAttributeType || attributeType == NSAttributeType.FloatAttributeType || attributeType == NSAttributeType.BooleanAttributeType {
+            
+        case NSAttributeType.Integer16AttributeType, NSAttributeType.Integer32AttributeType, NSAttributeType.Integer64AttributeType, NSAttributeType.DecimalAttributeType, NSAttributeType.DoubleAttributeType, NSAttributeType.FloatAttributeType, NSAttributeType.BooleanAttributeType :
             
             // try to cast as number
-            
             let number = convertedValue as? NSNumber
-            
             return (number != nil)
-        }
-        
-        // string type
-        if attributeType == NSAttributeType.StringAttributeType {
+            
+        case NSAttributeType.StringAttributeType:
             
             let string = convertedValue as? String
-            
             return (string != nil)
-        }
-        
-        // date type
-        if attributeType == NSAttributeType.DateAttributeType {
+            
+        case NSAttributeType.DateAttributeType:
             
             let date = convertedValue as? NSDate
-            
             return (date != nil)
-        }
-        
-        // data type
-        if attributeType == NSAttributeType.BinaryDataAttributeType {
+            
+        case NSAttributeType.BinaryDataAttributeType:
             
             let data = convertedValue as? NSData
-            
             return (data != nil)
-        }
-        
+            
         // transformable value type
-        if attributeType == NSAttributeType.TransformableAttributeType {
+        case NSAttributeType.TransformableAttributeType:
             
             // get transformer
             let valueTransformerName = attributeDescription?.valueTransformerName
@@ -108,9 +92,11 @@ internal extension NSManagedObject {
             // custom transformer
             let transformer = NSValueTransformer(forName: valueTransformerName!)
             
+            // must convert to NSData
             let data = transformer.transformedValue(convertedValue) as? NSData
             
             return (data != nil)
+            
         }
         
         return false
@@ -141,20 +127,23 @@ internal extension NSEntityDescription {
         
         let attributeClassName = attributeDescription!.attributeValueClassName
         
-        // strings and numbers are standard json data types
-        if attributeClassName == "NSString" || attributeClassName == "NSNumber" {
+        switch attributeClassName {
             
-            return attributeValue
-        }
-        
-        // date
-        if attributeClassName == "NSDate" {
+            // strings and numbers are standard json data types
+            case "NSString", "NSNumber":
+                return attributeValue
             
+            case "NSDate":
+                let date = attributeValue as NSDate
+                return date.ISO8601String()
             
+            case "NSData":
+                let data = attributeValue as NSData
+                return data.base64EncodedStringWithOptions(NSDataBase64EncodingOptions.Encoding64CharacterLineLength)
         }
         
         // transformable value type
-        if attributeType == NSAttributeType.TransformableAttributeType {
+        if attributeDescription?.attributeType == NSAttributeType.TransformableAttributeType {
             
             // get transformer
             let valueTransformerName = attributeDescription?.valueTransformerName
@@ -170,11 +159,9 @@ internal extension NSEntityDescription {
             
             // custom transformer
             let transformer = NSValueTransformer(forName: valueTransformerName!)
-            
-            
         }
         
-        return 0
+        return nil
     }
     
     func attributeValueForJSONCompatibleValue(JSONCompatibleValue: AnyObject, forAttribute attributeName: String) -> AnyObject? {
@@ -203,8 +190,31 @@ internal extension NSEntityDescription {
     }
 }
 
-internal extension NSDate {
+// MARK: - Extensions
+
+private extension NSDate {
     
+    class func ISO8601DateFormatter() -> NSDateFormatter {
+        
+        struct Static {
+            static var onceToken : dispatch_once_t = 0
+            static var instance : NSDateFormatter? = nil
+        }
+        dispatch_once(&Static.onceToken) {
+            Static.instance = NSDateFormatter()
+            Static.instance?.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZ"
+        }
+        return Static.instance!
+    }
     
+    class func dateWithISO8601String(ISO8601String: String) -> NSDate? {
+        
+        return self.ISO8601DateFormatter().dateFromString(ISO8601String)
+    }
+    
+    func ISO8601String() -> String {
+        
+        return NSDate.ISO8601DateFormatter().stringFromDate(self)
+    }
 }
 
