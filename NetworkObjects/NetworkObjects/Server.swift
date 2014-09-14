@@ -523,17 +523,14 @@ public class Server {
             }
             
             // convert to Core Data value...
-            
             var value: AnyObject
             
             // one of these will be nil
-
             let relationshipDescription: NSRelationshipDescription? = entity.relationshipsByName[predicateKey!] as? NSRelationshipDescription
             
             let attributeDescription: NSRelationshipDescription? = entity.attributesByName[predicateKey!] as? NSRelationshipDescription
             
             // validate that key is attribute or relationship
-            
             if (relationshipDescription == nil) && (attributeDescription == nil) {
                 
                 let response = ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil)
@@ -542,10 +539,31 @@ public class Server {
             }
             
             // attribute value
-            
             if attributeDescription != nil {
                 
-                value = 
+                value = entity.attributeValueForJSONCompatibleValue(JSONCompatibleValue: jsonPredicateValue!, forAttribute: predicateKey!)!
+            }
+            
+            // relationship value
+            if relationshipDescription != nil {
+                
+                // to-one
+                if relationshipDescription!.toMany {
+                    
+                    let resourceID = jsonPredicateValue as? Int
+                    
+                    // verify
+                    if resourceID != nil {
+                        
+                        let response = ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil)
+                        
+                        return (response, userInfo)
+                    }
+                    
+                    let error = NSErrorPointer()
+                    
+                    let fetchedResource =
+                }
             }
             
         }
@@ -593,11 +611,95 @@ public class Server {
         }
     }
     
+    private func fetchEntity(entity: NSEntityDescription, withResourceID resourceID: Int, usingContext context: NSManagedObjectContext, shouldPrefetch: Bool) -> (NSManagedObject, NSError) {
+        
+        let fetchRequest = NSFetchRequest(entityName: entity.name)
+        
+        fetchRequest.fetchLimit = 1
+        
+        fetchRequest.predicate = NSComparisonPredicate(leftExpression: NSExpression(forKeyPath: self.resourceIDAttributeName), rightExpression: NSExpression(forConstantValue: resourceID), modifier: NSComparisonPredicateModifier.DirectPredicateModifier, type: NSPredicateOperatorType.EqualToPredicateOperatorType, options: NSComparisonPredicateOptions.NormalizedPredicateOption)
+        
+        if shouldPrefetch {
+            
+            fetchRequest.returnsObjectsAsFaults = false
+        }
+        else {
+            
+            fetchRequest.includesPropertyValues = false
+        }
+        
+        let error = NSErrorPointer()
+        
+        var result: [NSManagedObject]
+        
+        context.performBlockAndWait { () -> Void in
+            
+            result = context.executeFetchRequest(fetchRequest, error: error) as [NSManagedObject]
+        }
+        
+        return (result.first!, error.memory!)
+    }
     
+    private func fetchEntity(entity: NSEntityDescription, withResourceIDs resourceIDs: [Int], usingContext context: NSManagedObjectContext, shouldPrefetch: Bool) -> (NSArray, NSError) {
+        
+        let fetchRequest = NSFetchRequest(entityName: entity.name)
+        
+        fetchRequest.fetchLimit = 1
+        
+        fetchRequest.predicate = NSComparisonPredicate(leftExpression: NSExpression(forKeyPath: self.resourceIDAttributeName), rightExpression: NSExpression(forConstantValue: resourceIDs), modifier: NSComparisonPredicateModifier.DirectPredicateModifier, type: NSPredicateOperatorType.InPredicateOperatorType, options: NSComparisonPredicateOptions.NormalizedPredicateOption)
+        
+        if shouldPrefetch {
+            
+            fetchRequest.returnsObjectsAsFaults = false
+        }
+        else {
+            
+            fetchRequest.includesPropertyValues = false
+        }
+        
+        let error = NSErrorPointer()
+        
+        var result: [NSManagedObject]
+        
+        context.performBlockAndWait { () -> Void in
+            
+            result = context.executeFetchRequest(fetchRequest, error: error) as [NSManagedObject]
+        }
+        
+        return (result, error.memory!)
+        
+    }
+    
+    private func JSONRepresentationOfManagedObject(managedObject: NSManagedObject) -> [String: AnyObject] {
+        
+        
+    }
+    
+    private func verifyEditResource(resource: NSManagedObject, forRequest request:ServerRequest, context: NSManagedObjectContext, newValues: [String: AnyObject]) -> (ServerStatusCode, [String: AnyObject], NSError) {
+        
+        
+    }
     
     // MARK: - Private Classes
     
-    
+    private class HTTPConnection: RoutingConnection {
+        
+        override func isSecureServer() -> Bool {
+            
+            return (self.sslIdentityAndCertificates() != nil)
+        }
+        
+        override func sslIdentityAndCertificates() -> [AnyObject]! {
+            
+            let cocoaHTTPServer: CocoaHTTPServer.HTTPServer = self.config().server;
+            
+            let httpServer: HTTPServer = cocoaHTTPServer as HTTPServer;
+            
+            let server = httpServer.server;
+            
+            return server.sslIdentityAndCertificates;
+        }
+    }
 }
 
 // MARK: - Supporting Classes
@@ -662,25 +764,6 @@ public class HTTPServer: RoutingHTTPServer {
     init(server: Server) {
         
         self.server = server;
-    }
-}
-
-public class HTTPConnection: RoutingConnection {
-    
-    override public func isSecureServer() -> Bool {
-        
-        return (self.sslIdentityAndCertificates() != nil)
-    }
-    
-    override public func sslIdentityAndCertificates() -> [AnyObject]! {
-        
-        let cocoaHTTPServer: CocoaHTTPServer.HTTPServer = self.config().server;
-        
-        let httpServer: HTTPServer = cocoaHTTPServer as HTTPServer;
-        
-        let server = httpServer.server;
-        
-        return server.sslIdentityAndCertificates;
     }
 }
 
