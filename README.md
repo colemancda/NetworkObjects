@@ -23,7 +23,9 @@ Optionally the Server can create function and search URLs for special requests
 
 By default the server provides no authentication, but the Server can use SSL and the can ask its delegate for access control based on HTTP headers, making authentication completely customizeable. In addition to HTTP, the Server's data source and delegate protocols are built to be agnostic to connection protocols, making it open to other protocols in the future (WebSockets support is planned).
 
+# Client-side caching
 
+The Store class is what clients will use to communicate with the server. A dateCached attribute can be optionally added at runtime for cache validation.
 
 If you have any questions you can contact me on Twitter at @colemancda
 
