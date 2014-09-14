@@ -139,7 +139,7 @@ public class Server {
                         
                         let jsonSerializationError = NSErrorPointer()
                         
-                        let jsonData = NSJSONSerialization.dataWithJSONObject(serverResponse.JSONResponse, options: self.jsonWritingOption(), error: jsonErrorPointer)
+                        let jsonData = NSJSONSerialization.dataWithJSONObject(serverResponse.JSONResponse!, options: self.jsonWritingOption(), error: jsonErrorPointer)
                         
                         if (jsonData == nil) {
                             
@@ -196,7 +196,7 @@ public class Server {
                 
                 let errorPointer = NSErrorPointer()
                 
-                let jsonData = NSJSONSerialization.dataWithJSONObject(serverResponse.JSONResponse, options: self.jsonWritingOption(), error: errorPointer)
+                let jsonData = NSJSONSerialization.dataWithJSONObject(serverResponse.JSONResponse!, options: self.jsonWritingOption(), error: errorPointer)
                 
                 // could not serialize json response, internal error
                 if (jsonData == nil) {
@@ -270,7 +270,7 @@ public class Server {
                     
                     let error = NSErrorPointer()
                     
-                    let jsonData = NSJSONSerialization.dataWithJSONObject(serverResponse.JSONResponse, options: self.jsonWritingOption(), error: error);
+                    let jsonData = NSJSONSerialization.dataWithJSONObject(serverResponse.JSONResponse!, options: self.jsonWritingOption(), error: error);
                     
                     // could not serialize json response, internal error
                     if (jsonData == nil) {
@@ -311,7 +311,7 @@ public class Server {
                     
                     let error = NSErrorPointer()
                     
-                    let jsonData = NSJSONSerialization.dataWithJSONObject(serverResponse.JSONResponse, options: self.jsonWritingOption(), error: error);
+                    let jsonData = NSJSONSerialization.dataWithJSONObject(serverResponse.JSONResponse!, options: self.jsonWritingOption(), error: error);
                     
                     // could not serialize json response, internal error
                     if (jsonData == nil) {
@@ -373,13 +373,70 @@ public class Server {
                 
                 // MARK: HTTP Function Request Handler Block
                 
-                let functionExpression = "{^/" + path + "/(\\d+)/" + functionName + "}"
+                let functionExpressionPath = "{^/" + path + "/(\\d+)/" + functionName + "}"
                 
                 let functionRequestHandler: RequestHandler = { (request: RouteRequest!, response: RouteResponse!) -> Void in
                     
+                    let parameters = request.params
                     
+                    let captures: AnyObject? = parameters["captures"]
                     
+                    // had to do this in more lines of code becuase the compiler would complain
+                    let capturesArray = captures as [String]
+                    
+                    let resourceID = capturesArray.first?.toInt()
+                    
+                    // get json body
+                    
+                    let jsonBody: AnyObject? = NSJSONSerialization.JSONObjectWithData(request.body(), options: NSJSONReadingOptions.AllowFragments, error: nil)
+                    
+                    let jsonObject = jsonBody as? [String: AnyObject]
+                    
+                    // JSON recieved is not a dictionary
+                    if (jsonBody != nil) && (jsonObject == nil) {
+                        
+                        response.statusCode = ServerStatusCode.BadRequest.toRaw()
+                        
+                        return
+                    }
+                    
+                    // convert to server request
+                    let serverRequest = ServerRequest(requestType: ServerRequestType.Function, connectionType: ServerConnectionType.HTTP, entity: entity, underlyingRequest: request, resourceID: resourceID, JSONObject: jsonObject, functionName: functionName)
+                    
+                    // get response
+                    let (serverResponse, userInfo) = self.responseForFunctionRequest(serverRequest)
+                    
+                    // respond with JSON if availible
+                    if serverResponse.JSONResponse != nil  {
+                        
+                        // write to socket
+                        
+                        let errorPointer = NSErrorPointer()
+                        
+                        let jsonData = NSJSONSerialization.dataWithJSONObject(serverResponse.JSONResponse!, options: self.jsonWritingOption(), error: errorPointer)
+                        
+                        // could not serialize json response, internal error
+                        if (jsonData == nil) {
+                            
+                            self.delegate!.server(self, didEncounterInternalError: errorPointer.memory!, forRequest: serverRequest, userInfo: userInfo)
+                            
+                            response.statusCode = ServerStatusCode.InternalServerError.toRaw()
+                            
+                            return
+                        }
+                        
+                        // respond with serialized json
+                        response.respondWithData(jsonData);
+                    }
+                    
+                    // set function status code
+                    response.statusCode = serverResponse.statusCode.toRaw()
+                    
+                    // tell the delegate
+                    self.delegate!.server(self, didPerformRequest: serverRequest, withResponse: serverResponse, userInfo: userInfo)
                 }
+                
+                httpServer.post(functionExpressionPath, withBlock: functionRequestHandler)
             }
         }
         
@@ -508,7 +565,7 @@ public class ServerResponse {
     
     /** A JSON-compatible array or dictionary that will be sent as a response. */
     
-    let JSONResponse: AnyObject
+    let JSONResponse: AnyObject?
     
     init(statusCode: ServerStatusCode, JSONResponse: AnyObject) {
         
