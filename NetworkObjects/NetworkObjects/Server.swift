@@ -688,10 +688,10 @@ public class Server {
         
         let sortDescriptorsJSONArray = sortDescriptorsJSONArrayObject as? [[String: Bool]]
         
+        // empty mutable array
+        var sortDescriptors = [NSSortDescriptor]()
+        
         if sortDescriptorsJSONArrayObject != nil {
-            
-            // empty mutable array
-            var sortDescriptors = [NSSortDescriptor]()
             
             // validate
             if (sortDescriptorsJSONArray == nil || sortDescriptorsJSONArray?.isEmpty != nil) {
@@ -833,6 +833,7 @@ public class Server {
         }
         
         // optionally filter results
+        
         if self.permissionsEnabled {
             
             var filteredResults = [NSManagedObject]()
@@ -846,13 +847,61 @@ public class Server {
                     resourceID = managedObject.valueForKey(self.resourceIDAttributeName) as? Int
                 })
                 
-                // permission to view resource
+                // permission to view resource (must have at least readonly access)
                 
+                if (self.delegate?.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key: nil).toRaw() >= ServerPermission.ReadOnly.toRaw()) {
+                    
+                    // must have permission for keys accessed
+                    if predicateKey != nil {
+                        
+                        if (self.delegate?.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key: predicateKey).toRaw() >= ServerPermission.ReadOnly.toRaw()) {
+                            
+                            break
+                        }
+                    }
+                    
+                    // must have read only permission for keys in sort descriptor
+                    if !sortDescriptors.isEmpty {
+                        
+                        for sort in sortDescriptors {
+                            
+                            if (self.delegate?.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key:sort.key).toRaw() >= ServerPermission.ReadOnly.toRaw()) {
+                                
+                                filteredResults.append(managedObject)
+                            }
+                        }
+                    }
+                    else {
+                        
+                        filteredResults.append(managedObject)
+                    }
+                }
+            }
+            
+            results = filteredResults
+        }
+        
+        // return the resource IDs of objects mapped to their resource path
+        
+        var jsonResponse = [[String: String]]()
+        
+        context.performBlockAndWait { () -> Void in
+            
+            for managedObject in results! {
                 
+                // get the resourcePath for the entity
+                
+                let resourcePath = (self.entitiesByResourcePath as NSDictionary).allKeysForObject(managedObject.entity).first as? String
+                
+                let resourceID = managedObject.valueForKey(self.resourceIDAttributeName) as? String
+                
+                jsonResponse.append([resourceID!: resourcePath!])
             }
         }
         
-        return (ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: ""), [ServerUserInfoKey.ResourceID:0])
+        let response = ServerResponse(statusCode: ServerStatusCode.OK, JSONResponse: jsonResponse)
+        
+        return (response, userInfo)
     }
     
     private func responseForCreateRequest(request: ServerRequest) -> (ServerResponse, [ServerUserInfoKey: AnyObject]) {
@@ -1090,7 +1139,7 @@ public protocol ServerDelegate {
     func server(Server, didPerformRequest request: ServerRequest, withResponse response: ServerResponse, userInfo: [ServerUserInfoKey: AnyObject])
     
     /** Asks the delegate for access control for a request. Server must have its permissions enabled for this method to be called. */
-    func server(Server, permissionForRequest request: ServerRequest, managedObject: NSManagedObject?, context: NSManagedObjectContext?, key: String?)
+    func server(Server, permissionForRequest request: ServerRequest, managedObject: NSManagedObject?, context: NSManagedObjectContext?, key: String?) -> ServerPermission
 }
 
 // MARK: - Enumerations
@@ -1163,16 +1212,16 @@ public enum ServerStatusCode: Int {
 
 /** Server Permission Enumeration */
 
-public enum ServerPermission {
+public enum ServerPermission: Int, Equatable {
     
     /**  No access permission */
-    case NoAccess
+    case NoAccess = 0
     
     /**  Read Only permission */
-    case ReadOnly
+    case ReadOnly = 1
     
     /**  Read and Write permission */
-    case EditPermission
+    case EditPermission = 2
 }
 
 /** Server Request Type */
