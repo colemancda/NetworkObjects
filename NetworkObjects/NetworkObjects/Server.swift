@@ -1077,7 +1077,7 @@ public class Server {
         
         let recievedJsonObject = request.JSONObject!
         
-        var newConvertedValues = [String, AnyObject]()
+        var newConvertedValues = [String: AnyObject]()
         
         // validate the recieved JSON object
         
@@ -1088,59 +1088,56 @@ public class Server {
         
         for (key, jsonValue) in recievedJsonObject {
             
-            var isAttribute = false
-            var isRelationship = false
+            let attribute = (resource.entity.attributesByName as [String: NSAttributeDescription])[key]
             
-            for (attributeName, attribute) in resource.entity.attributesByName as [String: NSAttributeDescription] {
+            let relationship = (resource.entity.relationshipsByName as [String: NSRelationshipDescription])[key]
+            
+            // not found
+            
+            if attribute == nil || relationship == nil {
                 
-                // found attribute with same name
-                if key == attributeName {
+                // resourceID cannot be edited by anyone
+                if key == self.resourceIDAttributeName {
                     
-                    isAttribute = true
+                    return (ServerStatusCode.Forbidden, nil)
+                }
+                
+                // check for permissions
+                if permissionsEnabled {
                     
-                    // resourceID cannot be edited by anyone
-                    if key == self.resourceIDAttributeName {
+                    if self.delegate?.server(self, permissionForRequest: request, managedObject: resource, context: context, key: key).toRaw() < ServerPermission.EditPermission.toRaw() {
                         
                         return (ServerStatusCode.Forbidden, nil)
                     }
-                    
-                    // check for permissions
-                    if permissionsEnabled {
-                        
-                        if self.delegate?.server(self, permissionForRequest: request, managedObject: resource, context: context, key: key).toRaw() < ServerPermission.EditPermission.toRaw() {
-                            
-                            return (ServerStatusCode.Forbidden, nil)
-                        }
-                    }
-                    
-                    // make sure the attribute to edit is not undefined
-                    if attribute.attributeType == NSAttributeType.UndefinedAttributeType {
-                        
-                        return (ServerStatusCode.BadRequest, nil)
-                    }
-                    
-                    // get pre-edit value
-                    let newValue: AnyObject? = resource.attributeValueForJSONCompatibleValue(jsonValue, forAttribute: key)
-                    
-                    // validate that the pre-edit value is of the same class as the attribute it will be given
-                    if !resource.isValidConvertedValue(newValue!, forAttribute: key) {
-                        
-                        return (ServerStatusCode.BadRequest, nil)
-                    }
-                    
-                    // let the managed object verify that the new attribute value is a valid new value
-                    
-                    let newValuePointer = AutoreleasingUnsafeMutablePointer<AnyObject?>()
-                    
-                    newValuePointer.memory = newValue!
-                    
-                    if !resource.validateValue(newValuePointer, forKey: key, error: nil) {
-                        
-                        return (ServerStatusCode.BadRequest, nil)
-                    }
-                    
-                    newConvertedValues[attributeName] = newValue as AnyObject?
                 }
+                
+                // make sure the attribute to edit is not undefined
+                if attribute!.attributeType == NSAttributeType.UndefinedAttributeType {
+                    
+                    return (ServerStatusCode.BadRequest, nil)
+                }
+                
+                // get pre-edit value
+                let newValue: AnyObject? = resource.attributeValueForJSONCompatibleValue(jsonValue, forAttribute: key)
+                
+                // validate that the pre-edit value is of the same class as the attribute it will be given
+                if !resource.isValidConvertedValue(newValue!, forAttribute: key) {
+                    
+                    return (ServerStatusCode.BadRequest, nil)
+                }
+                
+                // let the managed object verify that the new attribute value is a valid new value
+                
+                let newValuePointer = AutoreleasingUnsafeMutablePointer<AnyObject?>()
+                
+                newValuePointer.memory = newValue!
+                
+                if !resource.validateValue(newValuePointer, forKey: key, error: nil) {
+                    
+                    return (ServerStatusCode.BadRequest, nil)
+                }
+                
+                newConvertedValues[key] = newValuePointer.memory
             }
             
             for (relationshipName, relationship) in resource.entity.relationshipsByName as [String: NSRelationshipDescription] {
