@@ -906,6 +906,71 @@ public class Server {
     
     private func responseForCreateRequest(request: ServerRequest) -> (ServerResponse, [ServerUserInfoKey: AnyObject]) {
         
+        let entity = request.entity
+        
+        // get context
+        
+        let context = self.dataSource.server(self, managedObjectContextForRequest: request)
+        
+        var userInfo: [ServerUserInfoKey: AnyObject] = [ServerUserInfoKey.ManagedObjectContext: context]
+        
+        // ask delegate
+        
+        if self.delegate != nil {
+            
+            let statusCode = self.delegate?.server(self, statusCodeForRequest: request, managedObject: nil)
+            
+            if statusCode != ServerStatusCode.OK {
+                
+                let response = ServerResponse(statusCode: statusCode!, JSONResponse: nil)
+                
+                return (response, userInfo)
+            }
+        }
+        
+        // check for permissions
+        
+        if permissionsEnabled {
+            
+            if self.delegate?.server(self, permissionForRequest: request, managedObject: nil, context: context, key: nil).toRaw() < ServerPermission.EditPermission.toRaw() {
+                
+                let response = ServerResponse(statusCode: ServerStatusCode.Forbidden, JSONResponse: nil)
+                
+                return (response, userInfo)
+            }
+        }
+        
+        // create new instance
+        
+        let resourceID = self.dataSource.server(self, newResourceIDForEntity: entity)
+        
+        var managedObject: NSManagedObject?
+        
+        context.performBlockAndWait { () -> Void in
+            
+            managedObject = NSEntityDescription.insertNewObjectForEntityForName(entity.name, inManagedObjectContext: context) as? NSManagedObject
+            
+            // set resourceID
+            
+            managedObject!.setValue(resourceID, forKey:self.resourceIDAttributeName)
+        }
+        
+        if request.JSONObject != nil {
+            
+            // convert to Core Data values
+            
+            var editStatusCode: ServerStatusCode?
+            
+            var newValues: [String: AnyObject]?
+            
+            let error = NSErrorPointer()
+            
+            context.performBlockAndWait({ () -> Void in
+                
+                editStatusCode = self.verifyEditResource(managedObject, forRequest: request, context: context, newValues: newValues)
+            })
+        }
+        
         return (ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: ""), [ServerUserInfoKey.ResourceID:0])
     }
     
@@ -1008,9 +1073,83 @@ public class Server {
         return ["":0]
     }
     
-    private func verifyEditResource(resource: NSManagedObject, forRequest request:ServerRequest, context: NSManagedObjectContext, newValues: [String: AnyObject]) -> (ServerStatusCode, [String: AnyObject], NSError?) {
+    private func verifyEditResource(resource: NSManagedObject, forRequest request:ServerRequest, context: NSManagedObjectContext, newValues: [String: AnyObject]) -> (ServerStatusCode, NSError?) {
         
-        return (ServerStatusCode.MethodNotAllowed, ["":0], nil)
+        let recievedJsonObject = request.JSONObject!
+        
+        var newConvertedValues = [String, AnyObject]()
+        
+        // validate the recieved JSON object
+        
+        if !NSJSONSerialization.isValidJSONObject(recievedJsonObject) {
+            
+            return (ServerStatusCode.BadRequest, nil)
+        }
+        
+        for (key, jsonValue) in recievedJsonObject {
+            
+            var isAttribute = false
+            var isRelationship = false
+            
+            for (attributeName, attribute) in resource.entity.attributesByName as [String: NSAttributeDescription] {
+                
+                // found attribute with same name
+                if key == attributeName {
+                    
+                    isAttribute = true
+                    
+                    // resourceID cannot be edited by anyone
+                    if key == self.resourceIDAttributeName {
+                        
+                        return (ServerStatusCode.Forbidden, nil)
+                    }
+                    
+                    // check for permissions
+                    if permissionsEnabled {
+                        
+                        if self.delegate?.server(self, permissionForRequest: request, managedObject: resource, context: context, key: key).toRaw() < ServerPermission.EditPermission.toRaw() {
+                            
+                            return (ServerStatusCode.Forbidden, nil)
+                        }
+                    }
+                    
+                    // make sure the attribute to edit is not undefined
+                    if attribute.attributeType == NSAttributeType.UndefinedAttributeType {
+                        
+                        return (ServerStatusCode.BadRequest, nil)
+                    }
+                    
+                    // get pre-edit value
+                    let newValue: AnyObject? = resource.attributeValueForJSONCompatibleValue(jsonValue, forAttribute: key)
+                    
+                    // validate that the pre-edit value is of the same class as the attribute it will be given
+                    if !resource.isValidConvertedValue(newValue!, forAttribute: key) {
+                        
+                        return (ServerStatusCode.BadRequest, nil)
+                    }
+                    
+                    // let the managed object verify that the new attribute value is a valid new value
+                    
+                    let newValuePointer = AutoreleasingUnsafeMutablePointer<AnyObject?>()
+                    
+                    newValuePointer.memory = newValue!
+                    
+                    if !resource.validateValue(newValuePointer, forKey: key, error: nil) {
+                        
+                        return (ServerStatusCode.BadRequest, nil)
+                    }
+                    
+                    newConvertedValues[attributeName] = newValue as AnyObject?
+                }
+            }
+            
+            for (relationshipName, relationship) in resource.entity.relationshipsByName as [String: NSRelationshipDescription] {
+                
+                
+            }
+        }
+        
+        return (ServerStatusCode.MethodNotAllowed, nil)
     }
     
     // MARK: - Private Classes
