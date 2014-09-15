@@ -967,7 +967,7 @@ public class Server {
             
             context.performBlockAndWait({ () -> Void in
                 
-                editStatusCode = self.verifyEditResource(managedObject, forRequest: request, context: context, newValues: newValues)
+                editStatusCode = self.verifyEditResource(managedObject!, forRequest: request, context: context, newValues: newValues!, error: error)
             })
         }
         
@@ -1073,17 +1073,15 @@ public class Server {
         return ["":0]
     }
     
-    private func verifyEditResource(resource: NSManagedObject, forRequest request:ServerRequest, context: NSManagedObjectContext, newValues: [String: AnyObject]) -> (ServerStatusCode, NSError?) {
+    private func verifyEditResource(resource: NSManagedObject, forRequest request:ServerRequest, context: NSManagedObjectContext, inout newValues: [String: AnyObject], error: NSErrorPointer) -> ServerStatusCode {
         
         let recievedJsonObject = request.JSONObject!
-        
-        var newConvertedValues = [String: AnyObject]()
         
         // validate the recieved JSON object
         
         if !NSJSONSerialization.isValidJSONObject(recievedJsonObject) {
             
-            return (ServerStatusCode.BadRequest, nil)
+            return ServerStatusCode.BadRequest
         }
         
         for (key, jsonValue) in recievedJsonObject {
@@ -1096,10 +1094,16 @@ public class Server {
             
             if attribute == nil || relationship == nil {
                 
+                return ServerStatusCode.BadRequest
+            }
+            
+            // attribute
+            if attribute != nil {
+                
                 // resourceID cannot be edited by anyone
                 if key == self.resourceIDAttributeName {
                     
-                    return (ServerStatusCode.Forbidden, nil)
+                    return ServerStatusCode.Forbidden
                 }
                 
                 // check for permissions
@@ -1107,14 +1111,14 @@ public class Server {
                     
                     if self.delegate?.server(self, permissionForRequest: request, managedObject: resource, context: context, key: key).toRaw() < ServerPermission.EditPermission.toRaw() {
                         
-                        return (ServerStatusCode.Forbidden, nil)
+                        return ServerStatusCode.Forbidden
                     }
                 }
                 
                 // make sure the attribute to edit is not undefined
                 if attribute!.attributeType == NSAttributeType.UndefinedAttributeType {
                     
-                    return (ServerStatusCode.BadRequest, nil)
+                    return ServerStatusCode.BadRequest
                 }
                 
                 // get pre-edit value
@@ -1123,7 +1127,7 @@ public class Server {
                 // validate that the pre-edit value is of the same class as the attribute it will be given
                 if !resource.isValidConvertedValue(newValue!, forAttribute: key) {
                     
-                    return (ServerStatusCode.BadRequest, nil)
+                    return ServerStatusCode.BadRequest
                 }
                 
                 // let the managed object verify that the new attribute value is a valid new value
@@ -1134,19 +1138,64 @@ public class Server {
                 
                 if !resource.validateValue(newValuePointer, forKey: key, error: nil) {
                     
-                    return (ServerStatusCode.BadRequest, nil)
+                    return ServerStatusCode.BadRequest
                 }
                 
-                newConvertedValues[key] = newValuePointer.memory
+                newValues[key] = newValuePointer.memory
             }
             
-            for (relationshipName, relationship) in resource.entity.relationshipsByName as [String: NSRelationshipDescription] {
+            // relationship
+            if relationship != nil {
                 
+                // check permissions of relationship
+                if permissionsEnabled {
+                    
+                    if self.delegate?.server(self, permissionForRequest: request, managedObject: resource, context: context, key: key).toRaw() < ServerPermission.EditPermission.toRaw() {
+                        
+                        return ServerStatusCode.Forbidden
+                    }
+                }
                 
+                // to-one relationship
+                if !relationship!.toMany {
+                    
+                    // must be number
+                    let destinationResourceID = jsonValue as? UInt
+                    
+                    if destinationResourceID == nil {
+                        
+                        return ServerStatusCode.BadRequest
+                    }
+                    
+                    let (newValue, error) = self.fetchEntity(relationship!.destinationEntity!, withResourceID: destinationResourceID!, usingContext: context, shouldPrefetch: false)
+                    
+                    if error != nil {
+                        
+                        return ServerStatusCode.InternalServerError
+                    }
+                    
+                    if newValue != nil {
+                        
+                        return ServerStatusCode.Forbidden
+                    }
+                    
+                    // destination resource must be visible
+                    if self.permissionsEnabled {
+                        
+                        if self.delegate
+                    }
+                    
+                    // must be a valid value
+                    if !resource.validateValue(newValue, forKey: key, error: error) {
+                        
+                        
+                    }
+                }
             }
+            
         }
         
-        return (ServerStatusCode.MethodNotAllowed, nil)
+        return ServerStatusCode.OK
     }
     
     // MARK: - Private Classes
