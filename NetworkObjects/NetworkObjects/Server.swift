@@ -1174,7 +1174,7 @@ public class Server {
                         return ServerStatusCode.InternalServerError
                     }
                     
-                    if newValue != nil {
+                    if newValue == nil {
                         
                         return ServerStatusCode.Forbidden
                     }
@@ -1182,14 +1182,75 @@ public class Server {
                     // destination resource must be visible
                     if self.permissionsEnabled {
                         
-                        if self.delegate
+                        if self.delegate?.server(self, permissionForRequest: request, managedObject: resource, context: context, key: nil).toRaw() < ServerPermission.ReadOnly.toRaw() {
+                            
+                            return ServerStatusCode.Forbidden
+                        }
                     }
                     
+                    let newValuePointer = AutoreleasingUnsafeMutablePointer<AnyObject?>()
+                    
+                    newValuePointer.memory = newValue!
+                    
                     // must be a valid value
-                    if !resource.validateValue(newValue, forKey: key, error: error) {
+                    if !resource.validateValue(newValuePointer, forKey: key, error: nil) {
                         
-                        
+                        return ServerStatusCode.BadRequest
                     }
+                    
+                    newValues[key] = newValue
+                }
+                
+                // to-many relationship
+                else {
+                    
+                    // must be array of numbers
+                    let destinationResourceIDs = jsonValue as? [UInt]
+                    
+                    if destinationResourceIDs == nil {
+                        
+                        return ServerStatusCode.BadRequest
+                    }
+                    
+                    let (newValue, error) = self.fetchEntity(relationship!.destinationEntity, withResourceIDs: destinationResourceIDs!, usingContext: context, shouldPrefetch: false)
+                    
+                    if error != nil {
+                        
+                        return ServerStatusCode.InternalServerError
+                    }
+                    
+                    // make sure all the values are present and have the correct permissions...
+                    
+                    if newValue.count != destinationResourceIDs?.count {
+                        
+                        return ServerStatusCode.BadRequest
+                    }
+                    
+                    for destinationResourceID in destinationResourceIDs! {
+                        
+                        let destinationResource = newValue[find(destinationResourceIDs!, destinationResourceID)!]
+                        
+                        // destination resource must be visible
+                        if self.permissionsEnabled {
+                            
+                            if self.delegate?.server(self, permissionForRequest: request, managedObject: resource, context: context, key: nil).toRaw() < ServerPermission.ReadOnly.toRaw() {
+                                
+                                return ServerStatusCode.Forbidden
+                            }
+                        }
+                    }
+                    
+                    let newValuePointer = AutoreleasingUnsafeMutablePointer<AnyObject?>()
+                    
+                    newValuePointer.memory = newValue
+                    
+                    // must be a valid value
+                    if !resource.validateValue(newValuePointer, forKey: key, error: nil) {
+                        
+                        return ServerStatusCode.BadRequest
+                    }
+                    
+                    newValues[key] = newValue
                 }
             }
             
