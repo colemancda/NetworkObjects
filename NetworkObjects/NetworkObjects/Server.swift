@@ -915,7 +915,6 @@ public class Server {
         var userInfo: [ServerUserInfoKey: AnyObject] = [ServerUserInfoKey.ManagedObjectContext: context]
         
         // ask delegate
-        
         if self.delegate != nil {
             
             let statusCode = self.delegate?.server(self, statusCodeForRequest: request, managedObject: nil)
@@ -929,7 +928,6 @@ public class Server {
         }
         
         // check for permissions
-        
         if permissionsEnabled {
             
             if self.delegate?.server(self, permissionForRequest: request, managedObject: nil, context: context, key: nil).toRaw() < ServerPermission.EditPermission.toRaw() {
@@ -961,22 +959,128 @@ public class Server {
             
             var editStatusCode: ServerStatusCode?
             
-            var newValues: [String: AnyObject]?
+            var newValues = [String: AnyObject]()
             
             let error = NSErrorPointer()
             
             context.performBlockAndWait({ () -> Void in
                 
-                editStatusCode = self.verifyEditResource(managedObject!, forRequest: request, context: context, newValues: newValues!, error: error)
+                editStatusCode = self.verifyEditResource(managedObject!, forRequest: request, context: context, newValues: &newValues, error: error)
+            })
+            
+            if editStatusCode != ServerStatusCode.OK {
+                
+                if editStatusCode == ServerStatusCode.InternalServerError {
+                    
+                    self.delegate?.server(self, didEncounterInternalError: error.memory!, forRequest: request, userInfo: userInfo)
+                }
+                
+                let response = ServerResponse(statusCode: editStatusCode!, JSONResponse: nil)
+                
+                return (response, userInfo)
+            }
+            
+            userInfo[ServerUserInfoKey.NewValues] = newValues
+            
+            // set new values from dictionary
+            context.performBlockAndWait({ () -> Void in
+                
+                managedObject?.setValuesForKeysWithDictionary(newValues)
+                
+                return
             })
         }
         
-        return (ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: ""), [ServerUserInfoKey.ResourceID:0])
+        // respond
+        
+        let jsonResponse = [resourceIDAttributeName: resourceID]
+        
+        let response = ServerResponse(statusCode: ServerStatusCode.OK, JSONResponse: jsonResponse)
+        
+        return (response, userInfo)
     }
     
     private func responseForGetRequest(request: ServerRequest) -> (ServerResponse, [ServerUserInfoKey: AnyObject]) {
         
-        return (ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: ""), [ServerUserInfoKey.ResourceID:0])
+        let resourceID = request.resourceID
+        
+        let entity = request.entity
+        
+        // user info
+        var userInfo: [ServerUserInfoKey: AnyObject] = [ServerUserInfoKey.ResourceID: resourceID!]
+        
+        // get context
+        let context = self.dataSource.server(self, managedObjectContextForRequest: request)
+        
+        userInfo[ServerUserInfoKey.ManagedObjectContext] = context
+        
+        // fetch managedObject
+        let (managedObject, error) = self.fetchEntity(entity, withResourceID: resourceID!, usingContext: context, shouldPrefetch: true)
+        
+        // internal error
+        if error != nil {
+            
+            if self.delegate != nil {
+                
+                self.delegate?.server(self, didEncounterInternalError: error!, forRequest: request, userInfo: userInfo)
+            }
+            
+            let response = ServerResponse(statusCode: ServerStatusCode.InternalServerError, JSONResponse: nil)
+            
+            return (response, userInfo)
+        }
+        
+        // not found 
+        if managedObject == nil {
+            
+            let response = ServerResponse(statusCode: ServerStatusCode.NotFound, JSONResponse: nil)
+            
+            return (response, userInfo)
+        }
+        
+        // add to userInfo
+        userInfo[ServerUserInfoKey.ManagedObject] = managedObject
+        
+        // ask delegate for access
+        if delegate != nil {
+            
+            let statusCode = self.delegate?.server(self, statusCodeForRequest: request, managedObject: managedObject)
+            
+            if statusCode != ServerStatusCode.OK {
+                
+                let response = ServerResponse(statusCode: statusCode!, JSONResponse: nil)
+                
+                return (response, userInfo)
+            }
+        }
+        
+        // check for permissions
+        if permissionsEnabled {
+            
+            if self.delegate?.server(self, permissionForRequest: request, managedObject: nil, context: context, key: nil).toRaw() < ServerPermission.EditPermission.toRaw() {
+                
+                let response = ServerResponse(statusCode: ServerStatusCode.Forbidden, JSONResponse: nil)
+                
+                return (response, userInfo)
+            }
+        }
+        
+        // build json object
+        var jsonObject: [String: AnyObject]?
+        
+        context.performBlockAndWait { () -> Void in
+            
+            if self.permissionsEnabled {
+                
+                jsonObject = self.filteredJSONRepresentationOfManagedObject(managedObject!, context: context, request: request)
+            }
+            else {
+                
+                jsonObject = self.JSONRepresentationOfManagedObject(managedObject!)
+            }
+        }
+        
+        return (ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: jsonObject), userInfo)
     }
     
     private func responseForEditRequest(request: ServerRequest) -> (ServerResponse, [ServerUserInfoKey: AnyObject]) {
@@ -1069,6 +1173,11 @@ public class Server {
     }
     
     private func JSONRepresentationOfManagedObject(managedObject: NSManagedObject) -> [String: AnyObject] {
+        
+        return ["":0]
+    }
+    
+    private func filteredJSONRepresentationOfManagedObject(managedObject: NSManagedObject, context: NSManagedObjectContext, request: ServerRequest) -> [String: AnyObject] {
         
         return ["":0]
     }
