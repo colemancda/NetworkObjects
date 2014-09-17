@@ -1256,14 +1256,19 @@ public class Server {
         
         // delete...
         
+        context.performBlockAndWait { () -> Void in
+            
+            context.deleteObject(managedObject!)
+        }
         
+        let response = ServerResponse(statusCode: ServerStatusCode.OK, JSONResponse: nil)
         
-        return (ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: ""), [ServerUserInfoKey.ResourceID:0])
+        return (response, userInfo)
     }
     
     private func responseForFunctionRequest(request: ServerRequest) -> (ServerResponse, [ServerUserInfoKey: AnyObject]) {
         
-        return (ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: ""), [ServerUserInfoKey.ResourceID:0])
+        
     }
     
     // MARK: - Internal Methods
