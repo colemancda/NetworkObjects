@@ -24,7 +24,7 @@ public class Store {
     /** The name of the Integer attribute that holds that resource identifier. */
     public let resourceIDAttributeName: String = "ID"
     
-    /** The path that the NetworkObjects server uses for search requests. If not specified then */
+    /** The path that the NetworkObjects server uses for search requests. If not specified then doing a search request will produce an error. */
     public let searchPath: String?
     
     /** This setting determines whether JSON requests made to the server will contain whitespace or not. */
@@ -81,6 +81,10 @@ public class Store {
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "mergeChangesFromContextDidSaveNotification:", name: NSManagedObjectContextDidSaveNotification, object: self.privateQueueManagedObjectContext)
     }
     
+    // MARK: - Requests
+    
+    
+    
     // MARK: - Internal Methods
     
     private func mergeChangesFromContextDidSaveNotification(notification: NSNotification) {
@@ -91,7 +95,26 @@ public class Store {
         }
     }
     
+    private func jsonWritingOption() -> NSJSONWritingOptions {
+        
+        if self.prettyPrintJSON {
+            
+            return NSJSONWritingOptions.PrettyPrinted;
+        }
+            
+        else {
+            
+            return NSJSONWritingOptions.allZeros;
+        }
+    }
     
+    // MARK: API
+    
+    // MARK: Convert
+    
+    // MARK: Errors
+    
+    // MARK: Cache
     
 }
 
