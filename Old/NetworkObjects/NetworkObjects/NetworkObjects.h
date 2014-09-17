@@ -2,15 +2,24 @@
 //  NetworkObjects.h
 //  NetworkObjects
 //
-//  Created by Alsey Coleman Miller on 9/12/14.
+//  Created by Alsey Coleman Miller on 6/12/14.
 //  Copyright (c) 2014 ColemanCDA. All rights reserved.
 //
 
-@import Foundation;
-@import RoutingHTTPServer;
+#import <Cocoa/Cocoa.h>
 
 //! Project version number for NetworkObjects.
 FOUNDATION_EXPORT double NetworkObjectsVersionNumber;
 
 //! Project version string for NetworkObjects.
 FOUNDATION_EXPORT const unsigned char NetworkObjectsVersionString[];
+
+#import <NetworkObjects/NOServer.h>
+#import <NetworkObjects/NOStore.h>
+#import <NetworkObjects/NOError.h>
+#import <NetworkObjects/NODefines.h>
+
+
+
+
+

@@ -9,6 +9,8 @@
 #import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
 
+@protocol NOStoreWebSocketDelegate;
+
 @interface NOStore : NSObject
 
 #pragma mark - Initialization
@@ -68,7 +70,13 @@
 
 @property (nonatomic, readonly) NSDictionary *entitiesByResourcePath;
 
-#pragma mark - Requests
+/** The Web Socket that is connected to the server. */
+
+@property (nonatomic, readonly) id webSocket;
+
+@property (nonatomic) id<NOStoreWebSocketDelegate> webSocketDelegate;
+
+#pragma mark - HTTP Requests
 
 /** Performs a fetch request on the server and returns the results in the completion block. The fetch request results are filtered by the permissions the session has.
  
@@ -111,5 +119,34 @@
                           withJSONObject:(NSDictionary *)jsonObject
                               URLSession:(NSURLSession *)urlSession
                               completion:(void (^)(NSError *error, NSNumber *statusCode, NSDictionary *jsonResponse))completionBlock;
+
+#pragma mark - Web Socket Requests
+
+-(void)connectToWebSocket;
+
+-(void)performSearchWithFetchRequest:(NSFetchRequest *)fetchRequest;
+
+-(void)fetchEntityWithName:(NSString *)entityName
+                resourceID:(NSNumber *)resourceID;
+
+-(void)editManagedObject:(NSManagedObject *)managedObject
+                 changes:(NSDictionary *)values;
+
+-(void)deleteManagedObject:(NSManagedObject *)managedObject;
+
+-(void)createEntityWithName:(NSString *)entityName
+              initialValues:(NSDictionary *)initialValues;
+
+-(void)performFunction:(NSString *)functionName
+      forManagedObject:(NSManagedObject*)managedObject
+        withJSONObject:(NSDictionary *)jsonObject;
+
+@end
+
+@protocol NOStoreWebSocketDelegate <NSObject>
+
+-(void)store:(NOStore *)store didConnectToWebSocketWithError:(NSError *)error;
+
+-(void)store:(NOStore *)store didPerformSearchWithFetchRequest:(NSFetchRequest *)fetchRequest results:(NSArray *)results error:(NSError *)error;
 
 @end
