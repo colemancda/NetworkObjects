@@ -57,6 +57,13 @@ typedef NS_ENUM(NSUInteger, NOServerStatusCode) {
     
 };
 
+typedef NS_ENUM(NSInteger, NOServerConnectionType) {
+    
+    NOServerConnectionTypeHTTP = 1,
+    NOServerConnectionTypeWebSocket
+};
+
+
 /** Identifies the server request type */
 
 typedef NS_ENUM(NSInteger, NOServerRequestType) {

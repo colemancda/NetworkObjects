@@ -14,7 +14,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "6EAD584519C3B58300DC080A"
+               BlueprintIdentifier = "6E38BEDA194A6F0800FD5513"
                BuildableName = "NetworkObjects.framework"
                BlueprintName = "NetworkObjects"
                ReferencedContainer = "container:NetworkObjects.xcodeproj">
@@ -28,6 +28,16 @@
       shouldUseLaunchSchemeArgsEnv = "YES"
       buildConfiguration = "Debug">
       <Testables>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "6E38BEE5194A6F0800FD5513"
+               BuildableName = "NetworkObjectsTests.xctest"
+               BlueprintName = "NetworkObjectsTests"
+               ReferencedContainer = "container:NetworkObjects.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction
@@ -39,15 +49,6 @@
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "YES"
       allowLocationSimulation = "YES">
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "6EAD584519C3B58300DC080A"
-            BuildableName = "NetworkObjects.framework"
-            BlueprintName = "NetworkObjects"
-            ReferencedContainer = "container:NetworkObjects.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>
@@ -57,15 +58,6 @@
       useCustomWorkingDirectory = "NO"
       buildConfiguration = "Release"
       debugDocumentVersioning = "YES">
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "6EAD584519C3B58300DC080A"
-            BuildableName = "NetworkObjects.framework"
-            BlueprintName = "NetworkObjects"
-            ReferencedContainer = "container:NetworkObjects.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">
