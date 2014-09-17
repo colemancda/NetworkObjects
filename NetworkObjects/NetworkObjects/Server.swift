@@ -1231,9 +1231,78 @@ public class Server {
     
     private func filteredJSONRepresentationOfManagedObject(managedObject: NSManagedObject, context: NSManagedObjectContext, request: ServerRequest) -> [String: AnyObject] {
         
+        // build JSON object...
         
+        var jsonObject = [String: AnyObject]()
         
-        return ["":0]
+        // first the attributes
+        for (attributeName, attribute) in managedObject.entity.attributesByName as [String: NSAttributeDescription] {
+            
+            // check access permissions (unless its the resourceID, thats always visible)
+            if attributeName != self.resourceIDAttributeName {
+                
+                if self.delegate?.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key: attributeName).toRaw() >= ServerPermission.ReadOnly.toRaw() {
+                    
+                    // make sure the attribute is not undefined
+                    if attribute.attributeType != NSAttributeType.UndefinedAttributeType {
+                        
+                        // add to JSON representation
+                        jsonObject[attributeName] = managedObject.JSONCompatibleValueForAttribute(attributeName)
+                    }
+                }
+            }
+        }
+        
+        // then the relationships
+        for (relationshipName, relationshipDescription) in managedObject.entity.relationshipsByName as [String: NSRelationshipDescription] {
+            
+            // make sure relationship is visible
+            if self.delegate?.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key: relationshipName).toRaw() >= ServerPermission.ReadOnly.toRaw() {
+                
+                // to-one relationship
+                if !relationshipDescription.toMany {
+                    
+                    // get destination resource
+                    let destinationResource = managedObject.valueForKey(relationshipName) as NSManagedObject
+                    
+                    // check access permissions (the relationship & the single distination object must be visible)
+                    if self.delegate?.server(self, permissionForRequest: request, managedObject: destinationResource, context: context, key: nil).toRaw() >= ServerPermission.ReadOnly.toRaw() {
+                        
+                        // get resource ID
+                        let destinationResourceID = destinationResource.valueForKey(self.resourceIDAttributeName) as UInt
+                        
+                        // add to JSON object
+                        jsonObject[relationshipName] = destinationResourceID
+                    }
+                }
+                    
+                // to-many relationship
+                else {
+                    
+                    // get destination collection
+                    let toManyRelationship = managedObject.valueForKey(relationshipName) as [NSManagedObject]
+                    
+                    // only add resources that are visible
+                    var resourceIDs = [UInt]()
+                    
+                    for destinationResource in toManyRelationship {
+                        
+                        if self.delegate?.server(self, permissionForRequest: request, managedObject: destinationResource, context: context, key: nil).toRaw() >= ServerPermission.ReadOnly.toRaw() {
+                            
+                            // get destination resource ID
+                            let destinationResourceID = destinationResource.valueForKey(self.resourceIDAttributeName) as UInt
+                            
+                            resourceIDs.append(destinationResourceID)
+                        }
+                    }
+                    
+                    // add to jsonObject
+                    jsonObject[relationshipName] = resourceIDs
+                }
+            }
+        }
+        
+        return jsonObject
     }
     
     private func verifyEditResource(resource: NSManagedObject, forRequest request:ServerRequest, context: NSManagedObjectContext, inout newValues: [String: AnyObject], error: NSErrorPointer) -> ServerStatusCode {
