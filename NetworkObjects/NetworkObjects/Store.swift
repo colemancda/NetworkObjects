@@ -48,14 +48,49 @@ public class Store {
         NSNotificationCenter.defaultCenter().removeObserver(self, name: NSManagedObjectContextDidSaveNotification, object: self.privateQueueManagedObjectContext)
     }
     
-    init(persistentStoreCoordinator: NSPersistentStoreCoordinator, managedObjectContextConcurrencyType: NSManagedObjectContextConcurrencyType, serverURL: NSURL, entitiesByResourcePath: [String: NSEntityDescription], prettyPrintJSON: Bool, resourceIDAttributeName: String, dateCachedAttributeName: String?, searchPath: String?) {
+    init(persistentStoreCoordinator: NSPersistentStoreCoordinator, managedObjectContextConcurrencyType: NSManagedObjectContextConcurrencyType, serverURL: NSURL, entitiesByResourcePath: [String: NSEntityDescription], prettyPrintJSON: Bool?, resourceIDAttributeName: String?, dateCachedAttributeName: String?, searchPath: String?) {
         
-        // set values
+        // set required values
+        self.serverURL = serverURL
+        self.entitiesByResourcePath = entitiesByResourcePath
         
+        // set optional values
+        self.dateCachedAttributeName = dateCachedAttributeName
+        self.searchPath = searchPath
         
+        // set values that have defaults
+        if prettyPrintJSON != nil {
+            
+            self.prettyPrintJSON = prettyPrintJSON!
+        }
+        if resourceIDAttributeName != nil {
+            
+            self.resourceIDAttributeName = resourceIDAttributeName!
+        }
         
         // setup contexts
+        
+        self.managedObjectContext = NSManagedObjectContext(concurrencyType: managedObjectContextConcurrencyType)
+        self.managedObjectContext.undoManager = nil
+        self.managedObjectContext.persistentStoreCoordinator = persistentStoreCoordinator
+        
+        self.privateQueueManagedObjectContext.undoManager = nil
+        self.privateQueueManagedObjectContext.persistentStoreCoordinator = persistentStoreCoordinator
+        
+        // listen for notifications (for merging changes)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "mergeChangesFromContextDidSaveNotification:", name: NSManagedObjectContextDidSaveNotification, object: self.privateQueueManagedObjectContext)
     }
+    
+    // MARK: - Internal Methods
+    
+    private func mergeChangesFromContextDidSaveNotification(notification: NSNotification) {
+        
+        self.managedObjectContext.performBlock { () -> Void in
+            
+            self.managedObjectContext.mergeChangesFromContextDidSaveNotification(notification)
+        }
+    }
+    
     
     
 }
