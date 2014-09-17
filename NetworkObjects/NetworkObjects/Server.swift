@@ -1268,7 +1268,89 @@ public class Server {
     
     private func responseForFunctionRequest(request: ServerRequest) -> (ServerResponse, [ServerUserInfoKey: AnyObject]) {
         
+        let resourceID = request.resourceID
         
+        let entity = request.entity
+        
+        // user info
+        var userInfo: [ServerUserInfoKey: AnyObject] = [ServerUserInfoKey.ResourceID: resourceID!]
+        
+        // get context
+        let context = self.dataSource.server(self, managedObjectContextForRequest: request)
+        
+        userInfo[ServerUserInfoKey.ManagedObjectContext] = context
+        
+        // fetch managedObject
+        let (managedObject, error) = self.fetchEntity(entity, withResourceID: resourceID!, usingContext: context, shouldPrefetch: true)
+        
+        // internal error
+        if error != nil {
+            
+            if self.delegate != nil {
+                
+                self.delegate?.server(self, didEncounterInternalError: error!, forRequest: request, userInfo: userInfo)
+            }
+            
+            let response = ServerResponse(statusCode: ServerStatusCode.InternalServerError, JSONResponse: nil)
+            
+            return (response, userInfo)
+        }
+        
+        // not found
+        if managedObject == nil {
+            
+            let response = ServerResponse(statusCode: ServerStatusCode.NotFound, JSONResponse: nil)
+            
+            return (response, userInfo)
+        }
+        
+        // add to userInfo
+        userInfo[ServerUserInfoKey.ManagedObject] = managedObject
+        
+        // add jsonObject to userInfo
+        let recievedJSONObject = request.JSONObject
+        
+        if recievedJSONObject != nil {
+            
+            userInfo[ServerUserInfoKey.FunctionJSONInput] = recievedJSONObject
+        }
+        
+        // ask delegate for access
+        if delegate != nil {
+            
+            let statusCode = self.delegate?.server(self, statusCodeForRequest: request, managedObject: managedObject)
+            
+            if statusCode != ServerStatusCode.OK {
+                
+                let response = ServerResponse(statusCode: statusCode!, JSONResponse: nil)
+                
+                return (response, userInfo)
+            }
+        }
+        
+        // check for permissions
+        if permissionsEnabled {
+            
+            if self.delegate?.server(self, permissionForRequest: request, managedObject: nil, context: context, key: nil).toRaw() < ServerPermission.EditPermission.toRaw() {
+                
+                let response = ServerResponse(statusCode: ServerStatusCode.Forbidden, JSONResponse: nil)
+                
+                return (response, userInfo)
+            }
+        }
+        
+        // ask data source
+        let (functionCode, jsonObject) = self.dataSource.server(self, performFunction: request.functionName!, forManagedObject: managedObject!, context: context, recievedJsonObject: recievedJSONObject)
+        
+        if jsonObject != nil {
+            
+            // add to userInfo
+            userInfo[ServerUserInfoKey.FunctionJSONOutput] = jsonObject
+        }
+        
+        let response = ServerResponse(statusCode: functionCode.toServerStatusCode(), JSONResponse: jsonObject)
+        
+        return (response, userInfo)
     }
     
     // MARK: - Internal Methods
