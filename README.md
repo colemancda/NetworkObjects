@@ -21,7 +21,14 @@ Optionally the Server can create function and search URLs for special requests
 |POST    |/search/entityPath					|
 |POST    |/entityPath/id/functionName	|
 
+# Server Permissions / Access Control
+
 By default the server provides no authentication, but the Server can use SSL and the can ask its delegate for access control based on HTTP headers, making authentication completely customizeable. In addition to HTTP, the Server's data source and delegate protocols are built to be agnostic to connection protocols, making it open to other protocols in the future (WebSockets support is planned).
+
+There are two delegate protocol methods for access control:
+
+    func server(Server, statusCodeForRequest request: ServerRequest, managedObject: NSManagedObject?) -> ServerStatusCode
+    func server(Server, permissionForRequest request: ServerRequest, managedObject: NSManagedObject?, context: NSManagedObjectContext?, key: String?) -> ServerPermission
 
 # Client-side caching
 
