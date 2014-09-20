@@ -140,13 +140,13 @@ public class Store {
             jsonObject[SearchParameter.SortDescriptors.toRaw()] = jsonSortDescriptors
         }
         
-        // get entity
+        // call API method
         
-        let entity = self.model.entity
-        
-        
-        
-        return NSURLSessionDataTask()
+        return self.searchForResource(fetchRequest.entity, withParameters: jsonObject, URLSession: URLSession, completionBlock: { (error, results) -> Void in
+            
+            
+            
+        })
     }
     
     // MARK: - Internal Methods
@@ -174,15 +174,93 @@ public class Store {
     
     // MARK: API
     
+    /** Makes the actual search request to the server based on JSON input. */
+    private func searchForResource(entity: NSEntityDescription, withParameters parameters:[String: AnyObject], URLSession: NSURLSession, completionBlock: ((error: NSError?, results: [[String: UInt]]?) -> Void)) -> NSURLSessionDataTask {
+        
+        // build URL
+        
+        let resourcePath = (self.entitiesByResourcePath as NSDictionary).allKeysForObject(entity).first as? String
+        
+        let searchURL = self.serverURL.URLByAppendingPathComponent(self.searchPath!).URLByAppendingPathComponent(resourcePath!)
+        
+        let urlRequest = NSMutableURLRequest(URL: searchURL)
+        
+        urlRequest.HTTPMethod = "POST"
+        
+        // add JSON data
+        
+        let jsonData = NSJSONSerialization.dataWithJSONObject(parameters, options: self.jsonWritingOption(), error: nil)!
+        
+        urlRequest.HTTPBody = jsonData
+        
+        let dataTask = URLSession.dataTaskWithRequest(urlRequest, completionHandler: { (data, response, error) -> Void in
+            
+            if error != nil {
+                
+                completionBlock(error: error, results: nil)
+            }
+            
+            let httpResponse = response as NSHTTPURLResponse
+            
+            // error codes
+            
+            if httpResponse.statusCode != ServerStatusCode.OK.toRaw() {
+                
+                switch httpResponse.statusCode {
+                    
+                case ServerStatusCode.Unauthorized.toRaw():
+                    completionBlock(error: self.invalidServerResponseError, results: nil)
+                case ServerStatusCode.Unauthorized.toRaw():
+                    completionBlock(error: self.invalidServerResponseError, results: nil)
+                case ServerStatusCode.Unauthorized.toRaw():
+                    completionBlock(error: self.invalidServerResponseError, results: nil)
+                case ServerStatusCode.Unauthorized.toRaw():
+                    completionBlock(error: self.invalidServerResponseError, results: nil)
+                default:
+                    
+                }
+            }
+            
+        })
+        
+        dataTask.resume()
+        
+        return dataTask
+    }
+    
     // MARK: Convert
     
     
     
     // MARK: Errors
     
+    private let invalidServerResponseError = NSError(domain: NetworkObjectsErrorDomain, code: ErrorCode.InvalidServerResponse.toRaw(), userInfo: [NSLocalizedDescriptionKey: NSLocalizedString("ErrorCode.InvalidServerResponse.LocalizedDescription", tableName: "ErrorStrings", bundle: NSBundle(identifier: "com.ColemanCDA.NetworkObjects"), value: "The server returned an invalid response.", comment: "NSLocalizedDescriptionKey for NSError with ErrorCode.InvalidServerResponse")])
+    
+    private let badRequestError = NSError(domain: NetworkObjectsErrorDomain, code: ErrorCode.ServerStatusCodeBadRequest.toRaw(), userInfo: [NSLocalizedDescriptionKey: NSLocalizedString("ErrorCode.ServerStatusCodeBadRequest.LocalizedDescription", tableName: "ErrorStrings", bundle: NSBundle(identifier: "com.ColemanCDA.NetworkObjects"), value: "Invalid request.", comment: "NSLocalizedDescriptionKey for NSError with ErrorCode.ServerStatusCodeBadRequest")])
+    
+    private let internalServerError = NSError(domain: NetworkObjectsErrorDomain, code: ErrorCode.ServerStatusCodeInternalServerError.toRaw(), userInfo: [NSLocalizedDescriptionKey: NSLocalizedString("ErrorCode.ServerStatusCodeInternalServerError.LocalizedDescription", tableName: "ErrorStrings", bundle: NSBundle(identifier: "com.ColemanCDA.NetworkObjects"), value: "The server returned an invalid response.", comment: "NSLocalizedDescriptionKey for NSError with ErrorCode.InvalidServerResponse")])
+    
+    private let invalidServerResponseError = NSError(domain: NetworkObjectsErrorDomain, code: ErrorCode.InvalidServerResponse.toRaw(), userInfo: [NSLocalizedDescriptionKey: NSLocalizedString("ErrorCode.InvalidServerResponse.LocalizedDescription", tableName: "ErrorStrings", bundle: NSBundle(identifier: "com.ColemanCDA.NetworkObjects"), value: "The server returned an invalid response.", comment: "NSLocalizedDescriptionKey for NSError with ErrorCode.InvalidServerResponse")])
+    
     // MARK: Cache
     
-    
+    private func setupDateCachedAttributeWithAttributeName(dateCachedAttributeName: String) {
+        
+        // add a date attribute to managed object model
+        for (entityName, entity) in self.model.entitiesByName as [String: NSEntityDescription] {
+            
+            if entity.superentity == nil {
+                
+                // create new (runtime) attribute
+                let dateAttribute = NSAttributeDescription()
+                dateAttribute.attributeType = NSAttributeType.DateAttributeType
+                dateAttribute.name = dateCachedAttributeName
+                
+                // add to entity
+                entity.properties.append(dateAttribute)
+            }
+        }
+    }
     
 }
 
