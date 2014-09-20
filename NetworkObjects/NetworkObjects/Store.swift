@@ -204,18 +204,35 @@ public class Store {
             
             // error codes
             
-            let errorCode = ErrorCode.fromRaw(httpResponse.statusCode)
-            
-            if errorCode != nil {
+            if httpResponse.statusCode != ServerStatusCode.OK.toRaw() {
                 
-                if errorCode == ErrorCode.ServerStatusCodeForbidden {
+                let errorCode = ErrorCode.fromRaw(httpResponse.statusCode)
+                
+                if errorCode != nil {
                     
+                    if errorCode == ErrorCode.ServerStatusCodeForbidden {
+                        
+                        let frameworkBundle = NSBundle(identifier: "com.ColemanCDA.NetworkObjects")
+                        let tableName = "Error"
+                        let comment = "Description for ErrorCode.\(self) for Search Request"
+                        let key = "ErrorCode.\(self).LocalizedDescription.Search"
+                        
+                        let customError = NSError(domain: NetworkObjectsErrorDomain, code: errorCode!.toRaw(), userInfo: [NSLocalizedDescriptionKey: NSLocalizedString(key, tableName: tableName, bundle: frameworkBundle, value: "Permission to perform search is denied", comment: comment)])
+                        
+                        completionBlock(error: customError, results: nil)
+                        
+                        return
+                    }
                     
+                    completionBlock(error: errorCode!.toError(), results: nil)
+                    
+                    return
                 }
                 
-                completionBlock(error: errorCode!.toError(), results: nil)
+                completionBlock(error: ErrorCode.InvalidServerResponse.toError(), results: nil)
+                
+                return
             }
-            
         })
         
         dataTask.resume()
