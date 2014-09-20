@@ -53,33 +53,49 @@ internal extension ErrorCode {
         
         let tableName = "Error"
         
+        let comment = "NSLocalizedDescriptionKey for NSError with ErrorCode.\(self)"
+        
+        let key = "ErrorCode.\(self).LocalizedDescription"
+        
+        var value: String?
+        
         switch self {
         case .ServerStatusCodeBadRequest:
-            return NSError(domain: NetworkObjectsErrorDomain, code: ErrorCode.ServerStatusCodeBadRequest.toRaw(), userInfo: [NSLocalizedDescriptionKey: NSLocalizedString("ErrorCode.ServerStatusCodeBadRequest.LocalizedDescription", tableName: tableName, bundle: frameworkBundle, value: "Invalid request", comment: "NSLocalizedDescriptionKey for NSError with ErrorCode.ServerStatusCodeBadRequest")])
+            value = "Invalid request"
             
         case .ServerStatusCodeUnauthorized:
-            return NSError(domain: NetworkObjectsErrorDomain, code: ErrorCode.ServerStatusCodeUnauthorized.toRaw(), userInfo: [NSLocalizedDescriptionKey: NSLocalizedString("ErrorCode.ServerStatusCodeBadRequest.LocalizedDescription", tableName: tableName, bundle: frameworkBundle, value: "Authentication required", comment: "NSLocalizedDescriptionKey for NSError with ErrorCode.ServerStatusCodeUnauthorized")])
+            value =  "Authentication required"
             
-        case .ServerStatusCodeConflict:
-            return NSError(domain: NetworkObjectsErrorDomain, code: ErrorCode.ServerStatusCodeBadRequest.toRaw(), userInfo: [NSLocalizedDescriptionKey: NSLocalizedString("ErrorCode.ServerStatusCodeBadRequest.LocalizedDescription", tableName: tableName, bundle: frameworkBundle, value: "Invalid request.", comment: "NSLocalizedDescriptionKey for NSError with ErrorCode.ServerStatusCodeBadRequest")])
+        case .ServerStatusCodePaymentRequired:
+            value = "Payment required"
             
         case .ServerStatusCodeForbidden:
-            return NSError(domain: NetworkObjectsErrorDomain, code: ErrorCode.ServerStatusCodeBadRequest.toRaw(), userInfo: [NSLocalizedDescriptionKey: NSLocalizedString("ErrorCode.ServerStatusCodeBadRequest.LocalizedDescription", tableName: tableName, bundle: frameworkBundle, value: "Invalid request.", comment: "NSLocalizedDescriptionKey for NSError with ErrorCode.ServerStatusCodeBadRequest")])
+            value = "Access denied"
             
-        case .ServerStatusCodeBadRequest:
-            return NSError(domain: NetworkObjectsErrorDomain, code: ErrorCode.ServerStatusCodeBadRequest.toRaw(), userInfo: [NSLocalizedDescriptionKey: NSLocalizedString("ErrorCode.ServerStatusCodeBadRequest.LocalizedDescription", tableName: tableName, bundle: frameworkBundle, value: "Invalid request.", comment: "NSLocalizedDescriptionKey for NSError with ErrorCode.ServerStatusCodeBadRequest")])
+        case .ServerStatusCodeNotFound:
+            value = "Resource not found"
             
-        case .ServerStatusCodeBadRequest:
-            return NSError(domain: NetworkObjectsErrorDomain, code: ErrorCode.ServerStatusCodeBadRequest.toRaw(), userInfo: [NSLocalizedDescriptionKey: NSLocalizedString("ErrorCode.ServerStatusCodeBadRequest.LocalizedDescription", tableName: tableName, bundle: frameworkBundle, value: "Invalid request.", comment: "NSLocalizedDescriptionKey for NSError with ErrorCode.ServerStatusCodeBadRequest")])
+        case .ServerStatusCodeMethodNotAllowed:
+            value = "Method not allowed"
             
-        case .ServerStatusCodeBadRequest:
-            return NSError(domain: NetworkObjectsErrorDomain, code: ErrorCode.ServerStatusCodeBadRequest.toRaw(), userInfo: [NSLocalizedDescriptionKey: NSLocalizedString("ErrorCode.ServerStatusCodeBadRequest.LocalizedDescription", tableName: tableName, bundle: frameworkBundle, value: "Invalid request.", comment: "NSLocalizedDescriptionKey for NSError with ErrorCode.ServerStatusCodeBadRequest")])
+        case .ServerStatusCodeConflict:
+            value = "Request sent to server conflicts with data on server"
             
-        case .ServerStatusCodeBadRequest:
-            return NSError(domain: NetworkObjectsErrorDomain, code: ErrorCode.ServerStatusCodeBadRequest.toRaw(), userInfo: [NSLocalizedDescriptionKey: NSLocalizedString("ErrorCode.ServerStatusCodeBadRequest.LocalizedDescription", tableName: tableName, bundle: frameworkBundle, value: "Invalid request.", comment: "NSLocalizedDescriptionKey for NSError with ErrorCode.ServerStatusCodeBadRequest")])
+        case .ServerStatusCodeInternalServerError:
+            value = "Internal server error"
+            
+        case .InvalidServerResponse:
+            value = "Invalid server response"
+            
+        case .CouldNotConvertJSONDataToString:
+            value = "Could not convert JSON data to string"
             
         default:
-            return NSError()
+            value = "Error"
         }
+        
+        let userInfo = [NSLocalizedDescriptionKey: NSLocalizedString(key, tableName: tableName, bundle: frameworkBundle, value: value!, comment: comment)]
+        
+        return NSError(domain: NetworkObjectsErrorDomain, code: self.toRaw(), userInfo: userInfo)
     }
 }
