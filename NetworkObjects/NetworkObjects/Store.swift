@@ -144,8 +144,61 @@ public class Store {
         
         return self.searchForResource(fetchRequest.entity, withParameters: jsonObject, URLSession: URLSession, completionBlock: { (error, results) -> Void in
             
+            if error != nil {
+                
+                completionBlock(error: ErrorCode.InvalidServerResponse.toError(), results: nil)
+                
+                return
+            }
             
+            // get results as cached resources...
             
+            var cachedResults = [NSManagedObject]()
+            
+            self.privateQueueManagedObjectContext.performBlockAndWait({ () -> Void in
+                
+                for resourcePathByResourceID in results! {
+                    
+                    let resourceID = UInt(resourcePathByResourceID.keys.first!.toInt()!)
+                    
+                    let resourcePath = resourcePathByResourceID.values.first
+                    
+                    // get the entity
+                    
+                    let entity = self.entitiesByResourcePath[resourcePath!]
+                    
+                    let resource = self.findOrCreateEntity(entity!, withResourceID: resourceID, context: self.privateQueueManagedObjectContext)
+                    
+                    cachedResults.append(resource)
+                    
+                    // save
+                    
+                    let saveError = NSErrorPointer()
+                    
+                    if self.privateQueueManagedObjectContext.save(saveError) {
+                        
+                        completionBlock(error: saveError.memory, results: nil)
+                        
+                        return
+                    }
+                }
+            })
+            
+            // get the corresponding managed objects that belongs to the main queue context
+            
+            var mainContextResults = [NSManagedObject]()
+            
+            self.managedObjectContext.performBlockAndWait({ () -> Void in
+                
+                for managedObject in cachedResults {
+                    
+                    let mainContextManagedObject = self.managedObjectContext.objectWithID(managedObject.objectID)
+                    
+                    mainContextResults.append(mainContextManagedObject)
+                }
+            })
+            
+            completionBlock(error: nil, results: mainContextResults)
         })
     }
     
@@ -174,8 +227,10 @@ public class Store {
     
     // MARK: API
     
+    // The API private methods separate the JSON validation and HTTP requests from Core Data caching.
+    
     /** Makes the actual search request to the server based on JSON input. */
-    private func searchForResource(entity: NSEntityDescription, withParameters parameters:[String: AnyObject], URLSession: NSURLSession, completionBlock: ((error: NSError?, results: [[String: UInt]]?) -> Void)) -> NSURLSessionDataTask {
+    private func searchForResource(entity: NSEntityDescription, withParameters parameters:[String: AnyObject], URLSession: NSURLSession, completionBlock: ((error: NSError?, results: [[String: String]]?) -> Void)) -> NSURLSessionDataTask {
         
         // build URL
         
@@ -229,10 +284,40 @@ public class Store {
                     return
                 }
                 
+                // no recognizeable error code
                 completionBlock(error: ErrorCode.InvalidServerResponse.toError(), results: nil)
                 
                 return
             }
+            
+            // no error status code...
+            
+            let jsonResponse = NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.AllowFragments, error: nil) as? [[String: String]]
+            
+            // invalid JSON response
+            if jsonResponse == nil {
+                
+                completionBlock(error: ErrorCode.InvalidServerResponse.toError(), results: nil)
+                
+                return
+            }
+            
+            // dictionaries must have one key-value pair
+            for resultResourcePathByResourceID in jsonResponse! {
+                
+                let dictionary = resultResourcePathByResourceID as NSDictionary
+                
+                if dictionary.count != 1 {
+                    
+                    completionBlock(error: ErrorCode.InvalidServerResponse.toError(), results: nil)
+                    
+                    return
+                }
+            }
+            
+            
+            // JSON has been validated
+            completionBlock(error: nil, results: jsonResponse)
         })
         
         dataTask.resume()
@@ -262,6 +347,11 @@ public class Store {
                 entity.properties.append(dateAttribute)
             }
         }
+    }
+    
+    private func findOrCreateEntity(entity: NSEntityDescription, withResourceID resource: UInt, context: NSManagedObjectContext) -> NSManagedObject {
+        
+        
     }
     
 }
