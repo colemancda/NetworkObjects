@@ -204,21 +204,16 @@ public class Store {
             
             // error codes
             
-            if httpResponse.statusCode != ServerStatusCode.OK.toRaw() {
+            let errorCode = ErrorCode.fromRaw(httpResponse.statusCode)
+            
+            if errorCode != nil {
                 
-                switch httpResponse.statusCode {
+                if errorCode == ErrorCode.ServerStatusCodeForbidden {
                     
-                case ServerStatusCode.Unauthorized.toRaw():
-                    completionBlock(error: self.invalidServerResponseError, results: nil)
-                case ServerStatusCode.Unauthorized.toRaw():
-                    completionBlock(error: self.invalidServerResponseError, results: nil)
-                case ServerStatusCode.Unauthorized.toRaw():
-                    completionBlock(error: self.invalidServerResponseError, results: nil)
-                case ServerStatusCode.Unauthorized.toRaw():
-                    completionBlock(error: self.invalidServerResponseError, results: nil)
-                default:
                     
                 }
+                
+                completionBlock(error: errorCode!.toError(), results: nil)
             }
             
         })
@@ -231,16 +226,6 @@ public class Store {
     // MARK: Convert
     
     
-    
-    // MARK: Errors
-    
-    private let invalidServerResponseError = NSError(domain: NetworkObjectsErrorDomain, code: ErrorCode.InvalidServerResponse.toRaw(), userInfo: [NSLocalizedDescriptionKey: NSLocalizedString("ErrorCode.InvalidServerResponse.LocalizedDescription", tableName: "ErrorStrings", bundle: NSBundle(identifier: "com.ColemanCDA.NetworkObjects"), value: "The server returned an invalid response.", comment: "NSLocalizedDescriptionKey for NSError with ErrorCode.InvalidServerResponse")])
-    
-    private let badRequestError = NSError(domain: NetworkObjectsErrorDomain, code: ErrorCode.ServerStatusCodeBadRequest.toRaw(), userInfo: [NSLocalizedDescriptionKey: NSLocalizedString("ErrorCode.ServerStatusCodeBadRequest.LocalizedDescription", tableName: "ErrorStrings", bundle: NSBundle(identifier: "com.ColemanCDA.NetworkObjects"), value: "Invalid request.", comment: "NSLocalizedDescriptionKey for NSError with ErrorCode.ServerStatusCodeBadRequest")])
-    
-    private let internalServerError = NSError(domain: NetworkObjectsErrorDomain, code: ErrorCode.ServerStatusCodeInternalServerError.toRaw(), userInfo: [NSLocalizedDescriptionKey: NSLocalizedString("ErrorCode.ServerStatusCodeInternalServerError.LocalizedDescription", tableName: "ErrorStrings", bundle: NSBundle(identifier: "com.ColemanCDA.NetworkObjects"), value: "The server returned an invalid response.", comment: "NSLocalizedDescriptionKey for NSError with ErrorCode.InvalidServerResponse")])
-    
-    private let invalidServerResponseError = NSError(domain: NetworkObjectsErrorDomain, code: ErrorCode.InvalidServerResponse.toRaw(), userInfo: [NSLocalizedDescriptionKey: NSLocalizedString("ErrorCode.InvalidServerResponse.LocalizedDescription", tableName: "ErrorStrings", bundle: NSBundle(identifier: "com.ColemanCDA.NetworkObjects"), value: "The server returned an invalid response.", comment: "NSLocalizedDescriptionKey for NSError with ErrorCode.InvalidServerResponse")])
     
     // MARK: Cache
     

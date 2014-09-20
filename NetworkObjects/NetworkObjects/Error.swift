@@ -13,16 +13,14 @@ public let NetworkObjectsErrorDomain = "com.ColemanCDA.NetworkObjects.ErrorDomai
 /** Error codes used with NetworkObjects. */
 public enum ErrorCode: Int {
     
-    /** OK status code. */
-    case ServerStatusCodeOK = 200
-    
     /** Bad request status code. */
     case ServerStatusCodeBadRequest = 400
     
     /** Unauthorized status code. e.g. Used when authentication is required. */
     case ServerStatusCodeUnauthorized = 401 // not logged in
     
-    case CodeServerStatusCodePaymentRequired = 402
+    /** Payment required. */
+    case ServerStatusCodePaymentRequired = 402
     
     /** Forbidden status code. e.g. Used when permission is denied. */
     case ServerStatusCodeForbidden = 403 // item is invisible to user or api app
@@ -44,4 +42,44 @@ public enum ErrorCode: Int {
     
     /** Could not convert a serialized JSON data to a string. */
     case CouldNotConvertJSONDataToString = 1001
+}
+
+internal extension ErrorCode {
+    
+    /** Returns generic errors for error codes. */
+    func toError() -> NSError {
+        
+        let frameworkBundle = NSBundle(identifier: "com.ColemanCDA.NetworkObjects")
+        
+        let tableName = "Error"
+        
+        switch self {
+        case .ServerStatusCodeBadRequest:
+            return NSError(domain: NetworkObjectsErrorDomain, code: ErrorCode.ServerStatusCodeBadRequest.toRaw(), userInfo: [NSLocalizedDescriptionKey: NSLocalizedString("ErrorCode.ServerStatusCodeBadRequest.LocalizedDescription", tableName: tableName, bundle: frameworkBundle, value: "Invalid request", comment: "NSLocalizedDescriptionKey for NSError with ErrorCode.ServerStatusCodeBadRequest")])
+            
+        case .ServerStatusCodeUnauthorized:
+            return NSError(domain: NetworkObjectsErrorDomain, code: ErrorCode.ServerStatusCodeUnauthorized.toRaw(), userInfo: [NSLocalizedDescriptionKey: NSLocalizedString("ErrorCode.ServerStatusCodeBadRequest.LocalizedDescription", tableName: tableName, bundle: frameworkBundle, value: "Authentication required", comment: "NSLocalizedDescriptionKey for NSError with ErrorCode.ServerStatusCodeUnauthorized")])
+            
+        case .ServerStatusCodeConflict:
+            return NSError(domain: NetworkObjectsErrorDomain, code: ErrorCode.ServerStatusCodeBadRequest.toRaw(), userInfo: [NSLocalizedDescriptionKey: NSLocalizedString("ErrorCode.ServerStatusCodeBadRequest.LocalizedDescription", tableName: tableName, bundle: frameworkBundle, value: "Invalid request.", comment: "NSLocalizedDescriptionKey for NSError with ErrorCode.ServerStatusCodeBadRequest")])
+            
+        case .ServerStatusCodeForbidden:
+            return NSError(domain: NetworkObjectsErrorDomain, code: ErrorCode.ServerStatusCodeBadRequest.toRaw(), userInfo: [NSLocalizedDescriptionKey: NSLocalizedString("ErrorCode.ServerStatusCodeBadRequest.LocalizedDescription", tableName: tableName, bundle: frameworkBundle, value: "Invalid request.", comment: "NSLocalizedDescriptionKey for NSError with ErrorCode.ServerStatusCodeBadRequest")])
+            
+        case .ServerStatusCodeBadRequest:
+            return NSError(domain: NetworkObjectsErrorDomain, code: ErrorCode.ServerStatusCodeBadRequest.toRaw(), userInfo: [NSLocalizedDescriptionKey: NSLocalizedString("ErrorCode.ServerStatusCodeBadRequest.LocalizedDescription", tableName: tableName, bundle: frameworkBundle, value: "Invalid request.", comment: "NSLocalizedDescriptionKey for NSError with ErrorCode.ServerStatusCodeBadRequest")])
+            
+        case .ServerStatusCodeBadRequest:
+            return NSError(domain: NetworkObjectsErrorDomain, code: ErrorCode.ServerStatusCodeBadRequest.toRaw(), userInfo: [NSLocalizedDescriptionKey: NSLocalizedString("ErrorCode.ServerStatusCodeBadRequest.LocalizedDescription", tableName: tableName, bundle: frameworkBundle, value: "Invalid request.", comment: "NSLocalizedDescriptionKey for NSError with ErrorCode.ServerStatusCodeBadRequest")])
+            
+        case .ServerStatusCodeBadRequest:
+            return NSError(domain: NetworkObjectsErrorDomain, code: ErrorCode.ServerStatusCodeBadRequest.toRaw(), userInfo: [NSLocalizedDescriptionKey: NSLocalizedString("ErrorCode.ServerStatusCodeBadRequest.LocalizedDescription", tableName: tableName, bundle: frameworkBundle, value: "Invalid request.", comment: "NSLocalizedDescriptionKey for NSError with ErrorCode.ServerStatusCodeBadRequest")])
+            
+        case .ServerStatusCodeBadRequest:
+            return NSError(domain: NetworkObjectsErrorDomain, code: ErrorCode.ServerStatusCodeBadRequest.toRaw(), userInfo: [NSLocalizedDescriptionKey: NSLocalizedString("ErrorCode.ServerStatusCodeBadRequest.LocalizedDescription", tableName: tableName, bundle: frameworkBundle, value: "Invalid request.", comment: "NSLocalizedDescriptionKey for NSError with ErrorCode.ServerStatusCodeBadRequest")])
+            
+        default:
+            return NSError()
+        }
+    }
 }
