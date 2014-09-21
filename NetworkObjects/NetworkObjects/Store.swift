@@ -191,7 +191,7 @@ public class Store {
                 }
             })
             
-            // get the corresponding managed objects that belongs to the main queue context
+            // get the corresponding managed objects that belong to the main queue context
             
             var mainContextResults = [NSManagedObject]()
             
@@ -213,16 +213,99 @@ public class Store {
         
         let entity = self.model.entitiesByName[name]! as NSEntityDescription
         
-        return self.getResource(entity, withID: resourceID, URLSession: URLSession, completionBlock: { (error, managedObject) -> Void in
+        return self.getResource(entity, withID: resourceID, URLSession: URLSession, completionBlock: { (error, jsonObject) -> Void in
             
+            // error
             if error != nil {
+                
+                // not found, delete object from cache
+                if error!.code == ServerStatusCode.NotFound.toRaw() {
+                    
+                    // delete object on private thread
+                    self.privateQueueManagedObjectContext.performBlockAndWait({ () -> Void in
+                        
+                        let (objectID, error) = self.findEntity(entity, withResourceID: resourceID, context: self.privateQueueManagedObjectContext)
+                        
+                        if error != nil {
+                            
+                            completionBlock(error: error, managedObject: nil)
+                            
+                            return
+                        }
+                        
+                        if objectID != nil {
+                            
+                            self.privateQueueManagedObjectContext.deleteObject(self.privateQueueManagedObjectContext.objectWithID(objectID!))
+                        }
+                        
+                        // save
+                        
+                        let saveError = NSErrorPointer()
+                        
+                        if !self.privateQueueManagedObjectContext.save(saveError) {
+                            
+                            completionBlock(error: saveError.memory, managedObject: nil)
+                            
+                            return
+                        }
+                    })
+                }
                 
                 completionBlock(error: error, managedObject: nil)
                 
                 return
             }
             
+            var managedObject: NSManagedObject?
             
+            self.privateQueueManagedObjectContext.performBlockAndWait({ () -> Void in
+                
+                // get cached resource
+                let (resource, error) = self.findOrCreateEntity(entity, withResourceID: resourceID, context: self.privateQueueManagedObjectContext)
+                
+                managedObject = resource
+                
+                if error != nil {
+                    
+                    completionBlock(error: error, managedObject: nil)
+                    
+                    return
+                }
+                
+                // set values
+                let setJSONError = self.setJSONObject(jsonObject!, forManagedObject: managedObject!, context: self.privateQueueManagedObjectContext)
+                
+                if setJSONError != nil {
+                    
+                    completionBlock(error: error, managedObject: nil)
+                    
+                    return
+                }
+                
+                // set date cached
+                self.didCacheManagedObject(resource!)
+                
+                // save
+                
+                let saveError = NSErrorPointer()
+                
+                if !self.privateQueueManagedObjectContext.save(saveError) {
+                    
+                    completionBlock(error: saveError.memory, managedObject: nil)
+                    
+                    return
+                }
+            })
+            
+            // get the corresponding managed object that belongs to the main queue context
+            var mainContextManagedObject: NSManagedObject?
+            
+            self.managedObjectContext.performBlockAndWait({ () -> Void in
+                
+                mainContextManagedObject = self.managedObjectContext.objectWithID(managedObject!.objectID)
+            })
+            
+            completionBlock(error: nil, managedObject: mainContextManagedObject)
         })
     }
     
