@@ -88,7 +88,7 @@ public class Store {
     // MARK: - Requests
     
     /** Performs a search request on the server. The supplied fetch request's predicate must be a NSComparisonPredicate. */
-    public func performSearch(fetchRequest: NSFetchRequest, URLSession: NSURLSession, completionBlock: ((error: NSError?, results: [NSManagedObject]?) -> Void)) -> NSURLSessionDataTask {
+    public func performSearch(#fetchRequest: NSFetchRequest, URLSession: NSURLSession, completionBlock: ((error: NSError?, results: [NSManagedObject]?) -> Void)) -> NSURLSessionDataTask {
         
         // build JSON request from fetch request
         
@@ -363,6 +363,37 @@ public class Store {
             
             managedObject.setValue(NSDate.date(), forKey: self.dateCachedAttributeName!)
         }
+    }
+    
+    private func findEntity(entity: NSEntityDescription, withResourceID resourceID: UInt, context: NSManagedObjectContext) -> (NSManagedObjectID?, NSError?) {
+        
+        // get cached resource...
+        
+        let fetchRequest = NSFetchRequest(entityName: entity.name)
+        
+        fetchRequest.fetchLimit = 1
+        
+        fetchRequest.resultType = NSFetchRequestResultType.ManagedObjectIDResultType
+        
+        // create predicate
+        
+        fetchRequest.predicate = NSComparisonPredicate(leftExpression: NSExpression(forKeyPath: self.resourceIDAttributeName), rightExpression: NSExpression(forConstantValue: resourceID), modifier: NSComparisonPredicateModifier.DirectPredicateModifier, type: NSPredicateOperatorType.EqualToPredicateOperatorType, options: NSComparisonPredicateOptions.NormalizedPredicateOption)
+        
+        // fetch
+        
+        let error = NSErrorPointer()
+        
+        let results = context.executeFetchRequest(fetchRequest, error: error) as? [NSManagedObjectID]
+        
+        // halt execution if error
+        if error.memory != nil {
+            
+            return (nil, error.memory)
+        }
+        
+        var objectID = results?.first
+        
+        return (objectID, nil)
     }
     
     private func findOrCreateEntity(entity: NSEntityDescription, withResourceID resourceID: UInt, context: NSManagedObjectContext) -> (NSManagedObject?, NSError?) {
