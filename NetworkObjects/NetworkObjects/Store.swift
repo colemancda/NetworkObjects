@@ -209,7 +209,22 @@ public class Store {
         })
     }
     
-    public func fetchEntity(withName entityName: String, resourceID: UInt, URLSession: NSURLSession, 
+    public func fetchEntity(name: String, resourceID: UInt, URLSession: NSURLSession, completionBlock: ((error: NSError?, managedObject: NSManagedObject?) -> Void)) -> NSURLSessionDataTask {
+        
+        let entity = self.model.entitiesByName[name]! as NSEntityDescription
+        
+        return self.getResource(entity, withID: resourceID, URLSession: URLSession, completionBlock: { (error, managedObject) -> Void in
+            
+            if error != nil {
+                
+                completionBlock(error: error, managedObject: nil)
+                
+                return
+            }
+            
+            
+        })
+    }
     
     // MARK: - Internal Methods
     
@@ -234,6 +249,11 @@ public class Store {
         }
     }
     
+    private func resourcePathForEntity(entity: NSEntityDescription) -> String {
+        
+        return (self.entitiesByResourcePath as NSDictionary).allKeysForObject(entity).first as String
+    }
+    
     // MARK: API
     
     // The API private methods separate the JSON validation and HTTP requests from Core Data caching.
@@ -243,9 +263,9 @@ public class Store {
         
         // build URL
         
-        let resourcePath = (self.entitiesByResourcePath as NSDictionary).allKeysForObject(entity).first as? String
+        let resourcePath = self.resourcePathForEntity(entity)
         
-        let searchURL = self.serverURL.URLByAppendingPathComponent(self.searchPath!).URLByAppendingPathComponent(resourcePath!)
+        let searchURL = self.serverURL.URLByAppendingPathComponent(self.searchPath!).URLByAppendingPathComponent(resourcePath)
         
         let urlRequest = NSMutableURLRequest(URL: searchURL)
         
@@ -334,7 +354,14 @@ public class Store {
         return dataTask
     }
     
-    
+    private func getResource(entity: NSEntityDescription, withID resourceID: UInt, URLSession: NSURLSession, completionBlock: ((error: NSError?, managedObject: NSManagedObject?) -> Void)) -> NSURLSessionDataTask {
+        
+        // build URL
+        
+        let resourcePath = self.resourcePathForEntity(entity)
+        
+        
+    }
     
     
     // MARK: Cache
