@@ -209,6 +209,8 @@ public class Store {
         })
     }
     
+    public func fetchEntity(withName entityName: String, resourceID: UInt, URLSession: NSURLSession, 
+    
     // MARK: - Internal Methods
     
     private func mergeChangesFromContextDidSaveNotification(notification: NSNotification) {
@@ -332,7 +334,6 @@ public class Store {
         return dataTask
     }
     
-    // MARK: Convert
     
     
     
@@ -438,6 +439,92 @@ public class Store {
         }
         
         return (resource!, nil)
+    }
+    
+    private func setJSONObject(JSONObject: [String: AnyObject], forManagedObject managedObject: NSManagedObject, context: NSManagedObjectContext) -> NSError? {
+        
+        // set values...
+        
+        let entity = managedObject.entity
+        
+        for (key, jsonValue) in JSONObject {
+            
+            let attribute = entity.attributesByName[key] as? NSAttributeDescription
+            
+            if attribute != nil {
+                
+                let newValue: AnyObject = managedObject.attributeValueForJSONCompatibleValue(jsonValue, forAttribute: key)!
+                
+                let currentValue: AnyObject = managedObject.valueForKey(key)!
+                
+                // set value if not current value
+                if !newValue.isEqual(currentValue) {
+                    
+                    managedObject.setValue(newValue, forKey: key)
+                }
+            }
+            
+            let relationship = entity.relationshipsByName[key] as? NSRelationshipDescription
+            
+            if relationship != nil {
+                
+                let destinationEntity = relationship!.destinationEntity
+                
+                // to-one relationship
+                if !relationship!.toMany {
+                    
+                    // get the resourceID
+                    let destinationResourceID = jsonValue as UInt
+                    
+                    let (destinationResource, error) = self.findOrCreateEntity(destinationEntity, withResourceID: destinationResourceID, context: context)
+                    
+                    // halt execution if error
+                    if error != nil {
+                        
+                        return error
+                    }
+                    
+                    // set value if not current value
+                    if destinationResource !== managedObject.valueForKey(key) {
+                        
+                        managedObject.setValue(destinationResource, forKey: key)
+                    }
+                }
+                
+                // to-many relationship
+                else {
+                    
+                    // get the resourceIDs
+                    
+                    let destinationResourceIDs = jsonValue as [UInt]
+                    
+                    let currentValues = managedObject.valueForKey(key)! as NSSet
+                    
+                    let destinationResources = NSMutableSet()
+                    
+                    for destinationResourceID in destinationResourceIDs {
+                        
+                        let (destinationResource, error) = self.findOrCreateEntity(destinationEntity, withResourceID: destinationResourceID, context: context)
+                        
+                        // halt execution if error
+                        if error != nil {
+                            
+                            return error
+                        }
+                        
+                        destinationResources.addObject(destinationResources)
+                    }
+                    
+                    // set value if not current value
+                    if !destinationResources.isEqualToSet(currentValues) {
+                        
+                        managedObject.setValue(destinationResources, forKey: key)
+                    }
+                }
+            }
+        }
+        
+        return nil
     }
 }
 
