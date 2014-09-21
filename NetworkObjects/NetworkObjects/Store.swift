@@ -146,7 +146,7 @@ public class Store {
             
             if error != nil {
                 
-                completionBlock(error: ErrorCode.InvalidServerResponse.toError(), results: nil)
+                completionBlock(error: error, results: nil)
                 
                 return
             }
@@ -309,6 +309,32 @@ public class Store {
         })
     }
     
+    public func createEntity(name: String, withInitialValues initialValues: [String: AnyObject]?, URLSession: NSURLSession, completionBlock: ((error: NSError?, managedObject: NSManagedObject?) -> Void)) -> NSURLSessionDataTask {
+        
+        let entity = self.model.entitiesByName[name]! as NSEntityDescription
+        
+        var jsonValues: [String: AnyObject]?
+        
+        // convert initial values to JSON
+        if initialValues != nil {
+            
+            jsonValues = entity.JSONObjectFromCoreDataValues(initialValues!, usingResourceIDAttributeName: self.resourceIDAttributeName)
+        }
+        
+        return self.createResource(entity, withInitialValues: jsonValues, URLSession: URLSession, completionBlock: { (error, managedObject) -> Void in
+            
+            if error != nil {
+                
+                completionBlock(error: error, managedObject: nil)
+                
+                return
+            }
+            
+            
+            
+        })
+    }
+    
     // MARK: - Internal Methods
     
     private func mergeChangesFromContextDidSaveNotification(notification: NSNotification) {
@@ -437,6 +463,22 @@ public class Store {
         return dataTask
     }
     
+    private func createResource(entity: NSEntityDescription, withInitialValues initialValues: [String: AnyObject]?, URLSession: NSURLSession, completionBlock: ((error: NSError?, managedObject: NSManagedObject?) -> Void)) -> NSURLSessionDataTask {
+        
+        // build URL
+        
+        let resourcePath = self.resourcePathForEntity(entity)
+        
+        let createResourceURL = self.serverURL.URLByAppendingPathComponent(resourcePath)
+        
+        let request = NSMutableURLRequest(URL: createResourceURL)
+        
+        request.HTTPMethod = "POST"
+        
+        
+        
+    }
+    
     private func getResource(entity: NSEntityDescription, withID resourceID: UInt, URLSession: NSURLSession, completionBlock: ((error: NSError?, resource: [String: AnyObject]?) -> Void)) -> NSURLSessionDataTask {
         
         // build URL
@@ -523,7 +565,6 @@ public class Store {
         
         return dataTask
     }
-    
     
     // MARK: Cache
     
