@@ -463,7 +463,7 @@ public class Store {
         return dataTask
     }
     
-    private func createResource(entity: NSEntityDescription, withInitialValues initialValues: [String: AnyObject]?, URLSession: NSURLSession, completionBlock: ((error: NSError?, managedObject: NSManagedObject?) -> Void)) -> NSURLSessionDataTask {
+    private func createResource(entity: NSEntityDescription, withInitialValues initialValues: [String: AnyObject]?, URLSession: NSURLSession, completionBlock: ((error: NSError?, resourceID: UInt?) -> Void)) -> NSURLSessionDataTask {
         
         // build URL
         
@@ -475,8 +475,93 @@ public class Store {
         
         request.HTTPMethod = "POST"
         
+        // add initial values to request
+        if initialValues != nil {
+            
+            request.HTTPBody = NSJSONSerialization.dataWithJSONObject(initialValues!, options: self.jsonWritingOption(), error: nil)
+        }
         
+        let dataTask = URLSession.dataTaskWithRequest(request, completionHandler: { (data, response, error) -> Void in
+            
+            // NSURLSession errors
+            if error != nil {
+                
+                completionBlock(error: error, resourceID: nil)
+                
+                return
+            }
+            
+            // error status codes
+            
+            let httpResponse = response as NSHTTPURLResponse
+            
+            // error codes
+            
+            if httpResponse.statusCode != ServerStatusCode.OK.toRaw() {
+                
+                let errorCode = ErrorCode.fromRaw(httpResponse.statusCode)
+                
+                if errorCode != nil {
+                    
+                    // custom error description
+                    if errorCode == ErrorCode.ServerStatusCodeForbidden {
+                        
+                        let method = "POST"
+                        let value = "Permission to create new resource is denied"
+                        let frameworkBundle = NSBundle(identifier: "com.ColemanCDA.NetworkObjects")
+                        let tableName = "Error"
+                        let comment = "Description for ErrorCode.\(self) for \(method) Request"
+                        let key = "ErrorCode.\(self).LocalizedDescription.\(method)"
+                        
+                        let customError = NSError(domain: NetworkObjectsErrorDomain, code: errorCode!.toRaw(), userInfo: [NSLocalizedDescriptionKey: NSLocalizedString(key, tableName: tableName, bundle: frameworkBundle, value: value, comment: comment)])
+                        
+                        completionBlock(error: customError, resourceID: nil)
+                        
+                        return
+                    }
+                    
+                    completionBlock(error: errorCode!.toError(), resourceID: nil)
+                    
+                    return
+                }
+                
+                // no recognizeable error code
+                completionBlock(error: ErrorCode.InvalidServerResponse.toError(), resourceID: nil)
+                
+                return
+            }
+            
+            // parse response...
+            
+            let jsonObject = NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments, error: nil) as? [String: AnyObject]
+            
+            if jsonObject == nil {
+                
+                completionBlock(error: ErrorCode.InvalidServerResponse.toError(), resourceID: nil)
+                
+                return
+            }
+            
+            // get the new resource ID
+            let resourceIDObject: AnyObject? = jsonObject![self.resourceIDAttributeName]
+            
+            let resourceID = resourceIDObject as? UInt
+            
+            if resourceID == nil {
+                
+                completionBlock(error: ErrorCode.InvalidServerResponse.toError(), resourceID: nil)
+                
+                return
+            }
+            
+            // success
+            completionBlock(error: nil, resourceID: resourceID)
+            
+        })
         
+        dataTask.resume()
+        
+        return dataTask
     }
     
     private func getResource(entity: NSEntityDescription, withID resourceID: UInt, URLSession: NSURLSession, completionBlock: ((error: NSError?, resource: [String: AnyObject]?) -> Void)) -> NSURLSessionDataTask {
