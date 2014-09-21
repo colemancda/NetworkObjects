@@ -167,9 +167,16 @@ public class Store {
                     
                     let entity = self.entitiesByResourcePath[resourcePath!]
                     
-                    let resource = self.findOrCreateEntity(entity!, withResourceID: resourceID, context: self.privateQueueManagedObjectContext)
+                    let (resource, error) = self.findOrCreateEntity(entity!, withResourceID: resourceID, context: self.privateQueueManagedObjectContext)
                     
-                    cachedResults.append(resource)
+                    if error != nil {
+                        
+                        completionBlock(error: error, results: nil)
+                        
+                        return
+                    }
+                    
+                    cachedResults.append(resource!)
                     
                     // save
                     
@@ -349,11 +356,58 @@ public class Store {
         }
     }
     
-    private func findOrCreateEntity(entity: NSEntityDescription, withResourceID resource: UInt, context: NSManagedObjectContext) -> NSManagedObject {
+    private func didCacheManagedObject(managedObject: NSManagedObject) {
         
-        
+        // set the date cached attribute
+        if self.dateCachedAttributeName != nil {
+            
+            managedObject.setValue(NSDate.date(), forKey: self.dateCachedAttributeName!)
+        }
     }
     
+    private func findOrCreateEntity(entity: NSEntityDescription, withResourceID resourceID: UInt, context: NSManagedObjectContext) -> (NSManagedObject?, NSError?) {
+        
+        // get cached resource...
+        
+        let fetchRequest = NSFetchRequest(entityName: entity.name)
+        
+        fetchRequest.fetchLimit = 1
+        
+        // create predicate
+        
+        fetchRequest.predicate = NSComparisonPredicate(leftExpression: NSExpression(forKeyPath: self.resourceIDAttributeName), rightExpression: NSExpression(forConstantValue: resourceID), modifier: NSComparisonPredicateModifier.DirectPredicateModifier, type: NSPredicateOperatorType.EqualToPredicateOperatorType, options: NSComparisonPredicateOptions.NormalizedPredicateOption)
+        
+        fetchRequest.returnsObjectsAsFaults = false
+        
+        // fetch
+        
+        let error = NSErrorPointer()
+        
+        let results = context.executeFetchRequest(fetchRequest, error: error) as? [NSManagedObject]
+        
+        // halt execution if error
+        if error.memory != nil {
+            
+            return (nil, error.memory)
+        }
+        
+        var resource = results?.first
+        
+        // create cached resource if not found
+        
+        if resource == nil {
+            
+            // create a new entity
+            
+            resource = NSEntityDescription.insertNewObjectForEntityForName(entity.name, inManagedObjectContext: context) as? NSManagedObject
+            
+            // set resource ID
+            
+            resource?.setValue(resourceID, forKey: self.resourceIDAttributeName)
+        }
+        
+        return (resource!, nil)
+    }
 }
 
 // MARK: - Extensions
