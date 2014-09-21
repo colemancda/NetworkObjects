@@ -354,13 +354,91 @@ public class Store {
         return dataTask
     }
     
-    private func getResource(entity: NSEntityDescription, withID resourceID: UInt, URLSession: NSURLSession, completionBlock: ((error: NSError?, managedObject: NSManagedObject?) -> Void)) -> NSURLSessionDataTask {
+    private func getResource(entity: NSEntityDescription, withID resourceID: UInt, URLSession: NSURLSession, completionBlock: ((error: NSError?, resource: [String: AnyObject]?) -> Void)) -> NSURLSessionDataTask {
         
         // build URL
         
         let resourcePath = self.resourcePathForEntity(entity)
         
+        let getResourceURL = self.serverURL.URLByAppendingPathComponent(resourcePath).URLByAppendingPathComponent("\(resourceID)")
         
+        let request = NSURLRequest(URL: getResourceURL)
+        
+        let dataTask = URLSession.dataTaskWithRequest(request, completionHandler: { (data, response, error) -> Void in
+            
+            if error != nil {
+                
+                completionBlock(error: error, resource: nil)
+            }
+            
+            let httpResponse = response as NSHTTPURLResponse
+            
+            // error codes
+            
+            if httpResponse.statusCode != ServerStatusCode.OK.toRaw() {
+                
+                let errorCode = ErrorCode.fromRaw(httpResponse.statusCode)
+                
+                if errorCode != nil {
+                    
+                    if errorCode == ErrorCode.ServerStatusCodeForbidden {
+                        
+                        let frameworkBundle = NSBundle(identifier: "com.ColemanCDA.NetworkObjects")
+                        let tableName = "Error"
+                        let comment = "Description for ErrorCode.\(self) for GET Request"
+                        let key = "ErrorCode.\(self).LocalizedDescription.GET"
+                        let value = "Access to resource is denied"
+                        
+                        let customError = NSError(domain: NetworkObjectsErrorDomain, code: errorCode!.toRaw(), userInfo: [NSLocalizedDescriptionKey: NSLocalizedString(key, tableName: tableName, bundle: frameworkBundle, value: value, comment: comment)])
+                        
+                        completionBlock(error: customError, resource: nil)
+                        
+                        return
+                    }
+                    
+                    completionBlock(error: errorCode!.toError(), resource: nil)
+                    
+                    return
+                }
+                
+                // no recognizeable error code
+                completionBlock(error: ErrorCode.InvalidServerResponse.toError(), resource: nil)
+                
+                return
+            }
+            
+            // parse response...
+            
+            let jsonObject = NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.AllowFragments, error: nil) as? [String: AnyObject]
+            
+            // invalid JSON response
+            if jsonObject == nil {
+                
+                completionBlock(error: ErrorCode.InvalidServerResponse.toError(), resource: nil)
+                
+                return
+            }
+            
+            // make sure every key in jsonObject is a valid key
+            
+            for (key, value) in jsonObject! {
+                
+                let attribute = entity.attributesByName[key] as? NSAttributeDescription
+                
+                let relationship = entity.relationshipsByName[key] as? NSRelationshipDescription
+                
+                if attribute == nil && relationship == nil {
+                    
+                    completionBlock(error: ErrorCode.InvalidServerResponse.toError(), resource: nil)
+                    
+                    return
+                }
+            }
+        })
+        
+        dataTask.resume()
+        
+        return dataTask
     }
     
     
