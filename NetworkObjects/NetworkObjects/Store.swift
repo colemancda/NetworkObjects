@@ -870,7 +870,67 @@ public class Store {
     
     private func deleteResource(entity: NSEntityDescription, withID resourceID: UInt, URLSession: NSURLSession, completionBlock: ((error: NSError?) -> Void)) -> NSURLSessionDataTask {
         
+        // build URL
         
+        let resourcePath = self.resourcePathForEntity(entity)
+        
+        let resourceURL = self.serverURL.URLByAppendingPathComponent(resourcePath).URLByAppendingPathComponent("\(resourceID)")
+        
+        let request = NSMutableURLRequest(URL: resourceURL)
+        
+        request.HTTPMethod = "DELETE"
+        
+        let dataTask = URLSession.dataTaskWithRequest(request, completionHandler: { (data, response, error) -> Void in
+            
+            if error != nil {
+                
+                completionBlock(error: error)
+            }
+            
+            let httpResponse = response as NSHTTPURLResponse
+            
+            // error codes
+            
+            if httpResponse.statusCode != ServerStatusCode.OK.toRaw() {
+                
+                let errorCode = ErrorCode.fromRaw(httpResponse.statusCode)
+                
+                if errorCode != nil {
+                    
+                    if errorCode == ErrorCode.ServerStatusCodeForbidden {
+                        
+                        let method = "DELETE"
+                        let value = "Permission to delete resource is denied"
+                        let frameworkBundle = NSBundle(identifier: "com.ColemanCDA.NetworkObjects")
+                        let tableName = "Error"
+                        let comment = "Description for ErrorCode.\(self) for \(method) Request"
+                        let key = "ErrorCode.\(self).LocalizedDescription.\(method)"
+                        
+                        let customError = NSError(domain: NetworkObjectsErrorDomain, code: errorCode!.toRaw(), userInfo: [NSLocalizedDescriptionKey: NSLocalizedString(key, tableName: tableName, bundle: frameworkBundle, value: value, comment: comment)])
+                        
+                        completionBlock(error: customError)
+                        
+                        return
+                    }
+                    
+                    completionBlock(error: errorCode!.toError())
+                    
+                    return
+                }
+                
+                // no recognizeable error code
+                completionBlock(error: ErrorCode.InvalidServerResponse.toError())
+                
+                return
+            }
+            
+            // success
+            completionBlock(error: nil)
+        })
+        
+        dataTask.resume()
+        
+        return dataTask
     }
     
     // MARK: Cache
