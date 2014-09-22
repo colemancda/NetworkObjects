@@ -427,9 +427,9 @@ public class Store {
         let jsonValues = managedObject.entity.JSONObjectFromCoreDataValues(changes, usingResourceIDAttributeName: self.resourceIDAttributeName)
         
         // get resourceID
-        let resourceID = managedObject.valueForKey(self.resourceIDAttributeName) as? UInt
+        let resourceID = managedObject.valueForKey(self.resourceIDAttributeName) as UInt
         
-        return self.editResource(managedObject.entity, withID: resourceID!, changes: jsonValues, URLSession: URLSession, completionBlock: { (httpError) -> Void in
+        return self.editResource(managedObject.entity, withID: resourceID, changes: jsonValues, URLSession: URLSession, completionBlock: { (httpError) -> Void in
             
             if httpError != nil {
                 
@@ -480,9 +480,41 @@ public class Store {
     public func deleteManagedObject(managedObject: NSManagedObject, URLSession: NSURLSession, completionBlock: ((error: NSError?) -> Void)) -> NSURLSessionDataTask {
         
         // get resourceID
-        let resourceID = managedObject.valueForKey(self.resourceIDAttributeName) as? UInt
+        let resourceID = managedObject.valueForKey(self.resourceIDAttributeName) as UInt
         
-        return
+        return self.deleteResource(managedObject.entity, withID: resourceID, URLSession: URLSession, completionBlock: { (httpError) -> Void in
+            
+            if httpError != nil {
+                
+                completionBlock(error: httpError)
+                
+                return
+            }
+            
+            var error: NSError?
+            
+            self.privateQueueManagedObjectContext.performBlockAndWait({ () -> Void in
+                
+                // get object on this context
+                let contextResource = self.privateQueueManagedObjectContext.objectWithID(managedObject.objectID)
+                
+                // delete
+                self.privateQueueManagedObjectContext.deleteObject(contextResource)
+                
+                // save
+                let saveError = NSErrorPointer()
+                
+                if !self.privateQueueManagedObjectContext.save(saveError) {
+                    
+                    error = saveError.memory
+                    
+                    return
+                }
+            })
+            
+            // hopefully an error did not occur
+            completionBlock(error: error)
+        })
     }
     
     // MARK: - Internal Methods
