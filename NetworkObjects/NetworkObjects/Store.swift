@@ -381,6 +381,21 @@ public class Store {
         })
     }
     
+    public func editManagedObject(managedObject: NSManagedObject, changes: [String: AnyObject], URLSession: NSURLSession, completionBlock: ((error: NSError?) -> Void)) -> NSURLSessionDataTask {
+        
+        // convert new values to JSON
+        let jsonValues = managedObject.entity.JSONObjectFromCoreDataValues(changes, usingResourceIDAttributeName: self.resourceIDAttributeName)
+        
+        // get resourceID
+        let resourceID = managedObject.valueForKey(self.resourceIDAttributeName) as? UInt
+        
+        return self.editResource(managedObject.entity, withID: resourceID!, changes: jsonValues, URLSession: URLSession, completionBlock: { (error) -> Void in
+            
+            
+            
+        })
+    }
+    
     // MARK: - Internal Methods
     
     private func mergeChangesFromContextDidSaveNotification(notification: NSNotification) {
@@ -616,9 +631,9 @@ public class Store {
         
         let resourcePath = self.resourcePathForEntity(entity)
         
-        let getResourceURL = self.serverURL.URLByAppendingPathComponent(resourcePath).URLByAppendingPathComponent("\(resourceID)")
+        let resourceURL = self.serverURL.URLByAppendingPathComponent(resourcePath).URLByAppendingPathComponent("\(resourceID)")
         
-        let request = NSURLRequest(URL: getResourceURL)
+        let request = NSURLRequest(URL: resourceURL)
         
         let dataTask = URLSession.dataTaskWithRequest(request, completionHandler: { (data, response, error) -> Void in
             
@@ -690,6 +705,73 @@ public class Store {
                     return
                 }
             }
+        })
+        
+        dataTask.resume()
+        
+        return dataTask
+    }
+    
+    private func editResource(entity: NSEntityDescription, withID resourceID: UInt, changes: [String: AnyObject], URLSession: NSURLSession, completionBlock: ((error: NSError?) -> Void)) -> NSURLSessionDataTask {
+        
+        // build URL
+        
+        let resourcePath = self.resourcePathForEntity(entity)
+        
+        let resourceURL = self.serverURL.URLByAppendingPathComponent(resourcePath).URLByAppendingPathComponent("\(resourceID)")
+        
+        let request = NSMutableURLRequest(URL: resourceURL)
+        
+        request.HTTPMethod = "PUT"
+        
+        request.HTTPBody = NSJSONSerialization.dataWithJSONObject(changes, options: self.jsonWritingOption(), error: nil)
+        
+        let dataTask = URLSession.dataTaskWithRequest(request, completionHandler: { (data, response, error) -> Void in
+            
+            if error != nil {
+                
+                completionBlock(error: error)
+            }
+            
+            let httpResponse = response as NSHTTPURLResponse
+            
+            // error codes
+            
+            if httpResponse.statusCode != ServerStatusCode.OK.toRaw() {
+                
+                let errorCode = ErrorCode.fromRaw(httpResponse.statusCode)
+                
+                if errorCode != nil {
+                    
+                    if errorCode == ErrorCode.ServerStatusCodeForbidden {
+                        
+                        let method = "PUT"
+                        let value = "Permission to edit resource is denied"
+                        let frameworkBundle = NSBundle(identifier: "com.ColemanCDA.NetworkObjects")
+                        let tableName = "Error"
+                        let comment = "Description for ErrorCode.\(self) for \(method) Request"
+                        let key = "ErrorCode.\(self).LocalizedDescription.\(method)"
+                        
+                        let customError = NSError(domain: NetworkObjectsErrorDomain, code: errorCode!.toRaw(), userInfo: [NSLocalizedDescriptionKey: NSLocalizedString(key, tableName: tableName, bundle: frameworkBundle, value: value, comment: comment)])
+                        
+                        completionBlock(error: customError)
+                        
+                        return
+                    }
+                    
+                    completionBlock(error: errorCode!.toError())
+                    
+                    return
+                }
+                
+                // no recognizeable error code
+                completionBlock(error: ErrorCode.InvalidServerResponse.toError())
+                
+                return
+            }
+            
+            // success
+            completionBlock(error: nil)
         })
         
         dataTask.resume()
