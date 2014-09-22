@@ -13,16 +13,14 @@ public let NetworkObjectsErrorDomain = "com.ColemanCDA.NetworkObjects.ErrorDomai
 /** Error codes used with NetworkObjects. */
 public enum ErrorCode: Int {
     
-    /** OK status code. */
-    case ServerStatusCodeOK = 200
-    
     /** Bad request status code. */
     case ServerStatusCodeBadRequest = 400
     
     /** Unauthorized status code. e.g. Used when authentication is required. */
     case ServerStatusCodeUnauthorized = 401 // not logged in
     
-    case CodeServerStatusCodePaymentRequired = 402
+    /** Payment required. */
+    case ServerStatusCodePaymentRequired = 402
     
     /** Forbidden status code. e.g. Used when permission is denied. */
     case ServerStatusCodeForbidden = 403 // item is invisible to user or api app
@@ -44,4 +42,60 @@ public enum ErrorCode: Int {
     
     /** Could not convert a serialized JSON data to a string. */
     case CouldNotConvertJSONDataToString = 1001
+}
+
+internal extension ErrorCode {
+    
+    /** Returns generic errors for error codes. */
+    func toError() -> NSError {
+        
+        let frameworkBundle = NSBundle(identifier: "com.ColemanCDA.NetworkObjects")
+        
+        let tableName = "Error"
+        
+        let comment = "NSLocalizedDescriptionKey for NSError with ErrorCode.\(self)"
+        
+        let key = "ErrorCode.\(self).LocalizedDescription"
+        
+        var value: String?
+        
+        switch self {
+        case .ServerStatusCodeBadRequest:
+            value = "Invalid request"
+            
+        case .ServerStatusCodeUnauthorized:
+            value =  "Authentication required"
+            
+        case .ServerStatusCodePaymentRequired:
+            value = "Payment required"
+            
+        case .ServerStatusCodeForbidden:
+            value = "Access denied"
+            
+        case .ServerStatusCodeNotFound:
+            value = "Resource not found"
+            
+        case .ServerStatusCodeMethodNotAllowed:
+            value = "Method not allowed"
+            
+        case .ServerStatusCodeConflict:
+            value = "Request sent to server conflicts with data on server"
+            
+        case .ServerStatusCodeInternalServerError:
+            value = "Internal server error"
+            
+        case .InvalidServerResponse:
+            value = "Invalid server response"
+            
+        case .CouldNotConvertJSONDataToString:
+            value = "Could not convert JSON data to string"
+            
+        default:
+            value = "Error"
+        }
+        
+        let userInfo = [NSLocalizedDescriptionKey: NSLocalizedString(key, tableName: tableName, bundle: frameworkBundle, value: value!, comment: comment)]
+        
+        return NSError(domain: NetworkObjectsErrorDomain, code: self.toRaw(), userInfo: userInfo)
+    }
 }

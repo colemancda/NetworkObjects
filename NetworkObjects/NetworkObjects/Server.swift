@@ -24,7 +24,7 @@ public class Server {
     
     /** The string that will be used to generate a URL for search requests. 
     NOTE: Must not conflict with the resourcePath of entities.*/
-    public let searchPath: String?;
+    public let searchPath: String?
     
     /** Determines whether the exported JSON should have whitespace for easier readability. */
     public let prettyPrintJSON: Bool = false
@@ -893,9 +893,9 @@ public class Server {
                 
                 let resourcePath = (self.entitiesByResourcePath as NSDictionary).allKeysForObject(managedObject.entity).first as? String
                 
-                let resourceID = managedObject.valueForKey(self.resourceIDAttributeName) as? String
+                let resourceID = "\(managedObject.valueForKey(self.resourceIDAttributeName))"
                 
-                jsonResponse.append([resourceID!: resourcePath!])
+                jsonResponse.append([resourceID: resourcePath!])
             }
         }
         
