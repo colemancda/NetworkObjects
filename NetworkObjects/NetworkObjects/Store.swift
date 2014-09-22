@@ -517,6 +517,17 @@ public class Store {
         })
     }
     
+    public func performFunction(functionName: String, forManagedObject managedObject: NSManagedObject, withJSONObject JSONObject: [String: AnyObject]?, URLSession: NSURLSession, completionBlock: ((error: NSError?, functionCode: ServerFunctionCode?, JSONResponse: [String: AnyObject]?) -> Void)) -> NSURLSessionDataTask {
+        
+        // get resourceID
+        let resourceID = managedObject.valueForKey(self.resourceIDAttributeName) as UInt
+        
+        return self.performFunction(functionName, onResource: managedObject.entity, withID: resourceID, withJSONObject: JSONObject, URLSession: URLSession, completionBlock: { (error, functionCode, JSONResponse) -> Void in
+            
+            completionBlock(error: error, functionCode: functionCode, JSONResponse: JSONResponse)
+        })
+    }
+    
     // MARK: - Internal Methods
     
     private func mergeChangesFromContextDidSaveNotification(notification: NSNotification) {
@@ -958,6 +969,56 @@ public class Store {
             
             // success
             completionBlock(error: nil)
+        })
+        
+        dataTask.resume()
+        
+        return dataTask
+    }
+    
+    public func performFunction(functionName: String, onResource entity: NSEntityDescription, withID resourceID: UInt, withJSONObject JSONObject: [String: AnyObject]?, URLSession: NSURLSession, completionBlock: ((error: NSError?, functionCode: ServerFunctionCode?, JSONResponse: [String: AnyObject]?) -> Void)) -> NSURLSessionDataTask {
+        
+        // build URL
+        
+        let resourcePath = self.resourcePathForEntity(entity)
+        
+        let resourceURL = self.serverURL.URLByAppendingPathComponent(resourcePath).URLByAppendingPathComponent("\(resourceID)").URLByAppendingPathComponent(functionName)
+        
+        let request = NSMutableURLRequest(URL: resourceURL)
+        
+        request.HTTPMethod = "POST"
+        
+        // add HTTP body
+        if JSONObject != nil {
+            
+            request.HTTPBody = NSJSONSerialization.dataWithJSONObject(JSONObject!, options: self.jsonWritingOption(), error: nil)!
+        }
+        
+        let dataTask = URLSession.dataTaskWithRequest(request, completionHandler: { (data, response, error) -> Void in
+            
+            if error != nil {
+                
+                completionBlock(error: error, functionCode: nil, JSONResponse: nil)
+                
+                return
+            }
+            
+            let httpResponse = response as NSHTTPURLResponse
+            
+            let functionCode = ServerFunctionCode.fromRaw(httpResponse.statusCode)
+            
+            // invalid status code
+            if functionCode == nil {
+                
+                completionBlock(error: ErrorCode.InvalidServerResponse.toError(), functionCode: nil, JSONResponse: nil)
+                
+                return
+            }
+            
+            // get response body
+            let jsonResponse = NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.AllowFragments, error: nil) as? [String: AnyObject]
+            
+            completionBlock(error: nil, functionCode: functionCode, JSONResponse: jsonResponse)
         })
         
         dataTask.resume()
