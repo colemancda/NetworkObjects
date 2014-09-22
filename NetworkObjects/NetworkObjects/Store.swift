@@ -142,11 +142,11 @@ public class Store {
         
         // call API method
         
-        return self.searchForResource(fetchRequest.entity, withParameters: jsonObject, URLSession: URLSession, completionBlock: { (error, results) -> Void in
+        return self.searchForResource(fetchRequest.entity, withParameters: jsonObject, URLSession: URLSession, completionBlock: { (httpError, results) -> Void in
             
-            if error != nil {
+            if httpError != nil {
                 
-                completionBlock(error: error, results: nil)
+                completionBlock(error: httpError, results: nil)
                 
                 return
             }
@@ -154,6 +154,8 @@ public class Store {
             // get results as cached resources...
             
             var cachedResults = [NSManagedObject]()
+            
+            var error: NSError?
             
             self.privateQueueManagedObjectContext.performBlockAndWait({ () -> Void in
                 
@@ -167,11 +169,11 @@ public class Store {
                     
                     let entity = self.entitiesByResourcePath[resourcePath!]
                     
-                    let (resource, error) = self.findOrCreateEntity(entity!, withResourceID: resourceID, context: self.privateQueueManagedObjectContext)
+                    let (resource, cacheError) = self.findOrCreateEntity(entity!, withResourceID: resourceID, context: self.privateQueueManagedObjectContext)
                     
-                    if error != nil {
+                    if cacheError != nil {
                         
-                        completionBlock(error: error, results: nil)
+                        error = cacheError
                         
                         return
                     }
@@ -182,14 +184,22 @@ public class Store {
                     
                     let saveError = NSErrorPointer()
                     
-                    if self.privateQueueManagedObjectContext.save(saveError) {
+                    if !self.privateQueueManagedObjectContext.save(saveError) {
                         
-                        completionBlock(error: saveError.memory, results: nil)
+                        error = saveError.memory
                         
                         return
                     }
                 }
             })
+            
+            // error occurred
+            if error != nil {
+                
+                completionBlock(error: error, results: nil)
+                
+                return
+            }
             
             // get the corresponding managed objects that belong to the main queue context
             
@@ -222,13 +232,16 @@ public class Store {
                 if error!.code == ServerStatusCode.NotFound.toRaw() {
                     
                     // delete object on private thread
+                    
+                    var deleteError: NSError?
+                    
                     self.privateQueueManagedObjectContext.performBlockAndWait({ () -> Void in
                         
-                        let (objectID, error) = self.findEntity(entity, withResourceID: resourceID, context: self.privateQueueManagedObjectContext)
+                        let (objectID, cacheError) = self.findEntity(entity, withResourceID: resourceID, context: self.privateQueueManagedObjectContext)
                         
-                        if error != nil {
+                        if cacheError != nil {
                             
-                            completionBlock(error: error, managedObject: nil)
+                            deleteError = cacheError
                             
                             return
                         }
@@ -244,11 +257,18 @@ public class Store {
                         
                         if !self.privateQueueManagedObjectContext.save(saveError) {
                             
-                            completionBlock(error: saveError.memory, managedObject: nil)
+                            deleteError = saveError.memory
                             
                             return
                         }
                     })
+                    
+                    if deleteError != nil {
+                        
+                        completionBlock(error: deleteError, managedObject: nil)
+                        
+                        return
+                    }
                 }
                 
                 completionBlock(error: error, managedObject: nil)
@@ -258,16 +278,18 @@ public class Store {
             
             var managedObject: NSManagedObject?
             
+            var contextError: NSError?
+            
             self.privateQueueManagedObjectContext.performBlockAndWait({ () -> Void in
                 
                 // get cached resource
-                let (resource, error) = self.findOrCreateEntity(entity, withResourceID: resourceID, context: self.privateQueueManagedObjectContext)
+                let (resource, cacheError) = self.findOrCreateEntity(entity, withResourceID: resourceID, context: self.privateQueueManagedObjectContext)
                 
                 managedObject = resource
                 
-                if error != nil {
+                if cacheError != nil {
                     
-                    completionBlock(error: error, managedObject: nil)
+                    contextError = cacheError
                     
                     return
                 }
@@ -277,7 +299,7 @@ public class Store {
                 
                 if setJSONError != nil {
                     
-                    completionBlock(error: error, managedObject: nil)
+                    contextError = setJSONError
                     
                     return
                 }
@@ -290,11 +312,19 @@ public class Store {
                 
                 if !self.privateQueueManagedObjectContext.save(saveError) {
                     
-                    completionBlock(error: saveError.memory, managedObject: nil)
+                    contextError = saveError.memory
                     
                     return
                 }
             })
+            
+            // error occurred
+            if contextError != nil {
+                
+                completionBlock(error: contextError, managedObject: nil)
+                
+                return
+            }
             
             // get the corresponding managed object that belongs to the main queue context
             var mainContextManagedObject: NSManagedObject?
@@ -320,16 +350,18 @@ public class Store {
             jsonValues = entity.JSONObjectFromCoreDataValues(initialValues!, usingResourceIDAttributeName: self.resourceIDAttributeName)
         }
         
-        return self.createResource(entity, withInitialValues: jsonValues, URLSession: URLSession, completionBlock: { (error, resourceID) -> Void in
+        return self.createResource(entity, withInitialValues: jsonValues, URLSession: URLSession, completionBlock: { (httpError, resourceID) -> Void in
             
-            if error != nil {
+            if httpError != nil {
                 
-                completionBlock(error: error, managedObject: nil)
+                completionBlock(error: httpError, managedObject: nil)
                 
                 return
             }
             
             var managedObject: NSManagedObject?
+            
+            var error: NSError?
             
             self.privateQueueManagedObjectContext.performBlockAndWait({ () -> Void in
                 
@@ -363,11 +395,19 @@ public class Store {
                 
                 if !self.privateQueueManagedObjectContext.save(saveError) {
                     
-                    completionBlock(error: saveError.memory, managedObject: nil)
+                    error = saveError.memory
                     
                     return
                 }
             })
+            
+            // error occurred
+            if error != nil {
+                
+                completionBlock(error: error, managedObject: nil)
+                
+                return
+            }
             
             // get the corresponding managed object that belongs to the main queue context
             var mainContextManagedObject: NSManagedObject?
@@ -389,11 +429,60 @@ public class Store {
         // get resourceID
         let resourceID = managedObject.valueForKey(self.resourceIDAttributeName) as? UInt
         
-        return self.editResource(managedObject.entity, withID: resourceID!, changes: jsonValues, URLSession: URLSession, completionBlock: { (error) -> Void in
+        return self.editResource(managedObject.entity, withID: resourceID!, changes: jsonValues, URLSession: URLSession, completionBlock: { (httpError) -> Void in
             
+            if httpError != nil {
+                
+                completionBlock(error: httpError)
+                
+                return
+            }
             
+            var error: NSError?
             
+            self.privateQueueManagedObjectContext.performBlockAndWait({ () -> Void in
+                
+                // get object on this context
+                let contextResource = self.privateQueueManagedObjectContext.objectWithID(managedObject.objectID)
+                
+                // set values
+                for (key, value) in changes {
+                    
+                    // Core Data cannot hold NSNull
+                    if let null = value as? NSNull {
+                        
+                        contextResource.setValue(nil, forKey: key)
+                    }
+                    else {
+                        contextResource.setValue(value, forKey: key)
+                    }
+                }
+                
+                // set date cached
+                self.didCacheManagedObject(contextResource)
+                
+                // save
+                let saveError = NSErrorPointer()
+                
+                if !self.privateQueueManagedObjectContext.save(saveError) {
+                    
+                    error = saveError.memory
+                    
+                    return
+                }
+            })
+            
+            // hopefully an error did not occur
+            completionBlock(error: error)
         })
+    }
+    
+    public func deleteManagedObject(managedObject: NSManagedObject, URLSession: NSURLSession, completionBlock: ((error: NSError?) -> Void)) -> NSURLSessionDataTask {
+        
+        // get resourceID
+        let resourceID = managedObject.valueForKey(self.resourceIDAttributeName) as? UInt
+        
+        return
     }
     
     // MARK: - Internal Methods
@@ -777,6 +866,11 @@ public class Store {
         dataTask.resume()
         
         return dataTask
+    }
+    
+    private func deleteResource(entity: NSEntityDescription, withID resourceID: UInt, URLSession: NSURLSession, completionBlock: ((error: NSError?) -> Void)) -> NSURLSessionDataTask {
+        
+        
     }
     
     // MARK: Cache
