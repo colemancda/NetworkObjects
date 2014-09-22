@@ -88,7 +88,7 @@ public class Store {
     // MARK: - Requests
     
     /** Performs a search request on the server. The supplied fetch request's predicate must be a NSComparisonPredicate. */
-    public func performSearch(#fetchRequest: NSFetchRequest, URLSession: NSURLSession, completionBlock: ((error: NSError?, results: [NSManagedObject]?) -> Void)) -> NSURLSessionDataTask {
+    public func performSearch(fetchRequest: NSFetchRequest, URLSession: NSURLSession, completionBlock: ((error: NSError?, results: [NSManagedObject]?) -> Void)) -> NSURLSessionDataTask {
         
         // build JSON request from fetch request
         
@@ -286,7 +286,6 @@ public class Store {
                 self.didCacheManagedObject(resource!)
                 
                 // save
-                
                 let saveError = NSErrorPointer()
                 
                 if !self.privateQueueManagedObjectContext.save(saveError) {
@@ -321,7 +320,7 @@ public class Store {
             jsonValues = entity.JSONObjectFromCoreDataValues(initialValues!, usingResourceIDAttributeName: self.resourceIDAttributeName)
         }
         
-        return self.createResource(entity, withInitialValues: jsonValues, URLSession: URLSession, completionBlock: { (error, managedObject) -> Void in
+        return self.createResource(entity, withInitialValues: jsonValues, URLSession: URLSession, completionBlock: { (error, resourceID) -> Void in
             
             if error != nil {
                 
@@ -330,8 +329,55 @@ public class Store {
                 return
             }
             
+            var managedObject: NSManagedObject?
             
+            self.privateQueueManagedObjectContext.performBlockAndWait({ () -> Void in
+                
+                // create new entity
+                managedObject = NSEntityDescription.insertNewObjectForEntityForName(name, inManagedObjectContext: self.privateQueueManagedObjectContext) as? NSManagedObject
+                
+                // set resourceID
+                managedObject?.setValue(resourceID, forKey: self.resourceIDAttributeName)
+                
+                // set values
+                if initialValues != nil {
+                    
+                    for (key, value) in initialValues! {
+                        
+                        // Core Data cannot hold NSNull
+                        if let null = value as? NSNull {
+                            
+                            managedObject!.setValue(nil, forKey: key)
+                        }
+                        else {
+                            managedObject!.setValue(value, forKey: key)
+                        }
+                    }
+                }
+                
+                // set date cached
+                self.didCacheManagedObject(managedObject!)
+                
+                // save
+                let saveError = NSErrorPointer()
+                
+                if !self.privateQueueManagedObjectContext.save(saveError) {
+                    
+                    completionBlock(error: saveError.memory, managedObject: nil)
+                    
+                    return
+                }
+            })
             
+            // get the corresponding managed object that belongs to the main queue context
+            var mainContextManagedObject: NSManagedObject?
+            
+            self.managedObjectContext.performBlockAndWait({ () -> Void in
+                
+                mainContextManagedObject = self.managedObjectContext.objectWithID(managedObject!.objectID)
+            })
+            
+            completionBlock(error: nil, managedObject: mainContextManagedObject)
         })
     }
     
@@ -363,7 +409,7 @@ public class Store {
         return (self.entitiesByResourcePath as NSDictionary).allKeysForObject(entity).first as String
     }
     
-    // MARK: API
+    // MARK: HTTP API
     
     // The API private methods separate the JSON validation and HTTP requests from Core Data caching.
     
