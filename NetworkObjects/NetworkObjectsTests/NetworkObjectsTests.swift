@@ -6,7 +6,7 @@
 //  Copyright (c) 2014 ColemanCDA. All rights reserved.
 //
 
-import UIKit
+import Foundation
 import XCTest
 
 class NetworkObjectsTests: XCTestCase {
