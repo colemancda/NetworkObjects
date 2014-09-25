@@ -865,7 +865,7 @@ public class Server {
                         
                         for sort in sortDescriptors {
                             
-                            if (self.delegate?.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key:sort.key).rawVaue >= ServerPermission.ReadOnly.rawValue) {
+                            if self.delegate?.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key: sort.key()).rawValue >= ServerPermission.ReadOnly.rawValue {
                                 
                                 filteredResults.append(managedObject)
                             }

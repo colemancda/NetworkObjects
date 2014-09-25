@@ -134,7 +134,7 @@ public class Store {
             
             for sort in fetchRequest.sortDescriptors as [NSSortDescriptor] {
                 
-                jsonSortDescriptors.append([sort.key: sort.ascending])
+                jsonSortDescriptors.append([sort.key()! : sort.ascending])
             }
             
             jsonObject[SearchParameter.SortDescriptors.rawValue] = jsonSortDescriptors
