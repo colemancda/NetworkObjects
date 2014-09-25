@@ -6,6 +6,7 @@
 //  Copyright (c) 2014 ColemanCDA. All rights reserved.
 //
 
+import Foundation
 
 /** The reverse DNS error domain string for NetworkObjects. */
 public let NetworkObjectsErrorDomain = "com.ColemanCDA.NetworkObjects.ErrorDomain"

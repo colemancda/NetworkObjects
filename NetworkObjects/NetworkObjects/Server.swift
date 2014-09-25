@@ -47,7 +47,7 @@ public class Server {
     // MARK: - Private Properties
     
     /** The underlying HTTP server. */
-    private lazy var httpServer: HTTPServer = self.initHTTPServer();
+    private lazy var httpServer: ServerHTTPServer = self.initHTTPServer();
     
     // MARK: - Initialization
     
@@ -94,11 +94,11 @@ public class Server {
     }
     
     // ** Configures the underlying HTTP server. */
-    private func initHTTPServer() -> HTTPServer {
+    private func initHTTPServer() -> ServerHTTPServer {
         
-        let httpServer = HTTPServer(server: self);
+        let httpServer = ServerHTTPServer(server: self);
         
-        httpServer.setConnectionClass(HTTPConnection);
+        httpServer.setConnectionClass(ServerHTTPConnection);
         
         // add HTTP REST handlers...
         
@@ -865,7 +865,7 @@ public class Server {
                         
                         for sort in sortDescriptors {
                             
-                            if self.delegate?.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key: sort.key()).rawValue >= ServerPermission.ReadOnly.rawValue {
+                            if self.delegate?.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key: sort.key).rawValue >= ServerPermission.ReadOnly.rawValue {
                                 
                                 filteredResults.append(managedObject)
                             }
@@ -1748,7 +1748,7 @@ public class Server {
     
     // MARK: - Private Classes
     
-    private class HTTPConnection: RoutingConnection {
+    private class ServerHTTPConnection: RoutingConnection {
         
         override func isSecureServer() -> Bool {
             
@@ -1759,7 +1759,7 @@ public class Server {
             
             let cocoaHTTPServer: CocoaHTTPServer.HTTPServer = self.config().server;
             
-            let httpServer: HTTPServer = cocoaHTTPServer as HTTPServer;
+            let httpServer = cocoaHTTPServer as ServerHTTPServer;
             
             let server = httpServer.server;
             
@@ -1823,7 +1823,7 @@ public class ServerResponse {
     }
 }
 
-public class HTTPServer: RoutingHTTPServer {
+public class ServerHTTPServer: RoutingHTTPServer {
     
     let server: Server;
     
