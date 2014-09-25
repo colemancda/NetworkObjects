@@ -94,8 +94,8 @@ internal extension ErrorCode {
             value = "Error"
         }
         
-        let userInfo = [NSLocalizedDescriptionKey: NSLocalizedString(key, tableName: tableName, bundle: frameworkBundle, value: value!, comment: comment)]
+        let userInfo = [NSLocalizedDescriptionKey: NSLocalizedString(key, tableName: tableName, bundle: frameworkBundle!, value: value!, comment: comment)]
         
-        return NSError(domain: NetworkObjectsErrorDomain, code: self.toRaw(), userInfo: userInfo)
+        return NSError(domain: NetworkObjectsErrorDomain, code: self.rawValue, userInfo: userInfo)
     }
 }

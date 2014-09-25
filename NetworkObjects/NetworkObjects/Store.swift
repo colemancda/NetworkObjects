@@ -100,31 +100,31 @@ public class Store {
         
         if predicate != nil && predicate?.predicateOperatorType != NSPredicateOperatorType.CustomSelectorPredicateOperatorType {
             
-            jsonObject[SearchParameter.PredicateKey.toRaw()] = predicate?.leftExpression.keyPath
+            jsonObject[SearchParameter.PredicateKey.rawValue] = predicate?.leftExpression.keyPath
             
             // convert from Core Data to JSON
             let jsonValue: AnyObject? = fetchRequest.entity.JSONObjectFromCoreDataValues([predicate!.leftExpression.keyPath: predicate!.rightExpression.constantValue], usingResourceIDAttributeName: self.resourceIDAttributeName).values.first
             
-            jsonObject[SearchParameter.PredicateValue.toRaw()] = jsonValue
+            jsonObject[SearchParameter.PredicateValue.rawValue] = jsonValue
             
-            jsonObject[SearchParameter.PredicateOperator.toRaw()] = predicate?.predicateOperatorType.toRaw()
+            jsonObject[SearchParameter.PredicateOperator.rawValue] = predicate?.predicateOperatorType.rawValue
             
-            jsonObject[SearchParameter.PredicateOption.toRaw()] = predicate?.options.toRaw()
+            jsonObject[SearchParameter.PredicateOption.rawValue] = predicate?.options.rawValue
             
-            jsonObject[SearchParameter.PredicateModifier.toRaw()] = predicate?.comparisonPredicateModifier.toRaw()
+            jsonObject[SearchParameter.PredicateModifier.rawValue] = predicate?.comparisonPredicateModifier.rawValue
         }
         
         // other fetch parameters
         
         if fetchRequest.fetchLimit != 0 {
-            jsonObject[SearchParameter.FetchLimit.toRaw()] = fetchRequest.fetchLimit
+            jsonObject[SearchParameter.FetchLimit.rawValue] = fetchRequest.fetchLimit
         }
         
         if fetchRequest.fetchOffset != 0 {
-            jsonObject[SearchParameter.FetchOffset.toRaw()] = fetchRequest.fetchOffset
+            jsonObject[SearchParameter.FetchOffset.rawValue] = fetchRequest.fetchOffset
         }
         
-        jsonObject[SearchParameter.IncludesSubentities.toRaw()] = fetchRequest.includesSubentities
+        jsonObject[SearchParameter.IncludesSubentities.rawValue] = fetchRequest.includesSubentities
         
         // sort descriptors
         
@@ -134,10 +134,10 @@ public class Store {
             
             for sort in fetchRequest.sortDescriptors as [NSSortDescriptor] {
                 
-                jsonSortDescriptors.append([sort.key!: sort.ascending])
+                jsonSortDescriptors.append([sort.key: sort.ascending])
             }
             
-            jsonObject[SearchParameter.SortDescriptors.toRaw()] = jsonSortDescriptors
+            jsonObject[SearchParameter.SortDescriptors.rawValue] = jsonSortDescriptors
         }
         
         // call API method
@@ -229,7 +229,7 @@ public class Store {
             if error != nil {
                 
                 // not found, delete object from cache
-                if error!.code == ServerStatusCode.NotFound.toRaw() {
+                if error!.code == ServerStatusCode.NotFound.rawValue {
                     
                     // delete object on private thread
                     
@@ -590,9 +590,9 @@ public class Store {
             
             // error codes
             
-            if httpResponse.statusCode != ServerStatusCode.OK.toRaw() {
+            if httpResponse.statusCode != ServerStatusCode.OK.rawValue {
                 
-                let errorCode = ErrorCode.fromRaw(httpResponse.statusCode)
+                let errorCode = ErrorCode(rawValue: httpResponse.statusCode)
                 
                 if errorCode != nil {
                     
@@ -603,7 +603,7 @@ public class Store {
                         let comment = "Description for ErrorCode.\(self) for Search Request"
                         let key = "ErrorCode.\(self).LocalizedDescription.Search"
                         
-                        let customError = NSError(domain: NetworkObjectsErrorDomain, code: errorCode!.toRaw(), userInfo: [NSLocalizedDescriptionKey: NSLocalizedString(key, tableName: tableName, bundle: frameworkBundle, value: "Permission to perform search is denied", comment: comment)])
+                        let customError = NSError(domain: NetworkObjectsErrorDomain, code: errorCode!.rawValue, userInfo: [NSLocalizedDescriptionKey: NSLocalizedString(key, tableName: tableName, bundle: frameworkBundle!, value: "Permission to perform search is denied", comment: comment)])
                         
                         completionBlock(error: customError, results: nil)
                         
@@ -690,9 +690,9 @@ public class Store {
             
             // error codes
             
-            if httpResponse.statusCode != ServerStatusCode.OK.toRaw() {
+            if httpResponse.statusCode != ServerStatusCode.OK.rawValue {
                 
-                let errorCode = ErrorCode.fromRaw(httpResponse.statusCode)
+                let errorCode = ErrorCode(rawValue: httpResponse.statusCode)
                 
                 if errorCode != nil {
                     
@@ -706,7 +706,7 @@ public class Store {
                         let comment = "Description for ErrorCode.\(self) for \(method) Request"
                         let key = "ErrorCode.\(self).LocalizedDescription.\(method)"
                         
-                        let customError = NSError(domain: NetworkObjectsErrorDomain, code: errorCode!.toRaw(), userInfo: [NSLocalizedDescriptionKey: NSLocalizedString(key, tableName: tableName, bundle: frameworkBundle, value: value, comment: comment)])
+                        let customError = NSError(domain: NetworkObjectsErrorDomain, code: errorCode!.rawValue, userInfo: [NSLocalizedDescriptionKey: NSLocalizedString(key, tableName: tableName, bundle: frameworkBundle!, value: value, comment: comment)])
                         
                         completionBlock(error: customError, resourceID: nil)
                         
@@ -778,9 +778,9 @@ public class Store {
             
             // error codes
             
-            if httpResponse.statusCode != ServerStatusCode.OK.toRaw() {
+            if httpResponse.statusCode != ServerStatusCode.OK.rawValue {
                 
-                let errorCode = ErrorCode.fromRaw(httpResponse.statusCode)
+                let errorCode = ErrorCode(rawValue: httpResponse.statusCode)
                 
                 if errorCode != nil {
                     
@@ -792,7 +792,7 @@ public class Store {
                         let key = "ErrorCode.\(self).LocalizedDescription.GET"
                         let value = "Access to resource is denied"
                         
-                        let customError = NSError(domain: NetworkObjectsErrorDomain, code: errorCode!.toRaw(), userInfo: [NSLocalizedDescriptionKey: NSLocalizedString(key, tableName: tableName, bundle: frameworkBundle, value: value, comment: comment)])
+                        let customError = NSError(domain: NetworkObjectsErrorDomain, code: errorCode!.rawValue, userInfo: [NSLocalizedDescriptionKey: NSLocalizedString(key, tableName: tableName, bundle: frameworkBundle!, value: value, comment: comment)])
                         
                         completionBlock(error: customError, resource: nil)
                         
@@ -869,9 +869,9 @@ public class Store {
             
             // error codes
             
-            if httpResponse.statusCode != ServerStatusCode.OK.toRaw() {
+            if httpResponse.statusCode != ServerStatusCode.OK.rawValue {
                 
-                let errorCode = ErrorCode.fromRaw(httpResponse.statusCode)
+                let errorCode = ErrorCode(rawValue: httpResponse.statusCode)
                 
                 if errorCode != nil {
                     
@@ -884,7 +884,7 @@ public class Store {
                         let comment = "Description for ErrorCode.\(self) for \(method) Request"
                         let key = "ErrorCode.\(self).LocalizedDescription.\(method)"
                         
-                        let customError = NSError(domain: NetworkObjectsErrorDomain, code: errorCode!.toRaw(), userInfo: [NSLocalizedDescriptionKey: NSLocalizedString(key, tableName: tableName, bundle: frameworkBundle, value: value, comment: comment)])
+                        let customError = NSError(domain: NetworkObjectsErrorDomain, code: errorCode!.rawValue, userInfo: [NSLocalizedDescriptionKey: NSLocalizedString(key, tableName: tableName, bundle: frameworkBundle!, value: value, comment: comment)])
                         
                         completionBlock(error: customError)
                         
@@ -934,9 +934,9 @@ public class Store {
             
             // error codes
             
-            if httpResponse.statusCode != ServerStatusCode.OK.toRaw() {
+            if httpResponse.statusCode != ServerStatusCode.OK.rawValue {
                 
-                let errorCode = ErrorCode.fromRaw(httpResponse.statusCode)
+                let errorCode = ErrorCode(rawValue: httpResponse.statusCode)
                 
                 if errorCode != nil {
                     
@@ -949,7 +949,7 @@ public class Store {
                         let comment = "Description for ErrorCode.\(self) for \(method) Request"
                         let key = "ErrorCode.\(self).LocalizedDescription.\(method)"
                         
-                        let customError = NSError(domain: NetworkObjectsErrorDomain, code: errorCode!.toRaw(), userInfo: [NSLocalizedDescriptionKey: NSLocalizedString(key, tableName: tableName, bundle: frameworkBundle, value: value, comment: comment)])
+                        let customError = NSError(domain: NetworkObjectsErrorDomain, code: errorCode!.rawValue, userInfo: [NSLocalizedDescriptionKey: NSLocalizedString(key, tableName: tableName, bundle: frameworkBundle!, value: value, comment: comment)])
                         
                         completionBlock(error: customError)
                         
@@ -1005,7 +1005,7 @@ public class Store {
             
             let httpResponse = response as NSHTTPURLResponse
             
-            let functionCode = ServerFunctionCode.fromRaw(httpResponse.statusCode)
+            let functionCode = ServerFunctionCode(rawValue: httpResponse.statusCode)
             
             // invalid status code
             if functionCode == nil {
@@ -1051,7 +1051,7 @@ public class Store {
         // set the date cached attribute
         if self.dateCachedAttributeName != nil {
             
-            managedObject.setValue(NSDate.date(), forKey: self.dateCachedAttributeName!)
+            managedObject.setValue(NSDate(), forKey: self.dateCachedAttributeName!)
         }
     }
     

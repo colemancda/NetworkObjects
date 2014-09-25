@@ -118,7 +118,7 @@ public class Server {
                     
                     if ((jsonErrorPointer.memory != nil) || (searchParameters == nil)) {
                         
-                        response.statusCode = ServerStatusCode.BadRequest.toRaw();
+                        response.statusCode = ServerStatusCode.BadRequest.rawValue;
                         
                         return
                     }
@@ -132,7 +132,7 @@ public class Server {
                     
                     if serverResponse.statusCode != ServerStatusCode.OK {
                         
-                        response.statusCode = serverResponse.statusCode.toRaw()
+                        response.statusCode = serverResponse.statusCode.rawValue
                     }
                     else {
                         
@@ -147,7 +147,7 @@ public class Server {
                             // tell the delegate about the error
                             self.delegate!.server(self, didEncounterInternalError: jsonErrorPointer.memory!, forRequest: serverRequest, userInfo: userInfo)
                             
-                            response.statusCode = ServerStatusCode.InternalServerError.toRaw()
+                            response.statusCode = ServerStatusCode.InternalServerError.rawValue
                             
                             return
                         }
@@ -175,7 +175,7 @@ public class Server {
                 
                 if (jsonObject == nil) {
                     
-                    response.statusCode = ServerStatusCode.BadRequest.toRaw()
+                    response.statusCode = ServerStatusCode.BadRequest.rawValue
                     
                     return
                 }
@@ -188,7 +188,7 @@ public class Server {
                 
                 if serverResponse.statusCode != ServerStatusCode.OK {
                     
-                    response.statusCode = serverResponse.statusCode.toRaw()
+                    response.statusCode = serverResponse.statusCode.rawValue
                     
                     return
                 }
@@ -204,7 +204,7 @@ public class Server {
                     
                     self.delegate!.server(self, didEncounterInternalError: errorPointer.memory!, forRequest: serverRequest, userInfo: userInfo)
                     
-                    response.statusCode = ServerStatusCode.InternalServerError.toRaw()
+                    response.statusCode = ServerStatusCode.InternalServerError.rawValue
                     
                     return
                 }
@@ -246,7 +246,7 @@ public class Server {
                 // JSON recieved is not a dictionary
                 if (jsonBody != nil) && (jsonObject == nil) {
                     
-                    response.statusCode = ServerStatusCode.BadRequest.toRaw()
+                    response.statusCode = ServerStatusCode.BadRequest.rawValue
                     
                     return
                 }
@@ -261,7 +261,7 @@ public class Server {
                     
                     if (jsonBody != nil) {
                         
-                        response.statusCode = ServerStatusCode.BadRequest.toRaw()
+                        response.statusCode = ServerStatusCode.BadRequest.rawValue
                         
                         return
                     }
@@ -280,7 +280,7 @@ public class Server {
                         
                         self.delegate!.server(self, didEncounterInternalError: error.memory!, forRequest: serverRequest, userInfo: userInfo)
                         
-                        response.statusCode = ServerStatusCode.InternalServerError.toRaw()
+                        response.statusCode = ServerStatusCode.InternalServerError.rawValue
                         
                         return
                     }
@@ -302,7 +302,7 @@ public class Server {
                     
                     if (jsonBody == nil) {
                         
-                        response.statusCode = ServerStatusCode.BadRequest.toRaw()
+                        response.statusCode = ServerStatusCode.BadRequest.rawValue
                         
                         return
                     }
@@ -321,7 +321,7 @@ public class Server {
                         
                         self.delegate!.server(self, didEncounterInternalError: error.memory!, forRequest: serverRequest, userInfo: userInfo)
                         
-                        response.statusCode = ServerStatusCode.InternalServerError.toRaw()
+                        response.statusCode = ServerStatusCode.InternalServerError.rawValue
                         
                         return
                     }
@@ -343,7 +343,7 @@ public class Server {
                     
                     if (jsonBody != nil) {
                         
-                        response.statusCode = ServerStatusCode.BadRequest.toRaw()
+                        response.statusCode = ServerStatusCode.BadRequest.rawValue
                         
                         return
                     }
@@ -352,7 +352,7 @@ public class Server {
                     let (serverResponse, userInfo) = self.responseForDeleteRequest(serverRequest)
                     
                     // respond with status code
-                    response.statusCode = serverResponse.statusCode.toRaw()
+                    response.statusCode = serverResponse.statusCode.rawValue
                     
                     // tell the delegate
                     self.delegate!.server(self, didPerformRequest: serverRequest, withResponse: serverResponse, userInfo: userInfo)
@@ -400,7 +400,7 @@ public class Server {
                     // JSON recieved is not a dictionary
                     if (jsonBody != nil) && (jsonObject == nil) {
                         
-                        response.statusCode = ServerStatusCode.BadRequest.toRaw()
+                        response.statusCode = ServerStatusCode.BadRequest.rawValue
                         
                         return
                     }
@@ -425,7 +425,7 @@ public class Server {
                             
                             self.delegate!.server(self, didEncounterInternalError: errorPointer.memory!, forRequest: serverRequest, userInfo: userInfo)
                             
-                            response.statusCode = ServerStatusCode.InternalServerError.toRaw()
+                            response.statusCode = ServerStatusCode.InternalServerError.rawValue
                             
                             return
                         }
@@ -435,7 +435,7 @@ public class Server {
                     }
                     
                     // set function status code
-                    response.statusCode = serverResponse.statusCode.toRaw()
+                    response.statusCode = serverResponse.statusCode.rawValue
                     
                     // tell the delegate
                     self.delegate!.server(self, didPerformRequest: serverRequest, withResponse: serverResponse, userInfo: userInfo)
@@ -500,23 +500,23 @@ public class Server {
         
         // MARK: Predicate
         
-        let predicateKeyObject: AnyObject? = searchParameters![SearchParameter.PredicateKey.toRaw()]
+        let predicateKeyObject: AnyObject? = searchParameters![SearchParameter.PredicateKey.rawValue]
         
         let predicateKey = predicateKeyObject as? String
         
-        let jsonPredicateValue: AnyObject? = searchParameters![SearchParameter.PredicateValue.toRaw()]
+        let jsonPredicateValue: AnyObject? = searchParameters![SearchParameter.PredicateValue.rawValue]
         
-        let predicateOperatorObject: AnyObject? = searchParameters![SearchParameter.PredicateOperator.toRaw()]
+        let predicateOperatorObject: AnyObject? = searchParameters![SearchParameter.PredicateOperator.rawValue]
         
         let predicateOperatorNumber = predicateOperatorObject as? UInt
         
-        let predicateOperator = NSPredicateOperatorType.fromRaw(predicateOperatorNumber!)
+        let predicateOperator = NSPredicateOperatorType(rawValue: predicateOperatorNumber!)
         
         if (predicateKey != nil) && (predicateOperator != nil) && (jsonPredicateValue != nil) {
             
             // validate operator
             
-            if predicateOperatorNumber == NSPredicateOperatorType.CustomSelectorPredicateOperatorType.toRaw() {
+            if predicateOperatorNumber == NSPredicateOperatorType.CustomSelectorPredicateOperatorType.rawValue {
                 
                 let response = ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil)
                 
@@ -633,7 +633,7 @@ public class Server {
             
             var option = NSComparisonPredicateOptions.NormalizedPredicateOption // default value
             
-            let optionNumberObject: AnyObject? = searchParameters![SearchParameter.PredicateOption.toRaw()]
+            let optionNumberObject: AnyObject? = searchParameters![SearchParameter.PredicateOption.rawValue]
             
             if optionNumberObject != nil {
                 
@@ -641,27 +641,27 @@ public class Server {
                 
                 // validate NSUInteger bitmask
                 
-                if optionNumber == nil || optionNumber != NSComparisonPredicateOptions.NormalizedPredicateOption.toRaw() || optionNumber != NSComparisonPredicateOptions.DiacriticInsensitivePredicateOption.toRaw() || optionNumber != NSComparisonPredicateOptions.CaseInsensitivePredicateOption.toRaw() {
+                if optionNumber == nil || optionNumber != NSComparisonPredicateOptions.NormalizedPredicateOption.rawValue || optionNumber != NSComparisonPredicateOptions.DiacriticInsensitivePredicateOption.rawValue || optionNumber != NSComparisonPredicateOptions.CaseInsensitivePredicateOption.rawValue {
                     
                     let response = ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil)
                     
                     return (response, userInfo)
                 }
                 
-                option = NSComparisonPredicateOptions.fromRaw(optionNumber!)!
+                option = NSComparisonPredicateOptions(rawValue: optionNumber!)
             }
             
             // MARK: Predicate Modifier
             
             var modifier: NSComparisonPredicateModifier? = NSComparisonPredicateModifier.DirectPredicateModifier // default value
             
-            let modifierNumberObject: AnyObject? = searchParameters![SearchParameter.PredicateModifier.toRaw()]
+            let modifierNumberObject: AnyObject? = searchParameters![SearchParameter.PredicateModifier.rawValue]
             
             if modifierNumberObject != nil {
                 
                 let modifierNumber = modifierNumberObject as? UInt
                 
-                modifier = NSComparisonPredicateModifier.fromRaw(modifierNumber!)!
+                modifier = NSComparisonPredicateModifier(rawValue: modifierNumber!)
                 
                 // validate
                 
@@ -684,7 +684,7 @@ public class Server {
         
         // MARK: Sort Descriptors
         
-        let sortDescriptorsJSONArrayObject: AnyObject? = searchParameters![SearchParameter.SortDescriptors.toRaw()]
+        let sortDescriptorsJSONArrayObject: AnyObject? = searchParameters![SearchParameter.SortDescriptors.rawValue]
         
         let sortDescriptorsJSONArray = sortDescriptorsJSONArrayObject as? [[String: Bool]]
         
@@ -734,7 +734,7 @@ public class Server {
         
         // MARK: Fetch Limit
         
-        let fetchLimitObject: AnyObject? = searchParameters![SearchParameter.FetchLimit.toRaw()]
+        let fetchLimitObject: AnyObject? = searchParameters![SearchParameter.FetchLimit.rawValue]
         
         let fetchLimitNumber = fetchLimitObject as? Int
         
@@ -753,7 +753,7 @@ public class Server {
         
         // MARK: Fetch Offset
         
-        let fetchOffsetObject: AnyObject? = searchParameters![SearchParameter.FetchLimit.toRaw()]
+        let fetchOffsetObject: AnyObject? = searchParameters![SearchParameter.FetchLimit.rawValue]
         
         let fetchOffsetNumber = fetchOffsetObject as? Int
         
@@ -772,7 +772,7 @@ public class Server {
         
         // MARK: Includes Subentities
         
-        let includesSubentitiesObject: AnyObject? = searchParameters![SearchParameter.IncludesSubentities.toRaw()]
+        let includesSubentitiesObject: AnyObject? = searchParameters![SearchParameter.IncludesSubentities.rawValue]
         
         let includesSubentities = includesSubentitiesObject as? Bool
         
@@ -849,12 +849,12 @@ public class Server {
                 
                 // permission to view resource (must have at least readonly access)
                 
-                if (self.delegate?.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key: nil).toRaw() >= ServerPermission.ReadOnly.toRaw()) {
+                if (self.delegate?.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key: nil).rawValue >= ServerPermission.ReadOnly.rawValue) {
                     
                     // must have permission for keys accessed
                     if predicateKey != nil {
                         
-                        if (self.delegate?.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key: predicateKey).toRaw() >= ServerPermission.ReadOnly.toRaw()) {
+                        if (self.delegate?.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key: predicateKey).rawValue >= ServerPermission.ReadOnly.rawValue) {
                             
                             break
                         }
@@ -865,7 +865,7 @@ public class Server {
                         
                         for sort in sortDescriptors {
                             
-                            if (self.delegate?.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key:sort.key).toRaw() >= ServerPermission.ReadOnly.toRaw()) {
+                            if (self.delegate?.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key:sort.key).rawVaue >= ServerPermission.ReadOnly.rawValue) {
                                 
                                 filteredResults.append(managedObject)
                             }
@@ -930,7 +930,7 @@ public class Server {
         // check for permissions
         if permissionsEnabled {
             
-            if self.delegate?.server(self, permissionForRequest: request, managedObject: nil, context: context, key: nil).toRaw() < ServerPermission.EditPermission.toRaw() {
+            if self.delegate?.server(self, permissionForRequest: request, managedObject: nil, context: context, key: nil).rawValue < ServerPermission.EditPermission.rawValue {
                 
                 let response = ServerResponse(statusCode: ServerStatusCode.Forbidden, JSONResponse: nil)
                 
@@ -1058,7 +1058,7 @@ public class Server {
         if permissionsEnabled {
             
             // must have at least read permission
-            if self.delegate?.server(self, permissionForRequest: request, managedObject: nil, context: context, key: nil).toRaw() < ServerPermission.ReadOnly.toRaw() {
+            if self.delegate?.server(self, permissionForRequest: request, managedObject: nil, context: context, key: nil).rawValue < ServerPermission.ReadOnly.rawValue {
                 
                 let response = ServerResponse(statusCode: ServerStatusCode.Forbidden, JSONResponse: nil)
                 
@@ -1141,7 +1141,7 @@ public class Server {
         // check for permissions
         if permissionsEnabled {
             
-            if self.delegate?.server(self, permissionForRequest: request, managedObject: nil, context: context, key: nil).toRaw() < ServerPermission.EditPermission.toRaw() {
+            if self.delegate?.server(self, permissionForRequest: request, managedObject: nil, context: context, key: nil).rawValue < ServerPermission.EditPermission.rawValue {
                 
                 let response = ServerResponse(statusCode: ServerStatusCode.Forbidden, JSONResponse: nil)
                 
@@ -1246,7 +1246,7 @@ public class Server {
         // check for permissions
         if permissionsEnabled {
             
-            if self.delegate?.server(self, permissionForRequest: request, managedObject: nil, context: context, key: nil).toRaw() < ServerPermission.EditPermission.toRaw() {
+            if self.delegate?.server(self, permissionForRequest: request, managedObject: nil, context: context, key: nil).rawValue < ServerPermission.EditPermission.rawValue {
                 
                 let response = ServerResponse(statusCode: ServerStatusCode.Forbidden, JSONResponse: nil)
                 
@@ -1331,7 +1331,7 @@ public class Server {
         // check for permissions
         if permissionsEnabled {
             
-            if self.delegate?.server(self, permissionForRequest: request, managedObject: nil, context: context, key: nil).toRaw() < ServerPermission.EditPermission.toRaw() {
+            if self.delegate?.server(self, permissionForRequest: request, managedObject: nil, context: context, key: nil).rawValue < ServerPermission.EditPermission.rawValue {
                 
                 let response = ServerResponse(statusCode: ServerStatusCode.Forbidden, JSONResponse: nil)
                 
@@ -1496,7 +1496,7 @@ public class Server {
             // check access permissions (unless its the resourceID, thats always visible)
             if attributeName != self.resourceIDAttributeName {
                 
-                if self.delegate?.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key: attributeName).toRaw() >= ServerPermission.ReadOnly.toRaw() {
+                if self.delegate?.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key: attributeName).rawValue >= ServerPermission.ReadOnly.rawValue {
                     
                     // make sure the attribute is not undefined
                     if attribute.attributeType != NSAttributeType.UndefinedAttributeType {
@@ -1512,7 +1512,7 @@ public class Server {
         for (relationshipName, relationshipDescription) in managedObject.entity.relationshipsByName as [String: NSRelationshipDescription] {
             
             // make sure relationship is visible
-            if self.delegate?.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key: relationshipName).toRaw() >= ServerPermission.ReadOnly.toRaw() {
+            if self.delegate?.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key: relationshipName).rawValue >= ServerPermission.ReadOnly.rawValue {
                 
                 // to-one relationship
                 if !relationshipDescription.toMany {
@@ -1521,7 +1521,7 @@ public class Server {
                     let destinationResource = managedObject.valueForKey(relationshipName) as NSManagedObject
                     
                     // check access permissions (the relationship & the single distination object must be visible)
-                    if self.delegate?.server(self, permissionForRequest: request, managedObject: destinationResource, context: context, key: nil).toRaw() >= ServerPermission.ReadOnly.toRaw() {
+                    if self.delegate?.server(self, permissionForRequest: request, managedObject: destinationResource, context: context, key: nil).rawValue >= ServerPermission.ReadOnly.rawValue {
                         
                         // get resource ID
                         let destinationResourceID = destinationResource.valueForKey(self.resourceIDAttributeName) as UInt
@@ -1542,7 +1542,7 @@ public class Server {
                     
                     for destinationResource in toManyRelationship {
                         
-                        if self.delegate?.server(self, permissionForRequest: request, managedObject: destinationResource, context: context, key: nil).toRaw() >= ServerPermission.ReadOnly.toRaw() {
+                        if self.delegate?.server(self, permissionForRequest: request, managedObject: destinationResource, context: context, key: nil).rawValue >= ServerPermission.ReadOnly.rawValue {
                             
                             // get destination resource ID
                             let destinationResourceID = destinationResource.valueForKey(self.resourceIDAttributeName) as UInt
@@ -1596,7 +1596,7 @@ public class Server {
                 // check for permissions
                 if permissionsEnabled {
                     
-                    if self.delegate?.server(self, permissionForRequest: request, managedObject: resource, context: context, key: key).toRaw() < ServerPermission.EditPermission.toRaw() {
+                    if self.delegate?.server(self, permissionForRequest: request, managedObject: resource, context: context, key: key).rawValue < ServerPermission.EditPermission.rawValue {
                         
                         return ServerStatusCode.Forbidden
                     }
@@ -1637,7 +1637,7 @@ public class Server {
                 // check permissions of relationship
                 if permissionsEnabled {
                     
-                    if self.delegate?.server(self, permissionForRequest: request, managedObject: resource, context: context, key: key).toRaw() < ServerPermission.EditPermission.toRaw() {
+                    if self.delegate?.server(self, permissionForRequest: request, managedObject: resource, context: context, key: key).rawValue < ServerPermission.EditPermission.rawValue {
                         
                         return ServerStatusCode.Forbidden
                     }
@@ -1669,7 +1669,7 @@ public class Server {
                     // destination resource must be visible
                     if self.permissionsEnabled {
                         
-                        if self.delegate?.server(self, permissionForRequest: request, managedObject: resource, context: context, key: nil).toRaw() < ServerPermission.ReadOnly.toRaw() {
+                        if self.delegate?.server(self, permissionForRequest: request, managedObject: resource, context: context, key: nil).rawValue < ServerPermission.ReadOnly.rawValue {
                             
                             return ServerStatusCode.Forbidden
                         }
@@ -1720,7 +1720,7 @@ public class Server {
                         // destination resource must be visible
                         if self.permissionsEnabled {
                             
-                            if self.delegate?.server(self, permissionForRequest: request, managedObject: resource, context: context, key: nil).toRaw() < ServerPermission.ReadOnly.toRaw() {
+                            if self.delegate?.server(self, permissionForRequest: request, managedObject: resource, context: context, key: nil).rawValue < ServerPermission.ReadOnly.rawValue {
                                 
                                 return ServerStatusCode.Forbidden
                             }
@@ -1999,7 +1999,7 @@ public enum ServerFunctionCode: Int {
     
     func toServerStatusCode() -> ServerStatusCode {
         
-        return ServerStatusCode.fromRaw(self.toRaw())!
+        return ServerStatusCode(rawValue: self.rawValue)!
     }
 };
 
