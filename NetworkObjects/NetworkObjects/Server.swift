@@ -1840,22 +1840,22 @@ public protocol ServerDataSource {
     
     /** Data Source should return a unique string will represent the entity when broadcasting the managed object context.
     */
-    func server(Server, resourcePathForEntity entity: NSEntityDescription) -> String;
+    func server(server: Server, resourcePathForEntity entity: NSEntityDescription) -> String;
     
     /** Asks the data source for a managed object context to access. In simple setups the data source can always return the same context, but for higly concurrent servers, the data source create a separate context for each request (configured with the same backing store). */
-    func server(Server, managedObjectContextForRequest request: ServerRequest) -> NSManagedObjectContext
+    func server(server: Server, managedObjectContextForRequest request: ServerRequest) -> NSManagedObjectContext
     
     /** Asks the data source for a numerical identifier for a newly create object. It is the data source's responsibility to keep track of the resource IDs of instances of an entity. This method should return 0 the for the first instance of an entity and increment by 1 for each newly created instance. */
-    func server(Server, newResourceIDForEntity entity: NSEntityDescription) -> UInt
+    func server(server: Server, newResourceIDForEntity entity: NSEntityDescription) -> UInt
     
     /** Should return an array of string specifing the names of functions an entity declares. */
-    func server(Server, functionsForEntity entity: NSEntityDescription) -> [String]
+    func server(server: Server, functionsForEntity entity: NSEntityDescription) -> [String]
     
     /** Asks the data source to perform a function on a managed object. 
     
     Returns a tuple containing a ServerFunctionCode and JSON-compatible dictionary.
     */
-    func server(Server, performFunction functionName:String, forManagedObject managedObject: NSManagedObject,
+    func server(server: Server, performFunction functionName:String, forManagedObject managedObject: NSManagedObject,
         context: NSManagedObjectContext, recievedJsonObject: [String: AnyObject]?) -> (ServerFunctionCode, [String: AnyObject]?)
 }
 
@@ -1863,16 +1863,16 @@ public protocol ServerDataSource {
 public protocol ServerDelegate {
     
     /** Notifies the delegate that an internal error ocurred (e.g. could not serialize a JSON object). */
-    func server(Server, didEncounterInternalError error: NSError, forRequest request: ServerRequest, userInfo: [ServerUserInfoKey: AnyObject])
+    func server(server: Server, didEncounterInternalError error: NSError, forRequest request: ServerRequest, userInfo: [ServerUserInfoKey: AnyObject])
     
     /** Asks the delegate for a status code for a request. Any response that is not ServerStatusCode.OK, will be forwarded to the client and the request will end. This can be used to implement authentication or access control. */
-    func server(Server, statusCodeForRequest request: ServerRequest, managedObject: NSManagedObject?) -> ServerStatusCode
+    func server(server: Server, statusCodeForRequest request: ServerRequest, managedObject: NSManagedObject?) -> ServerStatusCode
     
     /** Notifies the delegate that a request was performed successfully. */
-    func server(Server, didPerformRequest request: ServerRequest, withResponse response: ServerResponse, userInfo: [ServerUserInfoKey: AnyObject])
+    func server(server: Server, didPerformRequest request: ServerRequest, withResponse response: ServerResponse, userInfo: [ServerUserInfoKey: AnyObject])
     
     /** Asks the delegate for access control for a request. Server must have its permissions enabled for this method to be called. */
-    func server(Server, permissionForRequest request: ServerRequest, managedObject: NSManagedObject?, context: NSManagedObjectContext?, key: String?) -> ServerPermission
+    func server(server: Server, permissionForRequest request: ServerRequest, managedObject: NSManagedObject?, context: NSManagedObjectContext?, key: String?) -> ServerPermission
 }
 
 // MARK: - Enumerations
