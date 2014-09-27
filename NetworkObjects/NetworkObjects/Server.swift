@@ -30,7 +30,7 @@ public class Server {
     public let prettyPrintJSON: Bool = false
     
     /** The name of the Integer attribute that will be used for identifying instances of entities. */
-    public let resourceIDAttributeName: String = "ID"
+    public let resourceIDAttributeName: String = "id"
     
     /** To enable HTTPS for all incoming connections set this value to an array appropriate for use in kCFStreamSSLCertificates SSL Settings. It should be an array of SecCertificateRefs except for the first element in the array, which is a SecIdentityRef.  */
     public let sslIdentityAndCertificates: [AnyObject]?
@@ -51,7 +51,7 @@ public class Server {
     
     // MARK: - Initialization
     
-    public init(dataSource: ServerDataSource, delegate: ServerDelegate?, managedObjectModel: NSManagedObjectModel, searchPath:String?, resourceIDAttributeName:String?, prettyPrintJSON:Bool, sslIdentityAndCertificates: [AnyObject]?, permissionsEnabled: Bool?) {
+    public init(dataSource: ServerDataSource, delegate: ServerDelegate?, managedObjectModel: NSManagedObjectModel, searchPath:String? = "search", resourceIDAttributeName:String? = "id", prettyPrintJSON:Bool = false, sslIdentityAndCertificates: [AnyObject]?, permissionsEnabled: Bool? = true) {
         
         // set required values
         self.dataSource = dataSource;
