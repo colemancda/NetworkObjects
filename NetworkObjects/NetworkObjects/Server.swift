@@ -116,11 +116,9 @@ public class Server {
                 
                 let searchRequestHandler: RequestHandler = { (request: RouteRequest!, response: RouteResponse!) -> Void in
                     
-                    var jsonError: NSError?
+                    let searchParameters = NSJSONSerialization.JSONObjectWithData(request.body(), options: NSJSONReadingOptions.AllowFragments, error: nil) as? [String: AnyObject]
                     
-                    let searchParameters = NSJSONSerialization.JSONObjectWithData(request.body(), options: NSJSONReadingOptions.AllowFragments, error: &jsonError) as? [String: AnyObject]
-                    
-                    if ((jsonError != nil) || (searchParameters == nil)) {
+                    if searchParameters == nil {
                         
                         response.statusCode = ServerStatusCode.BadRequest.rawValue;
                         
