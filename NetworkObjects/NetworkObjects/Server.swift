@@ -1946,7 +1946,7 @@ public enum ServerStatusCode: Int {
 
 /** Server Permission Enumeration */
 
-public enum ServerPermission: Int, Equatable {
+public enum ServerPermission: Int {
     
     /**  No access permission */
     case NoAccess = 0
