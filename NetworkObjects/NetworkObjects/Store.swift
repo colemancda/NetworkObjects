@@ -182,11 +182,11 @@ public class Store {
                     
                     // save
                     
-                    let saveError = NSErrorPointer()
+                    var saveError: NSError?
                     
-                    if !self.privateQueueManagedObjectContext.save(saveError) {
+                    if !self.privateQueueManagedObjectContext.save(&saveError) {
                         
-                        error = saveError.memory
+                        error = saveError
                         
                         return
                     }
@@ -253,11 +253,11 @@ public class Store {
                         
                         // save
                         
-                        let saveError = NSErrorPointer()
+                        var saveError: NSError?
                         
-                        if !self.privateQueueManagedObjectContext.save(saveError) {
+                        if !self.privateQueueManagedObjectContext.save(&saveError) {
                             
-                            deleteError = saveError.memory
+                            deleteError = saveError
                             
                             return
                         }
@@ -308,11 +308,11 @@ public class Store {
                 self.didCacheManagedObject(resource!)
                 
                 // save
-                let saveError = NSErrorPointer()
+                var saveError: NSError?
                 
-                if !self.privateQueueManagedObjectContext.save(saveError) {
+                if !self.privateQueueManagedObjectContext.save(&saveError) {
                     
-                    contextError = saveError.memory
+                    contextError = saveError
                     
                     return
                 }
@@ -391,11 +391,11 @@ public class Store {
                 self.didCacheManagedObject(managedObject!)
                 
                 // save
-                let saveError = NSErrorPointer()
+                var saveError: NSError?
                 
-                if !self.privateQueueManagedObjectContext.save(saveError) {
+                if !self.privateQueueManagedObjectContext.save(&saveError) {
                     
-                    error = saveError.memory
+                    error = saveError
                     
                     return
                 }
@@ -462,11 +462,11 @@ public class Store {
                 self.didCacheManagedObject(contextResource)
                 
                 // save
-                let saveError = NSErrorPointer()
+                var saveError: NSError?
                 
-                if !self.privateQueueManagedObjectContext.save(saveError) {
+                if !self.privateQueueManagedObjectContext.save(&saveError) {
                     
-                    error = saveError.memory
+                    error = saveError
                     
                     return
                 }
@@ -502,11 +502,11 @@ public class Store {
                 self.privateQueueManagedObjectContext.deleteObject(contextResource)
                 
                 // save
-                let saveError = NSErrorPointer()
+                var saveError: NSError?
                 
-                if !self.privateQueueManagedObjectContext.save(saveError) {
+                if !self.privateQueueManagedObjectContext.save(&saveError) {
                     
-                    error = saveError.memory
+                    error = saveError
                     
                     return
                 }
@@ -1071,14 +1071,14 @@ public class Store {
         
         // fetch
         
-        let error = NSErrorPointer()
+        var error: NSError?
         
-        let results = context.executeFetchRequest(fetchRequest, error: error) as? [NSManagedObjectID]
+        let results = context.executeFetchRequest(fetchRequest, error: &error) as? [NSManagedObjectID]
         
         // halt execution if error
-        if error.memory != nil {
+        if error != nil {
             
-            return (nil, error.memory)
+            return (nil, error)
         }
         
         var objectID = results?.first
@@ -1102,14 +1102,14 @@ public class Store {
         
         // fetch
         
-        let error = NSErrorPointer()
+        var error: NSError?
         
-        let results = context.executeFetchRequest(fetchRequest, error: error) as? [NSManagedObject]
+        let results = context.executeFetchRequest(fetchRequest, error: &error) as? [NSManagedObject]
         
         // halt execution if error
-        if error.memory != nil {
+        if error != nil {
             
-            return (nil, error.memory)
+            return (nil, error!)
         }
         
         var resource = results?.first
