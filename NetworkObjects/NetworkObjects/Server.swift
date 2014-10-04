@@ -100,6 +100,10 @@ public class Server {
         
         httpServer.setConnectionClass(ServerHTTPConnection);
         
+        // set default header
+        
+        httpServer.setDefaultHeaders(["Server": "NetworkObjects/\(NetworkObjectsVersionNumber)"])
+        
         // add HTTP REST handlers...
         
         for (path, entity) in self.entitiesByResourcePath {
