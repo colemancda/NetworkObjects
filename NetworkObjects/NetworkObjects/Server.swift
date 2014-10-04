@@ -30,7 +30,7 @@ public class Server {
     public let prettyPrintJSON: Bool = false
     
     /** The name of the Integer attribute that will be used for identifying instances of entities. */
-    public let resourceIDAttributeName: String = "ID"
+    public let resourceIDAttributeName: String = "id"
     
     /** To enable HTTPS for all incoming connections set this value to an array appropriate for use in kCFStreamSSLCertificates SSL Settings. It should be an array of SecCertificateRefs except for the first element in the array, which is a SecIdentityRef.  */
     public let sslIdentityAndCertificates: [AnyObject]?
@@ -47,11 +47,11 @@ public class Server {
     // MARK: - Private Properties
     
     /** The underlying HTTP server. */
-    private lazy var httpServer: HTTPServer = self.initHTTPServer();
+    private lazy var httpServer: ServerHTTPServer = self.initHTTPServer();
     
     // MARK: - Initialization
     
-    public init(dataSource: ServerDataSource, delegate: ServerDelegate?, managedObjectModel: NSManagedObjectModel, searchPath:String?, resourceIDAttributeName:String?, prettyPrintJSON:Bool, sslIdentityAndCertificates: [AnyObject]?, permissionsEnabled: Bool?) {
+    public init(dataSource: ServerDataSource, delegate: ServerDelegate?, managedObjectModel: NSManagedObjectModel, searchPath:String? = "search", resourceIDAttributeName:String? = "id", prettyPrintJSON:Bool = false, sslIdentityAndCertificates: [AnyObject]?, permissionsEnabled: Bool? = true) {
         
         // set required values
         self.dataSource = dataSource;
@@ -94,11 +94,11 @@ public class Server {
     }
     
     // ** Configures the underlying HTTP server. */
-    private func initHTTPServer() -> HTTPServer {
+    private func initHTTPServer() -> ServerHTTPServer {
         
-        let httpServer = HTTPServer(server: self);
+        let httpServer = ServerHTTPServer(server: self);
         
-        httpServer.setConnectionClass(HTTPConnection);
+        httpServer.setConnectionClass(ServerHTTPConnection);
         
         // add HTTP REST handlers...
         
@@ -118,7 +118,7 @@ public class Server {
                     
                     if ((jsonErrorPointer.memory != nil) || (searchParameters == nil)) {
                         
-                        response.statusCode = ServerStatusCode.BadRequest.toRaw();
+                        response.statusCode = ServerStatusCode.BadRequest.rawValue;
                         
                         return
                     }
@@ -132,7 +132,7 @@ public class Server {
                     
                     if serverResponse.statusCode != ServerStatusCode.OK {
                         
-                        response.statusCode = serverResponse.statusCode.toRaw()
+                        response.statusCode = serverResponse.statusCode.rawValue
                     }
                     else {
                         
@@ -147,7 +147,7 @@ public class Server {
                             // tell the delegate about the error
                             self.delegate!.server(self, didEncounterInternalError: jsonErrorPointer.memory!, forRequest: serverRequest, userInfo: userInfo)
                             
-                            response.statusCode = ServerStatusCode.InternalServerError.toRaw()
+                            response.statusCode = ServerStatusCode.InternalServerError.rawValue
                             
                             return
                         }
@@ -175,7 +175,7 @@ public class Server {
                 
                 if (jsonObject == nil) {
                     
-                    response.statusCode = ServerStatusCode.BadRequest.toRaw()
+                    response.statusCode = ServerStatusCode.BadRequest.rawValue
                     
                     return
                 }
@@ -188,7 +188,7 @@ public class Server {
                 
                 if serverResponse.statusCode != ServerStatusCode.OK {
                     
-                    response.statusCode = serverResponse.statusCode.toRaw()
+                    response.statusCode = serverResponse.statusCode.rawValue
                     
                     return
                 }
@@ -204,7 +204,7 @@ public class Server {
                     
                     self.delegate!.server(self, didEncounterInternalError: errorPointer.memory!, forRequest: serverRequest, userInfo: userInfo)
                     
-                    response.statusCode = ServerStatusCode.InternalServerError.toRaw()
+                    response.statusCode = ServerStatusCode.InternalServerError.rawValue
                     
                     return
                 }
@@ -246,7 +246,7 @@ public class Server {
                 // JSON recieved is not a dictionary
                 if (jsonBody != nil) && (jsonObject == nil) {
                     
-                    response.statusCode = ServerStatusCode.BadRequest.toRaw()
+                    response.statusCode = ServerStatusCode.BadRequest.rawValue
                     
                     return
                 }
@@ -261,7 +261,7 @@ public class Server {
                     
                     if (jsonBody != nil) {
                         
-                        response.statusCode = ServerStatusCode.BadRequest.toRaw()
+                        response.statusCode = ServerStatusCode.BadRequest.rawValue
                         
                         return
                     }
@@ -280,7 +280,7 @@ public class Server {
                         
                         self.delegate!.server(self, didEncounterInternalError: error.memory!, forRequest: serverRequest, userInfo: userInfo)
                         
-                        response.statusCode = ServerStatusCode.InternalServerError.toRaw()
+                        response.statusCode = ServerStatusCode.InternalServerError.rawValue
                         
                         return
                     }
@@ -302,7 +302,7 @@ public class Server {
                     
                     if (jsonBody == nil) {
                         
-                        response.statusCode = ServerStatusCode.BadRequest.toRaw()
+                        response.statusCode = ServerStatusCode.BadRequest.rawValue
                         
                         return
                     }
@@ -321,7 +321,7 @@ public class Server {
                         
                         self.delegate!.server(self, didEncounterInternalError: error.memory!, forRequest: serverRequest, userInfo: userInfo)
                         
-                        response.statusCode = ServerStatusCode.InternalServerError.toRaw()
+                        response.statusCode = ServerStatusCode.InternalServerError.rawValue
                         
                         return
                     }
@@ -343,7 +343,7 @@ public class Server {
                     
                     if (jsonBody != nil) {
                         
-                        response.statusCode = ServerStatusCode.BadRequest.toRaw()
+                        response.statusCode = ServerStatusCode.BadRequest.rawValue
                         
                         return
                     }
@@ -352,7 +352,7 @@ public class Server {
                     let (serverResponse, userInfo) = self.responseForDeleteRequest(serverRequest)
                     
                     // respond with status code
-                    response.statusCode = serverResponse.statusCode.toRaw()
+                    response.statusCode = serverResponse.statusCode.rawValue
                     
                     // tell the delegate
                     self.delegate!.server(self, didPerformRequest: serverRequest, withResponse: serverResponse, userInfo: userInfo)
@@ -400,7 +400,7 @@ public class Server {
                     // JSON recieved is not a dictionary
                     if (jsonBody != nil) && (jsonObject == nil) {
                         
-                        response.statusCode = ServerStatusCode.BadRequest.toRaw()
+                        response.statusCode = ServerStatusCode.BadRequest.rawValue
                         
                         return
                     }
@@ -425,7 +425,7 @@ public class Server {
                             
                             self.delegate!.server(self, didEncounterInternalError: errorPointer.memory!, forRequest: serverRequest, userInfo: userInfo)
                             
-                            response.statusCode = ServerStatusCode.InternalServerError.toRaw()
+                            response.statusCode = ServerStatusCode.InternalServerError.rawValue
                             
                             return
                         }
@@ -435,7 +435,7 @@ public class Server {
                     }
                     
                     // set function status code
-                    response.statusCode = serverResponse.statusCode.toRaw()
+                    response.statusCode = serverResponse.statusCode.rawValue
                     
                     // tell the delegate
                     self.delegate!.server(self, didPerformRequest: serverRequest, withResponse: serverResponse, userInfo: userInfo)
@@ -453,13 +453,15 @@ public class Server {
     /** Starts broadcasting the server. */
     public func start(onPort port: UInt) -> NSError? {
         
-        let errorPointer: NSErrorPointer = NSErrorPointer()
+        var error: NSError?
         
-        let success: Bool = self.httpServer.start(errorPointer);
+        self.httpServer.setPort(UInt16(port));
+        
+        let success: Bool = self.httpServer.start(&error);
         
         if !success {
             
-            return errorPointer.memory
+            return error
         }
         else {
             
@@ -494,29 +496,29 @@ public class Server {
         
         // Put togeather fetch request
         
-        let fetchRequest = NSFetchRequest(entityName: entity.name)
+        let fetchRequest = NSFetchRequest(entityName: entity.name!)
         
         // add search parameters...
         
         // MARK: Predicate
         
-        let predicateKeyObject: AnyObject? = searchParameters![SearchParameter.PredicateKey.toRaw()]
+        let predicateKeyObject: AnyObject? = searchParameters![SearchParameter.PredicateKey.rawValue]
         
         let predicateKey = predicateKeyObject as? String
         
-        let jsonPredicateValue: AnyObject? = searchParameters![SearchParameter.PredicateValue.toRaw()]
+        let jsonPredicateValue: AnyObject? = searchParameters![SearchParameter.PredicateValue.rawValue]
         
-        let predicateOperatorObject: AnyObject? = searchParameters![SearchParameter.PredicateOperator.toRaw()]
+        let predicateOperatorObject: AnyObject? = searchParameters![SearchParameter.PredicateOperator.rawValue]
         
         let predicateOperatorNumber = predicateOperatorObject as? UInt
         
-        let predicateOperator = NSPredicateOperatorType.fromRaw(predicateOperatorNumber!)
+        let predicateOperator = NSPredicateOperatorType(rawValue: predicateOperatorNumber!)
         
         if (predicateKey != nil) && (predicateOperator != nil) && (jsonPredicateValue != nil) {
             
             // validate operator
             
-            if predicateOperatorNumber == NSPredicateOperatorType.CustomSelectorPredicateOperatorType.toRaw() {
+            if predicateOperatorNumber == NSPredicateOperatorType.CustomSelectorPredicateOperatorType.rawValue {
                 
                 let response = ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil)
                 
@@ -633,7 +635,7 @@ public class Server {
             
             var option = NSComparisonPredicateOptions.NormalizedPredicateOption // default value
             
-            let optionNumberObject: AnyObject? = searchParameters![SearchParameter.PredicateOption.toRaw()]
+            let optionNumberObject: AnyObject? = searchParameters![SearchParameter.PredicateOption.rawValue]
             
             if optionNumberObject != nil {
                 
@@ -641,27 +643,27 @@ public class Server {
                 
                 // validate NSUInteger bitmask
                 
-                if optionNumber == nil || optionNumber != NSComparisonPredicateOptions.NormalizedPredicateOption.toRaw() || optionNumber != NSComparisonPredicateOptions.DiacriticInsensitivePredicateOption.toRaw() || optionNumber != NSComparisonPredicateOptions.CaseInsensitivePredicateOption.toRaw() {
+                if optionNumber == nil || optionNumber != NSComparisonPredicateOptions.NormalizedPredicateOption.rawValue || optionNumber != NSComparisonPredicateOptions.DiacriticInsensitivePredicateOption.rawValue || optionNumber != NSComparisonPredicateOptions.CaseInsensitivePredicateOption.rawValue {
                     
                     let response = ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil)
                     
                     return (response, userInfo)
                 }
                 
-                option = NSComparisonPredicateOptions.fromRaw(optionNumber!)!
+                option = NSComparisonPredicateOptions(rawValue: optionNumber!)
             }
             
             // MARK: Predicate Modifier
             
             var modifier: NSComparisonPredicateModifier? = NSComparisonPredicateModifier.DirectPredicateModifier // default value
             
-            let modifierNumberObject: AnyObject? = searchParameters![SearchParameter.PredicateModifier.toRaw()]
+            let modifierNumberObject: AnyObject? = searchParameters![SearchParameter.PredicateModifier.rawValue]
             
             if modifierNumberObject != nil {
                 
                 let modifierNumber = modifierNumberObject as? UInt
                 
-                modifier = NSComparisonPredicateModifier.fromRaw(modifierNumber!)!
+                modifier = NSComparisonPredicateModifier(rawValue: modifierNumber!)
                 
                 // validate
                 
@@ -684,7 +686,7 @@ public class Server {
         
         // MARK: Sort Descriptors
         
-        let sortDescriptorsJSONArrayObject: AnyObject? = searchParameters![SearchParameter.SortDescriptors.toRaw()]
+        let sortDescriptorsJSONArrayObject: AnyObject? = searchParameters![SearchParameter.SortDescriptors.rawValue]
         
         let sortDescriptorsJSONArray = sortDescriptorsJSONArrayObject as? [[String: Bool]]
         
@@ -734,7 +736,7 @@ public class Server {
         
         // MARK: Fetch Limit
         
-        let fetchLimitObject: AnyObject? = searchParameters![SearchParameter.FetchLimit.toRaw()]
+        let fetchLimitObject: AnyObject? = searchParameters![SearchParameter.FetchLimit.rawValue]
         
         let fetchLimitNumber = fetchLimitObject as? Int
         
@@ -753,7 +755,7 @@ public class Server {
         
         // MARK: Fetch Offset
         
-        let fetchOffsetObject: AnyObject? = searchParameters![SearchParameter.FetchLimit.toRaw()]
+        let fetchOffsetObject: AnyObject? = searchParameters![SearchParameter.FetchLimit.rawValue]
         
         let fetchOffsetNumber = fetchOffsetObject as? Int
         
@@ -772,7 +774,7 @@ public class Server {
         
         // MARK: Includes Subentities
         
-        let includesSubentitiesObject: AnyObject? = searchParameters![SearchParameter.IncludesSubentities.toRaw()]
+        let includesSubentitiesObject: AnyObject? = searchParameters![SearchParameter.IncludesSubentities.rawValue]
         
         let includesSubentities = includesSubentitiesObject as? Bool
         
@@ -849,12 +851,12 @@ public class Server {
                 
                 // permission to view resource (must have at least readonly access)
                 
-                if (self.delegate?.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key: nil).toRaw() >= ServerPermission.ReadOnly.toRaw()) {
+                if (self.delegate?.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key: nil).rawValue >= ServerPermission.ReadOnly.rawValue) {
                     
                     // must have permission for keys accessed
                     if predicateKey != nil {
                         
-                        if (self.delegate?.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key: predicateKey).toRaw() >= ServerPermission.ReadOnly.toRaw()) {
+                        if (self.delegate?.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key: predicateKey).rawValue >= ServerPermission.ReadOnly.rawValue) {
                             
                             break
                         }
@@ -865,7 +867,7 @@ public class Server {
                         
                         for sort in sortDescriptors {
                             
-                            if (self.delegate?.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key:sort.key).toRaw() >= ServerPermission.ReadOnly.toRaw()) {
+                            if self.delegate?.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key: sort.key()!).rawValue >= ServerPermission.ReadOnly.rawValue {
                                 
                                 filteredResults.append(managedObject)
                             }
@@ -930,7 +932,7 @@ public class Server {
         // check for permissions
         if permissionsEnabled {
             
-            if self.delegate?.server(self, permissionForRequest: request, managedObject: nil, context: context, key: nil).toRaw() < ServerPermission.EditPermission.toRaw() {
+            if self.delegate?.server(self, permissionForRequest: request, managedObject: nil, context: context, key: nil).rawValue < ServerPermission.EditPermission.rawValue {
                 
                 let response = ServerResponse(statusCode: ServerStatusCode.Forbidden, JSONResponse: nil)
                 
@@ -946,7 +948,7 @@ public class Server {
         
         context.performBlockAndWait { () -> Void in
             
-            managedObject = NSEntityDescription.insertNewObjectForEntityForName(entity.name, inManagedObjectContext: context) as? NSManagedObject
+            managedObject = NSEntityDescription.insertNewObjectForEntityForName(entity.name!, inManagedObjectContext: context) as? NSManagedObject
             
             // set resourceID
             
@@ -1058,7 +1060,7 @@ public class Server {
         if permissionsEnabled {
             
             // must have at least read permission
-            if self.delegate?.server(self, permissionForRequest: request, managedObject: nil, context: context, key: nil).toRaw() < ServerPermission.ReadOnly.toRaw() {
+            if self.delegate?.server(self, permissionForRequest: request, managedObject: nil, context: context, key: nil).rawValue < ServerPermission.ReadOnly.rawValue {
                 
                 let response = ServerResponse(statusCode: ServerStatusCode.Forbidden, JSONResponse: nil)
                 
@@ -1141,7 +1143,7 @@ public class Server {
         // check for permissions
         if permissionsEnabled {
             
-            if self.delegate?.server(self, permissionForRequest: request, managedObject: nil, context: context, key: nil).toRaw() < ServerPermission.EditPermission.toRaw() {
+            if self.delegate?.server(self, permissionForRequest: request, managedObject: nil, context: context, key: nil).rawValue < ServerPermission.EditPermission.rawValue {
                 
                 let response = ServerResponse(statusCode: ServerStatusCode.Forbidden, JSONResponse: nil)
                 
@@ -1246,7 +1248,7 @@ public class Server {
         // check for permissions
         if permissionsEnabled {
             
-            if self.delegate?.server(self, permissionForRequest: request, managedObject: nil, context: context, key: nil).toRaw() < ServerPermission.EditPermission.toRaw() {
+            if self.delegate?.server(self, permissionForRequest: request, managedObject: nil, context: context, key: nil).rawValue < ServerPermission.EditPermission.rawValue {
                 
                 let response = ServerResponse(statusCode: ServerStatusCode.Forbidden, JSONResponse: nil)
                 
@@ -1331,7 +1333,7 @@ public class Server {
         // check for permissions
         if permissionsEnabled {
             
-            if self.delegate?.server(self, permissionForRequest: request, managedObject: nil, context: context, key: nil).toRaw() < ServerPermission.EditPermission.toRaw() {
+            if self.delegate?.server(self, permissionForRequest: request, managedObject: nil, context: context, key: nil).rawValue < ServerPermission.EditPermission.rawValue {
                 
                 let response = ServerResponse(statusCode: ServerStatusCode.Forbidden, JSONResponse: nil)
                 
@@ -1370,7 +1372,7 @@ public class Server {
     
     private func fetchEntity(entity: NSEntityDescription, withResourceID resourceID: UInt, usingContext context: NSManagedObjectContext, shouldPrefetch: Bool) -> (NSManagedObject?, NSError?) {
         
-        let fetchRequest = NSFetchRequest(entityName: entity.name)
+        let fetchRequest = NSFetchRequest(entityName: entity.name!)
         
         fetchRequest.fetchLimit = 1
         
@@ -1399,7 +1401,7 @@ public class Server {
     
     private func fetchEntity(entity: NSEntityDescription, withResourceIDs resourceIDs: [UInt], usingContext context: NSManagedObjectContext, shouldPrefetch: Bool) -> ([NSManagedObject], NSError?) {
         
-        let fetchRequest = NSFetchRequest(entityName: entity.name)
+        let fetchRequest = NSFetchRequest(entityName: entity.name!)
         
         fetchRequest.fetchLimit = 1
         
@@ -1496,7 +1498,7 @@ public class Server {
             // check access permissions (unless its the resourceID, thats always visible)
             if attributeName != self.resourceIDAttributeName {
                 
-                if self.delegate?.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key: attributeName).toRaw() >= ServerPermission.ReadOnly.toRaw() {
+                if self.delegate?.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key: attributeName).rawValue >= ServerPermission.ReadOnly.rawValue {
                     
                     // make sure the attribute is not undefined
                     if attribute.attributeType != NSAttributeType.UndefinedAttributeType {
@@ -1512,7 +1514,7 @@ public class Server {
         for (relationshipName, relationshipDescription) in managedObject.entity.relationshipsByName as [String: NSRelationshipDescription] {
             
             // make sure relationship is visible
-            if self.delegate?.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key: relationshipName).toRaw() >= ServerPermission.ReadOnly.toRaw() {
+            if self.delegate?.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key: relationshipName).rawValue >= ServerPermission.ReadOnly.rawValue {
                 
                 // to-one relationship
                 if !relationshipDescription.toMany {
@@ -1521,7 +1523,7 @@ public class Server {
                     let destinationResource = managedObject.valueForKey(relationshipName) as NSManagedObject
                     
                     // check access permissions (the relationship & the single distination object must be visible)
-                    if self.delegate?.server(self, permissionForRequest: request, managedObject: destinationResource, context: context, key: nil).toRaw() >= ServerPermission.ReadOnly.toRaw() {
+                    if self.delegate?.server(self, permissionForRequest: request, managedObject: destinationResource, context: context, key: nil).rawValue >= ServerPermission.ReadOnly.rawValue {
                         
                         // get resource ID
                         let destinationResourceID = destinationResource.valueForKey(self.resourceIDAttributeName) as UInt
@@ -1542,7 +1544,7 @@ public class Server {
                     
                     for destinationResource in toManyRelationship {
                         
-                        if self.delegate?.server(self, permissionForRequest: request, managedObject: destinationResource, context: context, key: nil).toRaw() >= ServerPermission.ReadOnly.toRaw() {
+                        if self.delegate?.server(self, permissionForRequest: request, managedObject: destinationResource, context: context, key: nil).rawValue >= ServerPermission.ReadOnly.rawValue {
                             
                             // get destination resource ID
                             let destinationResourceID = destinationResource.valueForKey(self.resourceIDAttributeName) as UInt
@@ -1596,7 +1598,7 @@ public class Server {
                 // check for permissions
                 if permissionsEnabled {
                     
-                    if self.delegate?.server(self, permissionForRequest: request, managedObject: resource, context: context, key: key).toRaw() < ServerPermission.EditPermission.toRaw() {
+                    if self.delegate?.server(self, permissionForRequest: request, managedObject: resource, context: context, key: key).rawValue < ServerPermission.EditPermission.rawValue {
                         
                         return ServerStatusCode.Forbidden
                     }
@@ -1637,7 +1639,7 @@ public class Server {
                 // check permissions of relationship
                 if permissionsEnabled {
                     
-                    if self.delegate?.server(self, permissionForRequest: request, managedObject: resource, context: context, key: key).toRaw() < ServerPermission.EditPermission.toRaw() {
+                    if self.delegate?.server(self, permissionForRequest: request, managedObject: resource, context: context, key: key).rawValue < ServerPermission.EditPermission.rawValue {
                         
                         return ServerStatusCode.Forbidden
                     }
@@ -1669,7 +1671,7 @@ public class Server {
                     // destination resource must be visible
                     if self.permissionsEnabled {
                         
-                        if self.delegate?.server(self, permissionForRequest: request, managedObject: resource, context: context, key: nil).toRaw() < ServerPermission.ReadOnly.toRaw() {
+                        if self.delegate?.server(self, permissionForRequest: request, managedObject: resource, context: context, key: nil).rawValue < ServerPermission.ReadOnly.rawValue {
                             
                             return ServerStatusCode.Forbidden
                         }
@@ -1699,7 +1701,7 @@ public class Server {
                         return ServerStatusCode.BadRequest
                     }
                     
-                    let (newValue, error) = self.fetchEntity(relationship!.destinationEntity, withResourceIDs: destinationResourceIDs!, usingContext: context, shouldPrefetch: false)
+                    let (newValue, error) = self.fetchEntity(relationship!.destinationEntity!, withResourceIDs: destinationResourceIDs!, usingContext: context, shouldPrefetch: false)
                     
                     if error != nil {
                         
@@ -1720,7 +1722,7 @@ public class Server {
                         // destination resource must be visible
                         if self.permissionsEnabled {
                             
-                            if self.delegate?.server(self, permissionForRequest: request, managedObject: resource, context: context, key: nil).toRaw() < ServerPermission.ReadOnly.toRaw() {
+                            if self.delegate?.server(self, permissionForRequest: request, managedObject: resource, context: context, key: nil).rawValue < ServerPermission.ReadOnly.rawValue {
                                 
                                 return ServerStatusCode.Forbidden
                             }
@@ -1748,7 +1750,7 @@ public class Server {
     
     // MARK: - Private Classes
     
-    private class HTTPConnection: RoutingConnection {
+    private class ServerHTTPConnection: RoutingConnection {
         
         override func isSecureServer() -> Bool {
             
@@ -1759,7 +1761,7 @@ public class Server {
             
             let cocoaHTTPServer: CocoaHTTPServer.HTTPServer = self.config().server;
             
-            let httpServer: HTTPServer = cocoaHTTPServer as HTTPServer;
+            let httpServer = cocoaHTTPServer as ServerHTTPServer;
             
             let server = httpServer.server;
             
@@ -1823,7 +1825,7 @@ public class ServerResponse {
     }
 }
 
-public class HTTPServer: RoutingHTTPServer {
+public class ServerHTTPServer: RoutingHTTPServer {
     
     let server: Server;
     
@@ -1840,22 +1842,22 @@ public protocol ServerDataSource {
     
     /** Data Source should return a unique string will represent the entity when broadcasting the managed object context.
     */
-    func server(Server, resourcePathForEntity entity: NSEntityDescription) -> String;
+    func server(server: Server, resourcePathForEntity entity: NSEntityDescription) -> String;
     
     /** Asks the data source for a managed object context to access. In simple setups the data source can always return the same context, but for higly concurrent servers, the data source create a separate context for each request (configured with the same backing store). */
-    func server(Server, managedObjectContextForRequest request: ServerRequest) -> NSManagedObjectContext
+    func server(server: Server, managedObjectContextForRequest request: ServerRequest) -> NSManagedObjectContext
     
     /** Asks the data source for a numerical identifier for a newly create object. It is the data source's responsibility to keep track of the resource IDs of instances of an entity. This method should return 0 the for the first instance of an entity and increment by 1 for each newly created instance. */
-    func server(Server, newResourceIDForEntity entity: NSEntityDescription) -> UInt
+    func server(server: Server, newResourceIDForEntity entity: NSEntityDescription) -> UInt
     
     /** Should return an array of string specifing the names of functions an entity declares. */
-    func server(Server, functionsForEntity entity: NSEntityDescription) -> [String]
+    func server(server: Server, functionsForEntity entity: NSEntityDescription) -> [String]
     
     /** Asks the data source to perform a function on a managed object. 
     
     Returns a tuple containing a ServerFunctionCode and JSON-compatible dictionary.
     */
-    func server(Server, performFunction functionName:String, forManagedObject managedObject: NSManagedObject,
+    func server(server: Server, performFunction functionName:String, forManagedObject managedObject: NSManagedObject,
         context: NSManagedObjectContext, recievedJsonObject: [String: AnyObject]?) -> (ServerFunctionCode, [String: AnyObject]?)
 }
 
@@ -1863,16 +1865,16 @@ public protocol ServerDataSource {
 public protocol ServerDelegate {
     
     /** Notifies the delegate that an internal error ocurred (e.g. could not serialize a JSON object). */
-    func server(Server, didEncounterInternalError error: NSError, forRequest request: ServerRequest, userInfo: [ServerUserInfoKey: AnyObject])
+    func server(server: Server, didEncounterInternalError error: NSError, forRequest request: ServerRequest, userInfo: [ServerUserInfoKey: AnyObject])
     
     /** Asks the delegate for a status code for a request. Any response that is not ServerStatusCode.OK, will be forwarded to the client and the request will end. This can be used to implement authentication or access control. */
-    func server(Server, statusCodeForRequest request: ServerRequest, managedObject: NSManagedObject?) -> ServerStatusCode
+    func server(server: Server, statusCodeForRequest request: ServerRequest, managedObject: NSManagedObject?) -> ServerStatusCode
     
     /** Notifies the delegate that a request was performed successfully. */
-    func server(Server, didPerformRequest request: ServerRequest, withResponse response: ServerResponse, userInfo: [ServerUserInfoKey: AnyObject])
+    func server(server: Server, didPerformRequest request: ServerRequest, withResponse response: ServerResponse, userInfo: [ServerUserInfoKey: AnyObject])
     
     /** Asks the delegate for access control for a request. Server must have its permissions enabled for this method to be called. */
-    func server(Server, permissionForRequest request: ServerRequest, managedObject: NSManagedObject?, context: NSManagedObjectContext?, key: String?) -> ServerPermission
+    func server(server: Server, permissionForRequest request: ServerRequest, managedObject: NSManagedObject?, context: NSManagedObjectContext?, key: String?) -> ServerPermission
 }
 
 // MARK: - Enumerations
@@ -1999,7 +2001,7 @@ public enum ServerFunctionCode: Int {
     
     func toServerStatusCode() -> ServerStatusCode {
         
-        return ServerStatusCode.fromRaw(self.toRaw())!
+        return ServerStatusCode(rawValue: self.rawValue)!
     }
 };
 

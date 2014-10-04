@@ -93,7 +93,7 @@ internal extension NSManagedObject {
             let transformer = NSValueTransformer(forName: valueTransformerName!)
             
             // must convert to NSData
-            let data = transformer.transformedValue(convertedValue) as? NSData
+            let data = transformer!.transformedValue(convertedValue) as? NSData
             
             return (data != nil)
             
@@ -124,7 +124,7 @@ internal extension NSEntityDescription {
             return NSNull()
         }
         
-        let attributeClassName = attributeDescription!.attributeValueClassName
+        let attributeClassName = attributeDescription!.attributeValueClassName!
         
         switch attributeClassName {
             
@@ -154,7 +154,7 @@ internal extension NSEntityDescription {
                     let transformer = NSValueTransformer(forName: NSKeyedUnarchiveFromDataTransformerName)
                     
                     // convert to data
-                    let data = transformer.reverseTransformedValue(attributeValue) as NSData
+                    let data = transformer!.reverseTransformedValue(attributeValue) as NSData
                     
                     // convert to string (for JSON export)
                     return data.base64EncodedStringWithOptions(NSDataBase64EncodingOptions.Encoding64CharacterLineLength)
@@ -164,7 +164,7 @@ internal extension NSEntityDescription {
                 let transformer = NSValueTransformer(forName: valueTransformerName!)
                 
                 // convert to data
-                let data = transformer.transformedValue(attributeValue) as NSData
+                let data = transformer!.transformedValue(attributeValue) as NSData
                 
                 // convert to string (for JSON export)
                 return data.base64EncodedStringWithOptions(NSDataBase64EncodingOptions.Encoding64CharacterLineLength)
@@ -190,7 +190,7 @@ internal extension NSEntityDescription {
             return nil
         }
         
-        let attributeClassName = attributeDescription!.attributeValueClassName
+        let attributeClassName = attributeDescription!.attributeValueClassName!
         
         switch attributeClassName {
             
@@ -217,14 +217,14 @@ internal extension NSEntityDescription {
                 // default transformer: NSKeyedUnarchiveFromDataTransformerName in reverse
                 if valueTransformerName == nil {
                     
-                    let transformer = NSValueTransformer(forName: NSKeyedUnarchiveFromDataTransformerName)
+                    let transformer = NSValueTransformer(forName: NSKeyedUnarchiveFromDataTransformerName)!
                     
                     // unarchive
                     return transformer.transformedValue(jsonValue)
                 }
                 
                 // custom transformer
-                let transformer = NSValueTransformer(forName: valueTransformerName!)
+                let transformer = NSValueTransformer(forName: valueTransformerName!)!
                 
                 // convert to original type
                 return transformer.reverseTransformedValue(jsonValue)

@@ -7,7 +7,6 @@
 //
 
 @import Foundation;
-@import RoutingHTTPServer;
 
 //! Project version number for NetworkObjects.
 FOUNDATION_EXPORT double NetworkObjectsVersionNumber;
