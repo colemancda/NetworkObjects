@@ -494,7 +494,7 @@ public class Server {
         
         // Put togeather fetch request
         
-        let fetchRequest = NSFetchRequest(entityName: entity.name)
+        let fetchRequest = NSFetchRequest(entityName: entity.name!)
         
         // add search parameters...
         
@@ -946,7 +946,7 @@ public class Server {
         
         context.performBlockAndWait { () -> Void in
             
-            managedObject = NSEntityDescription.insertNewObjectForEntityForName(entity.name, inManagedObjectContext: context) as? NSManagedObject
+            managedObject = NSEntityDescription.insertNewObjectForEntityForName(entity.name!, inManagedObjectContext: context) as? NSManagedObject
             
             // set resourceID
             
@@ -1370,7 +1370,7 @@ public class Server {
     
     private func fetchEntity(entity: NSEntityDescription, withResourceID resourceID: UInt, usingContext context: NSManagedObjectContext, shouldPrefetch: Bool) -> (NSManagedObject?, NSError?) {
         
-        let fetchRequest = NSFetchRequest(entityName: entity.name)
+        let fetchRequest = NSFetchRequest(entityName: entity.name!)
         
         fetchRequest.fetchLimit = 1
         
@@ -1399,7 +1399,7 @@ public class Server {
     
     private func fetchEntity(entity: NSEntityDescription, withResourceIDs resourceIDs: [UInt], usingContext context: NSManagedObjectContext, shouldPrefetch: Bool) -> ([NSManagedObject], NSError?) {
         
-        let fetchRequest = NSFetchRequest(entityName: entity.name)
+        let fetchRequest = NSFetchRequest(entityName: entity.name!)
         
         fetchRequest.fetchLimit = 1
         
@@ -1699,7 +1699,7 @@ public class Server {
                         return ServerStatusCode.BadRequest
                     }
                     
-                    let (newValue, error) = self.fetchEntity(relationship!.destinationEntity, withResourceIDs: destinationResourceIDs!, usingContext: context, shouldPrefetch: false)
+                    let (newValue, error) = self.fetchEntity(relationship!.destinationEntity!, withResourceIDs: destinationResourceIDs!, usingContext: context, shouldPrefetch: false)
                     
                     if error != nil {
                         

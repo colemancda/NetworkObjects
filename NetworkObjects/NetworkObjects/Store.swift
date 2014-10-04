@@ -103,7 +103,7 @@ public class Store {
             jsonObject[SearchParameter.PredicateKey.rawValue] = predicate?.leftExpression.keyPath
             
             // convert from Core Data to JSON
-            let jsonValue: AnyObject? = fetchRequest.entity.JSONObjectFromCoreDataValues([predicate!.leftExpression.keyPath: predicate!.rightExpression.constantValue], usingResourceIDAttributeName: self.resourceIDAttributeName).values.first
+            let jsonValue: AnyObject? = fetchRequest.entity!.JSONObjectFromCoreDataValues([predicate!.leftExpression.keyPath: predicate!.rightExpression.constantValue], usingResourceIDAttributeName: self.resourceIDAttributeName).values.first
             
             jsonObject[SearchParameter.PredicateValue.rawValue] = jsonValue
             
@@ -128,7 +128,7 @@ public class Store {
         
         // sort descriptors
         
-        if fetchRequest.sortDescriptors.count != 0 {
+        if fetchRequest.sortDescriptors!.count != 0 {
             
             var jsonSortDescriptors = [[String: AnyObject]]()
             
@@ -142,7 +142,7 @@ public class Store {
         
         // call API method
         
-        return self.searchForResource(fetchRequest.entity, withParameters: jsonObject, URLSession: URLSession, completionBlock: { (httpError, results) -> Void in
+        return self.searchForResource(fetchRequest.entity!, withParameters: jsonObject, URLSession: URLSession, completionBlock: { (httpError, results) -> Void in
             
             if httpError != nil {
                 
@@ -1059,7 +1059,7 @@ public class Store {
         
         // get cached resource...
         
-        let fetchRequest = NSFetchRequest(entityName: entity.name)
+        let fetchRequest = NSFetchRequest(entityName: entity.name!)
         
         fetchRequest.fetchLimit = 1
         
@@ -1090,7 +1090,7 @@ public class Store {
         
         // get cached resource...
         
-        let fetchRequest = NSFetchRequest(entityName: entity.name)
+        let fetchRequest = NSFetchRequest(entityName: entity.name!)
         
         fetchRequest.fetchLimit = 1
         
@@ -1120,7 +1120,7 @@ public class Store {
             
             // create a new entity
             
-            resource = NSEntityDescription.insertNewObjectForEntityForName(entity.name, inManagedObjectContext: context) as? NSManagedObject
+            resource = NSEntityDescription.insertNewObjectForEntityForName(entity.name!, inManagedObjectContext: context) as? NSManagedObject
             
             // set resource ID
             
@@ -1157,7 +1157,7 @@ public class Store {
             
             if relationship != nil {
                 
-                let destinationEntity = relationship!.destinationEntity
+                let destinationEntity = relationship!.destinationEntity!
                 
                 // to-one relationship
                 if !relationship!.toMany {

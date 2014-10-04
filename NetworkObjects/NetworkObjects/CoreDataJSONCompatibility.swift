@@ -124,7 +124,7 @@ internal extension NSEntityDescription {
             return NSNull()
         }
         
-        let attributeClassName = attributeDescription!.attributeValueClassName
+        let attributeClassName = attributeDescription!.attributeValueClassName!
         
         switch attributeClassName {
             
@@ -190,7 +190,7 @@ internal extension NSEntityDescription {
             return nil
         }
         
-        let attributeClassName = attributeDescription!.attributeValueClassName
+        let attributeClassName = attributeDescription!.attributeValueClassName!
         
         switch attributeClassName {
             
