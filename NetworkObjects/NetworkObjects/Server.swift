@@ -453,13 +453,15 @@ public class Server {
     /** Starts broadcasting the server. */
     public func start(onPort port: UInt) -> NSError? {
         
-        let errorPointer: NSErrorPointer = NSErrorPointer()
+        var error: NSError?
         
-        let success: Bool = self.httpServer.start(errorPointer);
+        self.httpServer.setPort(UInt16(port));
+        
+        let success: Bool = self.httpServer.start(&error);
         
         if !success {
             
-            return errorPointer.memory
+            return error
         }
         else {
             
@@ -865,7 +867,7 @@ public class Server {
                         
                         for sort in sortDescriptors {
                             
-                            if self.delegate?.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key: sort.key).rawValue >= ServerPermission.ReadOnly.rawValue {
+                            if self.delegate?.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key: sort.key()!).rawValue >= ServerPermission.ReadOnly.rawValue {
                                 
                                 filteredResults.append(managedObject)
                             }
