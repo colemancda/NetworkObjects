@@ -51,7 +51,7 @@ public class Server {
     
     // MARK: - Initialization
     
-    public init(dataSource: ServerDataSource, delegate: ServerDelegate?, managedObjectModel: NSManagedObjectModel, searchPath:String? = "search", resourceIDAttributeName:String? = "id", prettyPrintJSON:Bool = false, sslIdentityAndCertificates: [AnyObject]?, permissionsEnabled: Bool? = true) {
+    public init(dataSource: ServerDataSource, delegate: ServerDelegate?, managedObjectModel: NSManagedObjectModel, searchPath:String?, resourceIDAttributeName:String?, prettyPrintJSON:Bool, sslIdentityAndCertificates: [AnyObject]?, permissionsEnabled: Bool?) {
         
         // set required values
         self.dataSource = dataSource;
