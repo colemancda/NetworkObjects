@@ -1403,7 +1403,7 @@ public class Server {
             result = context.executeFetchRequest(fetchRequest, error: &error) as? [NSManagedObject]
         }
         
-        return (result!.first, error!)
+        return (result!.first, error)
     }
     
     private func fetchEntity(entity: NSEntityDescription, withResourceIDs resourceIDs: [UInt], usingContext context: NSManagedObjectContext, shouldPrefetch: Bool) -> ([NSManagedObject], NSError?) {
