@@ -112,11 +112,11 @@ public class Server {
                 
                 let searchRequestHandler: RequestHandler = { (request: RouteRequest!, response: RouteResponse!) -> Void in
                     
-                    let jsonErrorPointer = NSErrorPointer();
+                    var jsonError: NSError?
                     
-                    let searchParameters = NSJSONSerialization.JSONObjectWithData(request.body(), options: NSJSONReadingOptions.AllowFragments, error: jsonErrorPointer) as? [String: AnyObject]
+                    let searchParameters = NSJSONSerialization.JSONObjectWithData(request.body(), options: NSJSONReadingOptions.AllowFragments, error: &jsonError) as? [String: AnyObject]
                     
-                    if ((jsonErrorPointer.memory != nil) || (searchParameters == nil)) {
+                    if ((jsonError != nil) || (searchParameters == nil)) {
                         
                         response.statusCode = ServerStatusCode.BadRequest.rawValue;
                         
@@ -138,14 +138,14 @@ public class Server {
                         
                         // respond with data
                         
-                        let jsonSerializationError = NSErrorPointer()
+                        var jsonSerializationError: NSError?
                         
-                        let jsonData = NSJSONSerialization.dataWithJSONObject(serverResponse.JSONResponse!, options: self.jsonWritingOption(), error: jsonErrorPointer)
+                        let jsonData = NSJSONSerialization.dataWithJSONObject(serverResponse.JSONResponse!, options: self.jsonWritingOption(), error: &jsonSerializationError)
                         
                         if (jsonData == nil) {
                             
                             // tell the delegate about the error
-                            self.delegate!.server(self, didEncounterInternalError: jsonErrorPointer.memory!, forRequest: serverRequest, userInfo: userInfo)
+                            self.delegate!.server(self, didEncounterInternalError: jsonSerializationError!, forRequest: serverRequest, userInfo: userInfo)
                             
                             response.statusCode = ServerStatusCode.InternalServerError.rawValue
                             
@@ -195,14 +195,14 @@ public class Server {
                 
                 // write to socket
                 
-                let errorPointer = NSErrorPointer()
+                var error: NSError?
                 
-                let jsonData = NSJSONSerialization.dataWithJSONObject(serverResponse.JSONResponse!, options: self.jsonWritingOption(), error: errorPointer)
+                let jsonData = NSJSONSerialization.dataWithJSONObject(serverResponse.JSONResponse!, options: self.jsonWritingOption(), error: &error)
                 
                 // could not serialize json response, internal error
                 if (jsonData == nil) {
                     
-                    self.delegate!.server(self, didEncounterInternalError: errorPointer.memory!, forRequest: serverRequest, userInfo: userInfo)
+                    self.delegate!.server(self, didEncounterInternalError: error!, forRequest: serverRequest, userInfo: userInfo)
                     
                     response.statusCode = ServerStatusCode.InternalServerError.rawValue
                     
@@ -271,14 +271,14 @@ public class Server {
                     
                     // serialize json data
                     
-                    let error = NSErrorPointer()
+                    var error: NSError?
                     
-                    let jsonData = NSJSONSerialization.dataWithJSONObject(serverResponse.JSONResponse!, options: self.jsonWritingOption(), error: error);
+                    let jsonData = NSJSONSerialization.dataWithJSONObject(serverResponse.JSONResponse!, options: self.jsonWritingOption(), error: &error);
                     
                     // could not serialize json response, internal error
                     if (jsonData == nil) {
                         
-                        self.delegate!.server(self, didEncounterInternalError: error.memory!, forRequest: serverRequest, userInfo: userInfo)
+                        self.delegate!.server(self, didEncounterInternalError: error!, forRequest: serverRequest, userInfo: userInfo)
                         
                         response.statusCode = ServerStatusCode.InternalServerError.rawValue
                         
@@ -312,14 +312,14 @@ public class Server {
                     
                     // serialize json data
                     
-                    let error = NSErrorPointer()
+                    var error: NSError?
                     
-                    let jsonData = NSJSONSerialization.dataWithJSONObject(serverResponse.JSONResponse!, options: self.jsonWritingOption(), error: error);
+                    let jsonData = NSJSONSerialization.dataWithJSONObject(serverResponse.JSONResponse!, options: self.jsonWritingOption(), error: &error);
                     
                     // could not serialize json response, internal error
                     if (jsonData == nil) {
                         
-                        self.delegate!.server(self, didEncounterInternalError: error.memory!, forRequest: serverRequest, userInfo: userInfo)
+                        self.delegate!.server(self, didEncounterInternalError: error!, forRequest: serverRequest, userInfo: userInfo)
                         
                         response.statusCode = ServerStatusCode.InternalServerError.rawValue
                         
@@ -416,14 +416,14 @@ public class Server {
                         
                         // write to socket
                         
-                        let errorPointer = NSErrorPointer()
+                        var error: NSError?
                         
-                        let jsonData = NSJSONSerialization.dataWithJSONObject(serverResponse.JSONResponse!, options: self.jsonWritingOption(), error: errorPointer)
+                        let jsonData = NSJSONSerialization.dataWithJSONObject(serverResponse.JSONResponse!, options: self.jsonWritingOption(), error: &error)
                         
                         // could not serialize json response, internal error
                         if (jsonData == nil) {
                             
-                            self.delegate!.server(self, didEncounterInternalError: errorPointer.memory!, forRequest: serverRequest, userInfo: userInfo)
+                            self.delegate!.server(self, didEncounterInternalError: error!, forRequest: serverRequest, userInfo: userInfo)
                             
                             response.statusCode = ServerStatusCode.InternalServerError.rawValue
                             
@@ -817,17 +817,17 @@ public class Server {
         
         // execute fetch request...
         
-        let fetchError = NSErrorPointer()
+        var fetchError: NSError?
         
         var results: [NSManagedObject]?
         
         context.performBlockAndWait { () -> Void in
             
-            results = context.executeFetchRequest(fetchRequest, error: fetchError) as? [NSManagedObject]
+            results = context.executeFetchRequest(fetchRequest, error: &fetchError) as? [NSManagedObject]
         }
         
         // invalid fetch
-        if fetchError.memory != nil {
+        if fetchError != nil {
             
             let response = ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil)
             
@@ -963,18 +963,18 @@ public class Server {
             
             var newValues = [String: AnyObject]()
             
-            let error = NSErrorPointer()
+            var error: NSError?
             
             context.performBlockAndWait({ () -> Void in
                 
-                editStatusCode = self.verifyEditResource(managedObject!, forRequest: request, context: context, newValues: &newValues, error: error)
+                editStatusCode = self.verifyEditResource(managedObject!, forRequest: request, context: context, newValues: &newValues, error: &error!)
             })
             
             if editStatusCode != ServerStatusCode.OK {
                 
                 if editStatusCode == ServerStatusCode.InternalServerError {
                     
-                    self.delegate?.server(self, didEncounterInternalError: error.memory!, forRequest: request, userInfo: userInfo)
+                    self.delegate?.server(self, didEncounterInternalError: error!, forRequest: request, userInfo: userInfo)
                 }
                 
                 let response = ServerResponse(statusCode: editStatusCode!, JSONResponse: nil)
@@ -1157,18 +1157,18 @@ public class Server {
         
         var newValues = [String: AnyObject]()
         
-        let errorPointer = NSErrorPointer()
+        var editError: NSError?
         
         context.performBlockAndWait({ () -> Void in
             
-            editStatusCode = self.verifyEditResource(managedObject!, forRequest: request, context: context, newValues: &newValues, error: errorPointer)
+            editStatusCode = self.verifyEditResource(managedObject!, forRequest: request, context: context, newValues: &newValues, error: &editError!)
         })
         
         if editStatusCode != ServerStatusCode.OK {
             
             if editStatusCode == ServerStatusCode.InternalServerError {
                 
-                self.delegate?.server(self, didEncounterInternalError: errorPointer.memory!, forRequest: request, userInfo: userInfo)
+                self.delegate?.server(self, didEncounterInternalError: editError!, forRequest: request, userInfo: userInfo)
             }
             
             let response = ServerResponse(statusCode: editStatusCode!, JSONResponse: nil)
@@ -1387,16 +1387,16 @@ public class Server {
             fetchRequest.includesPropertyValues = false
         }
         
-        let error = NSErrorPointer()
+        var error: NSError?
         
         var result: [NSManagedObject]?
         
         context.performBlockAndWait { () -> Void in
             
-            result = context.executeFetchRequest(fetchRequest, error: error) as? [NSManagedObject]
+            result = context.executeFetchRequest(fetchRequest, error: &error) as? [NSManagedObject]
         }
         
-        return (result!.first, error.memory)
+        return (result!.first, error!)
     }
     
     private func fetchEntity(entity: NSEntityDescription, withResourceIDs resourceIDs: [UInt], usingContext context: NSManagedObjectContext, shouldPrefetch: Bool) -> ([NSManagedObject], NSError?) {
@@ -1416,16 +1416,16 @@ public class Server {
             fetchRequest.includesPropertyValues = false
         }
         
-        let error = NSErrorPointer()
+        var error: NSError?
         
         var result: [NSManagedObject]?
         
         context.performBlockAndWait { () -> Void in
             
-            result = context.executeFetchRequest(fetchRequest, error: error) as? [NSManagedObject]
+            result = context.executeFetchRequest(fetchRequest, error: &error) as? [NSManagedObject]
         }
         
-        return (result!, error.memory)
+        return (result!, error)
         
     }
     
@@ -1562,7 +1562,7 @@ public class Server {
         return jsonObject
     }
     
-    private func verifyEditResource(resource: NSManagedObject, forRequest request:ServerRequest, context: NSManagedObjectContext, inout newValues: [String: AnyObject], error: NSErrorPointer) -> ServerStatusCode {
+    private func verifyEditResource(resource: NSManagedObject, forRequest request:ServerRequest, context: NSManagedObjectContext, inout newValues: [String: AnyObject], inout error: NSError) -> ServerStatusCode {
         
         let recievedJsonObject = request.JSONObject!
         
@@ -1621,16 +1621,15 @@ public class Server {
                 
                 // let the managed object verify that the new attribute value is a valid new value
                 
-                let newValuePointer = AutoreleasingUnsafeMutablePointer<AnyObject?>()
+                // pointer
+                var newValuePointer: AnyObject? = newValue as AnyObject?
                 
-                newValuePointer.memory = newValue!
-                
-                if !resource.validateValue(newValuePointer, forKey: key, error: nil) {
+                if !resource.validateValue(&newValuePointer, forKey: key, error: nil) {
                     
                     return ServerStatusCode.BadRequest
                 }
                 
-                newValues[key] = newValuePointer.memory
+                newValues[key] = newValuePointer
             }
             
             // relationship
@@ -1677,12 +1676,11 @@ public class Server {
                         }
                     }
                     
-                    let newValuePointer = AutoreleasingUnsafeMutablePointer<AnyObject?>()
-                    
-                    newValuePointer.memory = newValue!
+                    // pointer
+                    var newValuePointer: AnyObject? = newValue as AnyObject?
                     
                     // must be a valid value
-                    if !resource.validateValue(newValuePointer, forKey: key, error: nil) {
+                    if !resource.validateValue(&newValuePointer, forKey: key, error: nil) {
                         
                         return ServerStatusCode.BadRequest
                     }
@@ -1729,12 +1727,11 @@ public class Server {
                         }
                     }
                     
-                    let newValuePointer = AutoreleasingUnsafeMutablePointer<AnyObject?>()
-                    
-                    newValuePointer.memory = newValue
+                    // pointer
+                    var newValuePointer: AnyObject? = newValue as AnyObject?
                     
                     // must be a valid value
-                    if !resource.validateValue(newValuePointer, forKey: key, error: nil) {
+                    if !resource.validateValue(&newValuePointer, forKey: key, error: nil) {
                         
                         return ServerStatusCode.BadRequest
                     }
