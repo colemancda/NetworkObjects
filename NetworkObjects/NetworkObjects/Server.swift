@@ -10,7 +10,7 @@ import Foundation
 import CoreData
 import RoutingHTTPServer
 
-/** This class that will broadcast a managed object context for the network. */
+/** This class will broadcast a managed object context over the network. */
 
 public class Server {
     
