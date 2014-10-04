@@ -514,7 +514,12 @@ public class Server {
         
         let predicateOperatorNumber = predicateOperatorObject as? UInt
         
-        let predicateOperator = NSPredicateOperatorType(rawValue: predicateOperatorNumber!)
+        var predicateOperator: NSPredicateOperatorType?
+        
+        if predicateOperatorNumber != nil {
+            
+            predicateOperator = NSPredicateOperatorType(rawValue: predicateOperatorNumber!)
+        }
         
         if (predicateKey != nil) && (predicateOperator != nil) && (jsonPredicateValue != nil) {
             
@@ -969,7 +974,7 @@ public class Server {
             
             context.performBlockAndWait({ () -> Void in
                 
-                editStatusCode = self.verifyEditResource(managedObject!, forRequest: request, context: context, newValues: &newValues, error: &error!)
+                editStatusCode = self.verifyEditResource(managedObject!, forRequest: request, context: context, newValues: &newValues, error: &error)
             })
             
             if editStatusCode != ServerStatusCode.OK {
@@ -1163,7 +1168,7 @@ public class Server {
         
         context.performBlockAndWait({ () -> Void in
             
-            editStatusCode = self.verifyEditResource(managedObject!, forRequest: request, context: context, newValues: &newValues, error: &editError!)
+            editStatusCode = self.verifyEditResource(managedObject!, forRequest: request, context: context, newValues: &newValues, error: &editError)
         })
         
         if editStatusCode != ServerStatusCode.OK {
@@ -1564,7 +1569,7 @@ public class Server {
         return jsonObject
     }
     
-    private func verifyEditResource(resource: NSManagedObject, forRequest request:ServerRequest, context: NSManagedObjectContext, inout newValues: [String: AnyObject], inout error: NSError) -> ServerStatusCode {
+    private func verifyEditResource(resource: NSManagedObject, forRequest request:ServerRequest, context: NSManagedObjectContext, inout newValues: [String: AnyObject], error: NSErrorPointer) -> ServerStatusCode {
         
         let recievedJsonObject = request.JSONObject!
         
@@ -1773,23 +1778,23 @@ public class Server {
 
 public class ServerRequest {
     
-    let requestType: ServerRequestType
+    public let requestType: ServerRequestType
     
-    let connectionType: ServerConnectionType
+    public let connectionType: ServerConnectionType
     
-    let entity: NSEntityDescription
+    public let entity: NSEntityDescription
     
-    let underlyingRequest: AnyObject
+    public let underlyingRequest: AnyObject
     
     /** The resourceID of the requested instance. Will be nil for @c POST (search or create instance) requests. */
     
-    let resourceID: UInt?
+    public let resourceID: UInt?
     
-    let JSONObject: [String: AnyObject]?
+    public let JSONObject: [String: AnyObject]?
     
-    let functionName: String?
+    public let functionName: String?
     
-    init(requestType: ServerRequestType, connectionType: ServerConnectionType, entity: NSEntityDescription, underlyingRequest: AnyObject, resourceID: UInt?, JSONObject: [String: AnyObject]?, functionName: String?) {
+    public init(requestType: ServerRequestType, connectionType: ServerConnectionType, entity: NSEntityDescription, underlyingRequest: AnyObject, resourceID: UInt?, JSONObject: [String: AnyObject]?, functionName: String?) {
         
         self.requestType = requestType
         self.connectionType = connectionType
@@ -1810,13 +1815,13 @@ public class ServerRequest {
 
 public class ServerResponse {
     
-    let statusCode: ServerStatusCode
+    public let statusCode: ServerStatusCode
     
     /** A JSON-compatible array or dictionary that will be sent as a response. */
     
-    let JSONResponse: AnyObject?
+    public let JSONResponse: AnyObject?
     
-    init(statusCode: ServerStatusCode, JSONResponse: AnyObject?) {
+    public init(statusCode: ServerStatusCode, JSONResponse: AnyObject?) {
         
         self.statusCode = statusCode
         
@@ -1826,9 +1831,9 @@ public class ServerResponse {
 
 public class ServerHTTPServer: RoutingHTTPServer {
     
-    let server: Server;
+    public let server: Server;
     
-    init(server: Server) {
+    public init(server: Server) {
         
         self.server = server;
     }
