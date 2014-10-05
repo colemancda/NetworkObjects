@@ -27,7 +27,7 @@ By default the server provides no authentication, but the Server can use SSL and
 
 There are two delegate protocol methods for access control:
 
-    func server(Server, statusCodeForRequest request: ServerRequest, managedObject: NSManagedObject?) -> ServerStatusCode
+    func server(Server, statusCodeForRequest request: ServerRequest, managedObject: NSManagedObject?, context: NSManagedObjectContext?) -> ServerStatusCode
     func server(Server, permissionForRequest request: ServerRequest, managedObject: NSManagedObject?, context: NSManagedObjectContext?, key: String?) -> ServerPermission
 
 # Client-side caching
@@ -36,7 +36,7 @@ The Store class is what clients will use to communicate with the server. A dateC
 
 # Deployment
 
-The NetworkObjects framework is built as a dynamically linked framework for both OS X and iOS.  
+The NetworkObjects framework is built as a dynamically linked framework for both OS X and iOS. It requires Xcode 6.1 to build and a minimum operating system of iOS 8 or OS X 10.10.
 
 # Support and Documentation
 
