@@ -36,7 +36,7 @@ The Store class is what clients will use to communicate with the server. A dateC
 
 # Deployment
 
-The NetworkObjects framework is built as a dynamically linked framework for both OS X and iOS. It requires Xcode 6.1 to build and a minimum operating system of iOS 8 or OS X 10.10.
+The NetworkObjects framework is built as a dynamically linked framework for both OS X and iOS. It requires Xcode 6.1 and a minimum operating system of iOS 8 or OS X 10.10.
 
 # Support and Documentation
 
