@@ -812,7 +812,7 @@ public class Server {
         
         if self.delegate != nil {
             
-            let statusCode = self.delegate?.server(self, statusCodeForRequest: request, managedObject: nil)
+            let statusCode = self.delegate?.server(self, statusCodeForRequest: request, managedObject: nil, context: context)
             
             if statusCode != ServerStatusCode.OK {
                 
@@ -926,7 +926,7 @@ public class Server {
         // ask delegate
         if self.delegate != nil {
             
-            let statusCode = self.delegate?.server(self, statusCodeForRequest: request, managedObject: nil)
+            let statusCode = self.delegate?.server(self, statusCodeForRequest: request, managedObject: nil, context: context)
             
             if statusCode != ServerStatusCode.OK {
                 
@@ -1053,7 +1053,7 @@ public class Server {
         // ask delegate for access
         if delegate != nil {
             
-            let statusCode = self.delegate?.server(self, statusCodeForRequest: request, managedObject: managedObject)
+            let statusCode = self.delegate?.server(self, statusCodeForRequest: request, managedObject: managedObject, context:context)
             
             if statusCode != ServerStatusCode.OK {
                 
@@ -1137,7 +1137,7 @@ public class Server {
         // ask delegate for access
         if delegate != nil {
             
-            let statusCode = self.delegate?.server(self, statusCodeForRequest: request, managedObject: managedObject)
+            let statusCode = self.delegate?.server(self, statusCodeForRequest: request, managedObject: managedObject, context: context)
             
             if statusCode != ServerStatusCode.OK {
                 
@@ -1242,7 +1242,7 @@ public class Server {
         // ask delegate for access
         if delegate != nil {
             
-            let statusCode = self.delegate?.server(self, statusCodeForRequest: request, managedObject: managedObject)
+            let statusCode = self.delegate?.server(self, statusCodeForRequest: request, managedObject: managedObject, context: context)
             
             if statusCode != ServerStatusCode.OK {
                 
@@ -1327,7 +1327,7 @@ public class Server {
         // ask delegate for access
         if delegate != nil {
             
-            let statusCode = self.delegate?.server(self, statusCodeForRequest: request, managedObject: managedObject)
+            let statusCode = self.delegate?.server(self, statusCodeForRequest: request, managedObject: managedObject, context: context)
             
             if statusCode != ServerStatusCode.OK {
                 
@@ -1872,7 +1872,7 @@ public protocol ServerDelegate {
     func server(server: Server, didEncounterInternalError error: NSError, forRequest request: ServerRequest, userInfo: [ServerUserInfoKey: AnyObject])
     
     /** Asks the delegate for a status code for a request. Any response that is not ServerStatusCode.OK, will be forwarded to the client and the request will end. This can be used to implement authentication or access control. */
-    func server(server: Server, statusCodeForRequest request: ServerRequest, managedObject: NSManagedObject?) -> ServerStatusCode
+    func server(server: Server, statusCodeForRequest request: ServerRequest, managedObject: NSManagedObject?, context: NSManagedObjectContext?) -> ServerStatusCode
     
     /** Notifies the delegate that a request was performed successfully. */
     func server(server: Server, didPerformRequest request: ServerRequest, withResponse response: ServerResponse, userInfo: [ServerUserInfoKey: AnyObject])
