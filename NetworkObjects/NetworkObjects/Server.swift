@@ -2019,3 +2019,19 @@ public enum ServerConnectionType {
     case WebSocket
 }
 
+// TODO: Remove OS X Swift Compiler NSSortDescriptor Fix
+
+/* There is an inconsistency between the documented API and what the Swift compiler expects on OS X. Note that on iOS, the Swift compiler is consistent with the documented API. */
+
+#if os(iOS)
+    
+    internal extension NSSortDescriptor {
+        
+        func key() -> String? {
+            
+            return self.key
+        }
+    }
+
+#endif
+
