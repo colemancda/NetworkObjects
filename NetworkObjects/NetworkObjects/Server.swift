@@ -874,7 +874,7 @@ public class Server {
                         
                         for sort in sortDescriptors {
                             
-                            if self.delegate?.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key: sort.key()!).rawValue >= ServerPermission.ReadOnly.rawValue {
+                            if self.delegate?.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key: sort.sortKey()!).rawValue >= ServerPermission.ReadOnly.rawValue {
                                 
                                 filteredResults.append(managedObject)
                             }
@@ -2027,7 +2027,7 @@ public enum ServerConnectionType {
     
     internal extension NSSortDescriptor {
         
-        func key() -> String? {
+        func sortKey() -> String? {
             
             return self.key
         }
