@@ -2023,15 +2023,15 @@ public enum ServerConnectionType {
 
 /* There is an inconsistency between the documented API and what the Swift compiler expects on OS X. Note that on iOS, the Swift compiler is consistent with the documented API. */
 
-#if os(iOS)
+internal extension NSSortDescriptor {
     
-    internal extension NSSortDescriptor {
+    func sortKey() -> String? {
         
-        func sortKey() -> String? {
-            
+        #if os(iOS)
             return self.key
-        }
+            #else
+        return self.key()
+            #endif
     }
-
-#endif
+}
 
