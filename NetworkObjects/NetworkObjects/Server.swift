@@ -902,7 +902,7 @@ public class Server {
                 
                 let resourcePath = (self.entitiesByResourcePath as NSDictionary).allKeysForObject(managedObject.entity).first as? String
                 
-                let resourceID = "\(managedObject.valueForKey(self.resourceIDAttributeName))"
+                let resourceID = "\(managedObject.valueForKey(self.resourceIDAttributeName) as UInt)"
                 
                 jsonResponse.append([resourceID: resourcePath!])
             }
