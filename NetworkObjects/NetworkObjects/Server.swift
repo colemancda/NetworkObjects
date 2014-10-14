@@ -44,10 +44,8 @@ public class Server {
     /** Resource path strings mapped to entity descriptions. */
     public lazy var entitiesByResourcePath: [String: NSEntityDescription] = self.initEntitiesByResourcePath();
     
-    // MARK: - Private Properties
-    
     /** The underlying HTTP server. */
-    private lazy var httpServer: ServerHTTPServer = self.initHTTPServer();
+    public lazy var httpServer: ServerHTTPServer = self.initHTTPServer();
     
     // MARK: - Initialization
     
@@ -82,12 +80,9 @@ public class Server {
         
         for entity in managedObjectModel.entities as [NSEntityDescription] {
             
-            if !entity.abstract {
-                
-                let path = self.dataSource.server(self, resourcePathForEntity: entity)
-                
-                entitiesByResourcePathDictionary[path] = entity
-            }
+            let path = self.dataSource.server(self, resourcePathForEntity: entity)
+            
+            entitiesByResourcePathDictionary[path] = entity
         }
         
         return entitiesByResourcePathDictionary
@@ -163,6 +158,13 @@ public class Server {
                 }
                 
                 httpServer.post(searchPathExpression, withBlock: searchRequestHandler)
+            }
+            
+            // only Search is supported for absract entities
+            
+            if entity.abstract {
+                
+                continue
             }
             
             // MARK: HTTP POST Request Handler Block
