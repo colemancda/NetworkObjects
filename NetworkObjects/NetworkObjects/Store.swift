@@ -134,7 +134,7 @@ public class Store {
             
             for sort in fetchRequest.sortDescriptors as [NSSortDescriptor] {
                 
-                jsonSortDescriptors.append([sort.key()! : sort.ascending])
+                jsonSortDescriptors.append([sort.sortKey()! : sort.ascending])
             }
             
             jsonObject[SearchParameter.SortDescriptors.rawValue] = jsonSortDescriptors
@@ -976,7 +976,7 @@ public class Store {
         return dataTask
     }
     
-    public func performFunction(functionName: String, onResource entity: NSEntityDescription, withID resourceID: UInt, withJSONObject JSONObject: [String: AnyObject]?, URLSession: NSURLSession, completionBlock: ((error: NSError?, functionCode: ServerFunctionCode?, JSONResponse: [String: AnyObject]?) -> Void)) -> NSURLSessionDataTask {
+    private func performFunction(functionName: String, onResource entity: NSEntityDescription, withID resourceID: UInt, withJSONObject JSONObject: [String: AnyObject]?, URLSession: NSURLSession, completionBlock: ((error: NSError?, functionCode: ServerFunctionCode?, JSONResponse: [String: AnyObject]?) -> Void)) -> NSURLSessionDataTask {
         
         // build URL
         

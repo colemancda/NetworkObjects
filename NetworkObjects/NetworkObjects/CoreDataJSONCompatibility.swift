@@ -17,7 +17,12 @@ internal extension NSManagedObject {
         
         let attributeValue: AnyObject? = self.valueForKey(attributeName)
         
-        return self.JSONCompatibleValueForAttributeValue(attributeValue!, forAttribute: attributeName)
+        if attributeValue != nil {
+            
+            return self.JSONCompatibleValueForAttributeValue(attributeValue!, forAttribute: attributeName)
+        }
+        
+        return nil
     }
     
     func setJSONCompatibleValue(JSONCompatibleValue: AnyObject?, forAttribute attributeName: String) {

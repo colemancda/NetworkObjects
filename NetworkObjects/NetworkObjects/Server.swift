@@ -10,7 +10,7 @@ import Foundation
 import CoreData
 import RoutingHTTPServer
 
-/** This class that will broadcast a managed object context for the network. */
+/** This class will broadcast a managed object context over the network. */
 
 public class Server {
     
@@ -44,14 +44,12 @@ public class Server {
     /** Resource path strings mapped to entity descriptions. */
     public lazy var entitiesByResourcePath: [String: NSEntityDescription] = self.initEntitiesByResourcePath();
     
-    // MARK: - Private Properties
-    
     /** The underlying HTTP server. */
-    private lazy var httpServer: ServerHTTPServer = self.initHTTPServer();
+    public lazy var httpServer: ServerHTTPServer = self.initHTTPServer();
     
     // MARK: - Initialization
     
-    public init(dataSource: ServerDataSource, delegate: ServerDelegate?, managedObjectModel: NSManagedObjectModel, searchPath:String? = "search", resourceIDAttributeName:String? = "id", prettyPrintJSON:Bool = false, sslIdentityAndCertificates: [AnyObject]?, permissionsEnabled: Bool? = true) {
+    public init(dataSource: ServerDataSource, delegate: ServerDelegate?, managedObjectModel: NSManagedObjectModel, searchPath:String?, resourceIDAttributeName:String?, prettyPrintJSON:Bool, sslIdentityAndCertificates: [AnyObject]?, permissionsEnabled: Bool?) {
         
         // set required values
         self.dataSource = dataSource;
@@ -82,12 +80,9 @@ public class Server {
         
         for entity in managedObjectModel.entities as [NSEntityDescription] {
             
-            if !entity.abstract {
-                
-                let path = self.dataSource.server(self, resourcePathForEntity: entity)
-                
-                entitiesByResourcePathDictionary[path] = entity
-            }
+            let path = self.dataSource.server(self, resourcePathForEntity: entity)
+            
+            entitiesByResourcePathDictionary[path] = entity
         }
         
         return entitiesByResourcePathDictionary
@@ -99,6 +94,10 @@ public class Server {
         let httpServer = ServerHTTPServer(server: self);
         
         httpServer.setConnectionClass(ServerHTTPConnection);
+        
+        // set default header
+        
+        httpServer.setDefaultHeaders(["Server": "NetworkObjects/\(NetworkObjectsVersionNumber)"])
         
         // add HTTP REST handlers...
         
@@ -112,11 +111,9 @@ public class Server {
                 
                 let searchRequestHandler: RequestHandler = { (request: RouteRequest!, response: RouteResponse!) -> Void in
                     
-                    var jsonError: NSError?
+                    let searchParameters = NSJSONSerialization.JSONObjectWithData(request.body(), options: NSJSONReadingOptions.AllowFragments, error: nil) as? [String: AnyObject]
                     
-                    let searchParameters = NSJSONSerialization.JSONObjectWithData(request.body(), options: NSJSONReadingOptions.AllowFragments, error: &jsonError) as? [String: AnyObject]
-                    
-                    if ((jsonError != nil) || (searchParameters == nil)) {
+                    if searchParameters == nil {
                         
                         response.statusCode = ServerStatusCode.BadRequest.rawValue;
                         
@@ -161,6 +158,13 @@ public class Server {
                 }
                 
                 httpServer.post(searchPathExpression, withBlock: searchRequestHandler)
+            }
+            
+            // only Search is supported for absract entities
+            
+            if entity.abstract {
+                
+                continue
             }
             
             // MARK: HTTP POST Request Handler Block
@@ -222,7 +226,7 @@ public class Server {
             
             // MARK: HTTP GET, PUT, DELETE Request Handler Block
             
-            let instancePathExpression = "{^/" + path + "(\\d+)}"
+            let instancePathExpression = "{^/" + path + "/(\\d+)}"
             
             let instanceRequestHandler: RequestHandler = { (request: RouteRequest!, response: RouteResponse!) -> Void in
                 
@@ -269,6 +273,14 @@ public class Server {
                     // get response
                     let (serverResponse, userInfo) = self.responseForGetRequest(serverRequest)
                     
+                    // check for error status code
+                    if serverResponse.statusCode != ServerStatusCode.OK {
+                        
+                        response.statusCode = serverResponse.statusCode.rawValue
+                        
+                        return
+                    }
+                    
                     // serialize json data
                     
                     var error: NSError?
@@ -309,6 +321,14 @@ public class Server {
                     
                     // get response
                     let (serverResponse, userInfo) = self.responseForEditRequest(serverRequest)
+                    
+                    // check for error status code
+                    if serverResponse.statusCode != ServerStatusCode.OK {
+                        
+                        response.statusCode = serverResponse.statusCode.rawValue
+                        
+                        return
+                    }
                     
                     // serialize json data
                     
@@ -512,7 +532,12 @@ public class Server {
         
         let predicateOperatorNumber = predicateOperatorObject as? UInt
         
-        let predicateOperator = NSPredicateOperatorType(rawValue: predicateOperatorNumber!)
+        var predicateOperator: NSPredicateOperatorType?
+        
+        if predicateOperatorNumber != nil {
+            
+            predicateOperator = NSPredicateOperatorType(rawValue: predicateOperatorNumber!)
+        }
         
         if (predicateKey != nil) && (predicateOperator != nil) && (jsonPredicateValue != nil) {
             
@@ -805,7 +830,7 @@ public class Server {
         
         if self.delegate != nil {
             
-            let statusCode = self.delegate?.server(self, statusCodeForRequest: request, managedObject: nil)
+            let statusCode = self.delegate?.server(self, statusCodeForRequest: request, managedObject: nil, context: context)
             
             if statusCode != ServerStatusCode.OK {
                 
@@ -867,7 +892,7 @@ public class Server {
                         
                         for sort in sortDescriptors {
                             
-                            if self.delegate?.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key: sort.key()!).rawValue >= ServerPermission.ReadOnly.rawValue {
+                            if self.delegate?.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key: sort.sortKey()!).rawValue >= ServerPermission.ReadOnly.rawValue {
                                 
                                 filteredResults.append(managedObject)
                             }
@@ -895,7 +920,7 @@ public class Server {
                 
                 let resourcePath = (self.entitiesByResourcePath as NSDictionary).allKeysForObject(managedObject.entity).first as? String
                 
-                let resourceID = "\(managedObject.valueForKey(self.resourceIDAttributeName))"
+                let resourceID = "\(managedObject.valueForKey(self.resourceIDAttributeName) as UInt)"
                 
                 jsonResponse.append([resourceID: resourcePath!])
             }
@@ -919,7 +944,7 @@ public class Server {
         // ask delegate
         if self.delegate != nil {
             
-            let statusCode = self.delegate?.server(self, statusCodeForRequest: request, managedObject: nil)
+            let statusCode = self.delegate?.server(self, statusCodeForRequest: request, managedObject: nil, context: context)
             
             if statusCode != ServerStatusCode.OK {
                 
@@ -967,7 +992,7 @@ public class Server {
             
             context.performBlockAndWait({ () -> Void in
                 
-                editStatusCode = self.verifyEditResource(managedObject!, forRequest: request, context: context, newValues: &newValues, error: &error!)
+                editStatusCode = self.verifyEditResource(managedObject!, forRequest: request, context: context, newValues: &newValues, error: &error)
             })
             
             if editStatusCode != ServerStatusCode.OK {
@@ -1046,7 +1071,7 @@ public class Server {
         // ask delegate for access
         if delegate != nil {
             
-            let statusCode = self.delegate?.server(self, statusCodeForRequest: request, managedObject: managedObject)
+            let statusCode = self.delegate?.server(self, statusCodeForRequest: request, managedObject: managedObject, context:context)
             
             if statusCode != ServerStatusCode.OK {
                 
@@ -1083,7 +1108,7 @@ public class Server {
             }
         }
         
-        return (ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: jsonObject), userInfo)
+        return (ServerResponse(statusCode: ServerStatusCode.OK, JSONResponse: jsonObject), userInfo)
     }
     
     private func responseForEditRequest(request: ServerRequest) -> (ServerResponse, [ServerUserInfoKey: AnyObject]) {
@@ -1130,7 +1155,7 @@ public class Server {
         // ask delegate for access
         if delegate != nil {
             
-            let statusCode = self.delegate?.server(self, statusCodeForRequest: request, managedObject: managedObject)
+            let statusCode = self.delegate?.server(self, statusCodeForRequest: request, managedObject: managedObject, context: context)
             
             if statusCode != ServerStatusCode.OK {
                 
@@ -1161,7 +1186,7 @@ public class Server {
         
         context.performBlockAndWait({ () -> Void in
             
-            editStatusCode = self.verifyEditResource(managedObject!, forRequest: request, context: context, newValues: &newValues, error: &editError!)
+            editStatusCode = self.verifyEditResource(managedObject!, forRequest: request, context: context, newValues: &newValues, error: &editError)
         })
         
         if editStatusCode != ServerStatusCode.OK {
@@ -1235,7 +1260,7 @@ public class Server {
         // ask delegate for access
         if delegate != nil {
             
-            let statusCode = self.delegate?.server(self, statusCodeForRequest: request, managedObject: managedObject)
+            let statusCode = self.delegate?.server(self, statusCodeForRequest: request, managedObject: managedObject, context: context)
             
             if statusCode != ServerStatusCode.OK {
                 
@@ -1320,7 +1345,7 @@ public class Server {
         // ask delegate for access
         if delegate != nil {
             
-            let statusCode = self.delegate?.server(self, statusCodeForRequest: request, managedObject: managedObject)
+            let statusCode = self.delegate?.server(self, statusCodeForRequest: request, managedObject: managedObject, context: context)
             
             if statusCode != ServerStatusCode.OK {
                 
@@ -1396,7 +1421,7 @@ public class Server {
             result = context.executeFetchRequest(fetchRequest, error: &error) as? [NSManagedObject]
         }
         
-        return (result!.first, error!)
+        return (result!.first, error)
     }
     
     private func fetchEntity(entity: NSEntityDescription, withResourceIDs resourceIDs: [UInt], usingContext context: NSManagedObjectContext, shouldPrefetch: Bool) -> ([NSManagedObject], NSError?) {
@@ -1520,16 +1545,17 @@ public class Server {
                 if !relationshipDescription.toMany {
                     
                     // get destination resource
-                    let destinationResource = managedObject.valueForKey(relationshipName) as NSManagedObject
-                    
-                    // check access permissions (the relationship & the single distination object must be visible)
-                    if self.delegate?.server(self, permissionForRequest: request, managedObject: destinationResource, context: context, key: nil).rawValue >= ServerPermission.ReadOnly.rawValue {
+                    if let destinationResource = managedObject.valueForKey(relationshipName) as? NSManagedObject {
                         
-                        // get resource ID
-                        let destinationResourceID = destinationResource.valueForKey(self.resourceIDAttributeName) as UInt
-                        
-                        // add to JSON object
-                        jsonObject[relationshipName] = destinationResourceID
+                        // check access permissions (the relationship & the single distination object must be visible)
+                        if self.delegate?.server(self, permissionForRequest: request, managedObject: destinationResource, context: context, key: nil).rawValue >= ServerPermission.ReadOnly.rawValue {
+                            
+                            // get resource ID
+                            let destinationResourceID = destinationResource.valueForKey(self.resourceIDAttributeName) as UInt
+                            
+                            // add to JSON object
+                            jsonObject[relationshipName] = destinationResourceID
+                        }
                     }
                 }
                     
@@ -1537,24 +1563,27 @@ public class Server {
                 else {
                     
                     // get destination collection
-                    let toManyRelationship = managedObject.valueForKey(relationshipName) as [NSManagedObject]
                     
-                    // only add resources that are visible
-                    var resourceIDs = [UInt]()
-                    
-                    for destinationResource in toManyRelationship {
+                    if let toManyRelationship = managedObject.valueForKey(relationshipName) as? [NSManagedObject] {
                         
-                        if self.delegate?.server(self, permissionForRequest: request, managedObject: destinationResource, context: context, key: nil).rawValue >= ServerPermission.ReadOnly.rawValue {
+                        // only add resources that are visible
+                        var resourceIDs = [UInt]()
+                        
+                        for destinationResource in toManyRelationship {
                             
-                            // get destination resource ID
-                            let destinationResourceID = destinationResource.valueForKey(self.resourceIDAttributeName) as UInt
-                            
-                            resourceIDs.append(destinationResourceID)
+                            if self.delegate?.server(self, permissionForRequest: request, managedObject: destinationResource, context: context, key: nil).rawValue >= ServerPermission.ReadOnly.rawValue {
+                                
+                                // get destination resource ID
+                                let destinationResourceID = destinationResource.valueForKey(self.resourceIDAttributeName) as UInt
+                                
+                                resourceIDs.append(destinationResourceID)
+                            }
                         }
-                    }
+                        
+                        // add to jsonObject
+                        jsonObject[relationshipName] = resourceIDs
                     
-                    // add to jsonObject
-                    jsonObject[relationshipName] = resourceIDs
+                    }
                 }
             }
         }
@@ -1562,7 +1591,7 @@ public class Server {
         return jsonObject
     }
     
-    private func verifyEditResource(resource: NSManagedObject, forRequest request:ServerRequest, context: NSManagedObjectContext, inout newValues: [String: AnyObject], inout error: NSError) -> ServerStatusCode {
+    private func verifyEditResource(resource: NSManagedObject, forRequest request:ServerRequest, context: NSManagedObjectContext, inout newValues: [String: AnyObject], error: NSErrorPointer) -> ServerStatusCode {
         
         let recievedJsonObject = request.JSONObject!
         
@@ -1771,23 +1800,23 @@ public class Server {
 
 public class ServerRequest {
     
-    let requestType: ServerRequestType
+    public let requestType: ServerRequestType
     
-    let connectionType: ServerConnectionType
+    public let connectionType: ServerConnectionType
     
-    let entity: NSEntityDescription
+    public let entity: NSEntityDescription
     
-    let underlyingRequest: AnyObject
+    public let underlyingRequest: AnyObject
     
     /** The resourceID of the requested instance. Will be nil for @c POST (search or create instance) requests. */
     
-    let resourceID: UInt?
+    public let resourceID: UInt?
     
-    let JSONObject: [String: AnyObject]?
+    public let JSONObject: [String: AnyObject]?
     
-    let functionName: String?
+    public let functionName: String?
     
-    init(requestType: ServerRequestType, connectionType: ServerConnectionType, entity: NSEntityDescription, underlyingRequest: AnyObject, resourceID: UInt?, JSONObject: [String: AnyObject]?, functionName: String?) {
+    public init(requestType: ServerRequestType, connectionType: ServerConnectionType, entity: NSEntityDescription, underlyingRequest: AnyObject, resourceID: UInt?, JSONObject: [String: AnyObject]?, functionName: String?) {
         
         self.requestType = requestType
         self.connectionType = connectionType
@@ -1808,13 +1837,13 @@ public class ServerRequest {
 
 public class ServerResponse {
     
-    let statusCode: ServerStatusCode
+    public let statusCode: ServerStatusCode
     
     /** A JSON-compatible array or dictionary that will be sent as a response. */
     
-    let JSONResponse: AnyObject?
+    public let JSONResponse: AnyObject?
     
-    init(statusCode: ServerStatusCode, JSONResponse: AnyObject?) {
+    public init(statusCode: ServerStatusCode, JSONResponse: AnyObject?) {
         
         self.statusCode = statusCode
         
@@ -1824,9 +1853,9 @@ public class ServerResponse {
 
 public class ServerHTTPServer: RoutingHTTPServer {
     
-    let server: Server;
+    public let server: Server;
     
-    init(server: Server) {
+    public init(server: Server) {
         
         self.server = server;
     }
@@ -1865,7 +1894,7 @@ public protocol ServerDelegate {
     func server(server: Server, didEncounterInternalError error: NSError, forRequest request: ServerRequest, userInfo: [ServerUserInfoKey: AnyObject])
     
     /** Asks the delegate for a status code for a request. Any response that is not ServerStatusCode.OK, will be forwarded to the client and the request will end. This can be used to implement authentication or access control. */
-    func server(server: Server, statusCodeForRequest request: ServerRequest, managedObject: NSManagedObject?) -> ServerStatusCode
+    func server(server: Server, statusCodeForRequest request: ServerRequest, managedObject: NSManagedObject?, context: NSManagedObjectContext?) -> ServerStatusCode
     
     /** Notifies the delegate that a request was performed successfully. */
     func server(server: Server, didPerformRequest request: ServerRequest, withResponse response: ServerResponse, userInfo: [ServerUserInfoKey: AnyObject])
@@ -1944,7 +1973,7 @@ public enum ServerStatusCode: Int {
 
 /** Server Permission Enumeration */
 
-public enum ServerPermission: Int, Equatable {
+public enum ServerPermission: Int {
     
     /**  No access permission */
     case NoAccess = 0
@@ -2010,5 +2039,21 @@ public enum ServerConnectionType {
     
     /** The connection to the server was made via the WebSockets protocol. */
     case WebSocket
+}
+
+// TODO: Remove OS X Swift Compiler NSSortDescriptor Fix
+
+/* There is an inconsistency between the documented API and what the Swift compiler expects on OS X. Note that on iOS, the Swift compiler is consistent with the documented API. */
+
+internal extension NSSortDescriptor {
+    
+    func sortKey() -> String? {
+        
+        #if os(iOS)
+            return self.key
+            #else
+        return self.key()
+            #endif
+    }
 }
 
