@@ -310,9 +310,9 @@ public class Server {
                     // convert to server request
                     let serverRequest = ServerRequest(requestType: ServerRequestType.PUT, connectionType: ServerConnectionType.HTTP, entity: entity, underlyingRequest: request, resourceID: resourceID, JSONObject: jsonObject, functionName: nil)
                     
-                    // should have a body
+                    // should have a body (and not a empty JSON dicitonary)
                     
-                    if (jsonBody == nil) {
+                    if (jsonBody == nil || jsonObject == nil || jsonObject?.count == 0) {
                         
                         response.statusCode = ServerStatusCode.BadRequest.rawValue
                         
@@ -1602,7 +1602,7 @@ public class Server {
             
             // not found
             
-            if attribute == nil || relationship == nil {
+            if attribute == nil && relationship == nil {
                 
                 return ServerStatusCode.BadRequest
             }
