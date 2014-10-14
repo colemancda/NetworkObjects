@@ -226,7 +226,7 @@ public class Server {
             
             // MARK: HTTP GET, PUT, DELETE Request Handler Block
             
-            let instancePathExpression = "{^/" + path + "(\\d+)}"
+            let instancePathExpression = "{^/" + path + "/(\\d+)}"
             
             let instanceRequestHandler: RequestHandler = { (request: RouteRequest!, response: RouteResponse!) -> Void in
                 
@@ -1529,16 +1529,17 @@ public class Server {
                 if !relationshipDescription.toMany {
                     
                     // get destination resource
-                    let destinationResource = managedObject.valueForKey(relationshipName) as NSManagedObject
-                    
-                    // check access permissions (the relationship & the single distination object must be visible)
-                    if self.delegate?.server(self, permissionForRequest: request, managedObject: destinationResource, context: context, key: nil).rawValue >= ServerPermission.ReadOnly.rawValue {
+                    if let destinationResource = managedObject.valueForKey(relationshipName) as? NSManagedObject {
                         
-                        // get resource ID
-                        let destinationResourceID = destinationResource.valueForKey(self.resourceIDAttributeName) as UInt
-                        
-                        // add to JSON object
-                        jsonObject[relationshipName] = destinationResourceID
+                        // check access permissions (the relationship & the single distination object must be visible)
+                        if self.delegate?.server(self, permissionForRequest: request, managedObject: destinationResource, context: context, key: nil).rawValue >= ServerPermission.ReadOnly.rawValue {
+                            
+                            // get resource ID
+                            let destinationResourceID = destinationResource.valueForKey(self.resourceIDAttributeName) as UInt
+                            
+                            // add to JSON object
+                            jsonObject[relationshipName] = destinationResourceID
+                        }
                     }
                 }
                     
@@ -1546,24 +1547,27 @@ public class Server {
                 else {
                     
                     // get destination collection
-                    let toManyRelationship = managedObject.valueForKey(relationshipName) as [NSManagedObject]
                     
-                    // only add resources that are visible
-                    var resourceIDs = [UInt]()
-                    
-                    for destinationResource in toManyRelationship {
+                    if let toManyRelationship = managedObject.valueForKey(relationshipName) as? [NSManagedObject] {
                         
-                        if self.delegate?.server(self, permissionForRequest: request, managedObject: destinationResource, context: context, key: nil).rawValue >= ServerPermission.ReadOnly.rawValue {
+                        // only add resources that are visible
+                        var resourceIDs = [UInt]()
+                        
+                        for destinationResource in toManyRelationship {
                             
-                            // get destination resource ID
-                            let destinationResourceID = destinationResource.valueForKey(self.resourceIDAttributeName) as UInt
-                            
-                            resourceIDs.append(destinationResourceID)
+                            if self.delegate?.server(self, permissionForRequest: request, managedObject: destinationResource, context: context, key: nil).rawValue >= ServerPermission.ReadOnly.rawValue {
+                                
+                                // get destination resource ID
+                                let destinationResourceID = destinationResource.valueForKey(self.resourceIDAttributeName) as UInt
+                                
+                                resourceIDs.append(destinationResourceID)
+                            }
                         }
-                    }
+                        
+                        // add to jsonObject
+                        jsonObject[relationshipName] = resourceIDs
                     
-                    // add to jsonObject
-                    jsonObject[relationshipName] = resourceIDs
+                    }
                 }
             }
         }
