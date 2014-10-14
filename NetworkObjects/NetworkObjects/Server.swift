@@ -330,24 +330,8 @@ public class Server {
                         return
                     }
                     
-                    // serialize json data
-                    
-                    var error: NSError?
-                    
-                    let jsonData = NSJSONSerialization.dataWithJSONObject(serverResponse.JSONResponse!, options: self.jsonWritingOption(), error: &error);
-                    
-                    // could not serialize json response, internal error
-                    if (jsonData == nil) {
-                        
-                        self.delegate!.server(self, didEncounterInternalError: error!, forRequest: serverRequest, userInfo: userInfo)
-                        
-                        response.statusCode = ServerStatusCode.InternalServerError.rawValue
-                        
-                        return
-                    }
-                    
-                    // respond with serialized json
-                    response.respondWithData(jsonData);
+                    // respond with status code
+                    response.statusCode = ServerStatusCode.OK.rawValue
                     
                     // tell the delegate
                     self.delegate!.server(self, didPerformRequest: serverRequest, withResponse: serverResponse, userInfo: userInfo)
@@ -371,8 +355,16 @@ public class Server {
                     // get response
                     let (serverResponse, userInfo) = self.responseForDeleteRequest(serverRequest)
                     
+                    // check for error status code
+                    if serverResponse.statusCode != ServerStatusCode.OK {
+                        
+                        response.statusCode = serverResponse.statusCode.rawValue
+                        
+                        return
+                    }
+                    
                     // respond with status code
-                    response.statusCode = serverResponse.statusCode.rawValue
+                    response.statusCode = ServerStatusCode.OK.rawValue
                     
                     // tell the delegate
                     self.delegate!.server(self, didPerformRequest: serverRequest, withResponse: serverResponse, userInfo: userInfo)
