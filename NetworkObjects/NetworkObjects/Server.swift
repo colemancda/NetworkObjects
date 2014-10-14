@@ -371,8 +371,16 @@ public class Server {
                     // get response
                     let (serverResponse, userInfo) = self.responseForDeleteRequest(serverRequest)
                     
+                    // check for error status code
+                    if serverResponse.statusCode != ServerStatusCode.OK {
+                        
+                        response.statusCode = serverResponse.statusCode.rawValue
+                        
+                        return
+                    }
+                    
                     // respond with status code
-                    response.statusCode = serverResponse.statusCode.rawValue
+                    response.statusCode = ServerStatusCode.OK.rawValue
                     
                     // tell the delegate
                     self.delegate!.server(self, didPerformRequest: serverRequest, withResponse: serverResponse, userInfo: userInfo)
