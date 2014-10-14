@@ -1108,7 +1108,7 @@ public class Server {
             }
         }
         
-        return (ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: jsonObject), userInfo)
+        return (ServerResponse(statusCode: ServerStatusCode.OK, JSONResponse: jsonObject), userInfo)
     }
     
     private func responseForEditRequest(request: ServerRequest) -> (ServerResponse, [ServerUserInfoKey: AnyObject]) {
