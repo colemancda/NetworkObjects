@@ -273,6 +273,14 @@ public class Server {
                     // get response
                     let (serverResponse, userInfo) = self.responseForGetRequest(serverRequest)
                     
+                    // check for error status code
+                    if serverResponse.statusCode != ServerStatusCode.OK {
+                        
+                        response.statusCode = serverResponse.statusCode.rawValue
+                        
+                        return
+                    }
+                    
                     // serialize json data
                     
                     var error: NSError?
@@ -313,6 +321,14 @@ public class Server {
                     
                     // get response
                     let (serverResponse, userInfo) = self.responseForEditRequest(serverRequest)
+                    
+                    // check for error status code
+                    if serverResponse.statusCode != ServerStatusCode.OK {
+                        
+                        response.statusCode = serverResponse.statusCode.rawValue
+                        
+                        return
+                    }
                     
                     // serialize json data
                     
