@@ -36,37 +36,37 @@ public class Server {
     public let sslIdentityAndCertificates: [AnyObject]?
     
     /** Boolean that caches whether permissions (dynamic access control) is enabled. */
-    public let permissionsEnabled: Bool = false;
+    public let permissionsEnabled: Bool = false
     
     /** The managed object model */
     public let managedObjectModel: NSManagedObjectModel
     
     /** Resource path strings mapped to entity descriptions. */
-    public lazy var entitiesByResourcePath: [String: NSEntityDescription] = self.initEntitiesByResourcePath();
+    public lazy var entitiesByResourcePath: [String: NSEntityDescription] = self.initEntitiesByResourcePath()
     
     /** The underlying HTTP server. */
-    public lazy var httpServer: ServerHTTPServer = self.initHTTPServer();
+    public lazy var httpServer: ServerHTTPServer = self.initHTTPServer()
     
     // MARK: - Initialization
     
     public init(dataSource: ServerDataSource, delegate: ServerDelegate?, managedObjectModel: NSManagedObjectModel, searchPath:String?, resourceIDAttributeName:String?, prettyPrintJSON:Bool, sslIdentityAndCertificates: [AnyObject]?, permissionsEnabled: Bool?) {
         
         // set required values
-        self.dataSource = dataSource;
-        self.managedObjectModel = managedObjectModel;
+        self.dataSource = dataSource
+        self.managedObjectModel = managedObjectModel
         
         // optional values
         if (delegate? != nil) {
-            self.delegate = delegate!;
+            self.delegate = delegate!
         }
         if (sslIdentityAndCertificates != nil) {
-            self.sslIdentityAndCertificates = sslIdentityAndCertificates;
+            self.sslIdentityAndCertificates = sslIdentityAndCertificates
         }
         if (resourceIDAttributeName != nil) {
-            self.resourceIDAttributeName = resourceIDAttributeName!;
+            self.resourceIDAttributeName = resourceIDAttributeName!
         }
         if (permissionsEnabled != nil) {
-            self.permissionsEnabled = permissionsEnabled!;
+            self.permissionsEnabled = permissionsEnabled!
         }
         if (searchPath != nil) {
             self.searchPath = searchPath!
@@ -76,7 +76,7 @@ public class Server {
     /** Lazily initializes self.entitiesByResourcePath. */
     private func initEntitiesByResourcePath() -> [String: NSEntityDescription] {
         
-        var entitiesByResourcePathDictionary = [String: NSEntityDescription]();
+        var entitiesByResourcePathDictionary = [String: NSEntityDescription]()
         
         for entity in managedObjectModel.entities as [NSEntityDescription] {
             
@@ -91,9 +91,9 @@ public class Server {
     // ** Configures the underlying HTTP server. */
     private func initHTTPServer() -> ServerHTTPServer {
         
-        let httpServer = ServerHTTPServer(server: self);
+        let httpServer = ServerHTTPServer(server: self)
         
-        httpServer.setConnectionClass(ServerHTTPConnection);
+        httpServer.setConnectionClass(ServerHTTPConnection)
         
         // set default header
         
@@ -115,14 +115,14 @@ public class Server {
                     
                     if searchParameters == nil {
                         
-                        response.statusCode = ServerStatusCode.BadRequest.rawValue;
+                        response.statusCode = ServerStatusCode.BadRequest.rawValue
                         
                         return
                     }
                     
                     // create server request
                     
-                    let serverRequest = ServerRequest(requestType: ServerRequestType.Search, connectionType: ServerConnectionType.HTTP, entity: entity, underlyingRequest: request, resourceID: nil, JSONObject: searchParameters, functionName: nil);
+                    let serverRequest = ServerRequest(requestType: ServerRequestType.Search, connectionType: ServerConnectionType.HTTP, entity: entity, underlyingRequest: request, resourceID: nil, JSONObject: searchParameters, functionName: nil)
                     
                     
                     let (serverResponse, userInfo) = self.responseForSearchRequest(serverRequest)
@@ -214,7 +214,7 @@ public class Server {
                 }
                 
                 // respond with serialized json
-                response.respondWithData(jsonData);
+                response.respondWithData(jsonData)
                 
                 // tell the delegate
                 self.delegate!.server(self, didPerformRequest: serverRequest, withResponse: serverResponse, userInfo: userInfo)
@@ -285,7 +285,7 @@ public class Server {
                     
                     var error: NSError?
                     
-                    let jsonData = NSJSONSerialization.dataWithJSONObject(serverResponse.JSONResponse!, options: self.jsonWritingOption(), error: &error);
+                    let jsonData = NSJSONSerialization.dataWithJSONObject(serverResponse.JSONResponse!, options: self.jsonWritingOption(), error: &error)
                     
                     // could not serialize json response, internal error
                     if (jsonData == nil) {
@@ -298,7 +298,7 @@ public class Server {
                     }
                     
                     // respond with serialized json
-                    response.respondWithData(jsonData);
+                    response.respondWithData(jsonData)
                     
                     // tell the delegate
                     self.delegate!.server(self, didPerformRequest: serverRequest, withResponse: serverResponse, userInfo: userInfo)
@@ -372,13 +372,13 @@ public class Server {
             }
             
             // GET (read resource)
-            httpServer.get(instancePathExpression, withBlock: instanceRequestHandler);
+            httpServer.get(instancePathExpression, withBlock: instanceRequestHandler)
             
             // PUT (edit resource)
-            httpServer.put(instancePathExpression, withBlock: instanceRequestHandler);
+            httpServer.put(instancePathExpression, withBlock: instanceRequestHandler)
             
             // DELETE (delete resource)
-            httpServer.delete(instancePathExpression, withBlock: instanceRequestHandler);
+            httpServer.delete(instancePathExpression, withBlock: instanceRequestHandler)
             
             // Add function routes...
             
@@ -443,7 +443,7 @@ public class Server {
                         }
                         
                         // respond with serialized json
-                        response.respondWithData(jsonData);
+                        response.respondWithData(jsonData)
                     }
                     
                     // set function status code
@@ -457,7 +457,7 @@ public class Server {
             }
         }
         
-        return httpServer;
+        return httpServer
     }
     
     // MARK: - Server Control
@@ -467,9 +467,9 @@ public class Server {
         
         var error: NSError?
         
-        self.httpServer.setPort(UInt16(port));
+        self.httpServer.setPort(UInt16(port))
         
-        let success: Bool = self.httpServer.start(&error);
+        let success: Bool = self.httpServer.start(&error)
         
         if !success {
             
@@ -484,7 +484,7 @@ public class Server {
     /** Stops broadcasting the server. */
     public func stop() {
         
-        self.httpServer.stop();
+        self.httpServer.stop()
     }
     
     // MARK: - Request Handlers
@@ -1378,12 +1378,12 @@ public class Server {
         
         if self.prettyPrintJSON {
             
-            return NSJSONWritingOptions.PrettyPrinted;
+            return NSJSONWritingOptions.PrettyPrinted
         }
         
         else {
             
-            return NSJSONWritingOptions.allZeros;
+            return NSJSONWritingOptions.allZeros
         }
     }
     
@@ -1777,13 +1777,13 @@ public class Server {
         
         override func sslIdentityAndCertificates() -> [AnyObject]! {
             
-            let cocoaHTTPServer: CocoaHTTPServer.HTTPServer = self.config().server;
+            let cocoaHTTPServer: CocoaHTTPServer.HTTPServer = self.config().server
             
-            let httpServer = cocoaHTTPServer as ServerHTTPServer;
+            let httpServer = cocoaHTTPServer as ServerHTTPServer
             
-            let server = httpServer.server;
+            let server = httpServer.server
             
-            return server.sslIdentityAndCertificates;
+            return server.sslIdentityAndCertificates
         }
     }
 }
@@ -1845,11 +1845,11 @@ public class ServerResponse {
 
 public class ServerHTTPServer: RoutingHTTPServer {
     
-    public let server: Server;
+    public let server: Server
     
     public init(server: Server) {
         
-        self.server = server;
+        self.server = server
     }
 }
 
@@ -1860,7 +1860,7 @@ public protocol ServerDataSource {
     
     /** Data Source should return a unique string will represent the entity when broadcasting the managed object context.
     */
-    func server(server: Server, resourcePathForEntity entity: NSEntityDescription) -> String;
+    func server(server: Server, resourcePathForEntity entity: NSEntityDescription) -> String
     
     /** Asks the data source for a managed object context to access. In simple setups the data source can always return the same context, but for higly concurrent servers, the data source create a separate context for each request (configured with the same backing store). */
     func server(server: Server, managedObjectContextForRequest request: ServerRequest) -> NSManagedObjectContext
@@ -1930,7 +1930,7 @@ public enum SearchParameter: String {
     case IncludesSubentities = "IncludesSubentities"
     case SortDescriptors = "SortDescriptors"
     
-};
+}
 
 /** These are HTTP status codes used with NOServer instances. */
 public enum ServerStatusCode: Int {
@@ -1961,7 +1961,7 @@ public enum ServerStatusCode: Int {
     /** Internal Server Error status code. e.g. Used when a JSON cannot be converted to NSData for a HTTP response. */
     case InternalServerError = 500
     
-};
+}
 
 /** Server Permission Enumeration */
 
@@ -2021,7 +2021,7 @@ public enum ServerFunctionCode: Int {
         
         return ServerStatusCode(rawValue: self.rawValue)!
     }
-};
+}
 
 /** Defines the connection protocols used communicate with the server. */
 public enum ServerConnectionType {
