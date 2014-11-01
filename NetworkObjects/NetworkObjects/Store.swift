@@ -542,12 +542,12 @@ public class Store {
         
         if self.prettyPrintJSON {
             
-            return NSJSONWritingOptions.PrettyPrinted;
+            return NSJSONWritingOptions.PrettyPrinted
         }
             
         else {
             
-            return NSJSONWritingOptions.allZeros;
+            return NSJSONWritingOptions.allZeros
         }
     }
     
