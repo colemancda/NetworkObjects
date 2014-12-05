@@ -22,13 +22,13 @@ public class Store {
     public let dateCachedAttributeName: String?
     
     /** The name of the Integer attribute that holds that resource identifier. */
-    public let resourceIDAttributeName: String = "ID"
+    public let resourceIDAttributeName: String
     
-    /** The path that the NetworkObjects server uses for search requests. If not specified then doing a search request will produce an error. */
+    /** The path that the NetworkObjects server uses for search requests. If not specified, doing a search request will produce an error. */
     public let searchPath: String?
     
     /** This setting determines whether JSON requests made to the server will contain whitespace or not. */
-    public let prettyPrintJSON: Bool = false
+    public let prettyPrintJSON: Bool
     
     /** The URL of the NetworkObjects server that this client will connect to. */
     public let serverURL: NSURL
@@ -51,28 +51,23 @@ public class Store {
         NSNotificationCenter.defaultCenter().removeObserver(self, name: NSManagedObjectContextDidSaveNotification, object: self.privateQueueManagedObjectContext)
     }
     
-    init(persistentStoreCoordinator: NSPersistentStoreCoordinator, managedObjectContextConcurrencyType: NSManagedObjectContextConcurrencyType, serverURL: NSURL, entitiesByResourcePath: [String: NSEntityDescription], prettyPrintJSON: Bool?, resourceIDAttributeName: String?, dateCachedAttributeName: String?, searchPath: String?) {
+    public init(persistentStoreCoordinator: NSPersistentStoreCoordinator,
+        managedObjectContextConcurrencyType: NSManagedObjectContextConcurrencyType = .MainQueueConcurrencyType,
+        serverURL: NSURL,
+        entitiesByResourcePath: [String: NSEntityDescription],
+        prettyPrintJSON: Bool = false,
+        resourceIDAttributeName: String = "id",
+        dateCachedAttributeName: String?,
+        searchPath: String?) {
         
-        // set required values
         self.serverURL = serverURL
         self.entitiesByResourcePath = entitiesByResourcePath
-        
-        // set optional values
         self.dateCachedAttributeName = dateCachedAttributeName
         self.searchPath = searchPath
+        self.prettyPrintJSON = prettyPrintJSON
+        self.resourceIDAttributeName = resourceIDAttributeName
         
-        // set values that have defaults
-        if prettyPrintJSON != nil {
-            
-            self.prettyPrintJSON = prettyPrintJSON!
-        }
-        if resourceIDAttributeName != nil {
-            
-            self.resourceIDAttributeName = resourceIDAttributeName!
-        }
-        
-        // setup contexts
-        
+        // setup managed object contexts
         self.managedObjectContext = NSManagedObjectContext(concurrencyType: managedObjectContextConcurrencyType)
         self.managedObjectContext.undoManager = nil
         self.managedObjectContext.persistentStoreCoordinator = persistentStoreCoordinator
@@ -87,7 +82,7 @@ public class Store {
     
     // MARK: - Requests
     
-    /** Performs a search request on the server. The supplied fetch request's predicate must be a NSComparisonPredicate. */
+    /** Performs a search request on the server. The supplied fetch request's predicate must be a NSComparisonPredicate instance. */
     public func performSearch(fetchRequest: NSFetchRequest, URLSession: NSURLSession, completionBlock: ((error: NSError?, results: [NSManagedObject]?) -> Void)) -> NSURLSessionDataTask {
         
         // build JSON request from fetch request
@@ -517,7 +512,7 @@ public class Store {
         })
     }
     
-    public func performFunction(functionName: String, forManagedObject managedObject: NSManagedObject, withJSONObject JSONObject: [String: AnyObject]?, URLSession: NSURLSession, completionBlock: ((error: NSError?, functionCode: ServerFunctionCode?, JSONResponse: [String: AnyObject]?) -> Void)) -> NSURLSessionDataTask {
+    public func performFunction(function functionName: String, forManagedObject managedObject: NSManagedObject, withJSONObject JSONObject: [String: AnyObject]?, URLSession: NSURLSession, completionBlock: ((error: NSError?, functionCode: ServerFunctionCode?, JSONResponse: [String: AnyObject]?) -> Void)) -> NSURLSessionDataTask {
         
         // get resourceID
         let resourceID = managedObject.valueForKey(self.resourceIDAttributeName) as UInt
@@ -528,7 +523,7 @@ public class Store {
         })
     }
     
-    // MARK: - Internal Methods
+    // MARK: - Private Methods
     
     private func mergeChangesFromContextDidSaveNotification(notification: NSNotification) {
         
