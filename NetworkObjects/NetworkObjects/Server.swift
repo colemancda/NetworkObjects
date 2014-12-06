@@ -1915,7 +1915,7 @@ public protocol ServerDataSource {
     Returns a tuple containing a ServerFunctionCode and JSON-compatible dictionary.
     */
     func server(server: Server, performFunction functionName:String, forManagedObject managedObject: NSManagedObject,
-        context: NSManagedObjectContext, recievedJsonObject: [String: AnyObject]?) -> (ServerFunctionCode, [String: AnyObject]?)
+        context: NSManagedObjectContext, recievedJsonObject: [String: AnyObject]?, request: ServerRequest) -> (ServerFunctionCode, [String: AnyObject]?)
 }
 
 /** Server Delegate Protocol */
