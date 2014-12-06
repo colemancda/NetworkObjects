@@ -117,8 +117,14 @@ public class Server {
                     
                     // create server request
                     
-                    let serverRequest = ServerRequest(requestType: ServerRequestType.Search, connectionType: ServerConnectionType.HTTP, entity: entity, underlyingRequest: request, resourceID: nil, JSONObject: searchParameters, functionName: nil)
-                    
+                    let serverRequest = ServerRequest(requestType: ServerRequestType.Search,
+                        connectionType: ServerConnectionType.HTTP,
+                        entity: entity,
+                        underlyingRequest: request,
+                        resourceID: nil,
+                        JSONObject: searchParameters,
+                        functionName: nil,
+                        headers: request.headers as [String: String])
                     
                     let (serverResponse, userInfo) = self.responseForSearchRequest(serverRequest)
                     
@@ -180,7 +186,14 @@ public class Server {
                 }
                 
                 // convert to server request
-                let serverRequest = ServerRequest(requestType: ServerRequestType.POST, connectionType: ServerConnectionType.HTTP, entity: entity, underlyingRequest: request, resourceID: nil, JSONObject: jsonObject, functionName: nil)
+                let serverRequest = ServerRequest(requestType: ServerRequestType.POST,
+                    connectionType: ServerConnectionType.HTTP,
+                    entity: entity,
+                    underlyingRequest: request,
+                    resourceID: nil,
+                    JSONObject: jsonObject,
+                    functionName: nil,
+                    headers: request.headers as [String: String])
                 
                 // process request and return a response
                 let (serverResponse, userInfo) = self.responseForCreateRequest(serverRequest)
@@ -254,7 +267,14 @@ public class Server {
                 if request.method() == "GET" {
                     
                     // convert to server request
-                    let serverRequest = ServerRequest(requestType: ServerRequestType.GET, connectionType: ServerConnectionType.HTTP, entity: entity, underlyingRequest: request, resourceID: resourceID, JSONObject: jsonObject, functionName: nil)
+                    let serverRequest = ServerRequest(requestType: ServerRequestType.GET,
+                        connectionType: ServerConnectionType.HTTP,
+                        entity: entity,
+                        underlyingRequest: request,
+                        resourceID: resourceID,
+                        JSONObject: jsonObject,
+                        functionName: nil,
+                        headers: request.headers as [String: String])
                     
                     // should not have a body
                     
@@ -303,7 +323,14 @@ public class Server {
                 if request.method() == "PUT" {
                     
                     // convert to server request
-                    let serverRequest = ServerRequest(requestType: ServerRequestType.PUT, connectionType: ServerConnectionType.HTTP, entity: entity, underlyingRequest: request, resourceID: resourceID, JSONObject: jsonObject, functionName: nil)
+                    let serverRequest = ServerRequest(requestType: ServerRequestType.PUT,
+                        connectionType: ServerConnectionType.HTTP,
+                        entity: entity,
+                        underlyingRequest: request,
+                        resourceID: resourceID,
+                        JSONObject: jsonObject,
+                        functionName: nil,
+                        headers: request.headers as [String: String])
                     
                     // should have a body (and not a empty JSON dicitonary)
                     
@@ -336,7 +363,14 @@ public class Server {
                 if request.method() == "DELETE" {
                     
                     // convert to server request
-                    let serverRequest = ServerRequest(requestType: ServerRequestType.DELETE, connectionType: ServerConnectionType.HTTP, entity: entity, underlyingRequest: request, resourceID: resourceID, JSONObject: jsonObject, functionName: nil)
+                    let serverRequest = ServerRequest(requestType: ServerRequestType.DELETE,
+                        connectionType: ServerConnectionType.HTTP,
+                        entity: entity,
+                        underlyingRequest: request,
+                        resourceID: resourceID,
+                        JSONObject: jsonObject,
+                        functionName: nil,
+                        headers: request.headers as [String: String])
                     
                     // should not have a body
                     
@@ -413,7 +447,14 @@ public class Server {
                     }
                     
                     // convert to server request
-                    let serverRequest = ServerRequest(requestType: ServerRequestType.Function, connectionType: ServerConnectionType.HTTP, entity: entity, underlyingRequest: request, resourceID: resourceID, JSONObject: jsonObject, functionName: functionName)
+                    let serverRequest = ServerRequest(requestType: ServerRequestType.Function,
+                        connectionType: ServerConnectionType.HTTP,
+                        entity: entity,
+                        underlyingRequest: request,
+                        resourceID: resourceID,
+                        JSONObject: jsonObject,
+                        functionName: functionName,
+                        headers: request.headers as [String: String])
                     
                     // get response
                     let (serverResponse, userInfo) = self.responseForFunctionRequest(serverRequest)
@@ -1785,6 +1826,7 @@ public class Server {
 
 // MARK: - Supporting Classes
 
+/** Encapsulates information about a server request. */
 public class ServerRequest {
     
     public let requestType: ServerRequestType
@@ -1795,30 +1837,32 @@ public class ServerRequest {
     
     public let underlyingRequest: AnyObject
     
-    /** The resourceID of the requested instance. Will be nil for @c POST (search or create instance) requests. */
-    
+    /** The resourceID of the requested instance. Will be nil for POST (search or create instance) requests. */
     public let resourceID: UInt?
     
     public let JSONObject: [String: AnyObject]?
     
     public let functionName: String?
     
-    public init(requestType: ServerRequestType, connectionType: ServerConnectionType, entity: NSEntityDescription, underlyingRequest: AnyObject, resourceID: UInt?, JSONObject: [String: AnyObject]?, functionName: String?) {
-        
-        self.requestType = requestType
-        self.connectionType = connectionType
-        self.entity = entity
-        self.underlyingRequest = underlyingRequest
-        
-        if (resourceID != nil) {
+    public let headers: [String: String]
+    
+    public init(requestType: ServerRequestType,
+        connectionType: ServerConnectionType,
+        entity: NSEntityDescription,
+        underlyingRequest: AnyObject,
+        resourceID: UInt?,
+        JSONObject: [String: AnyObject]?,
+        functionName: String?,
+        headers: [String: String]) {
+            
+            self.requestType = requestType
+            self.connectionType = connectionType
+            self.entity = entity
+            self.underlyingRequest = underlyingRequest
             self.resourceID = resourceID
-        }
-        if (JSONObject != nil) {
             self.JSONObject = JSONObject
-        }
-        if (functionName != nil) {
             self.functionName = functionName
-        }
+            self.headers = headers
     }
 }
 
