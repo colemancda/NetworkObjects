@@ -1881,13 +1881,13 @@ public protocol ServerDelegate {
     func server(server: Server, didEncounterInternalError error: NSError, forRequest request: ServerRequest, userInfo: [ServerUserInfoKey: AnyObject])
     
     /** Asks the delegate for a status code for a request. Any response that is not ServerStatusCode.OK, will be forwarded to the client and the request will end. This can be used to implement authentication or access control. */
-    func server(server: Server, statusCodeForRequest request: ServerRequest, managedObject: NSManagedObject?, context: NSManagedObjectContext?) -> ServerStatusCode
+    func server(server: Server, statusCodeForRequest request: ServerRequest, managedObject: NSManagedObject?, context: NSManagedObjectContext) -> ServerStatusCode
     
     /** Notifies the delegate that a request was performed successfully. */
     func server(server: Server, didPerformRequest request: ServerRequest, withResponse response: ServerResponse, userInfo: [ServerUserInfoKey: AnyObject])
     
     /** Asks the delegate for access control for a request. Server must have its permissions enabled for this method to be called. */
-    func server(server: Server, permissionForRequest request: ServerRequest, managedObject: NSManagedObject?, context: NSManagedObjectContext?, key: String?) -> ServerPermission
+    func server(server: Server, permissionForRequest request: ServerRequest, managedObject: NSManagedObject?, context: NSManagedObjectContext, key: String?) -> ServerPermission
 }
 
 // MARK: - Enumerations
