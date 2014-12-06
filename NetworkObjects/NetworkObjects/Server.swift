@@ -1394,8 +1394,8 @@ public class Server {
             }
         }
         
-        // ask data source
-        let (functionCode, jsonObject) = self.dataSource.server(self, performFunction: request.functionName!, forManagedObject: managedObject!, context: context, recievedJsonObject: recievedJSONObject)
+        // perform function
+        let (functionCode, jsonObject) = self.dataSource.server(self, performFunction: request.functionName!, forManagedObject: managedObject!, context: context, recievedJsonObject: recievedJSONObject, request: request)
         
         if jsonObject != nil {
             
