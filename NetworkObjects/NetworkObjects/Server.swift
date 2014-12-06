@@ -27,16 +27,16 @@ public class Server {
     public let searchPath: String?
     
     /** Determines whether the exported JSON should have whitespace for easier readability. */
-    public let prettyPrintJSON: Bool = false
+    public let prettyPrintJSON: Bool
     
     /** The name of the Integer attribute that will be used for identifying instances of entities. */
-    public let resourceIDAttributeName: String = "id"
+    public let resourceIDAttributeName: String
     
     /** To enable HTTPS for all incoming connections set this value to an array appropriate for use in kCFStreamSSLCertificates SSL Settings. It should be an array of SecCertificateRefs except for the first element in the array, which is a SecIdentityRef.  */
     public let sslIdentityAndCertificates: [AnyObject]?
     
     /** Boolean that caches whether permissions (dynamic access control) is enabled. */
-    public let permissionsEnabled: Bool = false
+    public let permissionsEnabled: Bool
     
     /** The managed object model */
     public let managedObjectModel: NSManagedObjectModel
@@ -49,28 +49,23 @@ public class Server {
     
     // MARK: - Initialization
     
-    public init(dataSource: ServerDataSource, delegate: ServerDelegate?, managedObjectModel: NSManagedObjectModel, searchPath:String?, resourceIDAttributeName:String?, prettyPrintJSON:Bool, sslIdentityAndCertificates: [AnyObject]?, permissionsEnabled: Bool?) {
-        
-        // set required values
-        self.dataSource = dataSource
-        self.managedObjectModel = managedObjectModel
-        
-        // optional values
-        if (delegate? != nil) {
-            self.delegate = delegate!
-        }
-        if (sslIdentityAndCertificates != nil) {
+    public init(dataSource: ServerDataSource,
+        delegate: ServerDelegate?,
+        managedObjectModel: NSManagedObjectModel,
+        searchPath:String?,
+        resourceIDAttributeName: String = "id",
+        prettyPrintJSON: Bool = false,
+        sslIdentityAndCertificates: [AnyObject]?,
+        permissionsEnabled: Bool = false) {
+            
+            self.dataSource = dataSource
+            self.managedObjectModel = managedObjectModel
+            self.delegate = delegate
             self.sslIdentityAndCertificates = sslIdentityAndCertificates
-        }
-        if (resourceIDAttributeName != nil) {
-            self.resourceIDAttributeName = resourceIDAttributeName!
-        }
-        if (permissionsEnabled != nil) {
-            self.permissionsEnabled = permissionsEnabled!
-        }
-        if (searchPath != nil) {
-            self.searchPath = searchPath!
-        }
+            self.resourceIDAttributeName = resourceIDAttributeName
+            self.permissionsEnabled = permissionsEnabled
+            self.searchPath = searchPath
+            self.prettyPrintJSON = prettyPrintJSON
     }
     
     /** Lazily initializes self.entitiesByResourcePath. */
