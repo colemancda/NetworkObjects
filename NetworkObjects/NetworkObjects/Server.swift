@@ -2113,6 +2113,30 @@ public enum ServerConnectionType {
     case WebSocket
 }
 
+// MARK: - Internal Extensions
+
+internal extension NSManagedObjectModel {
+    
+    func addResourceIDAttribute(resourceIDAttributeName: String) {
+        
+        // add a resourceID attribute to managed object model
+        for (entityName, entity) in self.entitiesByName as [String: NSEntityDescription] {
+            
+            if entity.superentity == nil {
+                
+                // create new (runtime) attribute
+                let resourceIDAttribute = NSAttributeDescription()
+                resourceIDAttribute.attributeType = NSAttributeType.Integer64AttributeType
+                resourceIDAttribute.name = resourceIDAttributeName
+                resourceIDAttribute.optional = false
+                
+                // add to entity
+                entity.properties.append(resourceIDAttribute)
+            }
+        }
+    }
+}
+
 // TODO: Remove OS X Swift Compiler NSSortDescriptor Fix
 
 /* There is an inconsistency between the documented API and what the Swift compiler expects on OS X. Note that on iOS, the Swift compiler is consistent with the documented API. */

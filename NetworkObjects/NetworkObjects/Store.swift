@@ -78,10 +78,12 @@ public class Store {
             
             if self.dateCachedAttributeName != nil {
                 
-                self.setupDateCachedAttributeWithAttributeName(self.dateCachedAttributeName!)
+                self.model.addDateCachedAttribute(dateCachedAttributeName!)
             }
             
-            self.markAllPropertiesAsOptional(self.model)
+            self.model.markAllPropertiesAsOptional()
+            
+            self.model.addResourceIDAttribute(resourceIDAttributeName)
     }
     
     // MARK: - Requests
@@ -1061,36 +1063,6 @@ public class Store {
     
     // MARK: Cache
     
-    private func markAllPropertiesAsOptional(managedObjectModel: NSManagedObjectModel) {
-        
-        // add a date attribute to managed object model
-        for (entityName, entity) in managedObjectModel.entitiesByName as [String: NSEntityDescription] {
-            
-            for (propertyName, property) in entity.propertiesByName as [String: NSPropertyDescription] {
-                
-                property.optional = true
-            }
-        }
-    }
-    
-    private func setupDateCachedAttributeWithAttributeName(dateCachedAttributeName: String) {
-        
-        // add a date attribute to managed object model
-        for (entityName, entity) in self.model.entitiesByName as [String: NSEntityDescription] {
-            
-            if entity.superentity == nil {
-                
-                // create new (runtime) attribute
-                let dateAttribute = NSAttributeDescription()
-                dateAttribute.attributeType = NSAttributeType.DateAttributeType
-                dateAttribute.name = dateCachedAttributeName
-                
-                // add to entity
-                entity.properties.append(dateAttribute)
-            }
-        }
-    }
-    
     private func didCacheManagedObject(managedObject: NSManagedObject) {
         
         // set the date cached attribute
@@ -1262,7 +1234,40 @@ public class Store {
     }
 }
 
-// MARK: - Extensions
+// MARK: - Private Extensions
+
+private extension NSManagedObjectModel {
+    
+    func addDateCachedAttribute(dateCachedAttributeName: String) {
+        
+        // add a date attribute to managed object model
+        for (entityName, entity) in self.entitiesByName as [String: NSEntityDescription] {
+            
+            if entity.superentity == nil {
+                
+                // create new (runtime) attribute
+                let dateAttribute = NSAttributeDescription()
+                dateAttribute.attributeType = NSAttributeType.DateAttributeType
+                dateAttribute.name = dateCachedAttributeName
+                
+                // add to entity
+                entity.properties.append(dateAttribute)
+            }
+        }
+    }
+    
+    func markAllPropertiesAsOptional() {
+        
+        // add a date attribute to managed object model
+        for (entityName, entity) in self.entitiesByName as [String: NSEntityDescription] {
+            
+            for (propertyName, property) in entity.propertiesByName as [String: NSPropertyDescription] {
+                
+                property.optional = true
+            }
+        }
+    }
+}
 
 private extension NSEntityDescription {
     
