@@ -666,8 +666,8 @@ public class Store {
                         
                         let frameworkBundle = NSBundle(identifier: "com.ColemanCDA.NetworkObjects")
                         let tableName = "Error"
-                        let comment = "Description for ErrorCode.\(errorCode) for Search Request"
-                        let key = "ErrorCode.\(errorCode).LocalizedDescription.Search"
+                        let comment = "Description for ErrorCode.\(errorCode!.rawValue) for Search Request"
+                        let key = "ErrorCode.\(errorCode!.rawValue).LocalizedDescription.Search"
                         
                         let customError = NSError(domain: NetworkObjectsErrorDomain, code: errorCode!.rawValue, userInfo: [NSLocalizedDescriptionKey: NSLocalizedString(key, tableName: tableName, bundle: frameworkBundle!, value: "Permission to perform search is denied", comment: comment)])
                         
@@ -757,8 +757,8 @@ public class Store {
                         let value = "Permission to create new resource is denied"
                         let frameworkBundle = NSBundle(identifier: "com.ColemanCDA.NetworkObjects")
                         let tableName = "Error"
-                        let comment = "Description for ErrorCode.\(errorCode) for \(method) Request"
-                        let key = "ErrorCode.\(errorCode).LocalizedDescription.\(method)"
+                        let comment = "Description for ErrorCode.\(errorCode!.rawValue) for \(method) Request"
+                        let key = "ErrorCode.\(errorCode!.rawValue).LocalizedDescription.\(method)"
                         
                         let customError = NSError(domain: NetworkObjectsErrorDomain, code: errorCode!.rawValue, userInfo: [NSLocalizedDescriptionKey: NSLocalizedString(key, tableName: tableName, bundle: frameworkBundle!, value: value, comment: comment)])
                         
@@ -838,8 +838,8 @@ public class Store {
                         
                         let frameworkBundle = NSBundle(identifier: "com.ColemanCDA.NetworkObjects")
                         let tableName = "Error"
-                        let comment = "Description for ErrorCode.\(errorCode) for GET Request"
-                        let key = "ErrorCode.\(errorCode).LocalizedDescription.GET"
+                        let comment = "Description for ErrorCode.\(errorCode!.rawValue) for GET Request"
+                        let key = "ErrorCode.\(errorCode!.rawValue).LocalizedDescription.GET"
                         let value = "Access to resource is denied"
                         
                         let customError = NSError(domain: NetworkObjectsErrorDomain, code: errorCode!.rawValue, userInfo: [NSLocalizedDescriptionKey: NSLocalizedString(key, tableName: tableName, bundle: frameworkBundle!, value: value, comment: comment)])
@@ -923,8 +923,8 @@ public class Store {
                         let value = "Permission to edit resource is denied"
                         let frameworkBundle = NSBundle(identifier: "com.ColemanCDA.NetworkObjects")
                         let tableName = "Error"
-                        let comment = "Description for ErrorCode.\(errorCode) for \(method) Request"
-                        let key = "ErrorCode.\(errorCode).LocalizedDescription.\(method)"
+                        let comment = "Description for ErrorCode.\(errorCode!.rawValue) for \(method) Request"
+                        let key = "ErrorCode.\(errorCode!.rawValue).LocalizedDescription.\(method)"
                         
                         let customError = NSError(domain: NetworkObjectsErrorDomain, code: errorCode!.rawValue, userInfo: [NSLocalizedDescriptionKey: NSLocalizedString(key, tableName: tableName, bundle: frameworkBundle!, value: value, comment: comment)])
                         
@@ -982,8 +982,8 @@ public class Store {
                         let value = "Permission to delete resource is denied"
                         let frameworkBundle = NSBundle(identifier: "com.ColemanCDA.NetworkObjects")
                         let tableName = "Error"
-                        let comment = "Description for ErrorCode.\(errorCode) for \(method) Request"
-                        let key = "ErrorCode.\(errorCode).LocalizedDescription.\(method)"
+                        let comment = "Description for ErrorCode.\(errorCode!.rawValue) for \(method) Request"
+                        let key = "ErrorCode.\(errorCode!.rawValue).LocalizedDescription.\(method)"
                         
                         let customError = NSError(domain: NetworkObjectsErrorDomain, code: errorCode!.rawValue, userInfo: [NSLocalizedDescriptionKey: NSLocalizedString(key, tableName: tableName, bundle: frameworkBundle!, value: value, comment: comment)])
                         
