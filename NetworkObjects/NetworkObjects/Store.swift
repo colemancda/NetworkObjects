@@ -25,13 +25,13 @@ public class Store {
     public let resourceIDAttributeName: String
     
     /** The path that the NetworkObjects server uses for search requests. If not specified, doing a search request will produce an error. */
-    public let searchPath: String?
+    public var searchPath: String?
     
     /** This setting determines whether JSON requests made to the server will contain whitespace or not. */
-    public let prettyPrintJSON: Bool
+    public var prettyPrintJSON: Bool
     
     /** The URL of the NetworkObjects server that this client will connect to. */
-    public let serverURL: NSURL
+    public var serverURL: NSURL
     
     // MARK: - Private Properties
     
