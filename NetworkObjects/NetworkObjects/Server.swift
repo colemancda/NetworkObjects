@@ -1237,6 +1237,7 @@ public class Server {
         
         var editError: NSError?
         
+        // validate and convert JSON
         context.performBlockAndWait({ () -> Void in
             
             editStatusCode = self.verifyEditResource(managedObject!, forRequest: request, context: context, newValues: &newValues, error: &editError)
@@ -1263,6 +1264,23 @@ public class Server {
             
             return
         })
+        
+        // perform Core Data validation (to make sure there will be no errors saving)
+        
+        var validCoreData: Bool = false
+        
+        context.performBlockAndWait({ () -> Void in
+            
+            validCoreData = managedObject!.validateForUpdate(nil)
+        })
+        
+        // invalid (e.g. non-optional property is nil)
+        if !validCoreData {
+            
+            let response = ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil)
+            
+            return (response, userInfo)
+        }
         
         let response = ServerResponse(statusCode: ServerStatusCode.OK, JSONResponse: nil)
         
@@ -1332,6 +1350,23 @@ public class Server {
                 
                 return (response, userInfo)
             }
+        }
+        
+        // perform Core Data validation (to make sure there will be no errors saving)
+        
+        var validCoreData: Bool = false
+        
+        context.performBlockAndWait({ () -> Void in
+            
+            validCoreData = managedObject!.validateForDelete(nil)
+        })
+        
+        // invalid (e.g. non-optional property is nil)
+        if !validCoreData {
+            
+            let response = ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil)
+            
+            return (response, userInfo)
         }
         
         // delete...
