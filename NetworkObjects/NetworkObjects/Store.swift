@@ -55,24 +55,33 @@ public class Store {
         resourceIDAttributeName: String = "id",
         dateCachedAttributeName: String?,
         searchPath: String?) {
-        
-        self.serverURL = serverURL
-        self.dateCachedAttributeName = dateCachedAttributeName
-        self.searchPath = searchPath
-        self.prettyPrintJSON = prettyPrintJSON
-        self.resourceIDAttributeName = resourceIDAttributeName
-        
-        // setup managed object contexts
-        self.managedObjectContext = NSManagedObjectContext(concurrencyType: managedObjectContextConcurrencyType)
-        self.managedObjectContext.undoManager = nil
-        self.managedObjectContext.persistentStoreCoordinator = persistentStoreCoordinator
-        self.model = persistentStoreCoordinator.managedObjectModel
-        
-        self.privateQueueManagedObjectContext.undoManager = nil
-        self.privateQueueManagedObjectContext.persistentStoreCoordinator = persistentStoreCoordinator
-        
-        // listen for notifications (for merging changes)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "mergeChangesFromContextDidSaveNotification:", name: NSManagedObjectContextDidSaveNotification, object: self.privateQueueManagedObjectContext)
+            
+            self.serverURL = serverURL
+            self.searchPath = searchPath
+            self.prettyPrintJSON = prettyPrintJSON
+            self.resourceIDAttributeName = resourceIDAttributeName
+            self.dateCachedAttributeName = dateCachedAttributeName
+            
+            // setup managed object contexts
+            self.managedObjectContext = NSManagedObjectContext(concurrencyType: managedObjectContextConcurrencyType)
+            self.managedObjectContext.undoManager = nil
+            self.managedObjectContext.persistentStoreCoordinator = persistentStoreCoordinator
+            self.model = persistentStoreCoordinator.managedObjectModel
+            
+            self.privateQueueManagedObjectContext.undoManager = nil
+            self.privateQueueManagedObjectContext.persistentStoreCoordinator = persistentStoreCoordinator
+            
+            // listen for notifications (for merging changes)
+            NSNotificationCenter.defaultCenter().addObserver(self, selector: "mergeChangesFromContextDidSaveNotification:", name: NSManagedObjectContextDidSaveNotification, object: self.privateQueueManagedObjectContext)
+            
+            // edit model
+            
+            if self.dateCachedAttributeName != nil {
+                
+                self.setupDateCachedAttributeWithAttributeName(self.dateCachedAttributeName!)
+            }
+            
+            self.markAllPropertiesAsOptional(self.model)
     }
     
     // MARK: - Requests
@@ -1051,6 +1060,18 @@ public class Store {
     }
     
     // MARK: Cache
+    
+    private func markAllPropertiesAsOptional(managedObjectModel: NSManagedObjectModel) {
+        
+        // add a date attribute to managed object model
+        for (entityName, entity) in managedObjectModel.entitiesByName as [String: NSEntityDescription] {
+            
+            for (propertyName, property) in entity.propertiesByName as [String: NSPropertyDescription] {
+                
+                property.optional = true
+            }
+        }
+    }
     
     private func setupDateCachedAttributeWithAttributeName(dateCachedAttributeName: String) {
         
