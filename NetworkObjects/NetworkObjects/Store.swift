@@ -83,7 +83,7 @@ public class Store {
     // MARK: - Requests
     
     /** Performs a search request on the server. The supplied fetch request's predicate must be a NSComparisonPredicate instance. */
-    public func performSearch(fetchRequest: NSFetchRequest, URLSession: NSURLSession, completionBlock: ((error: NSError?, results: [NSManagedObject]?) -> Void)) -> NSURLSessionDataTask {
+    public func performSearch(fetchRequest: NSFetchRequest, URLSession: NSURLSession = NSURLSession.sharedSession(), completionBlock: ((error: NSError?, results: [NSManagedObject]?) -> Void)) -> NSURLSessionDataTask {
         
         // build JSON request from fetch request
         
@@ -214,7 +214,7 @@ public class Store {
         })
     }
     
-    public func fetchEntity(name: String, resourceID: UInt, URLSession: NSURLSession, completionBlock: ((error: NSError?, managedObject: NSManagedObject?) -> Void)) -> NSURLSessionDataTask {
+    public func fetchEntity(name: String, resourceID: UInt, URLSession: NSURLSession = NSURLSession.sharedSession(), completionBlock: ((error: NSError?, managedObject: NSManagedObject?) -> Void)) -> NSURLSessionDataTask {
         
         let entity = self.model.entitiesByName[name]! as NSEntityDescription
         
@@ -333,7 +333,7 @@ public class Store {
         })
     }
     
-    public func createEntity(name: String, withInitialValues initialValues: [String: AnyObject]?, URLSession: NSURLSession, completionBlock: ((error: NSError?, managedObject: NSManagedObject?) -> Void)) -> NSURLSessionDataTask {
+    public func createEntity(name: String, withInitialValues initialValues: [String: AnyObject]?, URLSession: NSURLSession = NSURLSession.sharedSession(), completionBlock: ((error: NSError?, managedObject: NSManagedObject?) -> Void)) -> NSURLSessionDataTask {
         
         let entity = self.model.entitiesByName[name]! as NSEntityDescription
         
@@ -416,7 +416,7 @@ public class Store {
         })
     }
     
-    public func editManagedObject(managedObject: NSManagedObject, changes: [String: AnyObject], URLSession: NSURLSession, completionBlock: ((error: NSError?) -> Void)) -> NSURLSessionDataTask {
+    public func editManagedObject(managedObject: NSManagedObject, changes: [String: AnyObject], URLSession: NSURLSession = NSURLSession.sharedSession(), completionBlock: ((error: NSError?) -> Void)) -> NSURLSessionDataTask {
         
         // convert new values to JSON
         let jsonValues = managedObject.entity.JSONObjectFromCoreDataValues(changes, usingResourceIDAttributeName: self.resourceIDAttributeName)
@@ -472,7 +472,7 @@ public class Store {
         })
     }
     
-    public func deleteManagedObject(managedObject: NSManagedObject, URLSession: NSURLSession, completionBlock: ((error: NSError?) -> Void)) -> NSURLSessionDataTask {
+    public func deleteManagedObject(managedObject: NSManagedObject, URLSession: NSURLSession = NSURLSession.sharedSession(), completionBlock: ((error: NSError?) -> Void)) -> NSURLSessionDataTask {
         
         // get resourceID
         let resourceID = managedObject.valueForKey(self.resourceIDAttributeName) as UInt
@@ -512,7 +512,7 @@ public class Store {
         })
     }
     
-    public func performFunction(function functionName: String, forManagedObject managedObject: NSManagedObject, withJSONObject JSONObject: [String: AnyObject]?, URLSession: NSURLSession, completionBlock: ((error: NSError?, functionCode: ServerFunctionCode?, JSONResponse: [String: AnyObject]?) -> Void)) -> NSURLSessionDataTask {
+    public func performFunction(function functionName: String, forManagedObject managedObject: NSManagedObject, withJSONObject JSONObject: [String: AnyObject]?, URLSession: NSURLSession = NSURLSession.sharedSession(), completionBlock: ((error: NSError?, functionCode: ServerFunctionCode?, JSONResponse: [String: AnyObject]?) -> Void)) -> NSURLSessionDataTask {
         
         // get resourceID
         let resourceID = managedObject.valueForKey(self.resourceIDAttributeName) as UInt
