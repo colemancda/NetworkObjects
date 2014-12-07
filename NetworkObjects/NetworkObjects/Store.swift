@@ -520,6 +520,97 @@ public class Store {
         })
     }
     
+    // MARK: - Build URL Requests
+    
+    /** Builds the NSURLRequest for GET requests. Subclasses can override this to add headers. */
+    public func requestForFetchEntity(name: String, resourceID: UInt) -> NSURLRequest {
+        
+        let resourceURL = self.serverURL.URLByAppendingPathComponent(name).URLByAppendingPathComponent("\(resourceID)")
+        
+        let request = NSURLRequest(URL: resourceURL)
+        
+        return request
+    }
+    
+    public func requestForSearchEntity(name: String, withParameters parameters: [String: AnyObject]) -> NSURLRequest {
+        
+        // build URL
+        
+        let searchURL = self.serverURL.URLByAppendingPathComponent(self.searchPath!).URLByAppendingPathComponent(name)
+        
+        let urlRequest = NSMutableURLRequest(URL: searchURL)
+        
+        urlRequest.HTTPMethod = "POST"
+        
+        // add JSON data
+        
+        let jsonData = NSJSONSerialization.dataWithJSONObject(parameters, options: self.jsonWritingOption(), error: nil)!
+        
+        urlRequest.HTTPBody = jsonData
+        
+        return urlRequest
+    }
+    
+    public func requestForCreateEntity(name: String, withInitialValues initialValues: [String: AnyObject]?) -> NSURLRequest {
+        
+        // build URL
+        
+        let createResourceURL = self.serverURL.URLByAppendingPathComponent(name)
+        
+        let request = NSMutableURLRequest(URL: createResourceURL)
+        
+        request.HTTPMethod = "POST"
+        
+        // add initial values to request
+        if initialValues != nil {
+            
+            request.HTTPBody = NSJSONSerialization.dataWithJSONObject(initialValues!, options: self.jsonWritingOption(), error: nil)
+        }
+        
+        return request
+    }
+    
+    public func requestForEditEntity(name: String, resourceID: UInt, changes: [String: AnyObject]) -> NSURLRequest {
+        
+        let resourceURL = self.serverURL.URLByAppendingPathComponent(name).URLByAppendingPathComponent("\(resourceID)")
+        
+        let request = NSMutableURLRequest(URL: resourceURL)
+        
+        request.HTTPMethod = "PUT"
+        
+        request.HTTPBody = NSJSONSerialization.dataWithJSONObject(changes, options: self.jsonWritingOption(), error: nil)!
+        
+        return request
+    }
+    
+    public func requestForDeleteEntity(name: String, resourceID: UInt) -> NSURLRequest {
+        
+        let resourceURL = self.serverURL.URLByAppendingPathComponent(name).URLByAppendingPathComponent("\(resourceID)")
+        
+        let request = NSMutableURLRequest(URL: resourceURL)
+        
+        request.HTTPMethod = "DELETE"
+        
+        return request
+    }
+    
+    public func requestForPerformFunction(functionName: String, entityName: String, resourceID: UInt, JSONObject: [String: AnyObject]?) -> NSURLRequest {
+        
+        let resourceURL = self.serverURL.URLByAppendingPathComponent(entityName).URLByAppendingPathComponent("\(resourceID)").URLByAppendingPathComponent(functionName)
+        
+        let request = NSMutableURLRequest(URL: resourceURL)
+        
+        request.HTTPMethod = "POST"
+        
+        // add HTTP body
+        if JSONObject != nil {
+            
+            request.HTTPBody = NSJSONSerialization.dataWithJSONObject(JSONObject!, options: self.jsonWritingOption(), error: nil)!
+        }
+        
+        return request
+    }
+    
     // MARK: - Private Methods
     
     private func mergeChangesFromContextDidSaveNotification(notification: NSNotification) {
@@ -552,19 +643,7 @@ public class Store {
         
         // build URL
         
-        let resourcePath = entity.name!
-        
-        let searchURL = self.serverURL.URLByAppendingPathComponent(self.searchPath!).URLByAppendingPathComponent(resourcePath)
-        
-        let urlRequest = NSMutableURLRequest(URL: searchURL)
-        
-        urlRequest.HTTPMethod = "POST"
-        
-        // add JSON data
-        
-        let jsonData = NSJSONSerialization.dataWithJSONObject(parameters, options: self.jsonWritingOption(), error: nil)!
-        
-        urlRequest.HTTPBody = jsonData
+        let urlRequest = self.requestForSearchEntity(entity.name!, withParameters: parameters)
         
         let dataTask = URLSession.dataTaskWithRequest(urlRequest, completionHandler: { (data, response, error) -> Void in
             
@@ -647,19 +726,7 @@ public class Store {
         
         // build URL
         
-        let resourcePath = entity.name!
-        
-        let createResourceURL = self.serverURL.URLByAppendingPathComponent(resourcePath)
-        
-        let request = NSMutableURLRequest(URL: createResourceURL)
-        
-        request.HTTPMethod = "POST"
-        
-        // add initial values to request
-        if initialValues != nil {
-            
-            request.HTTPBody = NSJSONSerialization.dataWithJSONObject(initialValues!, options: self.jsonWritingOption(), error: nil)
-        }
+        let request = self.requestForCreateEntity(entity.name!, withInitialValues: initialValues)
         
         let dataTask = URLSession.dataTaskWithRequest(request, completionHandler: { (data, response, error) -> Void in
             
@@ -748,11 +815,7 @@ public class Store {
         
         // build URL
         
-        let resourcePath = entity.name!
-        
-        let resourceURL = self.serverURL.URLByAppendingPathComponent(resourcePath).URLByAppendingPathComponent("\(resourceID)")
-        
-        let request = NSURLRequest(URL: resourceURL)
+        let request = self.requestForFetchEntity(entity.name!, resourceID: resourceID)
         
         let dataTask = URLSession.dataTaskWithRequest(request, completionHandler: { (data, response, error) -> Void in
             
@@ -835,15 +898,7 @@ public class Store {
         
         // build URL
         
-        let resourcePath = entity.name!
-        
-        let resourceURL = self.serverURL.URLByAppendingPathComponent(resourcePath).URLByAppendingPathComponent("\(resourceID)")
-        
-        let request = NSMutableURLRequest(URL: resourceURL)
-        
-        request.HTTPMethod = "PUT"
-        
-        request.HTTPBody = NSJSONSerialization.dataWithJSONObject(changes, options: self.jsonWritingOption(), error: nil)
+        let request = self.requestForEditEntity(entity.name!, resourceID: resourceID, changes: changes)
         
         let dataTask = URLSession.dataTaskWithRequest(request, completionHandler: { (data, response, error) -> Void in
             
@@ -902,13 +957,7 @@ public class Store {
         
         // build URL
         
-        let resourcePath = entity.name!
-        
-        let resourceURL = self.serverURL.URLByAppendingPathComponent(resourcePath).URLByAppendingPathComponent("\(resourceID)")
-        
-        let request = NSMutableURLRequest(URL: resourceURL)
-        
-        request.HTTPMethod = "DELETE"
+        let request = self.requestForDeleteEntity(entity.name!, resourceID: resourceID)
         
         let dataTask = URLSession.dataTaskWithRequest(request, completionHandler: { (data, response, error) -> Void in
             
@@ -967,19 +1016,7 @@ public class Store {
         
         // build URL
         
-        let resourcePath = entity.name!
-        
-        let resourceURL = self.serverURL.URLByAppendingPathComponent(resourcePath).URLByAppendingPathComponent("\(resourceID)").URLByAppendingPathComponent(functionName)
-        
-        let request = NSMutableURLRequest(URL: resourceURL)
-        
-        request.HTTPMethod = "POST"
-        
-        // add HTTP body
-        if JSONObject != nil {
-            
-            request.HTTPBody = NSJSONSerialization.dataWithJSONObject(JSONObject!, options: self.jsonWritingOption(), error: nil)!
-        }
+        let request = self.requestForPerformFunction(functionName, entityName: entity.name!, resourceID: resourceID, JSONObject: JSONObject)
         
         let dataTask = URLSession.dataTaskWithRequest(request, completionHandler: { (data, response, error) -> Void in
             
