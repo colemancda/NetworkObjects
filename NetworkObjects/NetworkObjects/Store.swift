@@ -18,6 +18,9 @@ public class Store {
     /** The managed object context used for caching. */
     public let managedObjectContext: NSManagedObjectContext
     
+    /** A convenience variable for the managed object model. */
+    public let managedObjectModel: NSManagedObjectModel
+    
     /** The name of a for the date attribute that can be optionally added at runtime for cache validation. */
     public let dateCachedAttributeName: String?
     
@@ -38,9 +41,6 @@ public class Store {
     /** The managed object context running on a background thread for asyncronous caching. */
     private let privateQueueManagedObjectContext: NSManagedObjectContext = NSManagedObjectContext(concurrencyType: NSManagedObjectContextConcurrencyType.PrivateQueueConcurrencyType)
     
-    /** A convenience variable for the managed object model. */
-    private let model: NSManagedObjectModel
-    
     // MARK: - Initialization
     
     deinit {
@@ -48,7 +48,7 @@ public class Store {
         NSNotificationCenter.defaultCenter().removeObserver(self, name: NSManagedObjectContextDidSaveNotification, object: self.privateQueueManagedObjectContext)
     }
     
-    public init(persistentStoreCoordinator: NSPersistentStoreCoordinator,
+    public init(managedObjectModel: NSManagedObjectModel,
         managedObjectContextConcurrencyType: NSManagedObjectContextConcurrencyType = .MainQueueConcurrencyType,
         serverURL: NSURL,
         prettyPrintJSON: Bool = false,
@@ -61,29 +61,29 @@ public class Store {
             self.prettyPrintJSON = prettyPrintJSON
             self.resourceIDAttributeName = resourceIDAttributeName
             self.dateCachedAttributeName = dateCachedAttributeName
-            
-            // setup managed object contexts
-            self.managedObjectContext = NSManagedObjectContext(concurrencyType: managedObjectContextConcurrencyType)
-            self.managedObjectContext.undoManager = nil
-            self.managedObjectContext.persistentStoreCoordinator = persistentStoreCoordinator
-            self.model = persistentStoreCoordinator.managedObjectModel
-            
-            self.privateQueueManagedObjectContext.undoManager = nil
-            self.privateQueueManagedObjectContext.persistentStoreCoordinator = persistentStoreCoordinator
-            
-            // listen for notifications (for merging changes)
-            NSNotificationCenter.defaultCenter().addObserver(self, selector: "mergeChangesFromContextDidSaveNotification:", name: NSManagedObjectContextDidSaveNotification, object: self.privateQueueManagedObjectContext)
+            self.managedObjectModel = managedObjectModel
             
             // edit model
             
             if self.dateCachedAttributeName != nil {
                 
-                self.model.addDateCachedAttribute(dateCachedAttributeName!)
+                self.managedObjectModel.addDateCachedAttribute(dateCachedAttributeName!)
             }
             
-            self.model.markAllPropertiesAsOptional()
+            self.managedObjectModel.markAllPropertiesAsOptional()
             
-            self.model.addResourceIDAttribute(resourceIDAttributeName)
+            self.managedObjectModel.addResourceIDAttribute(resourceIDAttributeName)
+            
+            // setup managed object contexts
+            self.managedObjectContext = NSManagedObjectContext(concurrencyType: managedObjectContextConcurrencyType)
+            self.managedObjectContext.undoManager = nil
+            self.managedObjectContext.persistentStoreCoordinator = NSPersistentStoreCoordinator(managedObjectModel: managedObjectModel)
+            
+            self.privateQueueManagedObjectContext.undoManager = nil
+            self.privateQueueManagedObjectContext.persistentStoreCoordinator = self.managedObjectContext.persistentStoreCoordinator
+            
+            // listen for notifications (for merging changes)
+            NSNotificationCenter.defaultCenter().addObserver(self, selector: "mergeChangesFromContextDidSaveNotification:", name: NSManagedObjectContextDidSaveNotification, object: self.privateQueueManagedObjectContext)
     }
     
     // MARK: - Requests
@@ -168,7 +168,7 @@ public class Store {
                     
                     // get the entity
                     
-                    let entities = self.model.entitiesByName as [String: NSEntityDescription]
+                    let entities = self.managedObjectModel.entitiesByName as [String: NSEntityDescription]
                     
                     let entity = entities[resourcePath!]
                     
@@ -224,7 +224,7 @@ public class Store {
     
     public func fetchEntity(name: String, resourceID: UInt, URLSession: NSURLSession = NSURLSession.sharedSession(), completionBlock: ((error: NSError?, managedObject: NSManagedObject?) -> Void)) -> NSURLSessionDataTask {
         
-        let entity = self.model.entitiesByName[name]! as NSEntityDescription
+        let entity = self.managedObjectModel.entitiesByName[name]! as NSEntityDescription
         
         return self.getResource(entity, withID: resourceID, URLSession: URLSession, completionBlock: { (error, jsonObject) -> Void in
             
@@ -343,7 +343,7 @@ public class Store {
     
     public func createEntity(name: String, withInitialValues initialValues: [String: AnyObject]?, URLSession: NSURLSession = NSURLSession.sharedSession(), completionBlock: ((error: NSError?, managedObject: NSManagedObject?) -> Void)) -> NSURLSessionDataTask {
         
-        let entity = self.model.entitiesByName[name]! as NSEntityDescription
+        let entity = self.managedObjectModel.entitiesByName[name]! as NSEntityDescription
         
         var jsonValues: [String: AnyObject]?
         
