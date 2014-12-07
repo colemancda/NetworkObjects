@@ -1010,7 +1010,7 @@ public class Server {
         
         if request.JSONObject != nil {
             
-            // convert to Core Data values
+            // convert to Core Data values...
             
             var editStatusCode: ServerStatusCode?
             
@@ -1018,6 +1018,7 @@ public class Server {
             
             var error: NSError?
             
+            // validate and convert JSON
             context.performBlockAndWait({ () -> Void in
                 
                 editStatusCode = self.verifyEditResource(managedObject!, forRequest: request, context: context, newValues: &newValues, error: &error)
@@ -1044,6 +1045,30 @@ public class Server {
                 
                 return
             })
+        }
+        
+        // tell delegate we just created a new resource (delegate may want to give more initial values)
+        
+        if self.delegate != nil {
+            
+            self.delegate!.server(self, didInsertManagedObject: managedObject!, context: context)
+        }
+        
+        // perform Core Data validation (to make sure there will be no errors saving)
+        
+        var validCoreData: Bool = false
+        
+        context.performBlockAndWait({ () -> Void in
+            
+            validCoreData = managedObject!.validateForInsert(nil)
+        })
+        
+        // invalid (e.g. non-optional property is nil)
+        if !validCoreData {
+            
+            let response = ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil)
+            
+            return (response, userInfo)
         }
         
         // respond
@@ -1927,11 +1952,14 @@ public protocol ServerDelegate {
     /** Asks the delegate for a status code for a request. Any response that is not ServerStatusCode.OK, will be forwarded to the client and the request will end. This can be used to implement authentication or access control. */
     func server(server: Server, statusCodeForRequest request: ServerRequest, managedObject: NSManagedObject?, context: NSManagedObjectContext) -> ServerStatusCode
     
-    /** Notifies the delegate that a request was performed successfully. */
-    func server(server: Server, didPerformRequest request: ServerRequest, withResponse response: ServerResponse, userInfo: [ServerUserInfoKey: AnyObject])
-    
     /** Asks the delegate for access control for a request. Server must have its permissions enabled for this method to be called. */
     func server(server: Server, permissionForRequest request: ServerRequest, managedObject: NSManagedObject?, context: NSManagedObjectContext, key: String?) -> ServerPermission
+    
+    /** Notifies the delegate that a new resource was created. Values are prevalidated. This is a good time to set initial values that cannot be set in -awakeFromInsert: or -awakeFromFetch:.  */
+    func server(server: Server, didInsertManagedObject: NSManagedObject, context: NSManagedObjectContext)
+    
+    /** Notifies the delegate that a request was performed successfully. This is the final delegate method for a successfull request / response. */
+    func server(server: Server, didPerformRequest request: ServerRequest, withResponse response: ServerResponse, userInfo: [ServerUserInfoKey: AnyObject])
 }
 
 // MARK: - Enumerations
