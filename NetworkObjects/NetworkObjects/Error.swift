@@ -45,7 +45,7 @@ public enum ErrorCode: Int {
     case CouldNotConvertJSONDataToString = 1001
 }
 
-internal extension ErrorCode {
+public extension ErrorCode {
     
     /** Returns generic errors for error codes. */
     func toError() -> NSError {
