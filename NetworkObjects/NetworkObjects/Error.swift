@@ -54,9 +54,9 @@ public extension ErrorCode {
         
         let tableName = "Error"
         
-        let comment = "NSLocalizedDescriptionKey for NSError with ErrorCode.\(self)"
+        let comment = "NSLocalizedDescriptionKey for NSError with ErrorCode.\(self.rawValue)"
         
-        let key = "ErrorCode.\(self).LocalizedDescription"
+        let key = "ErrorCode.\(self.rawValue).LocalizedDescription"
         
         var value: String?
         
