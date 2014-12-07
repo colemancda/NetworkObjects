@@ -5,21 +5,21 @@ NetworkObjects is a distributed object graph inspired by Apple's WebObjects. Thi
 
 # Auto-Generated REST Server
 
-The Server class, as its name implies, broadcasts a Core Data managed object context over the network (via HTTP) in way that it can be incrementally accessed and modified. The Server class will ask its data source for a path mapped to each entity. It will also ask the data source to keep track of unique identifiers (unsigned integer) assined to an instance of an entity. This will create a schema as follows:
+The Server class, as its name implies, broadcasts a Core Data managed object context over the network (via HTTP) in way that it can be incrementally accessed and modified. It will also ask the data source to keep track of unique identifiers (unsigned integer) assined to an instance of an entity. This will create a schema as follows:
 
 |Method  |URL							|
 |--------|----------------|
-|POST    |/entityPath			|
-|GET     |/entityPath/id	|
-|PUT     |/entityPath/id	|
-|DELETE  |/entityPath/id	|
+|POST    |/entityName			|
+|GET     |/entityName/id	|
+|PUT     |/entityName/id	|
+|DELETE  |/entityName/id	|
 
 Optionally the Server can create function and search URLs for special requests
 
 |Method  |URL				 									|
 |--------|----------------------------|
-|POST    |/search/entityPath					|
-|POST    |/entityPath/id/functionName	|
+|POST    |/search/entityName					|
+|POST    |/entityName/id/functionName	|
 
 # Server Permissions / Access Control
 
