@@ -1991,7 +1991,7 @@ public protocol ServerDelegate {
     func server(server: Server, permissionForRequest request: ServerRequest, managedObject: NSManagedObject?, context: NSManagedObjectContext, key: String?) -> ServerPermission
     
     /** Notifies the delegate that a new resource was created. Values are prevalidated. This is a good time to set initial values that cannot be set in -awakeFromInsert: or -awakeFromFetch:.  */
-    func server(server: Server, didInsertManagedObject: NSManagedObject, context: NSManagedObjectContext)
+    func server(server: Server, didInsertManagedObject managedObject: NSManagedObject, context: NSManagedObjectContext)
     
     /** Notifies the delegate that a request was performed successfully. This is the final delegate method for a successfull request / response. */
     func server(server: Server, didPerformRequest request: ServerRequest, withResponse response: ServerResponse, userInfo: [ServerUserInfoKey: AnyObject])
