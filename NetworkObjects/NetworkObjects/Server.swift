@@ -41,9 +41,6 @@ public class Server {
     /** The managed object model */
     public let managedObjectModel: NSManagedObjectModel
     
-    /** Resource path strings mapped to entity descriptions. */
-    public lazy var entitiesByResourcePath: [String: NSEntityDescription] = self.initEntitiesByResourcePath()
-    
     /** The underlying HTTP server. */
     public lazy var httpServer: ServerHTTPServer = self.initHTTPServer()
     
@@ -68,21 +65,6 @@ public class Server {
             self.prettyPrintJSON = prettyPrintJSON
     }
     
-    /** Lazily initializes self.entitiesByResourcePath. */
-    private func initEntitiesByResourcePath() -> [String: NSEntityDescription] {
-        
-        var entitiesByResourcePathDictionary = [String: NSEntityDescription]()
-        
-        for entity in managedObjectModel.entities as [NSEntityDescription] {
-            
-            let path = self.dataSource.server(self, resourcePathForEntity: entity)
-            
-            entitiesByResourcePathDictionary[path] = entity
-        }
-        
-        return entitiesByResourcePathDictionary
-    }
-    
     // ** Configures the underlying HTTP server. */
     private func initHTTPServer() -> ServerHTTPServer {
         
@@ -96,7 +78,7 @@ public class Server {
         
         // add HTTP REST handlers...
         
-        for (path, entity) in self.entitiesByResourcePath {
+        for (path, entity) in self.managedObjectModel.entitiesByName as [String: NSEntityDescription] {
             
             // MARK: HTTP Search Request Handler Block
             
@@ -946,11 +928,11 @@ public class Server {
                 
                 // get the resourcePath for the entity
                 
-                let resourcePath = (self.entitiesByResourcePath as NSDictionary).allKeysForObject(managedObject.entity).first as? String
+                let resourcePath = managedObject.entity.name!
                 
                 let resourceID = "\(managedObject.valueForKey(self.resourceIDAttributeName) as UInt)"
                 
-                jsonResponse.append([resourceID: resourcePath!])
+                jsonResponse.append([resourceID: resourcePath])
             }
         }
         
@@ -1956,10 +1938,6 @@ public class ServerHTTPServer: RoutingHTTPServer {
 
 /** Server Data Source Protocol */
 public protocol ServerDataSource {
-    
-    /** Data Source should return a unique string will represent the entity when broadcasting the managed object context.
-    */
-    func server(server: Server, resourcePathForEntity entity: NSEntityDescription) -> String
     
     /** Asks the data source for a managed object context to access. In simple setups the data source can always return the same context, but for higly concurrent servers, the data source create a separate context for each request (configured with the same backing store). */
     func server(server: Server, managedObjectContextForRequest request: ServerRequest) -> NSManagedObjectContext

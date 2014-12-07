@@ -33,9 +33,6 @@ public class Store {
     /** The URL of the NetworkObjects server that this client will connect to. */
     public let serverURL: NSURL
     
-    /**  Resource path strings mapped to entity descriptions. */
-    public let entitiesByResourcePath: [String: NSEntityDescription]
-    
     // MARK: - Private Properties
     
     /** The managed object context running on a background thread for asyncronous caching. */
@@ -61,7 +58,6 @@ public class Store {
         searchPath: String?) {
         
         self.serverURL = serverURL
-        self.entitiesByResourcePath = entitiesByResourcePath
         self.dateCachedAttributeName = dateCachedAttributeName
         self.searchPath = searchPath
         self.prettyPrintJSON = prettyPrintJSON
@@ -162,7 +158,9 @@ public class Store {
                     
                     // get the entity
                     
-                    let entity = self.entitiesByResourcePath[resourcePath!]
+                    let entities = self.model.entitiesByName as [String: NSEntityDescription]
+                    
+                    let entity = entities[resourcePath!]
                     
                     let (resource, cacheError) = self.findOrCreateEntity(entity!, withResourceID: resourceID, context: self.privateQueueManagedObjectContext)
                     
@@ -546,11 +544,6 @@ public class Store {
         }
     }
     
-    private func resourcePathForEntity(entity: NSEntityDescription) -> String {
-        
-        return (self.entitiesByResourcePath as NSDictionary).allKeysForObject(entity).first as String
-    }
-    
     // MARK: HTTP API
     
     // The API private methods separate the JSON validation and HTTP requests from Core Data caching.
@@ -560,7 +553,7 @@ public class Store {
         
         // build URL
         
-        let resourcePath = self.resourcePathForEntity(entity)
+        let resourcePath = entity.name!
         
         let searchURL = self.serverURL.URLByAppendingPathComponent(self.searchPath!).URLByAppendingPathComponent(resourcePath)
         
@@ -655,7 +648,7 @@ public class Store {
         
         // build URL
         
-        let resourcePath = self.resourcePathForEntity(entity)
+        let resourcePath = entity.name!
         
         let createResourceURL = self.serverURL.URLByAppendingPathComponent(resourcePath)
         
@@ -756,7 +749,7 @@ public class Store {
         
         // build URL
         
-        let resourcePath = self.resourcePathForEntity(entity)
+        let resourcePath = entity.name!
         
         let resourceURL = self.serverURL.URLByAppendingPathComponent(resourcePath).URLByAppendingPathComponent("\(resourceID)")
         
@@ -843,7 +836,7 @@ public class Store {
         
         // build URL
         
-        let resourcePath = self.resourcePathForEntity(entity)
+        let resourcePath = entity.name!
         
         let resourceURL = self.serverURL.URLByAppendingPathComponent(resourcePath).URLByAppendingPathComponent("\(resourceID)")
         
@@ -910,7 +903,7 @@ public class Store {
         
         // build URL
         
-        let resourcePath = self.resourcePathForEntity(entity)
+        let resourcePath = entity.name!
         
         let resourceURL = self.serverURL.URLByAppendingPathComponent(resourcePath).URLByAppendingPathComponent("\(resourceID)")
         
@@ -975,7 +968,7 @@ public class Store {
         
         // build URL
         
-        let resourcePath = self.resourcePathForEntity(entity)
+        let resourcePath = entity.name!
         
         let resourceURL = self.serverURL.URLByAppendingPathComponent(resourcePath).URLByAppendingPathComponent("\(resourceID)").URLByAppendingPathComponent(functionName)
         
