@@ -51,7 +51,6 @@ public class Store {
     public init(persistentStoreCoordinator: NSPersistentStoreCoordinator,
         managedObjectContextConcurrencyType: NSManagedObjectContextConcurrencyType = .MainQueueConcurrencyType,
         serverURL: NSURL,
-        entitiesByResourcePath: [String: NSEntityDescription],
         prettyPrintJSON: Bool = false,
         resourceIDAttributeName: String = "id",
         dateCachedAttributeName: String?,
