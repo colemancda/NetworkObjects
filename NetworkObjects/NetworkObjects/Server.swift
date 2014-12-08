@@ -63,6 +63,9 @@ public class Server {
             self.permissionsEnabled = permissionsEnabled
             self.searchPath = searchPath
             self.prettyPrintJSON = prettyPrintJSON
+            
+            // add resource ID programatically
+            self.managedObjectModel.addResourceIDAttribute(resourceIDAttributeName)
     }
     
     // ** Configures the underlying HTTP server. */
