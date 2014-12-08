@@ -661,6 +661,8 @@ public class Store {
             if error != nil {
                 
                 completionBlock(error: error, results: nil)
+                
+                return
             }
             
             let httpResponse = response as NSHTTPURLResponse
@@ -833,6 +835,8 @@ public class Store {
             if error != nil {
                 
                 completionBlock(error: error, resource: nil)
+                
+                return
             }
             
             let httpResponse = response as NSHTTPURLResponse
@@ -916,6 +920,8 @@ public class Store {
             if error != nil {
                 
                 completionBlock(error: error)
+                
+                return
             }
             
             let httpResponse = response as NSHTTPURLResponse
@@ -975,6 +981,8 @@ public class Store {
             if error != nil {
                 
                 completionBlock(error: error)
+                
+                return
             }
             
             let httpResponse = response as NSHTTPURLResponse
