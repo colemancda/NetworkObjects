@@ -1474,6 +1474,8 @@ public class Server {
         
         fetchRequest.fetchLimit = 1
         
+        fetchRequest.includesSubentities = false
+        
         fetchRequest.predicate = NSComparisonPredicate(leftExpression: NSExpression(forKeyPath: self.resourceIDAttributeName), rightExpression: NSExpression(forConstantValue: resourceID), modifier: NSComparisonPredicateModifier.DirectPredicateModifier, type: NSPredicateOperatorType.EqualToPredicateOperatorType, options: NSComparisonPredicateOptions.NormalizedPredicateOption)
         
         if shouldPrefetch {

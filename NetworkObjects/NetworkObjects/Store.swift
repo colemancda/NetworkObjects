@@ -1082,6 +1082,8 @@ public class Store {
         
         fetchRequest.resultType = NSFetchRequestResultType.ManagedObjectIDResultType
         
+        fetchRequest.includesSubentities = false
+        
         // create predicate
         
         fetchRequest.predicate = NSComparisonPredicate(leftExpression: NSExpression(forKeyPath: self.resourceIDAttributeName), rightExpression: NSExpression(forConstantValue: resourceID), modifier: NSComparisonPredicateModifier.DirectPredicateModifier, type: NSPredicateOperatorType.EqualToPredicateOperatorType, options: NSComparisonPredicateOptions.NormalizedPredicateOption)
@@ -1110,6 +1112,8 @@ public class Store {
         let fetchRequest = NSFetchRequest(entityName: entity.name!)
         
         fetchRequest.fetchLimit = 1
+        
+        fetchRequest.includesSubentities = false
         
         // create predicate
         
