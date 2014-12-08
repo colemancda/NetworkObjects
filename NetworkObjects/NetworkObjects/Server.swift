@@ -734,7 +734,7 @@ public class Server {
         if sortDescriptorsJSONArrayObject != nil {
             
             // validate
-            if (sortDescriptorsJSONArray == nil || sortDescriptorsJSONArray?.isEmpty != nil) {
+            if sortDescriptorsJSONArray == nil || sortDescriptorsJSONArray?.isEmpty == true {
                 
                 let response = ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil)
                 
