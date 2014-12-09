@@ -93,15 +93,6 @@ public class Server {
                     
                     let searchParameters = NSJSONSerialization.JSONObjectWithData(request.body(), options: NSJSONReadingOptions.AllowFragments, error: nil) as? [String: AnyObject]
                     
-                    if searchParameters == nil {
-                        
-                        response.statusCode = ServerStatusCode.BadRequest.rawValue
-                        
-                        return
-                    }
-                    
-                    // create server request
-                    
                     let serverRequest = ServerRequest(requestType: ServerRequestType.Search,
                         connectionType: ServerConnectionType.HTTP,
                         entity: entity,
@@ -111,36 +102,43 @@ public class Server {
                         functionName: nil,
                         headers: request.headers as [String: String])
                     
+                    // seach requests require HTTP body
+                    if searchParameters == nil {
+                        
+                        // return BadRequest
+                        response.statusCode = ServerStatusCode.BadRequest.rawValue
+                        
+                        // tell delegate
+                        self.delegate?.server(self, didPerformRequest: serverRequest, withResponse: ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil), userInfo: [ServerUserInfoKey : AnyObject]())
+                        
+                        return
+                    }
+                    
+                    // create server request
+                    
                     let (serverResponse, userInfo) = self.responseForSearchRequest(serverRequest)
                     
+                    // return error
                     if serverResponse.statusCode != ServerStatusCode.OK {
                         
+                        // return error status code
                         response.statusCode = serverResponse.statusCode.rawValue
+                        
+                        // tell delegate
+                        self.delegate?.server(self, didPerformRequest: serverRequest, withResponse: serverResponse, userInfo: userInfo)
+                        
+                        return
                     }
-                    else {
-                        
-                        // respond with data
-                        
-                        var jsonSerializationError: NSError?
-                        
-                        let jsonData = NSJSONSerialization.dataWithJSONObject(serverResponse.JSONResponse!, options: self.jsonWritingOption(), error: &jsonSerializationError)
-                        
-                        if (jsonData == nil) {
-                            
-                            // tell the delegate about the error
-                            self.delegate!.server(self, didEncounterInternalError: jsonSerializationError!, forRequest: serverRequest, userInfo: userInfo)
-                            
-                            response.statusCode = ServerStatusCode.InternalServerError.rawValue
-                            
-                            return
-                        }
-                        
-                        response.respondWithData(jsonData)
-                    }
+                    
+                    // respond with data
+                    
+                    let jsonData = NSJSONSerialization.dataWithJSONObject(serverResponse.JSONResponse!, options: self.jsonWritingOption(), error: nil)
+                    
+                    response.respondWithData(jsonData)
                     
                     // tell the delegate
                     
-                    self.delegate!.server(self, didPerformRequest: serverRequest, withResponse: serverResponse, userInfo: userInfo)
+                    self.delegate?.server(self, didPerformRequest: serverRequest, withResponse: serverResponse, userInfo: userInfo)
                 }
                 
                 httpServer.post(searchPathExpression, withBlock: searchRequestHandler)
@@ -1983,7 +1981,7 @@ public protocol ServerDelegate {
     /** Notifies the delegate that a new resource was created. Values are prevalidated. This is a good time to set initial values that cannot be set in -awakeFromInsert: or -awakeFromFetch:.  */
     func server(server: Server, didInsertManagedObject managedObject: NSManagedObject, context: NSManagedObjectContext)
     
-    /** Notifies the delegate that a request was performed successfully. This is the final delegate method for a successfull request / response. */
+    /** Notifies the delegate that a request was processed. */
     func server(server: Server, didPerformRequest request: ServerRequest, withResponse response: ServerResponse, userInfo: [ServerUserInfoKey: AnyObject])
 }
 
