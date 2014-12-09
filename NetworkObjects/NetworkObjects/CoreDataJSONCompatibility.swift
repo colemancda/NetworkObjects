@@ -129,51 +129,53 @@ internal extension NSEntityDescription {
             return NSNull()
         }
         
-        let attributeClassName = attributeDescription!.attributeValueClassName!
-        
-        switch attributeClassName {
+        if let attributeClassName = attributeDescription!.attributeValueClassName {
             
-            // strings and numbers are standard json data types
+            switch attributeClassName {
+                
+                // strings and numbers are standard json data types
             case "NSString", "NSNumber":
                 return attributeValue
-            
+                
             case "NSDate":
                 let date = attributeValue as NSDate
                 return date.ISO8601String()
-            
+                
             case "NSData":
                 let data = attributeValue as NSData
                 return data.base64EncodedStringWithOptions(NSDataBase64EncodingOptions.Encoding64CharacterLineLength)
+                
+            default:
+                return nil
+            }
+        }
+        
+        // transformable value type
+        if attributeDescription?.attributeType == NSAttributeType.TransformableAttributeType {
             
-        default:
+            // get transformer
+            let valueTransformerName = attributeDescription?.valueTransformerName
             
-            // transformable value type
-            if attributeDescription?.attributeType == NSAttributeType.TransformableAttributeType {
+            // default transformer: NSKeyedUnarchiveFromDataTransformerName in reverse
+            if valueTransformerName == nil {
                 
-                // get transformer
-                let valueTransformerName = attributeDescription?.valueTransformerName
-                
-                // default transformer: NSKeyedUnarchiveFromDataTransformerName in reverse
-                if valueTransformerName == nil {
-                    
-                    let transformer = NSValueTransformer(forName: NSKeyedUnarchiveFromDataTransformerName)
-                    
-                    // convert to data
-                    let data = transformer!.reverseTransformedValue(attributeValue) as NSData
-                    
-                    // convert to string (for JSON export)
-                    return data.base64EncodedStringWithOptions(NSDataBase64EncodingOptions.Encoding64CharacterLineLength)
-                }
-                
-                // custom transformer
-                let transformer = NSValueTransformer(forName: valueTransformerName!)
+                let transformer = NSValueTransformer(forName: NSKeyedUnarchiveFromDataTransformerName)
                 
                 // convert to data
-                let data = transformer!.transformedValue(attributeValue) as NSData
+                let data = transformer!.reverseTransformedValue(attributeValue) as NSData
                 
                 // convert to string (for JSON export)
                 return data.base64EncodedStringWithOptions(NSDataBase64EncodingOptions.Encoding64CharacterLineLength)
             }
+            
+            // custom transformer
+            let transformer = NSValueTransformer(forName: valueTransformerName!)
+            
+            // convert to data
+            let data = transformer!.transformedValue(attributeValue) as NSData
+            
+            // convert to string (for JSON export)
+            return data.base64EncodedStringWithOptions(NSDataBase64EncodingOptions.Encoding64CharacterLineLength)
         }
         
         return nil
