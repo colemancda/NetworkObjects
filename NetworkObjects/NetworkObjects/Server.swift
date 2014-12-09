@@ -1608,6 +1608,13 @@ public class Server {
                     }
                 }
             }
+            
+            // add resource ID attribute
+            else {
+                
+                // add to JSON representation
+                jsonObject[attributeName] = managedObject.JSONCompatibleValueForAttribute(attributeName)
+            }
         }
         
         // then the relationships
