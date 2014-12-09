@@ -624,7 +624,7 @@ public class Store {
     
     // MARK: - Private Methods
     
-    private func mergeChangesFromContextDidSaveNotification(notification: NSNotification) {
+    @objc private func mergeChangesFromContextDidSaveNotification(notification: NSNotification) {
         
         self.managedObjectContext.performBlock { () -> Void in
             
