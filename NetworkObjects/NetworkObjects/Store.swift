@@ -877,7 +877,7 @@ public class Store {
             
             // parse response...
             
-            let jsonObject = NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.AllowFragments, error: nil) as? [String: AnyObject]
+            let jsonObject = NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.allZeros, error: nil) as? [String: AnyObject]
             
             // invalid JSON response
             if jsonObject == nil {
@@ -902,6 +902,9 @@ public class Store {
                     return
                 }
             }
+            
+            // success
+            completionBlock(error: nil, resource: jsonObject)
         })
         
         dataTask.resume()
