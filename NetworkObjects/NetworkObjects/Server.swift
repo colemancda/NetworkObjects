@@ -399,17 +399,9 @@ public class Server {
                     
                     // get json body
                     
-                    let jsonBody: AnyObject? = NSJSONSerialization.JSONObjectWithData(request.body(), options: NSJSONReadingOptions.AllowFragments, error: nil)
+                    let jsonBody: AnyObject? = NSJSONSerialization.JSONObjectWithData(request.body(), options: NSJSONReadingOptions.allZeros, error: nil)
                     
                     let jsonObject = jsonBody as? [String: AnyObject]
-                    
-                    // JSON recieved is not a dictionary
-                    if (jsonBody != nil) && (jsonObject == nil) {
-                        
-                        response.statusCode = ServerStatusCode.BadRequest.rawValue
-                        
-                        return
-                    }
                     
                     // convert to server request
                     let serverRequest = ServerRequest(requestType: ServerRequestType.Function,
@@ -420,6 +412,16 @@ public class Server {
                         JSONObject: jsonObject,
                         functionName: functionName,
                         headers: request.headers as [String: String])
+                    
+                    // invalid json body
+                    if jsonObject == nil && jsonBody != nil {
+                        
+                        response.statusCode = ServerStatusCode.BadRequest.rawValue
+                        
+                        self.delegate?.server(self, didPerformRequest: serverRequest, withResponse: ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil), userInfo: [ServerUserInfoKey : AnyObject]())
+                        
+                        return
+                    }
                     
                     // get response
                     let (serverResponse, userInfo) = self.responseForFunctionRequest(serverRequest)
@@ -439,6 +441,9 @@ public class Server {
                             self.delegate!.server(self, didEncounterInternalError: error!, forRequest: serverRequest, userInfo: userInfo)
                             
                             response.statusCode = ServerStatusCode.InternalServerError.rawValue
+                            
+                            // tell the delegate
+                            self.delegate!.server(self, didPerformRequest: serverRequest, withResponse: serverResponse, userInfo: userInfo)
                             
                             return
                         }
