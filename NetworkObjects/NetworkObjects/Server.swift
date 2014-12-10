@@ -226,7 +226,7 @@ public class Server {
                 
                 // get json body
                 
-                let jsonObject: AnyObject? = NSJSONSerialization.JSONObjectWithData(request.body(), options: NSJSONReadingOptions.allZeros, error: nil) as? [String: AnyObject]
+                let jsonObject = NSJSONSerialization.JSONObjectWithData(request.body(), options: NSJSONReadingOptions.allZeros, error: nil) as? [String: AnyObject]
                 
                 // GET
                 if request.method() == "GET" {
