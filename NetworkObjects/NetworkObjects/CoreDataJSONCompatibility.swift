@@ -197,45 +197,63 @@ internal extension NSEntityDescription {
             return nil
         }
         
-        let attributeClassName = attributeDescription!.attributeValueClassName!
-        
-        switch attributeClassName {
+        if let attributeClassName = attributeDescription!.attributeValueClassName {
             
-        // strings and numbers are standard json data types
-        case "NSString", "NSNumber":
-            return jsonValue
-            
-        case "NSDate":
-            let dateString = jsonValue as String
-            return NSDate.dateWithISO8601String(dateString)
-            
-        case "NSData":
-            let dataString = jsonValue as String
-            return NSData(base64EncodedString: dataString, options: NSDataBase64DecodingOptions.IgnoreUnknownCharacters)
-            
-        default:
-            
-            // transformable value type
-            if attributeDescription?.attributeType == NSAttributeType.TransformableAttributeType {
+            switch attributeClassName {
                 
-                // get transformer
-                let valueTransformerName = attributeDescription?.valueTransformerName
+                // strings and numbers are standard json data types
+            case "NSString", "NSNumber":
+                return jsonValue
                 
-                // default transformer: NSKeyedUnarchiveFromDataTransformerName in reverse
-                if valueTransformerName == nil {
-                    
-                    let transformer = NSValueTransformer(forName: NSKeyedUnarchiveFromDataTransformerName)!
-                    
-                    // unarchive
-                    return transformer.transformedValue(jsonValue)
-                }
+            case "NSDate":
+                let dateString = jsonValue as String
+                return NSDate.dateWithISO8601String(dateString)
                 
-                // custom transformer
-                let transformer = NSValueTransformer(forName: valueTransformerName!)!
+            case "NSData":
+                let dataString = jsonValue as String
+                return NSData(base64EncodedString: dataString, options: NSDataBase64DecodingOptions.allZeros)
                 
-                // convert to original type
-                return transformer.reverseTransformedValue(jsonValue)
+            default:
+                
+                return nil
             }
+        }
+        
+        // transformable value type
+        if attributeDescription?.attributeType == NSAttributeType.TransformableAttributeType {
+            
+            let base64EncodedString = jsonValue as? String
+            
+            if base64EncodedString == nil {
+                
+                return nil
+            }
+            
+            // get data from Base64 string
+            let data = NSData(base64EncodedString: base64EncodedString!, options: NSDataBase64DecodingOptions.allZeros)
+            
+            if data == nil {
+                
+                return nil
+            }
+            
+            // get transformer
+            let valueTransformerName = attributeDescription?.valueTransformerName
+            
+            // default transformer: NSKeyedUnarchiveFromDataTransformerName in reverse
+            if valueTransformerName == nil {
+                
+                let transformer = NSValueTransformer(forName: NSKeyedUnarchiveFromDataTransformerName)!
+                
+                // unarchive
+                return transformer.transformedValue(jsonValue)
+            }
+            
+            // custom transformer
+            let transformer = NSValueTransformer(forName: valueTransformerName!)!
+            
+            // convert to original type
+            return transformer.reverseTransformedValue(jsonValue)
         }
         
         return nil
