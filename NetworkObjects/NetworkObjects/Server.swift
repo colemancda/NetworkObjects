@@ -213,16 +213,13 @@ public class Server {
             
             let instanceRequestHandler: RequestHandler = { (request: RouteRequest!, response: RouteResponse!) -> Void in
                 
+                // get resource ID
+                
                 let parameters = request.params
                 
-                let captures: AnyObject? = parameters["captures"]
+                let captures = parameters["captures"] as [String]
                 
-                // had to do this in more lines of code becuase the compiler would complain
-                let capturesArray = captures as [String]
-                
-                let resourceIDInt = capturesArray.first?.toInt()
-                
-                let resourceID = UInt(resourceIDInt!)
+                let resourceID = UInt(captures.first!.toInt()!)
                 
                 // get json body
                 
@@ -386,16 +383,13 @@ public class Server {
                 
                 let functionRequestHandler: RequestHandler = { (request: RouteRequest!, response: RouteResponse!) -> Void in
                     
+                    // get resource ID
+                    
                     let parameters = request.params
                     
-                    let captures: AnyObject? = parameters["captures"]
+                    let captures = parameters["captures"] as [String]
                     
-                    // had to do this in more lines of code becuase the compiler would complain
-                    let capturesArray = captures as [String]
-                    
-                    let resourceIDInt = capturesArray.first?.toInt()
-                    
-                    let resourceID = UInt(resourceIDInt!)
+                    let resourceID = UInt(captures.first!.toInt()!)
                     
                     // get json body
                     
