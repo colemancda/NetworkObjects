@@ -1176,7 +1176,7 @@ public class Store {
                 
                 let newValue: AnyObject = managedObject.attributeValueForJSONCompatibleValue(jsonValue, forAttribute: key)!
                 
-                let currentValue: AnyObject = managedObject.valueForKey(key)!
+                let currentValue: AnyObject? = managedObject.valueForKey(key)
                 
                 // set value if not current value
                 if !newValue.isEqual(currentValue) {
