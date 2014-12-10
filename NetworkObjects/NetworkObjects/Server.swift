@@ -159,14 +159,7 @@ public class Server {
                 
                 // get initial values
                 
-                let jsonObject = NSJSONSerialization.JSONObjectWithData(request.body(), options: NSJSONReadingOptions.AllowFragments, error: nil) as? [String: AnyObject]
-                
-                if (jsonObject == nil) {
-                    
-                    response.statusCode = ServerStatusCode.BadRequest.rawValue
-                    
-                    return
-                }
+                let jsonObject = NSJSONSerialization.JSONObjectWithData(request.body(), options: NSJSONReadingOptions.allZeros, error: nil) as? [String: AnyObject]
                 
                 // convert to server request
                 let serverRequest = ServerRequest(requestType: ServerRequestType.POST,
@@ -178,6 +171,15 @@ public class Server {
                     functionName: nil,
                     headers: request.headers as [String: String])
                 
+                if (jsonObject == nil) {
+                    
+                    response.statusCode = ServerStatusCode.BadRequest.rawValue
+                    
+                    self.delegate?.server(self, didPerformRequest: serverRequest, withResponse: ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil), userInfo: [ServerUserInfoKey : AnyObject]())
+                    
+                    return
+                }
+                
                 // process request and return a response
                 let (serverResponse, userInfo) = self.responseForCreateRequest(serverRequest)
                 
@@ -185,24 +187,14 @@ public class Server {
                     
                     response.statusCode = serverResponse.statusCode.rawValue
                     
+                    self.delegate?.server(self, didPerformRequest: serverRequest, withResponse: serverResponse, userInfo: userInfo)
+                    
                     return
                 }
                 
                 // write to socket
                 
-                var error: NSError?
-                
-                let jsonData = NSJSONSerialization.dataWithJSONObject(serverResponse.JSONResponse!, options: self.jsonWritingOption(), error: &error)
-                
-                // could not serialize json response, internal error
-                if (jsonData == nil) {
-                    
-                    self.delegate!.server(self, didEncounterInternalError: error!, forRequest: serverRequest, userInfo: userInfo)
-                    
-                    response.statusCode = ServerStatusCode.InternalServerError.rawValue
-                    
-                    return
-                }
+                let jsonData = NSJSONSerialization.dataWithJSONObject(serverResponse.JSONResponse!, options: self.jsonWritingOption(), error: nil)!
                 
                 // respond with serialized json
                 response.respondWithData(jsonData)
@@ -234,17 +226,7 @@ public class Server {
                 
                 // get json body
                 
-                let jsonBody: AnyObject? = NSJSONSerialization.JSONObjectWithData(request.body(), options: NSJSONReadingOptions.AllowFragments, error: nil)
-                
-                let jsonObject = jsonBody as? [String: AnyObject]
-                
-                // JSON recieved is not a dictionary
-                if (jsonBody != nil) && (jsonObject == nil) {
-                    
-                    response.statusCode = ServerStatusCode.BadRequest.rawValue
-                    
-                    return
-                }
+                let jsonObject: AnyObject? = NSJSONSerialization.JSONObjectWithData(request.body(), options: NSJSONReadingOptions.allZeros, error: nil) as? [String: AnyObject]
                 
                 // GET
                 if request.method() == "GET" {
@@ -259,11 +241,13 @@ public class Server {
                         functionName: nil,
                         headers: request.headers as [String: String])
                     
-                    // should not have a body
+                    // should not have a body (also validate thate JSON is dictionary
                     
-                    if (jsonBody != nil) {
+                    if jsonObject != nil {
                         
                         response.statusCode = ServerStatusCode.BadRequest.rawValue
+                        
+                        self.delegate?.server(self, didPerformRequest: serverRequest, withResponse: ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil), userInfo: [ServerUserInfoKey : AnyObject]())
                         
                         return
                     }
@@ -276,24 +260,14 @@ public class Server {
                         
                         response.statusCode = serverResponse.statusCode.rawValue
                         
+                        self.delegate?.server(self, didPerformRequest: serverRequest, withResponse: serverResponse, userInfo: userInfo)
+                        
                         return
                     }
                     
                     // serialize json data
                     
-                    var error: NSError?
-                    
-                    let jsonData = NSJSONSerialization.dataWithJSONObject(serverResponse.JSONResponse!, options: self.jsonWritingOption(), error: &error)
-                    
-                    // could not serialize json response, internal error
-                    if (jsonData == nil) {
-                        
-                        self.delegate!.server(self, didEncounterInternalError: error!, forRequest: serverRequest, userInfo: userInfo)
-                        
-                        response.statusCode = ServerStatusCode.InternalServerError.rawValue
-                        
-                        return
-                    }
+                    let jsonData = NSJSONSerialization.dataWithJSONObject(serverResponse.JSONResponse!, options: self.jsonWritingOption(), error: nil)!
                     
                     // respond with serialized json
                     response.respondWithData(jsonData)
@@ -317,9 +291,11 @@ public class Server {
                     
                     // should have a body (and not a empty JSON dicitonary)
                     
-                    if (jsonBody == nil || jsonObject == nil || jsonObject?.count == 0) {
+                    if (jsonObject == nil || jsonObject?.count == 0) {
                         
                         response.statusCode = ServerStatusCode.BadRequest.rawValue
+                        
+                        self.delegate?.server(self, didPerformRequest: serverRequest, withResponse: ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil), userInfo: [ServerUserInfoKey : AnyObject]())
                         
                         return
                     }
@@ -331,6 +307,8 @@ public class Server {
                     if serverResponse.statusCode != ServerStatusCode.OK {
                         
                         response.statusCode = serverResponse.statusCode.rawValue
+                        
+                        self.delegate?.server(self, didPerformRequest: serverRequest, withResponse: serverResponse, userInfo: userInfo)
                         
                         return
                     }
@@ -357,9 +335,11 @@ public class Server {
                     
                     // should not have a body
                     
-                    if (jsonBody != nil) {
+                    if (jsonObject != nil) {
                         
                         response.statusCode = ServerStatusCode.BadRequest.rawValue
+                        
+                        self.delegate?.server(self, didPerformRequest: serverRequest, withResponse: ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil), userInfo: [ServerUserInfoKey : AnyObject]())
                         
                         return
                     }
@@ -371,6 +351,8 @@ public class Server {
                     if serverResponse.statusCode != ServerStatusCode.OK {
                         
                         response.statusCode = serverResponse.statusCode.rawValue
+                        
+                        self.delegate?.server(self, didPerformRequest: serverRequest, withResponse: serverResponse, userInfo: userInfo)
                         
                         return
                     }
