@@ -1930,19 +1930,16 @@ public class ServerHTTPServer: RoutingHTTPServer {
 /** Server Data Source Protocol */
 public protocol ServerDataSource {
     
-    /** Asks the data source for a managed object context to access. In simple setups the data source can always return the same context, but for higly concurrent servers, the data source create a separate context for each request (configured with the same backing store). */
+    /** Asks the data source for a managed object context to access. The data source should create a separate context for each request. */
     func server(server: Server, managedObjectContextForRequest request: ServerRequest) -> NSManagedObjectContext
     
     /** Asks the data source for a numerical identifier for a newly create object. It is the data source's responsibility to keep track of the resource IDs of instances of an entity. This method should return 0 the for the first instance of an entity and increment by 1 for each newly created instance. */
     func server(server: Server, newResourceIDForEntity entity: NSEntityDescription) -> UInt
     
-    /** Should return an array of string specifing the names of functions an entity declares. */
+    /** Should return an array of strings specifing the names of functions an entity declares. */
     func server(server: Server, functionsForEntity entity: NSEntityDescription) -> [String]
     
-    /** Asks the data source to perform a function on a managed object. 
-    
-    Returns a tuple containing a ServerFunctionCode and JSON-compatible dictionary.
-    */
+    /** Asks the data source to perform a function on a managed object. Returns a tuple containing a ServerFunctionCode and JSON-compatible dictionary. */
     func server(server: Server, performFunction functionName:String, forManagedObject managedObject: NSManagedObject,
         context: NSManagedObjectContext, recievedJsonObject: [String: AnyObject]?, request: ServerRequest) -> (ServerFunctionCode, [String: AnyObject]?)
 }
