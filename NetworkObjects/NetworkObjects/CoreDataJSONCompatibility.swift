@@ -143,7 +143,7 @@ internal extension NSEntityDescription {
                 
             case "NSData":
                 let data = attributeValue as NSData
-                return data.base64EncodedStringWithOptions(NSDataBase64EncodingOptions.Encoding64CharacterLineLength)
+                return data.base64EncodedStringWithOptions(NSDataBase64EncodingOptions.allZeros)
                 
             default:
                 return nil
@@ -165,7 +165,7 @@ internal extension NSEntityDescription {
                 let data = transformer!.reverseTransformedValue(attributeValue) as NSData
                 
                 // convert to string (for JSON export)
-                return data.base64EncodedStringWithOptions(NSDataBase64EncodingOptions.Encoding64CharacterLineLength)
+                return data.base64EncodedStringWithOptions(NSDataBase64EncodingOptions.allZeros)
             }
             
             // custom transformer
@@ -175,7 +175,7 @@ internal extension NSEntityDescription {
             let data = transformer!.transformedValue(attributeValue) as NSData
             
             // convert to string (for JSON export)
-            return data.base64EncodedStringWithOptions(NSDataBase64EncodingOptions.Encoding64CharacterLineLength)
+            return data.base64EncodedStringWithOptions(NSDataBase64EncodingOptions.allZeros)
         }
         
         return nil
@@ -246,14 +246,14 @@ internal extension NSEntityDescription {
                 let transformer = NSValueTransformer(forName: NSKeyedUnarchiveFromDataTransformerName)!
                 
                 // unarchive
-                return transformer.transformedValue(jsonValue)
+                return transformer.transformedValue(data)
             }
             
             // custom transformer
             let transformer = NSValueTransformer(forName: valueTransformerName!)!
             
             // convert to original type
-            return transformer.reverseTransformedValue(jsonValue)
+            return transformer.reverseTransformedValue(data)
         }
         
         return nil
