@@ -49,10 +49,10 @@ public class Server {
     public init(dataSource: ServerDataSource,
         delegate: ServerDelegate?,
         managedObjectModel: NSManagedObjectModel,
-        searchPath:String?,
+        searchPath: String? = "search",
         resourceIDAttributeName: String = "id",
         prettyPrintJSON: Bool = false,
-        sslIdentityAndCertificates: [AnyObject]?,
+        sslIdentityAndCertificates: [AnyObject]? = nil,
         permissionsEnabled: Bool = false) {
             
             self.dataSource = dataSource
