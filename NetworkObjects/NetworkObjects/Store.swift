@@ -377,7 +377,7 @@ public class Store {
                 // set values
                 if initialValues != nil {
                     
-                    managedObject!.setValuesForKeysWithDictionary(initialValues!, fromManagedObjectContext: self.privateQueueManagedObjectContext)
+                    managedObject!.setValuesForKeysWithDictionary(initialValues!, withManagedObjectContext: self.privateQueueManagedObjectContext)
                 }
                 
                 // set date cached
@@ -439,7 +439,7 @@ public class Store {
                 let contextResource = self.privateQueueManagedObjectContext.objectWithID(managedObject.objectID)
                 
                 // set values
-                contextResource.setValuesForKeysWithDictionary(changes, fromManagedObjectContext: self.privateQueueManagedObjectContext)
+                contextResource.setValuesForKeysWithDictionary(changes, withManagedObjectContext: self.privateQueueManagedObjectContext)
                 
                 // set date cached
                 self.didCacheManagedObject(contextResource)
@@ -1321,7 +1321,7 @@ private extension NSEntityDescription {
 
 private extension NSManagedObject {
     
-    func setValuesForKeysWithDictionary(keyedValues: [String : AnyObject], fromManagedObjectContext managedObjectContext: NSManagedObjectContext) {
+    func setValuesForKeysWithDictionary(keyedValues: [String : AnyObject], withManagedObjectContext managedObjectContext: NSManagedObjectContext) {
         
         if self.managedObjectContext != nil {
             
@@ -1400,6 +1400,8 @@ private extension NSManagedObject {
                 newValues[key] = value
             }
         }
+        
+        self.setValuesForKeysWithDictionary(newValues)
     }
 }
 
