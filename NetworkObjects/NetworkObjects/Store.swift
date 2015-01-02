@@ -372,22 +372,12 @@ public class Store {
                 managedObject = NSEntityDescription.insertNewObjectForEntityForName(name, inManagedObjectContext: self.privateQueueManagedObjectContext) as? NSManagedObject
                 
                 // set resourceID
-                managedObject?.setValue(resourceID, forKey: self.resourceIDAttributeName)
+                managedObject!.setValue(resourceID, forKey: self.resourceIDAttributeName)
                 
                 // set values
                 if initialValues != nil {
                     
-                    for (key, value) in initialValues! {
-                        
-                        // Core Data cannot hold NSNull
-                        if let null = value as? NSNull {
-                            
-                            managedObject!.setValue(nil, forKey: key)
-                        }
-                        else {
-                            managedObject!.setValue(value, forKey: key)
-                        }
-                    }
+                    managedObject!.setValuesForKeysWithDictionary(initialValues!, fromManagedObjectContext: self.privateQueueManagedObjectContext)
                 }
                 
                 // set date cached
@@ -449,17 +439,7 @@ public class Store {
                 let contextResource = self.privateQueueManagedObjectContext.objectWithID(managedObject.objectID)
                 
                 // set values
-                for (key, value) in changes {
-                    
-                    // Core Data cannot hold NSNull
-                    if let null = value as? NSNull {
-                        
-                        contextResource.setValue(nil, forKey: key)
-                    }
-                    else {
-                        contextResource.setValue(value, forKey: key)
-                    }
-                }
+                contextResource.setValuesForKeysWithDictionary(changes, fromManagedObjectContext: self.privateQueueManagedObjectContext)
                 
                 // set date cached
                 self.didCacheManagedObject(contextResource)
@@ -1319,11 +1299,11 @@ private extension NSEntityDescription {
                 // to-many relationship
                 else {
                     
-                    let destinationResources = value as? NSSet
+                    let destinationResources = value as NSSet
                     
                     var destinationResourceIDs = [UInt]()
                     
-                    for destinationResource in destinationResources!.allObjects as [NSManagedObject] {
+                    for destinationResource in destinationResources.allObjects as [NSManagedObject] {
                         
                         let destinationResourceID = destinationResource.valueForKey(resourceIDAttributeName) as UInt
                         
@@ -1336,6 +1316,90 @@ private extension NSEntityDescription {
         }
         
         return jsonObject
+    }
+}
+
+private extension NSManagedObject {
+    
+    func setValuesForKeysWithDictionary(keyedValues: [String : AnyObject], fromManagedObjectContext managedObjectContext: NSManagedObjectContext) {
+        
+        if self.managedObjectContext != nil {
+            
+            assert(self.managedObjectContext == managedObjectContext, "reciever does not belong to the provided managedObjectContext")
+        }
+        
+        // make sure relationship values are from managed object context
+        
+        var newValues = [String: AnyObject]()
+        
+        for (key, value) in keyedValues {
+            
+            if let relationship = self.entity.relationshipsByName[key] as? NSRelationshipDescription {
+                
+                // to-one relationships
+                if !relationship.toMany {
+                    
+                    let managedObject = managedObjectContext.objectWithID((value as NSManagedObject).objectID)
+                    
+                    newValues[key] = managedObject
+                }
+                    
+                // to-many relationship
+                else {
+                    
+                    var newRelationshipValues = [NSManagedObject]()
+                    
+                    var arrayValue: [NSManagedObject] = {
+                       
+                        // set NSSet or NSOrderedSet (which unforunately is not a subclass), also accept NSArray as a convenience
+                        
+                        if value is [NSManagedObject] {
+                            
+                            return value as [NSManagedObject]
+                        }
+                        
+                        if let set = value as? NSSet {
+                            
+                            return set.allObjects as [NSManagedObject]
+                        }
+                        
+                        if let orderedSet = value as? NSOrderedSet {
+                            
+                            return orderedSet.array as [NSManagedObject]
+                        }
+                        
+                        NSException(name: NSInternalInconsistencyException, reason: "Provided value \(value) for Core Data to-many relationship is not an accepted collection type", userInfo: nil)
+                        
+                        return []
+                    }()
+                    
+                    // get values belonging to managed object context
+                    
+                    for destinationManagedObject in arrayValue {
+                        
+                        let managedObject = managedObjectContext.objectWithID(destinationManagedObject.objectID)
+                        
+                        newRelationshipValues.append(managedObject)
+                    }
+                    
+                    // convert back to NSSet or NSOrderedSet
+                    
+                    if relationship.ordered {
+                        
+                        newValues[key] = NSOrderedSet(array: newRelationshipValues)
+                    }
+                    else {
+                        
+                        newValues[key] = NSSet(array: newRelationshipValues)
+                    }
+                }
+            }
+            
+            else {
+                
+                newValues[key] = value
+            }
+        }
     }
 }
 
