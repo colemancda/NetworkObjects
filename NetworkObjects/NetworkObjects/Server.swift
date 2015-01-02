@@ -1823,7 +1823,7 @@ public class Server {
                     }
                     
                     // pointer
-                    var newValuePointer: AnyObject? = newValue as AnyObject?
+                    var newValuePointer: AnyObject? = NSSet(array: newValue) as AnyObject?
                     
                     // must be a valid value
                     if !resource.validateValue(&newValuePointer, forKey: key, error: nil) {
@@ -1831,7 +1831,7 @@ public class Server {
                         return ServerStatusCode.BadRequest
                     }
                     
-                    newValues[key] = newValue
+                    newValues[key] = newValuePointer
                 }
             }
             
