@@ -634,7 +634,7 @@ public class Server {
                     }
                     
                     // not found
-                    if fetchResult.count != jsonPredicateValue?.count {
+                    if fetchResult!.count != jsonPredicateValue?.count {
                         
                         let response = ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil)
                         
@@ -1475,14 +1475,14 @@ public class Server {
             result = context.executeFetchRequest(fetchRequest, error: &error) as? [NSManagedObject]
         }
         
-        return (result!.first, error)
+        return (result?.first, error)
     }
     
-    private func fetchEntity(entity: NSEntityDescription, withResourceIDs resourceIDs: [UInt], usingContext context: NSManagedObjectContext, shouldPrefetch: Bool) -> ([NSManagedObject], NSError?) {
+    private func fetchEntity(entity: NSEntityDescription, withResourceIDs resourceIDs: [UInt], usingContext context: NSManagedObjectContext, shouldPrefetch: Bool) -> ([NSManagedObject]?, NSError?) {
         
         let fetchRequest = NSFetchRequest(entityName: entity.name!)
         
-        fetchRequest.fetchLimit = 1
+        fetchRequest.fetchLimit = resourceIDs.count
         
         fetchRequest.predicate = NSComparisonPredicate(leftExpression: NSExpression(forKeyPath: self.resourceIDAttributeName), rightExpression: NSExpression(forConstantValue: resourceIDs), modifier: NSComparisonPredicateModifier.DirectPredicateModifier, type: NSPredicateOperatorType.InPredicateOperatorType, options: NSComparisonPredicateOptions.NormalizedPredicateOption)
         
@@ -1504,7 +1504,7 @@ public class Server {
             result = context.executeFetchRequest(fetchRequest, error: &error) as? [NSManagedObject]
         }
         
-        return (result!, error)
+        return (result, error)
         
     }
     
@@ -1803,14 +1803,14 @@ public class Server {
                     
                     // make sure all the values are present and have the correct permissions...
                     
-                    if newValue.count != destinationResourceIDs?.count {
+                    if newValue!.count != destinationResourceIDs?.count {
                         
                         return ServerStatusCode.BadRequest
                     }
                     
                     for destinationResourceID in destinationResourceIDs! {
                         
-                        let destinationResource = newValue[find(destinationResourceIDs!, destinationResourceID)!]
+                        let destinationResource = newValue![find(destinationResourceIDs!, destinationResourceID)!]
                         
                         // destination resource must be visible
                         if self.permissionsEnabled {
@@ -1823,7 +1823,7 @@ public class Server {
                     }
                     
                     // pointer
-                    var newValuePointer: AnyObject? = NSSet(array: newValue) as AnyObject?
+                    var newValuePointer: AnyObject? = NSSet(array: newValue!) as AnyObject?
                     
                     // must be a valid value
                     if !resource.validateValue(&newValuePointer, forKey: key, error: nil) {
