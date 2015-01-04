@@ -546,9 +546,9 @@ public class Server {
             var value: AnyObject?
             
             // one of these will be nil
-            let relationshipDescription: NSRelationshipDescription? = entity.relationshipsByName[predicateKey!] as? NSRelationshipDescription
+            let relationshipDescription = entity.relationshipsByName[predicateKey!] as? NSRelationshipDescription
             
-            let attributeDescription: NSRelationshipDescription? = entity.attributesByName[predicateKey!] as? NSRelationshipDescription
+            let attributeDescription = entity.attributesByName[predicateKey!] as? NSRelationshipDescription
             
             // validate that key is attribute or relationship
             if (relationshipDescription == nil) && (attributeDescription == nil) {
@@ -581,7 +581,7 @@ public class Server {
                         return (response, userInfo)
                     }
                     
-                    let (fetchedResource, error) = self.fetchEntity(entity, withResourceID: resourceID!, usingContext: context, shouldPrefetch: false)
+                    let (fetchedResource, error) = self.fetchEntity(relationshipDescription!.destinationEntity!, withResourceID: resourceID!, usingContext: context, shouldPrefetch: false)
                     
                     // error fetching
                     if error != nil {
@@ -620,7 +620,7 @@ public class Server {
                         return (response, userInfo)
                     }
                     
-                    let (fetchResult, error) = self.fetchEntity(entity, withResourceIDs: resourceIDs!, usingContext: context, shouldPrefetch: false)
+                    let (fetchResult, error) = self.fetchEntity(relationshipDescription!.destinationEntity!, withResourceIDs: resourceIDs!, usingContext: context, shouldPrefetch: false)
                     
                     // error fetching
                     if error != nil {
@@ -660,7 +660,7 @@ public class Server {
                 
                 // validate NSUInteger bitmask
                 
-                if optionNumber == nil || optionNumber != NSComparisonPredicateOptions.NormalizedPredicateOption.rawValue || optionNumber != NSComparisonPredicateOptions.DiacriticInsensitivePredicateOption.rawValue || optionNumber != NSComparisonPredicateOptions.CaseInsensitivePredicateOption.rawValue {
+                if optionNumber == nil || (optionNumber != NSComparisonPredicateOptions.NormalizedPredicateOption.rawValue && optionNumber != NSComparisonPredicateOptions.DiacriticInsensitivePredicateOption.rawValue && optionNumber != NSComparisonPredicateOptions.CaseInsensitivePredicateOption.rawValue) {
                     
                     let response = ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil)
                     
@@ -1224,9 +1224,7 @@ public class Server {
         // set new values from dictionary
         context.performBlockAndWait({ () -> Void in
             
-            managedObject?.setValuesForKeysWithDictionary(newValues)
-            
-            return
+            managedObject!.setValuesForKeysWithDictionary(newValues)
         })
         
         // perform Core Data validation (to make sure there will be no errors saving)
