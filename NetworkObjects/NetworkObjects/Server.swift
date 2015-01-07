@@ -1621,14 +1621,24 @@ public class Server {
                 // to-many relationship
                 else {
                     
-                    // get destination collection
-                    
-                    if let toManyRelationship = managedObject.valueForKey(relationshipName) as? [NSManagedObject] {
+                    // only add if value is present
+                    if let relationshipValue = managedObject.valueForKey(relationshipName) {
+                        
+                        // get destination collection
+                        
+                        let arrayValue: [NSManagedObject] = {
+                            
+                            if relationshipDescription.ordered {
+                                
+                                let orderedSet =
+                            }
+                            
+                        }()
                         
                         // only add resources that are visible
                         var resourceIDs = [UInt]()
                         
-                        for destinationResource in toManyRelationship {
+                        for destinationResource in arrayValue {
                             
                             if self.delegate?.server(self, permissionForRequest: request, managedObject: destinationResource, context: context, key: nil).rawValue >= ServerPermission.ReadOnly.rawValue {
                                 
@@ -2125,6 +2135,33 @@ internal extension NSManagedObjectModel {
                 entity.properties.append(resourceIDAttribute)
             }
         }
+    }
+}
+
+internal extension NSManagedObject {
+    
+    /** Get an array from a to-many relationship. */
+    func arrayValueForToManyRelationship(toManyRelationship key: String) -> [NSManagedObject] {
+        
+        // assert existence of relationship
+        assert(self.entity.relationshipsByName[key] as? NSRelationshipDescription != nil, "Relationship \(key) doesnt exist on \(self.entity.name)")
+        
+        // get relationship
+        let relationship = self.entity.relationshipsByName[key] as NSRelationshipDescription
+        
+        // assert that relationship is to-many
+        assert(relationship.toMany, "Relationship \(key) on \(self.entity.name) is not to-many")
+        
+        if relationship.ordered {
+            
+            let orderedSet = self.valueForKey(key) as NSOrderedSet
+            
+            return orderedSet.array as [NSManagedObject]
+        }
+        
+        let set = self.valueForKey(key) as NSSet
+        
+        return set.allObjects  as [NSManagedObject]
     }
 }
 
