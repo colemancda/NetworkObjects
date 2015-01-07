@@ -1530,33 +1530,34 @@ public class Server {
             if !relationshipDescription.toMany {
                 
                 // get destination resource
-                let destinationResource = managedObject.valueForKey(relationshipName) as NSManagedObject
-                
-                // get resource ID
-                let destinationResourceID = destinationResource.valueForKey(self.resourceIDAttributeName) as UInt
-                
-                // add to JSON object
-                jsonObject[relationshipName] = destinationResourceID
+                if let destinationResource = managedObject.valueForKey(relationshipName) as? NSManagedObject {
+                    
+                    // get resource ID
+                    let destinationResourceID = destinationResource.valueForKey(self.resourceIDAttributeName) as UInt
+                    
+                    // add to JSON object
+                    jsonObject[relationshipName] = destinationResourceID
+                }
             }
-                
+            
             // to-many relationship
             else {
                 
-                // get destination collection
-                let toManyRelationship = managedObject.valueForKey(relationshipName) as [NSManagedObject]
-                
-                // get resource IDs
-                var resourceIDs = [UInt]()
-                
-                for destinationResource in toManyRelationship {
+                if let arrayValue = managedObject.arrayValueForToManyRelationship(toManyRelationship: relationshipName) {
                     
-                    let destinationResourceID = destinationResource.valueForKey(self.resourceIDAttributeName) as UInt
+                    // get resource IDs
+                    var resourceIDs = [UInt]()
                     
-                    resourceIDs.append(destinationResourceID)
+                    for destinationResource in arrayValue {
+                        
+                        let destinationResourceID = destinationResource.valueForKey(self.resourceIDAttributeName) as UInt
+                        
+                        resourceIDs.append(destinationResourceID)
+                    }
+                    
+                    // add to jsonObject
+                    jsonObject[relationshipName] = resourceIDs
                 }
-                
-                // add to jsonObject
-                jsonObject[relationshipName] = resourceIDs
             }
         }
         
@@ -1622,18 +1623,7 @@ public class Server {
                 else {
                     
                     // only add if value is present
-                    if let relationshipValue = managedObject.valueForKey(relationshipName) {
-                        
-                        // get destination collection
-                        
-                        let arrayValue: [NSManagedObject] = {
-                            
-                            if relationshipDescription.ordered {
-                                
-                                let orderedSet =
-                            }
-                            
-                        }()
+                    if let arrayValue = managedObject.arrayValueForToManyRelationship(toManyRelationship: relationshipName) {
                         
                         // only add resources that are visible
                         var resourceIDs = [UInt]()
@@ -2141,7 +2131,7 @@ internal extension NSManagedObjectModel {
 internal extension NSManagedObject {
     
     /** Get an array from a to-many relationship. */
-    func arrayValueForToManyRelationship(toManyRelationship key: String) -> [NSManagedObject] {
+    func arrayValueForToManyRelationship(toManyRelationship key: String) -> [NSManagedObject]? {
         
         // assert existence of relationship
         assert(self.entity.relationshipsByName[key] as? NSRelationshipDescription != nil, "Relationship \(key) doesnt exist on \(self.entity.name)")
@@ -2152,14 +2142,21 @@ internal extension NSManagedObject {
         // assert that relationship is to-many
         assert(relationship.toMany, "Relationship \(key) on \(self.entity.name) is not to-many")
         
+        let value: AnyObject? = self.valueForKey(key)
+        
+        if value == nil {
+            
+            return nil
+        }
+        
         if relationship.ordered {
             
-            let orderedSet = self.valueForKey(key) as NSOrderedSet
+            let orderedSet = value as NSOrderedSet
             
             return orderedSet.array as [NSManagedObject]
         }
         
-        let set = self.valueForKey(key) as NSSet
+        let set = value as NSSet
         
         return set.allObjects  as [NSManagedObject]
     }
