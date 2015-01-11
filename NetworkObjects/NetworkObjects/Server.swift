@@ -533,9 +533,9 @@ public class Server {
         
         if (predicateKey != nil) && (predicateOperator != nil) && (jsonPredicateValue != nil) {
             
-            // validate operator
+            // validate operator (cant be CustomSelectorPredicateOperatorType)
             
-            if predicateOperatorNumber == NSPredicateOperatorType.CustomSelectorPredicateOperatorType.rawValue {
+            if predicateOperator == NSPredicateOperatorType.CustomSelectorPredicateOperatorType {
                 
                 let response = ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil)
                 
@@ -571,17 +571,31 @@ public class Server {
                 // to-one
                 if !relationshipDescription!.toMany {
                     
-                    let resourceID = jsonPredicateValue as? UInt
+                    let resourceDictionary = jsonPredicateValue as? [String: UInt]
                     
                     // verify
-                    if resourceID == nil {
+                    if resourceDictionary == nil || resourceDictionary?.count != 1  {
                         
                         let response = ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil)
                         
                         return (response, userInfo)
                     }
                     
-                    let (fetchedResource, error) = self.fetchEntity(relationshipDescription!.destinationEntity!, withResourceID: resourceID!, usingContext: context, shouldPrefetch: false)
+                    let resourceID = resourceDictionary!.values.first!
+                    
+                    let resourceEntityName = resourceDictionary!.keys.first!
+                    
+                    let resourceEntity = self.managedObjectModel.entitiesByName[resourceEntityName] as? NSEntityDescription
+                    
+                    // verify
+                    if resourceEntity == nil || !(resourceEntity?.isKindOfEntity(relationshipDescription!.destinationEntity!) ?? true) {
+                        
+                        let response = ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil)
+                        
+                        return (response, userInfo)
+                    }
+                    
+                    let (fetchedResource, error) = self.fetchEntity(resourceEntity!, withResourceID: resourceID, usingContext: context, shouldPrefetch: false)
                     
                     // error fetching
                     if error != nil {
@@ -609,40 +623,68 @@ public class Server {
                 // to-many relationships
                 else {
                     
-                    let resourceIDs = jsonPredicateValue as? [UInt]
+                    let resourceDictionaries = jsonPredicateValue as? [[String: UInt]]
                     
                     // verify
-                    
-                    if resourceIDs == nil {
+                    if resourceDictionaries == nil {
                         
                         let response = ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil)
                         
                         return (response, userInfo)
                     }
                     
-                    let (fetchResult, error) = self.fetchEntity(relationshipDescription!.destinationEntity!, withResourceIDs: resourceIDs!, usingContext: context, shouldPrefetch: false)
+                    var fetchedManagedObjects = [NSManagedObject]()
                     
-                    // error fetching
-                    if error != nil {
+                    for resourceDictionary in resourceDictionaries! {
                         
-                        // tell delegate
-                        self.delegate?.server(self, didEncounterInternalError: error!, forRequest: request, userInfo: userInfo)
+                        // verify
+                        if resourceDictionary.count != 1  {
+                            
+                            let response = ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil)
+                            
+                            return (response, userInfo)
+                        }
                         
-                        let response = ServerResponse(statusCode: ServerStatusCode.InternalServerError, JSONResponse: nil)
+                        let resourceID = resourceDictionary.values.first!
                         
-                        return (response, userInfo)
-                    }
-                    
-                    // not found
-                    if fetchResult!.count != jsonPredicateValue?.count {
+                        let resourceEntityName = resourceDictionary.keys.first!
                         
-                        let response = ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil)
+                        let resourceEntity = self.managedObjectModel.entitiesByName[resourceEntityName] as? NSEntityDescription
                         
-                        return (response, userInfo)
+                        // verify
+                        if resourceEntity == nil || !(resourceEntity?.isKindOfEntity(relationshipDescription!.destinationEntity!) ?? true)  {
+                            
+                            let response = ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil)
+                            
+                            return (response, userInfo)
+                        }
+                        
+                        let (fetchedResource, error) = self.fetchEntity(resourceEntity!, withResourceID: resourceID, usingContext: context, shouldPrefetch: false)
+                        
+                        // error fetching
+                        if error != nil {
+                            
+                            // tell delegate
+                            self.delegate?.server(self, didEncounterInternalError: error!, forRequest: request, userInfo: userInfo)
+                            
+                            let response = ServerResponse(statusCode: ServerStatusCode.InternalServerError, JSONResponse: nil)
+                            
+                            return (response, userInfo)
+                        }
+                        
+                        // not found
+                        if fetchedResource == nil {
+                            
+                            let response = ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil)
+                            
+                            return (response, userInfo)
+                        }
+                        
+                        fetchedManagedObjects.append(fetchedResource!)
                     }
                     
                     // set value
-                    value = fetchResult
+                    value = fetchedManagedObjects
                 }
             }
             
