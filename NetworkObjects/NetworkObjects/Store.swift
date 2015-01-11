@@ -1254,6 +1254,16 @@ public class Store {
             }
         }
         
+        // set nil for values that were not included
+        for property in managedObject.entity.properties {
+            
+            // no key-value pair found
+            if JSONObject[property.name!] == nil {
+                
+                managedObject.setValue(nil, forKey: property.name!)
+            }
+        }
+        
         return nil
     }
 }
