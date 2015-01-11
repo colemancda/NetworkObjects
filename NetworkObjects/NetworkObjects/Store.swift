@@ -1293,21 +1293,36 @@ private extension NSEntityDescription {
                     
                     let destinationResourceID = destinationResource.valueForKey(resourceIDAttributeName) as UInt
                     
-                    jsonObject[key] = destinationResourceID
+                    jsonObject[key] = [destinationResource.entity.name!: destinationResourceID]
                 }
                 
                 // to-many relationship
                 else {
                     
-                    let destinationResources = value as NSSet
+                    let destinationResources: [NSManagedObject] = {
+                       
+                        // ordered set
+                        if relationship!.ordered {
+                            
+                            let orderedSet = value as NSOrderedSet
+                            
+                            return orderedSet.array as [NSManagedObject]
+                        }
+                        
+                        // set
+                        let set = value as NSSet
+                        
+                        return set.allObjects as [NSManagedObject]
+                        
+                    }()
                     
-                    var destinationResourceIDs = [UInt]()
+                    var destinationResourceIDs = [[String: UInt]]()
                     
-                    for destinationResource in destinationResources.allObjects as [NSManagedObject] {
+                    for destinationResource in destinationResources {
                         
                         let destinationResourceID = destinationResource.valueForKey(resourceIDAttributeName) as UInt
                         
-                        destinationResourceIDs.append(destinationResourceID)
+                        destinationResourceIDs.append([destinationResource.entity.name!: destinationResourceID])
                     }
                     
                     jsonObject[key] = destinationResourceIDs
