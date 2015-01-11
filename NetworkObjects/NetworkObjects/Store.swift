@@ -1175,8 +1175,17 @@ public class Store {
                 if !relationship!.toMany {
                     
                     // get the resourceID
-                    let destinationResourceID = jsonValue as UInt
+                    let destinationResourceDictionary = jsonValue as [String: UInt]
                     
+                    // get key and value
+                    
+                    let destinationResourceEntityName = destinationResourceDictionary.keys.first!
+                    
+                    let destinationResourceID = destinationResourceDictionary.values.first!
+                    
+                    let destinationEntity = self.managedObjectModel.entitiesByName[destinationResourceEntityName] as NSEntityDescription
+                    
+                    // fetch
                     let (destinationResource, error) = self.findOrCreateEntity(destinationEntity, withResourceID: destinationResourceID, context: context)
                     
                     // halt execution if error
@@ -1197,13 +1206,21 @@ public class Store {
                     
                     // get the resourceIDs
                     
-                    let destinationResourceIDs = jsonValue as [UInt]
+                    let destinationResourceIDs = jsonValue as [[String: UInt]]
                     
-                    let currentValues = managedObject.valueForKey(key)! as NSSet
+                    let currentValues: AnyObject? = managedObject.valueForKey(key)
                     
-                    let destinationResources = NSMutableSet()
+                    var newDestinationResources = [NSManagedObject]()
                     
-                    for destinationResourceID in destinationResourceIDs {
+                    for destinationResourceDictionary in destinationResourceIDs {
+                        
+                        // get key and value
+                        
+                        let destinationResourceEntityName = destinationResourceDictionary.keys.first!
+                        
+                        let destinationResourceID = destinationResourceDictionary.values.first!
+                        
+                        let destinationEntity = self.managedObjectModel.entitiesByName[destinationResourceEntityName] as NSEntityDescription
                         
                         let (destinationResource, error) = self.findOrCreateEntity(destinationEntity, withResourceID: destinationResourceID, context: context)
                         
@@ -1213,13 +1230,25 @@ public class Store {
                             return error
                         }
                         
-                        destinationResources.addObject(destinationResources)
+                        newDestinationResources.append(destinationResource!)
                     }
                     
-                    // set value if not current value
-                    if !destinationResources.isEqualToSet(currentValues) {
+                    // convert back to NSSet or NSOrderedSet
+                    
+                    var newValue: AnyObject = {
                         
-                        managedObject.setValue(destinationResources, forKey: key)
+                        if relationship!.ordered {
+                            
+                            return NSOrderedSet(array: newDestinationResources)
+                        }
+                        
+                        return NSSet(array: newDestinationResources)
+                    }()
+                    
+                    // set value if not current value
+                    if !newValue.isEqual(currentValues) {
+                        
+                        managedObject.setValue(newValue, forKey: key)
                     }
                 }
             }
