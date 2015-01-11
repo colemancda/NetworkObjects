@@ -1360,9 +1360,11 @@ public class Server {
         
         var validCoreData: Bool = false
         
+        var deletionError: NSError?
+        
         context.performBlockAndWait({ () -> Void in
             
-            validCoreData = managedObject!.validateForDelete(nil)
+            validCoreData = managedObject!.validateForDelete(&deletionError)
         })
         
         // invalid (e.g. non-optional property is nil)
