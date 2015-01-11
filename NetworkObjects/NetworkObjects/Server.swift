@@ -1740,15 +1740,36 @@ public class Server {
                 // to-one relationship
                 if !relationship!.toMany {
                     
-                    // must be number
-                    let destinationResourceID = jsonValue as? UInt
+                    // must be dictionary
+                    let destinationResourceDictionary = jsonValue as? [String: UInt]
                     
-                    if destinationResourceID == nil {
+                    if destinationResourceDictionary == nil {
                         
                         return ServerStatusCode.BadRequest
                     }
                     
-                    let (newValue, error) = self.fetchEntity(relationship!.destinationEntity!, withResourceID: destinationResourceID!, usingContext: context, shouldPrefetch: false)
+                    // resource dictionary must have 1 value-key pair
+                    
+                    if destinationResourceDictionary!.count != 1 {
+                        
+                        return ServerStatusCode.BadRequest
+                    }
+                    
+                    // get key and value
+                    
+                    let destinationResourceEntityName = destinationResourceDictionary!.keys.first!
+                    
+                    let destinationResourceID = destinationResourceDictionary!.values.first!
+                    
+                    let destinationEntity = self.managedObjectModel.entitiesByName[destinationResourceEntityName] as? NSEntityDescription
+                    
+                    // verify that entity is subentity
+                    if (destinationEntity == nil) || !(destinationEntity?.isKindOfEntity(relationship!.destinationEntity!) ?? true) {
+                        
+                        return ServerStatusCode.BadRequest
+                    }
+                    
+                    let (newValue, error) = self.fetchEntity(destinationEntity!, withResourceID: destinationResourceID, usingContext: context, shouldPrefetch: false)
                     
                     if error != nil {
                         
@@ -1763,7 +1784,7 @@ public class Server {
                     // destination resource must be visible
                     if self.permissionsEnabled {
                         
-                        if self.delegate?.server(self, permissionForRequest: request, managedObject: resource, context: context, key: nil).rawValue < ServerPermission.ReadOnly.rawValue {
+                        if self.delegate?.server(self, permissionForRequest: request, managedObject: newValue, context: context, key: nil).rawValue < ServerPermission.ReadOnly.rawValue {
                             
                             return ServerStatusCode.Forbidden
                         }
@@ -1784,40 +1805,63 @@ public class Server {
                 // to-many relationship
                 else {
                     
-                    // must be array of numbers
-                    let destinationResourceIDs = jsonValue as? [UInt]
+                    // must be array of dictionaries
+                    let destinationResourceIDs = jsonValue as? [[String: UInt]]
                     
                     if destinationResourceIDs == nil {
                         
                         return ServerStatusCode.BadRequest
                     }
                     
-                    let (newValue, error) = self.fetchEntity(relationship!.destinationEntity!, withResourceIDs: destinationResourceIDs!, usingContext: context, shouldPrefetch: false)
+                    // verify dictionaries in array and create new value array
                     
-                    if error != nil {
+                    var newArrayValue = [NSManagedObject]()
+                    
+                    for destinationResourceDictionary in destinationResourceIDs! {
                         
-                        return ServerStatusCode.InternalServerError
-                    }
-                    
-                    // make sure all the values are present and have the correct permissions...
-                    
-                    if newValue!.count != destinationResourceIDs?.count {
+                        // resource dictionary must have 1 value-key pair
+                        if destinationResourceDictionary.count != 1 {
+                            
+                            return ServerStatusCode.BadRequest
+                        }
                         
-                        return ServerStatusCode.BadRequest
-                    }
-                    
-                    for destinationResourceID in destinationResourceIDs! {
+                        // get key and value
                         
-                        let destinationResource = newValue![find(destinationResourceIDs!, destinationResourceID)!]
+                        let destinationResourceEntityName = destinationResourceDictionary.keys.first!
+                        
+                        let destinationResourceID = destinationResourceDictionary.values.first!
+                        
+                        let destinationEntity = self.managedObjectModel.entitiesByName[destinationResourceEntityName] as? NSEntityDescription
+                        
+                        // verify that entity is subentity
+                        if (destinationEntity == nil) || !(destinationEntity?.isKindOfEntity(relationship!.destinationEntity!) ?? true) {
+                            
+                            return ServerStatusCode.BadRequest
+                        }
+                        
+                        let (newValue, error) = self.fetchEntity(destinationEntity!, withResourceID: destinationResourceID, usingContext: context, shouldPrefetch: false)
+                        
+                        if error != nil {
+                            
+                            return ServerStatusCode.InternalServerError
+                        }
+                        
+                        if newValue == nil {
+                            
+                            return ServerStatusCode.Forbidden
+                        }
                         
                         // destination resource must be visible
                         if self.permissionsEnabled {
                             
-                            if self.delegate?.server(self, permissionForRequest: request, managedObject: resource, context: context, key: nil).rawValue < ServerPermission.ReadOnly.rawValue {
+                            if self.delegate?.server(self, permissionForRequest: request, managedObject: newValue, context: context, key: nil).rawValue < ServerPermission.ReadOnly.rawValue {
                                 
                                 return ServerStatusCode.Forbidden
                             }
                         }
+                        
+                        // add to new value array
+                        newArrayValue.append(newValue!)
                     }
                     
                     // pointer
