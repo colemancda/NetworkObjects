@@ -1536,23 +1536,23 @@ public class Server {
                     let destinationResourceID = destinationResource.valueForKey(self.resourceIDAttributeName) as UInt
                     
                     // add to JSON object
-                    jsonObject[relationshipName] = destinationResourceID
+                    jsonObject[relationshipName] = [destinationResource.entity.name!: destinationResourceID]
                 }
             }
             
             // to-many relationship
             else {
                 
-                if let arrayValue = managedObject.arrayValueForToManyRelationship(toManyRelationship: relationshipName) {
+                if let arrayValue = managedObject.arrayValueForToManyRelationship(relationship: relationshipName) {
                     
                     // get resource IDs
-                    var resourceIDs = [UInt]()
+                    var resourceIDs = [[String: UInt]]()
                     
                     for destinationResource in arrayValue {
                         
                         let destinationResourceID = destinationResource.valueForKey(self.resourceIDAttributeName) as UInt
                         
-                        resourceIDs.append(destinationResourceID)
+                        resourceIDs.append([destinationResource.entity.name!: destinationResourceID])
                     }
                     
                     // add to jsonObject
@@ -1614,7 +1614,7 @@ public class Server {
                             let destinationResourceID = destinationResource.valueForKey(self.resourceIDAttributeName) as UInt
                             
                             // add to JSON object
-                            jsonObject[relationshipName] = destinationResourceID
+                            jsonObject[relationshipName] = [destinationResource.entity.name!: destinationResourceID]
                         }
                     }
                 }
@@ -1623,10 +1623,10 @@ public class Server {
                 else {
                     
                     // only add if value is present
-                    if let arrayValue = managedObject.arrayValueForToManyRelationship(toManyRelationship: relationshipName) {
+                    if let arrayValue = managedObject.arrayValueForToManyRelationship(relationship: relationshipName) {
                         
                         // only add resources that are visible
-                        var resourceIDs = [UInt]()
+                        var resourceIDs = [[String: UInt]]()
                         
                         for destinationResource in arrayValue {
                             
@@ -1635,7 +1635,7 @@ public class Server {
                                 // get destination resource ID
                                 let destinationResourceID = destinationResource.valueForKey(self.resourceIDAttributeName) as UInt
                                 
-                                resourceIDs.append(destinationResourceID)
+                                resourceIDs.append([destinationResource.entity.name!: destinationResourceID])
                             }
                         }
                         
@@ -2131,9 +2131,9 @@ internal extension NSManagedObjectModel {
 internal extension NSManagedObject {
     
     /** Get an array from a to-many relationship. */
-    func arrayValueForToManyRelationship(toManyRelationship key: String) -> [NSManagedObject]? {
+    func arrayValueForToManyRelationship(relationship key: String) -> [NSManagedObject]? {
         
-        // assert existence of relationship
+        // assert relationship exists
         assert(self.entity.relationshipsByName[key] as? NSRelationshipDescription != nil, "Relationship \(key) doesnt exist on \(self.entity.name)")
         
         // get relationship
@@ -2149,16 +2149,18 @@ internal extension NSManagedObject {
             return nil
         }
         
+        // ordered set
         if relationship.ordered {
             
             let orderedSet = value as NSOrderedSet
             
-            return orderedSet.array as [NSManagedObject]
+            return orderedSet.array as? [NSManagedObject]
         }
         
+        // set
         let set = value as NSSet
         
-        return set.allObjects  as [NSManagedObject]
+        return set.allObjects  as? [NSManagedObject]
     }
 }
 
