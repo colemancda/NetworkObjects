@@ -1650,6 +1650,7 @@ public class Server {
         return jsonObject
     }
     
+    /** Verifies the JSON values and converts them to Core Data equivalents. */
     private func verifyEditResource(resource: NSManagedObject, forRequest request:ServerRequest, context: NSManagedObjectContext, inout newValues: [String: AnyObject], error: NSErrorPointer) -> ServerStatusCode {
         
         let recievedJsonObject = request.JSONObject!
@@ -1864,16 +1865,26 @@ public class Server {
                         newArrayValue.append(newValue!)
                     }
                     
-                    // pointer
-                    var newValuePointer: AnyObject? = NSSet(array: newValue!) as AnyObject?
+                    // convert back to NSSet or NSOrderedSet
+                    
+                    var newValue: AnyObject?
+                    
+                    if relationship!.ordered {
+                        
+                        newValue = NSOrderedSet(array: newArrayValue)
+                    }
+                    else {
+                        
+                        newValue = NSSet(array: newArrayValue)
+                    }
                     
                     // must be a valid value
-                    if !resource.validateValue(&newValuePointer, forKey: key, error: nil) {
+                    if !resource.validateValue(&newValue, forKey: key, error: nil) {
                         
                         return ServerStatusCode.BadRequest
                     }
                     
-                    newValues[key] = newValuePointer
+                    newValues[key] = newValue
                 }
             }
             
@@ -2169,42 +2180,6 @@ internal extension NSManagedObjectModel {
                 entity.properties.append(resourceIDAttribute)
             }
         }
-    }
-}
-
-internal extension NSManagedObject {
-    
-    /** Get an array from a to-many relationship. */
-    func arrayValueForToManyRelationship(relationship key: String) -> [NSManagedObject]? {
-        
-        // assert relationship exists
-        assert(self.entity.relationshipsByName[key] as? NSRelationshipDescription != nil, "Relationship \(key) doesnt exist on \(self.entity.name)")
-        
-        // get relationship
-        let relationship = self.entity.relationshipsByName[key] as NSRelationshipDescription
-        
-        // assert that relationship is to-many
-        assert(relationship.toMany, "Relationship \(key) on \(self.entity.name) is not to-many")
-        
-        let value: AnyObject? = self.valueForKey(key)
-        
-        if value == nil {
-            
-            return nil
-        }
-        
-        // ordered set
-        if relationship.ordered {
-            
-            let orderedSet = value as NSOrderedSet
-            
-            return orderedSet.array as? [NSManagedObject]
-        }
-        
-        // set
-        let set = value as NSSet
-        
-        return set.allObjects  as? [NSManagedObject]
     }
 }
 
