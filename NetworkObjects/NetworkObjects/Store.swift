@@ -1257,10 +1257,23 @@ public class Store {
         // set nil for values that were not included
         for property in managedObject.entity.properties {
             
-            // no key-value pair found
-            if JSONObject[property.name!] == nil {
+            let key = property.name!
+            
+            // omit resourceID attribute and dateCached
+            if key == self.resourceIDAttributeName || key == self.dateCachedAttributeName {
                 
-                managedObject.setValue(nil, forKey: property.name!)
+                // skip
+                continue
+            }
+            
+            // no key-value pair found
+            if JSONObject[key] == nil {
+                
+                // only set nil if non-nil, don't wanna fire off notifications
+                if managedObject.valueForKey(key) != nil {
+                    
+                    managedObject.setValue(nil, forKey: key)
+                }
             }
         }
         
