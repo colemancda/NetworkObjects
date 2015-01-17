@@ -1,3 +1,6 @@
 *.xcuserstate
 
 *.xcbkptlist
+
+NetworkObjects/NetworkObjects.xcodeproj/xcuserdata/*
+NetworkObjects/NetworkObjects.xcodeproj/xcuserdata/Coleman.xcuserdatad/xcschemes/xcschememanagement.plist
