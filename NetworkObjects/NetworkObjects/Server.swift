@@ -1357,15 +1357,19 @@ public class Server {
         }
         
         // perform Core Data validation (to make sure there will be no errors saving)
-        
-        var validCoreData: Bool = false
-        
-        var deletionError: NSError?
-        
-        context.performBlockAndWait({ () -> Void in
+        let (validCoreData: Bool, deletionError: NSError?) = {
             
-            validCoreData = managedObject!.validateForDelete(&deletionError)
-        })
+            var validCoreData: Bool!
+            
+            var deletionError: NSError?
+            
+            context.performBlockAndWait({ () -> Void in
+                
+                validCoreData = managedObject!.validateForDelete(&deletionError)
+            })
+            
+            return (validCoreData, deletionError)
+        }()
         
         // invalid (e.g. non-optional property is nil)
         if !validCoreData {
@@ -1376,7 +1380,6 @@ public class Server {
         }
         
         // delete...
-        
         context.performBlockAndWait { () -> Void in
             
             context.deleteObject(managedObject!)
