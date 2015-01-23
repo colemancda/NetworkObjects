@@ -11,10 +11,10 @@ The Server class, as its name implies, broadcasts a Core Data managed object con
 |--------|------------------|-----------------|---------------------|
 |POST    |/entityName		|Yes              |Yes (ResourceID Only)|
 |GET     |/entityName/id	|No               |Yes                  |
-|PUT     |/entityName/id	|Yes              |Yes (ResourceID Only)|
+|PUT     |/entityName/id	|Yes              |No                   |
 |DELETE  |/entityName/id	|No               |No                   |
 
-The JSON recieved from the server follows the following schema:
+The JSON recieved from or sent to the server follows the following schema:
 
 ```
 {
