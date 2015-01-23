@@ -7,12 +7,35 @@ NetworkObjects is a distributed object graph inspired by Apple's WebObjects. Thi
 
 The Server class, as its name implies, broadcasts a Core Data managed object context over the network (via HTTP) in way that it can be incrementally accessed and modified. It will also ask the data source to keep track of unique identifiers (unsigned integer) assigned to an instance of an entity. This will create a schema as follows:
 
-|Method  |URL							|
-|--------|----------------|
-|POST    |/entityName			|
-|GET     |/entityName/id	|
-|PUT     |/entityName/id	|
-|DELETE  |/entityName/id	|
+|Method  |URL				|JSON Request Body|JSON Response Body   |
+|--------|------------------|-----------------|---------------------|
+|POST    |/entityName		|Yes              |Yes (ResourceID Only)|
+|GET     |/entityName/id	|No               |Yes                  |
+|PUT     |/entityName/id	|Yes              |Yes (ResourceID Only)|
+|DELETE  |/entityName/id	|No               |No                   |
+
+The JSON recieved from the server follows the following schema:
+
+```
+{
+    "attributeName": attributeValue,
+    "toOneRelationshipName": {"DestinationEntityName": resourceID}
+    "toManyRelationshipName": [{"DestinationEntityName": resourceID1}, {"DestinationEntityName": resourceID2}, ...]
+}
+```
+
+Nil values are ommited from the JSON Body in GET responses. In PUT or POST requests it is represented by the JSON null type.
+
+Attribute Values are converted in the following way:
+
+|CoreData Value|JSON Value    |
+|--------------|--------------|
+|String        |String        |
+|Number        |Number        |
+|Date          |ISO8601 String|
+|Data          |Base64 String |
+|Transformable |Base64 String |
+|Nil           |Null (PUT, POST), Ommited from JSON body in GET|
 
 Optionally the Server can create function and search URLs for special requests
 
