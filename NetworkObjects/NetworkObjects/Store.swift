@@ -27,7 +27,7 @@ public class Store {
     /** The name of the Integer attribute that holds that resource identifier. */
     public let resourceIDAttributeName: String
     
-    /** The path that the NetworkObjects server uses for search requests. If not specified, doing a search request will produce an error. */
+    /** The path that the NetworkObjects server uses for search requests. If not specified, doing a search request will produce an exception. */
     public var searchPath: String?
     
     /** This setting determines whether JSON requests made to the server will contain whitespace or not. */
@@ -90,6 +90,8 @@ public class Store {
     
     /** Performs a search request on the server. The supplied fetch request's predicate must be a NSComparisonPredicate instance. */
     public func performSearch(fetchRequest: NSFetchRequest, URLSession: NSURLSession = NSURLSession.sharedSession(), completionBlock: ((error: NSError?, results: [NSManagedObject]?) -> Void)) -> NSURLSessionDataTask {
+        
+        assert(self.searchPath != nil, "Cannot perform searches when searchPath is nil")
         
         // build JSON request from fetch request
         
