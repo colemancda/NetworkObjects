@@ -9,7 +9,7 @@ The Server class, as its name implies, broadcasts a Core Data managed object con
 
 |Method  |URL				|JSON Request Body|JSON Response Body   |
 |--------|------------------|-----------------|---------------------|
-|POST    |/entityName		|Yes              |Yes (ResourceID Only)|
+|POST    |/entityName		|Yes (Optional)   |Yes (ResourceID Only)|
 |GET     |/entityName/id	|No               |Yes                  |
 |PUT     |/entityName/id	|Yes              |No                   |
 |DELETE  |/entityName/id	|No               |No                   |
