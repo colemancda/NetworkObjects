@@ -61,7 +61,7 @@ public class Store {
             self.prettyPrintJSON = prettyPrintJSON
             self.resourceIDAttributeName = resourceIDAttributeName
             self.dateCachedAttributeName = dateCachedAttributeName
-            self.managedObjectModel = managedObjectModel
+            self.managedObjectModel = managedObjectModel.copy() as NSManagedObjectModel
             
             // edit model
             
@@ -81,6 +81,7 @@ public class Store {
             
             self.privateQueueManagedObjectContext.undoManager = nil
             self.privateQueueManagedObjectContext.persistentStoreCoordinator = self.managedObjectContext.persistentStoreCoordinator
+            self.privateQueueManagedObjectContext.name = "NetworkObjects.Store Private Managed Object Context"
             
             // listen for notifications (for merging changes)
             NSNotificationCenter.defaultCenter().addObserver(self, selector: "mergeChangesFromContextDidSaveNotification:", name: NSManagedObjectContextDidSaveNotification, object: self.privateQueueManagedObjectContext)
