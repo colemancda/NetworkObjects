@@ -77,7 +77,7 @@ public class Store {
             // setup managed object contexts
             self.managedObjectContext = NSManagedObjectContext(concurrencyType: managedObjectContextConcurrencyType)
             self.managedObjectContext.undoManager = nil
-            self.managedObjectContext.persistentStoreCoordinator = NSPersistentStoreCoordinator(managedObjectModel: managedObjectModel)
+            self.managedObjectContext.persistentStoreCoordinator = NSPersistentStoreCoordinator(managedObjectModel: self.managedObjectModel)
             
             self.privateQueueManagedObjectContext.undoManager = nil
             self.privateQueueManagedObjectContext.persistentStoreCoordinator = self.managedObjectContext.persistentStoreCoordinator
