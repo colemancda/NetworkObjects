@@ -607,14 +607,6 @@ public class Store {
     
     // MARK: - Private Methods
     
-    @objc private func mergeChangesFromContextDidSaveNotification(notification: NSNotification) {
-        
-        self.managedObjectContext.performBlock { () -> Void in
-            
-            self.managedObjectContext.mergeChangesFromContextDidSaveNotification(notification)
-        }
-    }
-    
     private func jsonWritingOption() -> NSJSONWritingOptions {
         
         if self.prettyPrintJSON {
@@ -625,6 +617,16 @@ public class Store {
         else {
             
             return NSJSONWritingOptions.allZeros
+        }
+    }
+    
+    // MARK: Notifications
+    
+    @objc private func mergeChangesFromContextDidSaveNotification(notification: NSNotification) {
+        
+        self.managedObjectContext.performBlock { () -> Void in
+            
+            self.managedObjectContext.mergeChangesFromContextDidSaveNotification(notification)
         }
     }
     
