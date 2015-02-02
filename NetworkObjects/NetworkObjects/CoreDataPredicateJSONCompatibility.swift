@@ -22,10 +22,13 @@ internal extension NSComparisonPredicate {
         
         var jsonObject = [String: AnyObject]()
         
+        // set keyPath
         jsonObject[SearchComparisonPredicateParameter.Key.rawValue] = self.leftExpression.keyPath
         
+        
+        
         // convert from Core Data to JSON
-        let jsonValue: AnyObject? = fetchRequest.entity!.JSONObjectFromCoreDataValues([predicate!.leftExpression.keyPath: predicate!.rightExpression.constantValue], usingResourceIDAttributeName: self.resourceIDAttributeName).values.first
+        let jsonValue: AnyObject? = fetchRequest.entity!.JSONObjectFromCoreDataValues([predicate!.leftExpression.keyPath: predicate!.rightExpression.constantValue], usingResourceIDAttributeName: resourceIDAttributeName).values.first
         
         jsonObject[SearchComparisonPredicateParameter.Value.rawValue] = jsonValue
         
