@@ -1,5 +1,5 @@
 //
-//  CoreDataJSONCompatibility.swift
+//  CoreDataAttributeJSONCompatibility.swift
 //  NetworkObjects
 //
 //  Created by Alsey Coleman Miller on 9/14/14.
@@ -295,7 +295,7 @@ internal extension NSEntityDescription {
     }
 }
 
-// MARK: - Extensions
+// MARK: - Private Extensions
 
 private extension NSDate {
     

@@ -2093,11 +2093,7 @@ public enum ServerUserInfoKey: String {
 /** Defines the different search parameters */
 public enum SearchParameter: String {
     
-    case PredicateKey = "Predicate"
-    case PredicateValue = "PredicateValue"
-    case PredicateOperator = "PredicateOperator"
-    case PredicateOption = "PredicateOption"
-    case PredicateModifier = "PredicateModifier"
+    case Predicate = "Predicate"
     case FetchLimit = "FetchLimit"
     case FetchOffset = "FetchOffset"
     case IncludesSubentities = "IncludesSubentities"
