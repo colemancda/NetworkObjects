@@ -2088,16 +2088,6 @@ public enum ServerUserInfoKey: String {
     case FunctionJSONOutput = "FunctionJSONOutput"
 }
 
-/** Defines the different search parameters */
-public enum SearchParameter: String {
-    
-    case Predicate = "Predicate"
-    case FetchLimit = "FetchLimit"
-    case FetchOffset = "FetchOffset"
-    case IncludesSubentities = "IncludesSubentities"
-    case SortDescriptors = "SortDescriptors"
-}
-
 /** These are HTTP status codes used with NOServer instances. */
 public enum ServerStatusCode: Int {
     
