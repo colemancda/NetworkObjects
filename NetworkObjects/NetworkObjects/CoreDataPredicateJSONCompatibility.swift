@@ -78,9 +78,26 @@ extension NSCompoundPredicate {
     }
 }
 
-// MARK: Functions
+// MARK: Enumeration Extensions
 
-func SearchComparisonPredicateOptionsToNSComparisonPredicateOptions(comparisonPredicateOptions: [SearchComparisonPredicateOption]) -> NSComparisonPredicateOptions {
+public extension NSComparisonPredicateOptions {
+    
+    public init(searchComparisonPredicateOptions: [SearchComparisonPredicateOption]) {
+        
+        var rawOptionValue: UInt = NSComparisonPredicateOptions.allZeros.rawValue
+        
+        for option in comparisonPredicateOptions {
+            
+            let convertedOption = option.toComparisonPredicateOptions()
+            
+            rawOptionValue = rawOptionValue | convertedOption.rawValue
+        }
+    }
+}
+
+// MARK: - Functions
+
+public func NSComparisonPredicateOptionsFromSearchComparisonPredicateOptions(comparisonPredicateOptions: [SearchComparisonPredicateOption]) -> NSComparisonPredicateOptions {
     
     var rawOptionValue: UInt = NSComparisonPredicateOptions.allZeros.rawValue
     
@@ -92,6 +109,44 @@ func SearchComparisonPredicateOptionsToNSComparisonPredicateOptions(comparisonPr
     }
     
     return NSComparisonPredicateOptions(rawOptionValue)
+}
+
+public func SearchComparisonPredicateOptionsFromNSComparisonPredicateOptions(comparisonPredicateOptions: NSComparisonPredicateOptions) -> [SearchComparisonPredicateOption]? {
+    
+    if comparisonPredicateOptions.rawValue == NSComparisonPredicateOptions.allZeros.rawValue {
+        
+        return nil
+    }
+    
+    var searchComparisonPredicateOptions = [SearchComparisonPredicateOption]()
+    
+    let possibleValues: [UInt] = [NSComparisonPredicateOptions.CaseInsensitivePredicateOption.rawValue,
+        NSComparisonPredicateOptions.DiacriticInsensitivePredicateOption.rawValue,
+        NSComparisonPredicateOptions.NormalizedPredicateOption.rawValue,
+        0x08 /* LocalizedOption [l] */]
+    
+    for value in possibleValues {
+        
+        // check if raw value contains case
+        if (comparisonPredicateOptions.rawValue & value) != 0 {
+            
+            let option: SearchComparisonPredicateOption? = {
+                
+                switch value {
+                    case
+                }
+                
+            }()
+            
+            assert(option != nil, "NS_OPTION type NSComparisonPredicateOptions contains unknown raw value")
+            
+            searchComparisonPredicateOptions.append(option!)
+        }
+    }
+    
+    assert(searchComparisonPredicateOptions.count != 0, "NS_OPTION type NSComparisonPredicateOptions contains unknown raw value \()")
+    
+    return searchComparisonPredicateOptions
 }
 
 // MARK: - Enumerations
@@ -187,14 +242,30 @@ public enum SearchComparisonPredicateOption: String {
         case .LocaleSensitive: return NSComparisonPredicateOptions(rawValue: 0x08)
         }
     }
-    
-    public init?(comparisonPredicateOptionsValue: NSComparisonPredicateOptions) {
-        
-        
-    }
 }
 
-public enum
+public enum SearchComparisonPredicateModifier: String {
+    
+    case Direct = "DIRECT"
+    case All = "ANY"
+    case Any = "ALL"
+    
+    public func toComparisonPredicateModifier() -> NSComparisonPredicateModifier {
+        switch self {
+        case .Direct: return .DirectPredicateModifier
+        case .All: return .AllPredicateModifier
+        case .Any: return .AnyPredicateModifier
+        }
+    }
+    
+    public init(comparisonPredicateModifierValue: NSComparisonPredicateModifier) {
+        switch comparisonPredicateModifierValue {
+        case .DirectPredicateModifier: self = .Direct
+        case .AnyPredicateModifier: self = .Any
+        case .AllPredicateModifier: self = .All
+        }
+    }
+}
 
 // MARK: - Compound Predicate
 
