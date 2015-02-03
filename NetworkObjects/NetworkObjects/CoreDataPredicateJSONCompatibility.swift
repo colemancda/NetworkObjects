@@ -40,13 +40,62 @@ extension NSComparisonPredicate {
         var jsonObject = [String: AnyObject]()
         
         // set primitive parameters
-        jsonObject[SearchComparisonPredicateParameter.Operator.rawValue] = predicateOperatorType.rawValue
-        jsonObject[SearchComparisonPredicateParameter.Option.rawValue] = options.rawValue
-        jsonObject[SearchComparisonPredicateParameter.Modifier.rawValue] = comparisonPredicateModifier.rawValue
+        jsonObject[SearchComparisonPredicateParameter.Operator.rawValue] = SearchComparisonPredicateOperator(predicateOperatorTypeValue: predicateOperatorType)!.rawValue
+        jsonObject[SearchComparisonPredicateParameter.Modifier.rawValue] = SearchComparisonPredicateModifier(comparisonPredicateModifierValue: comparisonPredicateModifier).rawValue
         
-        // set expressions
-        jsonObject[SearchComparisonPredicateParameter.LeftExpression.rawValue] = leftExpression.toJSON(entity: entity, managedObjectContext: managedObjectContext, resourceIDAttributeName: resourceIDAttributeName)
-        jsonObject[SearchComparisonPredicateParameter.RightExpression.rawValue] = rightExpression.toJSON(entity: entity,managedObjectContext: managedObjectContext, resourceIDAttributeName: resourceIDAttributeName)
+        // array of options or nil
+        jsonObject[SearchComparisonPredicateParameter.Options.rawValue] = {
+           
+            let searchOptions = self.options.toSearchComparisonPredicateOptions()
+            
+            if searchOptions == nil {
+                
+                return nil
+            }
+            
+            var rawValues = [String]()
+            
+            for option in searchOptions! {
+                
+                rawValues.append(option.rawValue)
+            }
+            
+            return rawValues
+        }()
+        
+        // set key
+        let key = leftExpression.keyPath
+        jsonObject[SearchComparisonPredicateParameter.Key.rawValue] = key
+        
+        // convert value...
+        let constantValue: AnyObject = rightExpression.constantValue
+        
+        let jsonValue: AnyObject = {
+           
+            // managed object
+            if let managedObject = constantValue as? NSManagedObject {
+                
+                let resourceID: UInt = {
+                   
+                    var resourceID: UInt!
+                    managedObjectContext.performBlockAndWait({ () -> Void in
+                        
+                        resourceID = managedObject.valueForKey(resourceIDAttributeName) as UInt
+                    })
+                    return resourceID
+                }()
+                
+                // resource representation
+                return [managedObject.entity.name!: resourceID]
+            }
+            
+            // attribute value
+            
+            
+        }()
+        
+        // set value
+        jsonObject[SearchComparisonPredicateParameter.Value.rawValue] = jsonValue
         
         return jsonObject
     }
