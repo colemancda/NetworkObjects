@@ -78,63 +78,20 @@ extension NSCompoundPredicate {
     }
 }
 
-extension NSExpression {
+// MARK: Functions
+
+func SearchComparisonPredicateOptionsToNSComparisonPredicateOptions(comparisonPredicateOptions: [SearchComparisonPredicateOption]) -> NSComparisonPredicateOptions {
     
-    func toJSON(#entity: NSEntityDescription, managedObjectContext: NSManagedObjectContext, resourceIDAttributeName: String, key: String?) -> [String : AnyObject] {
+    var rawOptionValue: UInt = NSComparisonPredicateOptions.allZeros.rawValue
+    
+    for option in comparisonPredicateOptions {
         
-        var jsonObject = [String: AnyObject]()
+        let convertedOption = option.toComparisonPredicateOptions()
         
-        // set expression type
-        let searchExpressionType = SearchExpressionType(expressionTypeValue: self.expressionType)
-        
-        if searchExpressionType == nil {
-            
-            NSException(name: NSInternalInconsistencyException, reason: "Invalid expressionType value (\(self.expressionType))", userInfo: nil).raise()
-        }
-        
-        jsonObject[SearchExpressionParameter.ExpressionType.rawValue] = searchExpressionType!.rawValue
-        
-        // set value...
-        let jsonValue: AnyObject? = {
-            
-            switch searchExpressionType! {
-            case .AnyKey:
-                return nil
-                
-            case .Key:
-                return self.keyPath
-                
-            case .ConstantValue:
-                // convert constant value to JSON
-                
-                // entity
-                if let managedObject = self.constantValue as? NSManagedObject {
-                    
-                    // convert to JSON...
-                    let resourceID: UInt = {
-                       
-                        var resourceID: UInt!
-                        
-                        managedObjectContext.performBlockAndWait({ () -> Void in
-                            
-                            resourceID = managedObjectContext.valueForKey(resourceIDAttributeName) as UInt
-                        })
-                        
-                        return resourceID
-                    }()
-                    
-                    return [managedObject.entity.name!: resourceID]
-                }
-                
-                // attribute value
-                return entity.JSONCompatibleValueForAttributeValue(self.constantValue, forAttribute: <#String#>)!
-            }
-        }()
-        
-        jsonObject[SearchExpressionParameter.Value.rawValue] = jsonValue
-        
-        return jsonObject
+        rawOptionValue = rawOptionValue | convertedOption.rawValue
     }
+    
+    return NSComparisonPredicateOptions(rawOptionValue)
 }
 
 // MARK: - Enumerations
@@ -157,7 +114,7 @@ public enum SearchComparisonPredicateParameter: String {
     case Key = "Key"
     case Value = "Value"
     case Operator = "Operator"
-    case Option = "Option"
+    case Options = "Options"
     case Modifier = "Modifier"
 }
 
@@ -214,6 +171,30 @@ public enum SearchComparisonPredicateOperator: String {
         }
     }
 }
+
+public enum SearchComparisonPredicateOption: String {
+    
+    case CaseInsensitive = "[c]"
+    case DiacriticInsensitive = "[d]"
+    case Normalized = "[n]"
+    case LocaleSensitive = "[l]"
+    
+    public func toComparisonPredicateOptions() -> NSComparisonPredicateOptions {
+        switch self {
+        case .CaseInsensitive: return .CaseInsensitivePredicateOption
+        case .DiacriticInsensitive: return .DiacriticInsensitivePredicateOption
+        case .Normalized: return .NormalizedPredicateOption
+        case .LocaleSensitive: return NSComparisonPredicateOptions(rawValue: 0x08)
+        }
+    }
+    
+    public init?(comparisonPredicateOptionsValue: NSComparisonPredicateOptions) {
+        
+        
+    }
+}
+
+public enum
 
 // MARK: - Compound Predicate
 
