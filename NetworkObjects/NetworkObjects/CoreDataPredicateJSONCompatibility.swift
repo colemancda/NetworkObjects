@@ -11,9 +11,26 @@ import CoreData
 
 // MARK: - Internal Extensions
 
-internal extension NSComparisonPredicate {
+extension NSPredicate {
     
-    func toJSON(managedObjectContext: NSManagedObjectContext, resourceIDAttributeName: String) -> [String: AnyObject]? {
+    func toJSON(managedObjectContext: NSManagedObjectContext, resourceIDAttributeName: String) -> [String : AnyObject] {
+        
+        NSException(name: NSInternalInconsistencyException, reason: "NSPredicate cannot be converted to JSON, only its subclasses", userInfo: nil).raise()
+        
+        return [String: AnyObject]()
+    }
+    
+    convenience init?(JSONObject: [String: AnyObject]) {
+        
+        self.init(format: "")
+        
+        return nil
+    }
+}
+
+extension NSComparisonPredicate {
+    
+    override func toJSON(managedObjectContext: NSManagedObjectContext, resourceIDAttributeName: String) -> [String: AnyObject] {
         
         if self.predicateOperatorType == NSPredicateOperatorType.CustomSelectorPredicateOperatorType {
             
@@ -22,21 +39,50 @@ internal extension NSComparisonPredicate {
         
         var jsonObject = [String: AnyObject]()
         
-        // set keyPath
-        jsonObject[SearchComparisonPredicateParameter.Key.rawValue] = self.leftExpression.keyPath
+        // set primitive parameters
+        jsonObject[SearchComparisonPredicateParameter.Operator.rawValue] = predicateOperatorType.rawValue
+        jsonObject[SearchComparisonPredicateParameter.Option.rawValue] = options.rawValue
+        jsonObject[SearchComparisonPredicateParameter.Modifier.rawValue] = comparisonPredicateModifier.rawValue
+        
+        // set expressions
+        jsonObject[SearchComparisonPredicateParameter.LeftExpression.rawValue] = leftExpression.toJSON(managedObjectContext, resourceIDAttributeName: resourceIDAttributeName)
+        jsonObject[SearchComparisonPredicateParameter.RightExpression.rawValue] = rightExpression.toJSON(managedObjectContext, resourceIDAttributeName: resourceIDAttributeName)
+        
+        return jsonObject
+    }
+    
+}
+
+extension NSCompoundPredicate {
+    
+    override func toJSON(managedObjectContext: NSManagedObjectContext, resourceIDAttributeName: String) -> [String: AnyObject] {
+        
+        var jsonObject = [String: AnyObject]()
+        
+        // compound type is string
+        jsonObject[SearchCompoundPredicateParameter.PredicateType.rawValue] = SearchCompoundPredicateType(compoundPredicateTypeValue: self.compoundPredicateType).rawValue
+        
+        var subpredicateJSONArray = [[String: AnyObject]]()
+        
+        for predicate in self.subpredicates as [NSPredicate] {
+            
+            let predicateJSONObject = predicate.toJSON(managedObjectContext, resourceIDAttributeName: resourceIDAttributeName)
+            
+            subpredicateJSONArray.append(predicateJSONObject)
+        }
+        
+        // set subpredicates
+        jsonObject[SearchCompoundPredicateParameter.Subpredicates.rawValue] = subpredicateJSONArray
+        
+        return jsonObject
+    }
+}
+
+extension NSExpression {
+    
+    func toJSON(managedObjectContext: NSManagedObjectContext, resourceIDAttributeName: String) -> [String : AnyObject] {
         
         
-        
-        // convert from Core Data to JSON
-        let jsonValue: AnyObject? = fetchRequest.entity!.JSONObjectFromCoreDataValues([predicate!.leftExpression.keyPath: predicate!.rightExpression.constantValue], usingResourceIDAttributeName: resourceIDAttributeName).values.first
-        
-        jsonObject[SearchComparisonPredicateParameter.Value.rawValue] = jsonValue
-        
-        jsonObject[SearchComparisonPredicateParameter.Operator.rawValue] = predicate?.predicateOperatorType.rawValue
-        
-        jsonObject[SearchComparisonPredicateParameter.Option.rawValue] = predicate?.options.rawValue
-        
-        jsonObject[SearchComparisonPredicateParameter.Modifier.rawValue] = predicate?.comparisonPredicateModifier.rawValue
     }
 }
 
@@ -55,9 +101,75 @@ public enum SearchPredicateType: String {
 /** The parameters for a comparison predicate. */
 public enum SearchComparisonPredicateParameter: String {
     
-    case Key = "Key"
-    case Value = "Value"
+    case LeftExpression = "LeftExpression"
+    case RightExpression = "RightExpression"
     case Operator = "Operator"
     case Option = "Option"
     case Modifier = "Modifier"
+}
+
+/** The parameters for a compound predicate. */
+public enum SearchCompoundPredicateParameter: String {
+    
+    case PredicateType = "PredicateType"
+    case Subpredicates = "Subpredicates"
+}
+
+/** Type of compound predicate. */
+public enum SearchCompoundPredicateType: String {
+    
+    case Not = "Not"
+    case And = "And"
+    case Or = "Or"
+    
+    public init(compoundPredicateTypeValue: NSCompoundPredicateType) {
+        switch compoundPredicateTypeValue {
+        case .NotPredicateType: self = .Not
+        case .AndPredicateType: self = .And
+        case .OrPredicateType: self = .Or
+        }
+    }
+    
+    public func toCompoundPredicateType() -> NSCompoundPredicateType {
+        switch self {
+        case .Not: return .NotPredicateType
+        case .And: return .AndPredicateType
+        case .Or: return .OrPredicateType
+        }
+    }
+}
+
+/** The parameters for a search expression. */
+public enum SearchExpressionParameter: String {
+    
+    case ExpressionType = "ExpressionType"
+    case Value = "Value"
+}
+
+/** Search expression type. */
+public enum SearchExpressionType: String {
+    
+    case ConstantValue = "ConstantValue"
+    case AnyKey = "AnyKey"
+    case Key = "Key"
+    
+    public func toExpressionType() -> NSExpressionType {
+        switch self {
+        case .ConstantValue: return .ConstantValueExpressionType
+        case .AnyKey: return .AnyKeyExpressionType
+        case .Key: return .KeyPathExpressionType
+        }
+    }
+    
+    public init?(expressionTypeValue: NSExpressionType) {
+        
+        switch expressionTypeValue {
+            
+        case .ConstantValueExpressionType: self = .ConstantValue
+        case .AnyKeyExpressionType: self = .AnyKey
+        case .KeyPathExpressionType: self = .Key
+            
+        default: return nil
+        }
+    }
 }
