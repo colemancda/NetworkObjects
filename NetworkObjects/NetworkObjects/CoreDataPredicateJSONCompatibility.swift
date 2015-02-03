@@ -13,7 +13,7 @@ import CoreData
 
 extension NSPredicate {
     
-    func toJSON(managedObjectContext: NSManagedObjectContext, resourceIDAttributeName: String) -> [String : AnyObject] {
+    func toJSON(#entity: NSEntityDescription, managedObjectContext: NSManagedObjectContext, resourceIDAttributeName: String) -> [String : AnyObject] {
         
         NSException(name: NSInternalInconsistencyException, reason: "NSPredicate cannot be converted to JSON, only its subclasses", userInfo: nil).raise()
         
@@ -30,7 +30,7 @@ extension NSPredicate {
 
 extension NSComparisonPredicate {
     
-    override func toJSON(managedObjectContext: NSManagedObjectContext, resourceIDAttributeName: String) -> [String: AnyObject] {
+    override func toJSON(#entity: NSEntityDescription, managedObjectContext: NSManagedObjectContext, resourceIDAttributeName: String) -> [String: AnyObject] {
         
         if self.predicateOperatorType == NSPredicateOperatorType.CustomSelectorPredicateOperatorType {
             
@@ -45,8 +45,8 @@ extension NSComparisonPredicate {
         jsonObject[SearchComparisonPredicateParameter.Modifier.rawValue] = comparisonPredicateModifier.rawValue
         
         // set expressions
-        jsonObject[SearchComparisonPredicateParameter.LeftExpression.rawValue] = leftExpression.toJSON(managedObjectContext, resourceIDAttributeName: resourceIDAttributeName)
-        jsonObject[SearchComparisonPredicateParameter.RightExpression.rawValue] = rightExpression.toJSON(managedObjectContext, resourceIDAttributeName: resourceIDAttributeName)
+        jsonObject[SearchComparisonPredicateParameter.LeftExpression.rawValue] = leftExpression.toJSON(entity: entity, managedObjectContext: managedObjectContext, resourceIDAttributeName: resourceIDAttributeName)
+        jsonObject[SearchComparisonPredicateParameter.RightExpression.rawValue] = rightExpression.toJSON(entity: entity,managedObjectContext: managedObjectContext, resourceIDAttributeName: resourceIDAttributeName)
         
         return jsonObject
     }
@@ -55,7 +55,7 @@ extension NSComparisonPredicate {
 
 extension NSCompoundPredicate {
     
-    override func toJSON(managedObjectContext: NSManagedObjectContext, resourceIDAttributeName: String) -> [String: AnyObject] {
+    override func toJSON(#entity: NSEntityDescription, managedObjectContext: NSManagedObjectContext, resourceIDAttributeName: String) -> [String: AnyObject] {
         
         var jsonObject = [String: AnyObject]()
         
@@ -66,7 +66,7 @@ extension NSCompoundPredicate {
         
         for predicate in self.subpredicates as [NSPredicate] {
             
-            let predicateJSONObject = predicate.toJSON(managedObjectContext, resourceIDAttributeName: resourceIDAttributeName)
+            let predicateJSONObject = predicate.toJSON(entity: entity, managedObjectContext: managedObjectContext, resourceIDAttributeName: resourceIDAttributeName)
             
             subpredicateJSONArray.append(predicateJSONObject)
         }
@@ -80,9 +80,60 @@ extension NSCompoundPredicate {
 
 extension NSExpression {
     
-    func toJSON(managedObjectContext: NSManagedObjectContext, resourceIDAttributeName: String) -> [String : AnyObject] {
+    func toJSON(#entity: NSEntityDescription, managedObjectContext: NSManagedObjectContext, resourceIDAttributeName: String, oppositeExpression) -> [String : AnyObject] {
         
+        var jsonObject = [String: AnyObject]()
         
+        // set expression type
+        let searchExpressionType = SearchExpressionType(expressionTypeValue: self.expressionType)
+        
+        if searchExpressionType == nil {
+            
+            NSException(name: NSInternalInconsistencyException, reason: "Invalid expressionType value (\(self.expressionType))", userInfo: nil).raise()
+        }
+        
+        jsonObject[SearchExpressionParameter.ExpressionType.rawValue] = searchExpressionType!.rawValue
+        
+        // set value...
+        let jsonValue: AnyObject? = {
+            
+            switch searchExpressionType! {
+            case .AnyKey:
+                return nil
+                
+            case .Key:
+                return self.keyPath
+                
+            case .ConstantValue:
+                // convert constant value to JSON
+                
+                // entity
+                if let managedObject = self.constantValue as? NSManagedObject {
+                    
+                    // convert to JSON...
+                    let resourceID: UInt = {
+                       
+                        var resourceID: UInt!
+                        
+                        managedObjectContext.performBlockAndWait({ () -> Void in
+                            
+                            resourceID = managedObjectContext.valueForKey(resourceIDAttributeName) as UInt
+                        })
+                        
+                        return resourceID
+                    }()
+                    
+                    return [managedObject.entity.name!: resourceID]
+                }
+                
+                // attribute value
+                return entity.JSONCompatibleValueForAttributeValue(self.constantValue, forAttribute: <#String#>)!
+            }
+        }()
+        
+        jsonObject[SearchExpressionParameter.Value.rawValue] = jsonValue
+        
+        return jsonObject
     }
 }
 
