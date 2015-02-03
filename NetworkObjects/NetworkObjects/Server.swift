@@ -514,11 +514,9 @@ public class Server {
         
         // MARK: Predicate
         
-        let predicateKeyObject: AnyObject? = searchParameters![SearchParameter.PredicateKey.rawValue]
+        let predicateDictionary = searchParameters![SearchParameter.Predicate.rawValue] as [String: AnyObject]
         
-        let predicateKey = predicateKeyObject as? String
-        
-        let jsonPredicateValue: AnyObject? = searchParameters![SearchParameter.PredicateValue.rawValue]
+        let predicate = predicateKeyObject as? [String: AnyObject]
         
         let predicateOperatorObject: AnyObject? = searchParameters![SearchParameter.PredicateOperator.rawValue]
         
@@ -2098,7 +2096,6 @@ public enum SearchParameter: String {
     case FetchOffset = "FetchOffset"
     case IncludesSubentities = "IncludesSubentities"
     case SortDescriptors = "SortDescriptors"
-    
 }
 
 /** These are HTTP status codes used with NOServer instances. */

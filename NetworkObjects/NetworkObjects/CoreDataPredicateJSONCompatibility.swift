@@ -9,6 +9,66 @@
 import Foundation
 import CoreData
 
+// MARK: - Extensions
+
+// MARK: - Enumeration Extensions
+
+public extension NSComparisonPredicateOptions {
+    
+    public init(searchComparisonPredicateOptions: [SearchComparisonPredicateOption]) {
+        
+        var rawOptionValue: UInt = NSComparisonPredicateOptions.allZeros.rawValue
+        
+        for option in searchComparisonPredicateOptions {
+            
+            let convertedOption = option.toComparisonPredicateOption()
+            
+            rawOptionValue = rawOptionValue | convertedOption.rawValue
+        }
+        
+        self = NSComparisonPredicateOptions(rawValue: rawOptionValue)
+    }
+    
+    public func toSearchComparisonPredicateOptions() -> [SearchComparisonPredicateOption]? {
+        
+        if self.rawValue == NSComparisonPredicateOptions.allZeros.rawValue {
+            
+            return nil
+        }
+        
+        var searchComparisonPredicateOptions = [SearchComparisonPredicateOption]()
+        
+        let possibleValues: [UInt] = [NSComparisonPredicateOptions.CaseInsensitivePredicateOption.rawValue,
+            NSComparisonPredicateOptions.DiacriticInsensitivePredicateOption.rawValue,
+            NSComparisonPredicateOptions.NormalizedPredicateOption.rawValue,
+            0x08 /* LocaleSensitive [l] */]
+        
+        for value in possibleValues {
+            
+            // check if raw value contains case
+            if (self.rawValue & value) != 0 {
+                
+                let option: SearchComparisonPredicateOption = {
+                    switch value {
+                    case possibleValues[0]: return .CaseInsensitive
+                    case possibleValues[1]: return .DiacriticInsensitive
+                    case possibleValues[2]: return .Normalized
+                    case possibleValues[3]: return .LocaleSensitive
+                    default:
+                        return SearchComparisonPredicateOption(rawValue: "")!
+                    }
+                    }()
+                
+                searchComparisonPredicateOptions.append(option)
+            }
+        }
+        
+        assert(searchComparisonPredicateOptions.count != 0, "NS_OPTION type NSComparisonPredicateOptions with raw value \(self.rawValue) could not be converted to SearchComparisonPredicateOption even though its rawValue was not zero")
+        
+        return searchComparisonPredicateOptions
+    }
+}
+
 // MARK: - Internal Extensions
 
 extension NSPredicate {
@@ -97,64 +157,6 @@ extension NSCompoundPredicate {
         jsonObject[SearchCompoundPredicateParameter.Subpredicates.rawValue] = subpredicateJSONArray
         
         return jsonObject
-    }
-}
-
-// MARK: Enumeration Extensions
-
-public extension NSComparisonPredicateOptions {
-    
-    public init(searchComparisonPredicateOptions: [SearchComparisonPredicateOption]) {
-        
-        var rawOptionValue: UInt = NSComparisonPredicateOptions.allZeros.rawValue
-        
-        for option in searchComparisonPredicateOptions {
-            
-            let convertedOption = option.toComparisonPredicateOption()
-            
-            rawOptionValue = rawOptionValue | convertedOption.rawValue
-        }
-        
-        self = NSComparisonPredicateOptions(rawValue: rawOptionValue)
-    }
-    
-    public func toSearchComparisonPredicateOptions() -> [SearchComparisonPredicateOption]? {
-        
-        if self.rawValue == NSComparisonPredicateOptions.allZeros.rawValue {
-            
-            return nil
-        }
-        
-        var searchComparisonPredicateOptions = [SearchComparisonPredicateOption]()
-        
-        let possibleValues: [UInt] = [NSComparisonPredicateOptions.CaseInsensitivePredicateOption.rawValue,
-            NSComparisonPredicateOptions.DiacriticInsensitivePredicateOption.rawValue,
-            NSComparisonPredicateOptions.NormalizedPredicateOption.rawValue,
-            0x08 /* LocaleSensitive [l] */]
-        
-        for value in possibleValues {
-            
-            // check if raw value contains case
-            if (self.rawValue & value) != 0 {
-                
-                let option: SearchComparisonPredicateOption = {
-                    switch value {
-                    case possibleValues[0]: return .CaseInsensitive
-                    case possibleValues[1]: return .DiacriticInsensitive
-                    case possibleValues[2]: return .Normalized
-                    case possibleValues[3]: return .LocaleSensitive
-                    default:
-                        return SearchComparisonPredicateOption(rawValue: "")!
-                    }
-                }()
-                
-                searchComparisonPredicateOptions.append(option)
-            }
-        }
-        
-        assert(searchComparisonPredicateOptions.count != 0, "NS_OPTION type NSComparisonPredicateOptions with raw value \(self.rawValue) could not be converted to SearchComparisonPredicateOption even though its rawValue was not zero")
-        
-        return searchComparisonPredicateOptions
     }
 }
 
