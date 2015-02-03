@@ -86,67 +86,52 @@ public extension NSComparisonPredicateOptions {
         
         var rawOptionValue: UInt = NSComparisonPredicateOptions.allZeros.rawValue
         
-        for option in comparisonPredicateOptions {
+        for option in searchComparisonPredicateOptions {
             
-            let convertedOption = option.toComparisonPredicateOptions()
+            let convertedOption = option.toComparisonPredicateOption()
             
             rawOptionValue = rawOptionValue | convertedOption.rawValue
         }
-    }
-}
-
-// MARK: - Functions
-
-public func NSComparisonPredicateOptionsFromSearchComparisonPredicateOptions(comparisonPredicateOptions: [SearchComparisonPredicateOption]) -> NSComparisonPredicateOptions {
-    
-    var rawOptionValue: UInt = NSComparisonPredicateOptions.allZeros.rawValue
-    
-    for option in comparisonPredicateOptions {
         
-        let convertedOption = option.toComparisonPredicateOptions()
-        
-        rawOptionValue = rawOptionValue | convertedOption.rawValue
+        self = self.dynamicType(rawValue: rawOptionValue)
     }
     
-    return NSComparisonPredicateOptions(rawOptionValue)
-}
-
-public func SearchComparisonPredicateOptionsFromNSComparisonPredicateOptions(comparisonPredicateOptions: NSComparisonPredicateOptions) -> [SearchComparisonPredicateOption]? {
-    
-    if comparisonPredicateOptions.rawValue == NSComparisonPredicateOptions.allZeros.rawValue {
+    public func toSearchComparisonPredicateOptions() -> [SearchComparisonPredicateOption]? {
         
-        return nil
-    }
-    
-    var searchComparisonPredicateOptions = [SearchComparisonPredicateOption]()
-    
-    let possibleValues: [UInt] = [NSComparisonPredicateOptions.CaseInsensitivePredicateOption.rawValue,
-        NSComparisonPredicateOptions.DiacriticInsensitivePredicateOption.rawValue,
-        NSComparisonPredicateOptions.NormalizedPredicateOption.rawValue,
-        0x08 /* LocalizedOption [l] */]
-    
-    for value in possibleValues {
-        
-        // check if raw value contains case
-        if (comparisonPredicateOptions.rawValue & value) != 0 {
+        if self.rawValue == NSComparisonPredicateOptions.allZeros.rawValue {
             
-            let option: SearchComparisonPredicateOption? = {
-                
-                switch value {
-                    case
-                }
-                
-            }()
-            
-            assert(option != nil, "NS_OPTION type NSComparisonPredicateOptions contains unknown raw value")
-            
-            searchComparisonPredicateOptions.append(option!)
+            return nil
         }
+        
+        var searchComparisonPredicateOptions = [SearchComparisonPredicateOption]()
+        
+        let possibleValues: [UInt] = [NSComparisonPredicateOptions.CaseInsensitivePredicateOption.rawValue,
+            NSComparisonPredicateOptions.DiacriticInsensitivePredicateOption.rawValue,
+            NSComparisonPredicateOptions.NormalizedPredicateOption.rawValue,
+            0x08 /* LocaleSensitive [l] */]
+        
+        for value in possibleValues {
+            
+            // check if raw value contains case
+            if (self.rawValue & value) != 0 {
+                
+                let option: SearchComparisonPredicateOption = {
+                    switch value {
+                    case possibleValues[0]: return .CaseInsensitive
+                    case possibleValues[1]: return .DiacriticInsensitive
+                    case possibleValues[2]: return .Normalized
+                    case possibleValues[3]: return .LocaleSensitive
+                    }
+                }()
+                
+                searchComparisonPredicateOptions.append(option)
+            }
+        }
+        
+        assert(searchComparisonPredicateOptions.count != 0, "NS_OPTION type NSComparisonPredicateOptions with raw value \(self.rawValue) could not be converted to SearchComparisonPredicateOption even though its rawValue was not zero")
+        
+        return searchComparisonPredicateOptions
     }
-    
-    assert(searchComparisonPredicateOptions.count != 0, "NS_OPTION type NSComparisonPredicateOptions contains unknown raw value \()")
-    
-    return searchComparisonPredicateOptions
 }
 
 // MARK: - Enumerations
@@ -234,7 +219,7 @@ public enum SearchComparisonPredicateOption: String {
     case Normalized = "[n]"
     case LocaleSensitive = "[l]"
     
-    public func toComparisonPredicateOptions() -> NSComparisonPredicateOptions {
+    public func toComparisonPredicateOption() -> NSComparisonPredicateOptions {
         switch self {
         case .CaseInsensitive: return .CaseInsensitivePredicateOption
         case .DiacriticInsensitive: return .DiacriticInsensitivePredicateOption
