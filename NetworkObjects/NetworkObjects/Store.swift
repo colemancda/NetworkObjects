@@ -1286,6 +1286,78 @@ public class Store {
     }
 }
 
+// MARK: - Internal Extensions
+
+internal extension NSEntityDescription {
+    
+    func JSONObjectFromCoreDataValues(values: [String: AnyObject], usingResourceIDAttributeName resourceIDAttributeName: String) -> [String: AnyObject] {
+        
+        var jsonObject = [String: AnyObject]()
+        
+        // convert values...
+        
+        for (key, value) in values {
+            
+            let attribute = self.attributesByName[key] as? NSAttributeDescription
+            
+            if attribute != nil {
+                
+                jsonObject[key] = self.JSONCompatibleValueForAttributeValue(value, forAttribute: key)
+            }
+            
+            let relationship = self.relationshipsByName[key] as? NSRelationshipDescription
+            
+            if relationship != nil {
+                
+                // to-one relationship
+                if !relationship!.toMany {
+                    
+                    // get the resource ID of the object
+                    let destinationResource = value as NSManagedObject
+                    
+                    let destinationResourceID = destinationResource.valueForKey(resourceIDAttributeName) as UInt
+                    
+                    jsonObject[key] = [destinationResource.entity.name!: destinationResourceID]
+                }
+                    
+                    // to-many relationship
+                else {
+                    
+                    let destinationResources: [NSManagedObject] = {
+                        
+                        // ordered set
+                        if relationship!.ordered {
+                            
+                            let orderedSet = value as NSOrderedSet
+                            
+                            return orderedSet.array as [NSManagedObject]
+                        }
+                        
+                        // set
+                        let set = value as NSSet
+                        
+                        return set.allObjects as [NSManagedObject]
+                        
+                        }()
+                    
+                    var destinationResourceIDs = [[String: UInt]]()
+                    
+                    for destinationResource in destinationResources {
+                        
+                        let destinationResourceID = destinationResource.valueForKey(resourceIDAttributeName) as UInt
+                        
+                        destinationResourceIDs.append([destinationResource.entity.name!: destinationResourceID])
+                    }
+                    
+                    jsonObject[key] = destinationResourceIDs
+                }
+            }
+        }
+        
+        return jsonObject
+    }
+}
+
 // MARK: - Private Extensions
 
 private extension NSManagedObjectModel {
@@ -1318,76 +1390,6 @@ private extension NSManagedObjectModel {
                 property.optional = true
             }
         }
-    }
-}
-
-private extension NSEntityDescription {
-    
-    func JSONObjectFromCoreDataValues(values: [String: AnyObject], usingResourceIDAttributeName resourceIDAttributeName: String) -> [String: AnyObject] {
-        
-        var jsonObject = [String: AnyObject]()
-        
-        // convert values...
-        
-        for (key, value) in values {
-            
-            let attribute = self.attributesByName[key] as? NSAttributeDescription
-            
-            if attribute != nil {
-                
-                jsonObject[key] = self.JSONCompatibleValueForAttributeValue(value, forAttribute: key)
-            }
-            
-            let relationship = self.relationshipsByName[key] as? NSRelationshipDescription
-            
-            if relationship != nil {
-                
-                // to-one relationship
-                if !relationship!.toMany {
-                    
-                    // get the resource ID of the object
-                    let destinationResource = value as NSManagedObject
-                    
-                    let destinationResourceID = destinationResource.valueForKey(resourceIDAttributeName) as UInt
-                    
-                    jsonObject[key] = [destinationResource.entity.name!: destinationResourceID]
-                }
-                
-                // to-many relationship
-                else {
-                    
-                    let destinationResources: [NSManagedObject] = {
-                       
-                        // ordered set
-                        if relationship!.ordered {
-                            
-                            let orderedSet = value as NSOrderedSet
-                            
-                            return orderedSet.array as [NSManagedObject]
-                        }
-                        
-                        // set
-                        let set = value as NSSet
-                        
-                        return set.allObjects as [NSManagedObject]
-                        
-                    }()
-                    
-                    var destinationResourceIDs = [[String: UInt]]()
-                    
-                    for destinationResource in destinationResources {
-                        
-                        let destinationResourceID = destinationResource.valueForKey(resourceIDAttributeName) as UInt
-                        
-                        destinationResourceIDs.append([destinationResource.entity.name!: destinationResourceID])
-                    }
-                    
-                    jsonObject[key] = destinationResourceIDs
-                }
-            }
-        }
-        
-        return jsonObject
     }
 }
 

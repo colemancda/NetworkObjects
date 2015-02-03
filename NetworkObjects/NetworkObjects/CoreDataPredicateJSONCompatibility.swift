@@ -67,35 +67,8 @@ extension NSComparisonPredicate {
         let key = leftExpression.keyPath
         jsonObject[SearchComparisonPredicateParameter.Key.rawValue] = key
         
-        // convert value...
-        let constantValue: AnyObject = rightExpression.constantValue
-        
-        let jsonValue: AnyObject = {
-           
-            // managed object
-            if let managedObject = constantValue as? NSManagedObject {
-                
-                let resourceID: UInt = {
-                   
-                    var resourceID: UInt!
-                    managedObjectContext.performBlockAndWait({ () -> Void in
-                        
-                        resourceID = managedObject.valueForKey(resourceIDAttributeName) as UInt
-                    })
-                    return resourceID
-                }()
-                
-                // resource representation
-                return [managedObject.entity.name!: resourceID]
-            }
-            
-            // attribute value
-            
-            
-        }()
-        
         // set value
-        jsonObject[SearchComparisonPredicateParameter.Value.rawValue] = jsonValue
+        jsonObject[SearchComparisonPredicateParameter.Value.rawValue] = entity.JSONObjectFromCoreDataValues([key: rightExpression.constantValue], usingResourceIDAttributeName: resourceIDAttributeName)
         
         return jsonObject
     }
@@ -142,7 +115,7 @@ public extension NSComparisonPredicateOptions {
             rawOptionValue = rawOptionValue | convertedOption.rawValue
         }
         
-        self = self.dynamicType(rawValue: rawOptionValue)
+        self = NSComparisonPredicateOptions(rawValue: rawOptionValue)
     }
     
     public func toSearchComparisonPredicateOptions() -> [SearchComparisonPredicateOption]? {
@@ -170,6 +143,8 @@ public extension NSComparisonPredicateOptions {
                     case possibleValues[1]: return .DiacriticInsensitive
                     case possibleValues[2]: return .Normalized
                     case possibleValues[3]: return .LocaleSensitive
+                    default:
+                        return SearchComparisonPredicateOption(rawValue: "")!
                     }
                 }()
                 
