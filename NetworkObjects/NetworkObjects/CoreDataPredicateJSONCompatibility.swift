@@ -80,7 +80,7 @@ extension NSCompoundPredicate {
 
 extension NSExpression {
     
-    func toJSON(#entity: NSEntityDescription, managedObjectContext: NSManagedObjectContext, resourceIDAttributeName: String, oppositeExpression) -> [String : AnyObject] {
+    func toJSON(#entity: NSEntityDescription, managedObjectContext: NSManagedObjectContext, resourceIDAttributeName: String, key: String?) -> [String : AnyObject] {
         
         var jsonObject = [String: AnyObject]()
         
@@ -142,22 +142,80 @@ extension NSExpression {
 /** The different types of predicates supported for search requests. */
 public enum SearchPredicateType: String {
     
-    /** The predicate is a comparison type (NSComaprisonPredicate). */
+    /** The predicate is a comparison type (NSComparisonPredicate). */
     case Comparison = "Comparison"
     
     /** The predicate is a compound type (NSCompoundPredicate). */
     case Compound = "Compound"
 }
 
+// MARK: Comparison Predicate
+
 /** The parameters for a comparison predicate. */
 public enum SearchComparisonPredicateParameter: String {
     
-    case LeftExpression = "LeftExpression"
-    case RightExpression = "RightExpression"
+    case Key = "Key"
+    case Value = "Value"
     case Operator = "Operator"
     case Option = "Option"
     case Modifier = "Modifier"
 }
+
+public enum SearchComparisonPredicateOperator: String {
+    
+    case LessThan = "<"
+    case LessThanOrEqualTo = "<="
+    case GreaterThan = ">"
+    case GreaterThanOrEqualTo = ">="
+    case EqualTo = "="
+    case NotEqualTo = "!="
+    case Matches = "MATCHES"
+    case Like = "LIKE"
+    case BeginsWith = "BEGINSWITH"
+    case EndsWith = "ENDSWITH"
+    case In = "IN"
+    case Contains = "CONTAINS"
+    case Between = "BETWEEN"
+    
+    public func toPredicateOperatorType() -> NSPredicateOperatorType {
+        switch self {
+        case .LessThan: return .LessThanPredicateOperatorType
+        case .LessThanOrEqualTo: return .LessThanOrEqualToPredicateOperatorType
+        case .GreaterThan: return .GreaterThanPredicateOperatorType
+        case .GreaterThanOrEqualTo: return .GreaterThanOrEqualToPredicateOperatorType
+        case .EqualTo: return .EqualToPredicateOperatorType
+        case .NotEqualTo: return .NotEqualToPredicateOperatorType
+        case .Matches: return .MatchesPredicateOperatorType
+        case .Like: return .LikePredicateOperatorType
+        case .BeginsWith: return .BeginsWithPredicateOperatorType
+        case .EndsWith: return .EndsWithPredicateOperatorType
+        case .In: return .InPredicateOperatorType
+        case .Contains: return .ContainsPredicateOperatorType
+        case .Between: return .BetweenPredicateOperatorType
+        }
+    }
+    
+    public init?(predicateOperatorTypeValue: NSPredicateOperatorType) {
+        switch predicateOperatorTypeValue {
+        case .LessThanPredicateOperatorType: self = .LessThan
+        case .LessThanOrEqualToPredicateOperatorType: self = .LessThanOrEqualTo
+        case .GreaterThanPredicateOperatorType: self = .GreaterThan
+        case .GreaterThanOrEqualToPredicateOperatorType: self = .GreaterThanOrEqualTo
+        case .EqualToPredicateOperatorType: self = .EqualTo
+        case .NotEqualToPredicateOperatorType: self = .NotEqualTo
+        case .MatchesPredicateOperatorType: self = .Matches
+        case .LikePredicateOperatorType: self = .Like
+        case .BeginsWithPredicateOperatorType: self = .BeginsWith
+        case .EndsWithPredicateOperatorType: self = .EndsWith
+        case .InPredicateOperatorType: self = .In
+        case .ContainsPredicateOperatorType: self = .Contains
+        case .BetweenPredicateOperatorType: self = .Between
+        default: return nil
+        }
+    }
+}
+
+// MARK: - Compound Predicate
 
 /** The parameters for a compound predicate. */
 public enum SearchCompoundPredicateParameter: String {
@@ -186,41 +244,6 @@ public enum SearchCompoundPredicateType: String {
         case .Not: return .NotPredicateType
         case .And: return .AndPredicateType
         case .Or: return .OrPredicateType
-        }
-    }
-}
-
-/** The parameters for a search expression. */
-public enum SearchExpressionParameter: String {
-    
-    case ExpressionType = "ExpressionType"
-    case Value = "Value"
-}
-
-/** Search expression type. */
-public enum SearchExpressionType: String {
-    
-    case ConstantValue = "ConstantValue"
-    case AnyKey = "AnyKey"
-    case Key = "Key"
-    
-    public func toExpressionType() -> NSExpressionType {
-        switch self {
-        case .ConstantValue: return .ConstantValueExpressionType
-        case .AnyKey: return .AnyKeyExpressionType
-        case .Key: return .KeyPathExpressionType
-        }
-    }
-    
-    public init?(expressionTypeValue: NSExpressionType) {
-        
-        switch expressionTypeValue {
-            
-        case .ConstantValueExpressionType: self = .ConstantValue
-        case .AnyKeyExpressionType: self = .AnyKey
-        case .KeyPathExpressionType: self = .Key
-            
-        default: return nil
         }
     }
 }
