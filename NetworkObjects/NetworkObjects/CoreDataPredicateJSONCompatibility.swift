@@ -174,24 +174,6 @@ public enum SearchComparisonPredicateOperator: String {
     case Contains = "CONTAINS"
     case Between = "BETWEEN"
     
-    public func toPredicateOperatorType() -> NSPredicateOperatorType {
-        switch self {
-        case .LessThan: return .LessThanPredicateOperatorType
-        case .LessThanOrEqualTo: return .LessThanOrEqualToPredicateOperatorType
-        case .GreaterThan: return .GreaterThanPredicateOperatorType
-        case .GreaterThanOrEqualTo: return .GreaterThanOrEqualToPredicateOperatorType
-        case .EqualTo: return .EqualToPredicateOperatorType
-        case .NotEqualTo: return .NotEqualToPredicateOperatorType
-        case .Matches: return .MatchesPredicateOperatorType
-        case .Like: return .LikePredicateOperatorType
-        case .BeginsWith: return .BeginsWithPredicateOperatorType
-        case .EndsWith: return .EndsWithPredicateOperatorType
-        case .In: return .InPredicateOperatorType
-        case .Contains: return .ContainsPredicateOperatorType
-        case .Between: return .BetweenPredicateOperatorType
-        }
-    }
-    
     public init?(predicateOperatorTypeValue: NSPredicateOperatorType) {
         switch predicateOperatorTypeValue {
         case .LessThanPredicateOperatorType: self = .LessThan
@@ -208,6 +190,24 @@ public enum SearchComparisonPredicateOperator: String {
         case .ContainsPredicateOperatorType: self = .Contains
         case .BetweenPredicateOperatorType: self = .Between
         default: return nil
+        }
+    }
+    
+    public func toPredicateOperatorType() -> NSPredicateOperatorType {
+        switch self {
+        case .LessThan: return .LessThanPredicateOperatorType
+        case .LessThanOrEqualTo: return .LessThanOrEqualToPredicateOperatorType
+        case .GreaterThan: return .GreaterThanPredicateOperatorType
+        case .GreaterThanOrEqualTo: return .GreaterThanOrEqualToPredicateOperatorType
+        case .EqualTo: return .EqualToPredicateOperatorType
+        case .NotEqualTo: return .NotEqualToPredicateOperatorType
+        case .Matches: return .MatchesPredicateOperatorType
+        case .Like: return .LikePredicateOperatorType
+        case .BeginsWith: return .BeginsWithPredicateOperatorType
+        case .EndsWith: return .EndsWithPredicateOperatorType
+        case .In: return .InPredicateOperatorType
+        case .Contains: return .ContainsPredicateOperatorType
+        case .Between: return .BetweenPredicateOperatorType
         }
     }
 }
@@ -235,19 +235,19 @@ public enum SearchComparisonPredicateModifier: String {
     case All = "ANY"
     case Any = "ALL"
     
-    public func toComparisonPredicateModifier() -> NSComparisonPredicateModifier {
-        switch self {
-        case .Direct: return .DirectPredicateModifier
-        case .All: return .AllPredicateModifier
-        case .Any: return .AnyPredicateModifier
-        }
-    }
-    
     public init(comparisonPredicateModifierValue: NSComparisonPredicateModifier) {
         switch comparisonPredicateModifierValue {
         case .DirectPredicateModifier: self = .Direct
         case .AnyPredicateModifier: self = .Any
         case .AllPredicateModifier: self = .All
+        }
+    }
+    
+    public func toComparisonPredicateModifier() -> NSComparisonPredicateModifier {
+        switch self {
+        case .Direct: return .DirectPredicateModifier
+        case .All: return .AllPredicateModifier
+        case .Any: return .AnyPredicateModifier
         }
     }
 }
