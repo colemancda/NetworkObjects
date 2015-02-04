@@ -13,15 +13,12 @@ internal extension NSEntityDescription {
     
     // MARK: - Conversion Methods
     
-    /** Converts a JSON-compatible value to a Core Data attribute value. */
+    /** Converts a Core Data attribute value to a JSON-compatible value. */
     func JSONCompatibleValueForAttributeValue(attributeValue: AnyObject?, forAttribute attributeName: String) -> AnyObject? {
         
         let attributeDescription = self.attributesByName[attributeName] as? NSAttributeDescription
         
-        if attributeDescription == nil {
-            
-            return nil
-        }
+        assert(attributeDescription != nil, "Attribute named \(attributeName) not found on entity \(self)")
         
         // give value based on attribute type...
         
@@ -84,72 +81,77 @@ internal extension NSEntityDescription {
         return nil
     }
     
-    /** Converts a Core Data attribute value to a JSON-compatible value. */
-    func attributeValueForJSONCompatibleValue(JSONCompatibleValue jsonValue: AnyObject, forAttribute attributeName: String) -> AnyObject? {
+    /// Converts a JSON-compatible value to a Core Data attribute value.
+    /// 
+    /// :param: JSONCompatibleValue The JSON value that will be converted.
+    /// :param: forAttribute The name the of attribute that will be used to convert the value. Must be a valid attribute. 
+    /// :returns: A tuble with Core Data compatible attribute value and a boolean indicating the conversion was successful.
+    func attributeValueForJSONCompatibleValue(JSONCompatibleValue jsonValue: AnyObject, forAttribute attributeName: String) -> (AnyObject?, Bool) {
         
         let attributeDescription = self.attributesByName[attributeName] as? NSAttributeDescription
         
-        if attributeDescription == nil {
-            
-            return nil
-        }
+        assert(attributeDescription != nil, "Attribute named \(attributeName) not found on entity \(self)")
         
         // if value is NSNull
         if jsonValue as? NSNull != nil {
             
-            return nil
+            return (nil, true)
         }
         
-        if let attributeClassName = attributeDescription!.attributeValueClassName {
+        switch attributeDescription!.attributeType {
             
-            switch attributeClassName {
-                
-            // strings and numbers are standard json data types
-            case "NSString":
-                return jsonValue as? String
-                
-            case "NSNumber":
-                return jsonValue as? NSNumber
-                
-            case "NSDate":
-                
-                if let dateString = jsonValue as? String {
-                    return NSDate.dateWithISO8601String(dateString)
-                }
-                return nil
-                
-            case "NSData":
-                if let dataString = jsonValue as? String {
-                    return NSData(base64EncodedString: dataString, options: NSDataBase64DecodingOptions.allZeros)
-                }
-                return nil
-                
-            default:
-                
-                return nil
+        case .UndefinedAttributeType, .ObjectIDAttributeType:
+            return (nil, false)
+            
+        case .Integer16AttributeType, .Integer32AttributeType, .Integer64AttributeType, .DecimalAttributeType, .DoubleAttributeType, .FloatAttributeType, .BooleanAttributeType:
+            
+            // try to cast as number
+            let number = jsonValue as? NSNumber
+            return (number, number != nil)
+            
+        case .StringAttributeType:
+            
+            let string = jsonValue as? String
+            return (string, string != nil)
+            
+        case .DateAttributeType:
+            
+            if let dateString = jsonValue as? String {
+                let date = NSDate.dateWithISO8601String(dateString)
+                return (date, date != nil)
             }
-        }
-        
-        // transformable value type
-        if attributeDescription?.attributeType == NSAttributeType.TransformableAttributeType {
+            
+            return (nil, false)
+            
+        case .BinaryDataAttributeType:
+            
+            if let dataString = jsonValue as? String {
+                let data = NSData(base64EncodedString: dataString, options: .allZeros)
+                return (data, data != nil)
+            }
+            
+            return (nil, false)
+            
+        // transformable attribute type
+        case .TransformableAttributeType:
             
             let base64EncodedString = jsonValue as? String
             
             if base64EncodedString == nil {
                 
-                return nil
+                return (nil, false)
             }
             
             // get data from Base64 string
-            let data = NSData(base64EncodedString: base64EncodedString!, options: NSDataBase64DecodingOptions.allZeros)
+            let data = NSData(base64EncodedString: base64EncodedString!, options: .allZeros)
             
             if data == nil {
                 
-                return nil
+                return (nil, false)
             }
             
             // get transformer
-            let valueTransformerName = attributeDescription?.valueTransformerName
+            let valueTransformerName = attributeDescription!.valueTransformerName
             
             // default transformer: NSKeyedUnarchiveFromDataTransformerName in reverse
             if valueTransformerName == nil {
@@ -157,17 +159,19 @@ internal extension NSEntityDescription {
                 let transformer = NSValueTransformer(forName: NSKeyedUnarchiveFromDataTransformerName)!
                 
                 // unarchive
-                return transformer.transformedValue(data)
+                let transformedValue: AnyObject? = transformer.transformedValue(data)
+                
+                return (transformedValue, transformedValue != nil)
             }
             
             // custom transformer
             let transformer = NSValueTransformer(forName: valueTransformerName!)!
             
             // convert to original type
-            return transformer.reverseTransformedValue(data)
+            let reversedTransformedValue: AnyObject? = transformer.reverseTransformedValue(data)
+            
+            return (reversedTransformedValue, reversedTransformedValue != nil)
         }
-        
-        return nil
     }
     
     // MARK: - Validate
@@ -231,45 +235,6 @@ internal extension NSEntityDescription {
             return (data != nil)
             
         }
-    }
-}
-
-// MARK: - Convenience Extensions
-
-internal extension NSManagedObject {
-    
-    func JSONCompatibleValueForAttribute(attributeName: String) -> AnyObject? {
-        
-        let attributeValue: AnyObject? = self.valueForKey(attributeName)
-        
-        if attributeValue != nil {
-            
-            return self.JSONCompatibleValueForAttributeValue(attributeValue!, forAttribute: attributeName)
-        }
-        
-        return nil
-    }
-    
-    func setJSONCompatibleValue(JSONCompatibleValue: AnyObject?, forAttribute attributeName: String) {
-        
-        let attributeValue: AnyObject? = self.attributeValueForJSONCompatibleValue(JSONCompatibleValue!, forAttribute: attributeName)
-        
-        self.setValue(attributeValue, forKey: attributeName)
-    }
-    
-    func attributeValueForJSONCompatibleValue(JSONCompatibleValue: AnyObject, forAttribute attributeName: String) -> AnyObject? {
-        
-        return self.entity.attributeValueForJSONCompatibleValue(JSONCompatibleValue: JSONCompatibleValue, forAttribute: attributeName)
-    }
-    
-    func JSONCompatibleValueForAttributeValue(attributeValue: AnyObject?, forAttribute attributeName: String) -> AnyObject? {
-        
-        return self.entity.JSONCompatibleValueForAttributeValue(attributeValue, forAttribute: attributeName)
-    }
-    
-    func isValidConvertedValue(convertedValue: AnyObject, forAttribute attributeName: String) -> Bool {
-        
-        return self.entity.isValidConvertedValue(convertedValue, forAttribute: attributeName)
     }
 }
 

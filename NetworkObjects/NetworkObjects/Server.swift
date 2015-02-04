@@ -1700,13 +1700,6 @@ public class Server {
         
         let recievedJsonObject = request.JSONObject!
         
-        // validate the recieved JSON object
-        
-        if !NSJSONSerialization.isValidJSONObject(recievedJsonObject) {
-            
-            return ServerStatusCode.BadRequest
-        }
-        
         for (key, jsonValue) in recievedJsonObject {
             
             let attribute = (resource.entity.attributesByName as [String: NSAttributeDescription])[key]
