@@ -128,7 +128,7 @@ extension NSComparisonPredicate {
         jsonObject[SearchComparisonPredicateParameter.Key.rawValue] = key
         
         // set value
-        jsonObject[SearchComparisonPredicateParameter.Value.rawValue] = entity.JSONObjectFromCoreDataValues([key: rightExpression.constantValue], usingResourceIDAttributeName: resourceIDAttributeName)
+        jsonObject[SearchComparisonPredicateParameter.Value.rawValue] = entity.JSONObjectFromCoreDataValues([key: rightExpression.constantValue], usingResourceIDAttributeName: resourceIDAttributeName).values.first!
         
         return jsonObject
     }

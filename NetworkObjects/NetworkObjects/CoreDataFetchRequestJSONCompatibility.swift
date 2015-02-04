@@ -11,9 +11,71 @@ import CoreData
 
 internal extension NSFetchRequest {
     
+    /// Serializes a fetch request into JSON. See SearchParameter for the keys of the generated JSON dictionary.
+    /// The fetch request's predicate must be a concrete subclass of NSPredicate. NSComparisonPredcate instances must specify a key on the left expression and a attribute or relationship value on the right expression.
+    ///
+    /// :param: managedObjectContext Used for retrieved the resourceID of managed objects referenced in predicates.
+    /// :param: resourceIDAttributeName Key for retreiving the resourceID of referenced managed objects.
+    /// :returns: JSON object representing the fetch request. Will raise an exception if the fetch request cannot be serialized due to invalid values.
     func toJSON(managedObjectContext: NSManagedObjectContext, resourceIDAttributeName: String) -> [String: AnyObject] {
         
+        // get the entity of the fetch request
+        let entity: NSEntityDescription = {
+            
+            assert(self.entityName == nil && self.entity == nil, "No entity specified for the fetch request")
+           
+            if self.entity != nil {
+                
+                return self.entity!
+            }
+            
+            return managedObjectContext.persistentStoreCoordinator!.managedObjectModel.entitiesByName[self.entityName!] as NSEntityDescription
+        }()
         
+        // create JSON object
+        var jsonObject = [String: AnyObject]()
+        
+        // set the sort descriptors...
+        if let sortDescriptors = self.sortDescriptors as? [NSSortDescriptor] {
+            
+            var sortDescriptorsJSONArray = [[String: Bool]]()
+            
+            for sortDescriptor in sortDescriptors {
+                
+                sortDescriptorsJSONArray.append(sortDescriptor.toJSON())
+            }
+            
+            // add to JSON object
+            jsonObject[SearchParameter.SortDescriptors.rawValue] = sortDescriptorsJSONArray
+        }
+        
+        // set the fetch limit
+        if self.fetchLimit > 0 {
+            
+            jsonObject[SearchParameter.FetchLimit.rawValue] = self.fetchLimit
+        }
+        
+        // set fetch offset
+        if self.fetchOffset > 0 {
+            
+            jsonObject[SearchParameter.FetchOffset.rawValue] = self.fetchOffset
+        }
+        
+        // set includesSubentities (only add if false, default is true)
+        if !self.includesSubentities {
+            
+            jsonObject[SearchParameter.IncludesSubentities.rawValue] = self.includesSubentities
+        }
+        
+        // set predicate
+        if self.predicate != nil {
+            
+            let predicateJSONObject = self.predicate!.toJSON(entity: entity, managedObjectContext: managedObjectContext, resourceIDAttributeName: resourceIDAttributeName)
+            
+            jsonObject[SearchParameter.Predicate.rawValue] = predicateJSONObject
+        }
+        
+        return jsonObject
     }
 }
 
@@ -53,7 +115,7 @@ internal extension NSSortDescriptor {
     /// :returns: JSON dictionary with a single key and the ascending value.
     func toJSON() -> [String: Bool] {
         
-        assert(self.key != nil, "")
+        assert(self.key != nil, "Key must be specified for sort descriptor")
         
         return [self.key!: ascending]
     }
@@ -61,7 +123,7 @@ internal extension NSSortDescriptor {
 
 // MARK: - Enumerations
 
-/** Defines the keys of the search request's JSON body. */
+/** Defines the parameters for search requests. Also used as keys for for converting a NSFetchRequest to JSON. All keys are optional. */
 public enum SearchParameter: String {
     
     /** A JSON object representing the search predicate. Optional. */

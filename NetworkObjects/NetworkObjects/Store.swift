@@ -94,59 +94,11 @@ public class Store {
         
         assert(self.searchPath != nil, "Cannot perform searches when searchPath is nil")
         
-        // build JSON request from fetch request
-        
-        var jsonObject = [String: AnyObject]()
-        
-        // optional comparison predicate
-        
-        let predicate = fetchRequest.predicate as? NSComparisonPredicate
-        
-        if predicate != nil && predicate?.predicateOperatorType != NSPredicateOperatorType.CustomSelectorPredicateOperatorType {
-            
-            jsonObject[SearchParameter.PredicateKey.rawValue] = predicate?.leftExpression.keyPath
-            
-            // convert from Core Data to JSON
-            let jsonValue: AnyObject? = fetchRequest.entity!.JSONObjectFromCoreDataValues([predicate!.leftExpression.keyPath: predicate!.rightExpression.constantValue], usingResourceIDAttributeName: self.resourceIDAttributeName).values.first
-            
-            jsonObject[SearchParameter.PredicateValue.rawValue] = jsonValue
-            
-            jsonObject[SearchParameter.PredicateOperator.rawValue] = predicate?.predicateOperatorType.rawValue
-            
-            jsonObject[SearchParameter.PredicateOption.rawValue] = predicate?.options.rawValue
-            
-            jsonObject[SearchParameter.PredicateModifier.rawValue] = predicate?.comparisonPredicateModifier.rawValue
-        }
-        
-        // other fetch parameters
-        
-        if fetchRequest.fetchLimit != 0 {
-            jsonObject[SearchParameter.FetchLimit.rawValue] = fetchRequest.fetchLimit
-        }
-        
-        if fetchRequest.fetchOffset != 0 {
-            jsonObject[SearchParameter.FetchOffset.rawValue] = fetchRequest.fetchOffset
-        }
-        
-        jsonObject[SearchParameter.IncludesSubentities.rawValue] = fetchRequest.includesSubentities
-        
-        // sort descriptors
-        
-        if fetchRequest.sortDescriptors!.count != 0 {
-            
-            var jsonSortDescriptors = [[String: AnyObject]]()
-            
-            for sort in fetchRequest.sortDescriptors as [NSSortDescriptor] {
-                
-                jsonSortDescriptors.append([sort.sortKey()! : sort.ascending])
-            }
-            
-            jsonObject[SearchParameter.SortDescriptors.rawValue] = jsonSortDescriptors
-        }
+        let searchParameters = fetchRequest.toJSON(self.managedObjectContext, resourceIDAttributeName: self.resourceIDAttributeName)
         
         // call API method
         
-        return self.searchForResource(fetchRequest.entity!, withParameters: jsonObject, URLSession: URLSession, completionBlock: { (httpError, results) -> Void in
+        return self.searchForResource(fetchRequest.entity!, withParameters: searchParameters, URLSession: URLSession, completionBlock: { (httpError, results) -> Void in
             
             if httpError != nil {
                 
