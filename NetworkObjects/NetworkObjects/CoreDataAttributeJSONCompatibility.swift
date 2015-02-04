@@ -9,12 +9,22 @@
 import Foundation
 import CoreData
 
+// Static options for conversion
+struct CoreDataAttributeJSONCompatibilityOptions {
+    static var Base64EncodingOptions = NSDataBase64EncodingOptions.allZeros
+    static var Base64DecodingOptions = NSDataBase64DecodingOptions.allZeros
+}
+
 internal extension NSEntityDescription {
     
     // MARK: - Conversion Methods
     
-    /** Converts a Core Data attribute value to a JSON-compatible value. */
-    func JSONCompatibleValueForAttributeValue(attributeValue: AnyObject?, forAttribute attributeName: String) -> AnyObject? {
+    /// Converts a Core Data attribute value to a JSON-compatible value.
+    /// 
+    /// :param: attributeValue The Core Data compatible value that will be converted to JSON. Accepts NSNull as a convenience is case this is called using the values of a dictionary, which cannot hold nil. 
+    /// :param: attributeName The name the of attribute that will be used to convert the value. Must be a valid attribute.
+    /// :returns: The converted JSON value.
+    func JSONCompatibleValueForAttributeValue(attributeValue: AnyObject?, forAttribute attributeName: String) -> AnyObject {
         
         let attributeDescription = self.attributesByName[attributeName] as? NSAttributeDescription
         
@@ -24,34 +34,40 @@ internal extension NSEntityDescription {
         
         // if NSNull then just return NSNull
         // nil attributes can be represented in JSON by NSNull
+        // Accepts NSNull as a convenience is case this is called using the values of a dictionary, which cannot hold nil
         if attributeValue as? NSNull != nil || attributeValue == nil {
             
             return NSNull()
         }
         
-        if let attributeClassName = attributeDescription!.attributeValueClassName {
+        switch attributeDescription!.attributeType {
             
-            switch attributeClassName {
-                
-                // strings and numbers are standard json data types
-            case "NSString", "NSNumber":
-                return attributeValue
-                
-            case "NSDate":
-                let date = attributeValue as NSDate
-                return date.ISO8601String()
-                
-            case "NSData":
-                let data = attributeValue as NSData
-                return data.base64EncodedStringWithOptions(NSDataBase64EncodingOptions.allZeros)
-                
-            default:
-                return nil
-            }
-        }
-        
-        // transformable value type
-        if attributeDescription?.attributeType == NSAttributeType.TransformableAttributeType {
+        // invalid types
+        case .UndefinedAttributeType, .ObjectIDAttributeType:
+            
+            NSException(name: NSInternalInconsistencyException, reason: ".UndefinedAttributeType and .ObjectIDAttributeType attributes cannot be converted to JSON", userInfo: nil).raise()
+            
+            return NSObject()
+            
+        // no conversion
+        case .Integer16AttributeType, .Integer32AttributeType, .Integer64AttributeType, .DecimalAttributeType, .DoubleAttributeType, .FloatAttributeType, .BooleanAttributeType, .StringAttributeType:
+            
+            return attributeValue!
+            
+        // date
+        case .DateAttributeType:
+            
+            let date = attributeValue as NSDate
+            return date.ISO8601String()
+            
+        // data
+        case .BinaryDataAttributeType:
+            
+            let data = attributeValue as NSData
+            return data.base64EncodedStringWithOptions(CoreDataAttributeJSONCompatibilityOptions.Base64EncodingOptions)
+            
+        // transformable
+        case .TransformableAttributeType:
             
             // get transformer
             let valueTransformerName = attributeDescription?.valueTransformerName
@@ -65,7 +81,7 @@ internal extension NSEntityDescription {
                 let data = transformer!.reverseTransformedValue(attributeValue) as NSData
                 
                 // convert to string (for JSON export)
-                return data.base64EncodedStringWithOptions(NSDataBase64EncodingOptions.allZeros)
+                return data.base64EncodedStringWithOptions(CoreDataAttributeJSONCompatibilityOptions.Base64EncodingOptions)
             }
             
             // custom transformer
@@ -75,17 +91,15 @@ internal extension NSEntityDescription {
             let data = transformer!.transformedValue(attributeValue) as NSData
             
             // convert to string (for JSON export)
-            return data.base64EncodedStringWithOptions(NSDataBase64EncodingOptions.allZeros)
+            return data.base64EncodedStringWithOptions(CoreDataAttributeJSONCompatibilityOptions.Base64EncodingOptions)
         }
-        
-        return nil
     }
     
     /// Converts a JSON-compatible value to a Core Data attribute value.
     /// 
-    /// :param: JSONCompatibleValue The JSON value that will be converted.
-    /// :param: forAttribute The name the of attribute that will be used to convert the value. Must be a valid attribute. 
-    /// :returns: A tuble with Core Data compatible attribute value and a boolean indicating the conversion was successful.
+    /// :param: jsonValue The JSON value that will be converted.
+    /// :param: attributeName The name the of attribute that will be used to convert the value. Must be a valid attribute.
+    /// :returns: A tuple with a Core Data compatible attribute value and a boolean indicating that the conversion was successful.
     func attributeValueForJSONCompatibleValue(JSONCompatibleValue jsonValue: AnyObject, forAttribute attributeName: String) -> (AnyObject?, Bool) {
         
         let attributeDescription = self.attributesByName[attributeName] as? NSAttributeDescription
@@ -126,7 +140,7 @@ internal extension NSEntityDescription {
         case .BinaryDataAttributeType:
             
             if let dataString = jsonValue as? String {
-                let data = NSData(base64EncodedString: dataString, options: .allZeros)
+                let data = NSData(base64EncodedString: dataString, options: CoreDataAttributeJSONCompatibilityOptions.Base64DecodingOptions)
                 return (data, data != nil)
             }
             
@@ -143,7 +157,7 @@ internal extension NSEntityDescription {
             }
             
             // get data from Base64 string
-            let data = NSData(base64EncodedString: base64EncodedString!, options: .allZeros)
+            let data = NSData(base64EncodedString: base64EncodedString!, options: CoreDataAttributeJSONCompatibilityOptions.Base64DecodingOptions)
             
             if data == nil {
                 
@@ -171,69 +185,6 @@ internal extension NSEntityDescription {
             let reversedTransformedValue: AnyObject? = transformer.reverseTransformedValue(data)
             
             return (reversedTransformedValue, reversedTransformedValue != nil)
-        }
-    }
-    
-    // MARK: - Validate
-    
-    func isValidConvertedValue(convertedValue: AnyObject, forAttribute attributeName: String) -> Bool {
-        
-        let attributeDescription = self.attributesByName[attributeName] as? NSAttributeDescription
-        
-        if attributeDescription == nil {
-            
-            return false
-        }
-        
-        switch attributeDescription!.attributeType {
-            
-        case NSAttributeType.UndefinedAttributeType, NSAttributeType.ObjectIDAttributeType:
-            return false
-            
-        case NSAttributeType.Integer16AttributeType, NSAttributeType.Integer32AttributeType, NSAttributeType.Integer64AttributeType, NSAttributeType.DecimalAttributeType, NSAttributeType.DoubleAttributeType, NSAttributeType.FloatAttributeType, NSAttributeType.BooleanAttributeType :
-            
-            // try to cast as number
-            let number = convertedValue as? NSNumber
-            return (number != nil)
-            
-        case NSAttributeType.StringAttributeType:
-            
-            let string = convertedValue as? String
-            return (string != nil)
-            
-        case NSAttributeType.DateAttributeType:
-            
-            let date = convertedValue as? NSDate
-            return (date != nil)
-            
-        case NSAttributeType.BinaryDataAttributeType:
-            
-            let data = convertedValue as? NSData
-            return (data != nil)
-            
-            // transformable value type
-        case NSAttributeType.TransformableAttributeType:
-            
-            // get transformer
-            let valueTransformerName = attributeDescription!.valueTransformerName
-            
-            // default transformer: NSKeyedUnarchiveFromDataTransformerName in reverse
-            if valueTransformerName == nil {
-                
-                let transformer = NSValueTransformer(forName: NSKeyedUnarchiveFromDataTransformerName)
-                
-                // anything that conforms to NSCoding
-                return (convertedValue as? NSCoding != nil)
-            }
-            
-            // custom transformer
-            let transformer = NSValueTransformer(forName: valueTransformerName!)
-            
-            // must convert to NSData
-            let data = transformer!.transformedValue(convertedValue) as? NSData
-            
-            return (data != nil)
-            
         }
     }
 }
