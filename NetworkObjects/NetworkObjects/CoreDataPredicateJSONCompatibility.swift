@@ -81,12 +81,6 @@ internal extension NSComparisonPredicate {
             return predicateOperator!.toPredicateOperatorType()
         }()
         
-        if predicateOperatorType == nil {
-            
-            self.init()
-            return nil
-        }
-        
         // set modifier
         let modifier: NSComparisonPredicateModifier? = {
            
@@ -114,12 +108,6 @@ internal extension NSComparisonPredicate {
             return modifier!.toComparisonPredicateModifier()
         }()
         
-        if modifier == nil {
-            
-            self.init()
-            return nil
-        }
-        
         // set options
         let options: NSComparisonPredicateOptions? = {
             
@@ -130,17 +118,29 @@ internal extension NSComparisonPredicate {
                 return NSComparisonPredicateOptions.allZeros
             }
             
-            let optionsArray = optionsObject as? [[String]]
+            let optionsArray = optionsObject as? [String]
             
             if optionsArray == nil {
                 
                 return nil
             }
             
-            for optionString in optionsArray! {
+            let searchComparisonOptions = RawRepresentables(SearchComparisonPredicateOption.self, optionsArray!)
+            
+            if searchComparisonOptions == nil {
                 
-                
+                return nil
             }
+            
+            return NSComparisonPredicateOptions(searchComparisonPredicateOptions: searchComparisonOptions!)
+        }()
+        
+        // set left expression
+        let leftExpression: NSExpression? = {
+           
+            let keyString = JSONObject[SearchComparisonPredicateParameter.Key.rawValue] as? String
+            
+            let keyString = 
             
         }()
     }
@@ -149,7 +149,7 @@ internal extension NSComparisonPredicate {
         
         if self.predicateOperatorType == NSPredicateOperatorType.CustomSelectorPredicateOperatorType {
             
-            NSException(name: NSInternalInconsistencyException, reason: "Comparison Predicates with NSCustomSelectorPredicateOperatorType cannot be serialized to JSON for NetworkObjects Server/Store use", userInfo: nil).raise()
+            NSException(name: NSInternalInconsistencyException, reason: "Comparison Predicates with NSCustomSelectorPredicateOperatorType cannot be serialized to JSON", userInfo: nil).raise()
         }
         
         var jsonObject = [String: AnyObject]()

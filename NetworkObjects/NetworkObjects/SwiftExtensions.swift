@@ -24,7 +24,7 @@ public func RawValues<T: RawRepresentable>(rawRepresentableArray: [T]) -> [T.Raw
 }
 
 // Creates an array of RawRepresentable from an array of raw values. Returns nil if an element in the array had an invalid raw value
-public func RawRepresentables<T: RawRepresentable>(rawValues: [T.RawValue]) -> [T]? {
+public func RawRepresentables<T: RawRepresentable>(rawRepresentableType: T.Type, rawValues: [T.RawValue]) -> [T]? {
     
     typealias rawValueType = T.RawValue
     
