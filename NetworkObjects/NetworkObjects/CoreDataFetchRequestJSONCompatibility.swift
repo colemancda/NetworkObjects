@@ -186,7 +186,7 @@ internal extension NSSortDescriptor {
         // validate JSON
         if JSONObject.count != 1 {
             
-            self.init(key:  "", ascending: true)
+            self.init()
             return nil
         }
         
@@ -199,7 +199,7 @@ internal extension NSSortDescriptor {
         
         if property == nil {
             
-            self.init(key:  "", ascending: true)
+            self.init()
             return nil
         }
         

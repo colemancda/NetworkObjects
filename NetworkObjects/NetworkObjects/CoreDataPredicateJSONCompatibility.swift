@@ -58,16 +58,16 @@ internal extension NSComparisonPredicate {
     
     convenience init?(JSONObject: [String: AnyObject], entity: NSEntityDescription, managedObjectContext: NSManagedObjectContext, resourceIDAttributeName: String, error: NSErrorPointer) {
         
-        self.init()
-        
-        // set predicate
-        if let predicateOperatorObject: AnyObject? = JSONObject[SearchComparisonPredicateParameter.Operator.rawValue] {
+        // set predicate operator type
+        let predicateOperatorType: NSPredicateOperatorType? = {
+            
+            let predicateOperatorObject: AnyObject? = JSONObject[SearchComparisonPredicateParameter.Operator.rawValue]
             
             let predicateOperatorString = predicateOperatorObject as? String
             
             // bad JSON
             if predicateOperatorString == nil {
-                
+
                 return nil
             }
             
@@ -78,12 +78,71 @@ internal extension NSComparisonPredicate {
                 return nil
             }
             
+            return predicateOperator!.toPredicateOperatorType()
+        }()
+        
+        if predicateOperatorType == nil {
             
+            self.init()
+            return nil
         }
         
+        // set modifier
+        let modifier: NSComparisonPredicateModifier? = {
+           
+            let modifierObject: AnyObject? = JSONObject[SearchComparisonPredicateParameter.Modifier.rawValue]
+            
+            if modifierObject == nil {
+                
+                return nil
+            }
+            
+            let modifierString = modifierObject as? String
+            
+            if modifierString == nil {
+                
+                return nil
+            }
+            
+            let modifier = SearchComparisonPredicateModifier(rawValue: modifierString!)
+            
+            if modifier == nil {
+                
+                return nil
+            }
+            
+            return modifier!.toComparisonPredicateModifier()
+        }()
         
+        if modifier == nil {
+            
+            self.init()
+            return nil
+        }
         
-        return nil
+        // set options
+        let options: NSComparisonPredicateOptions? = {
+            
+            let optionsObject: AnyObject? = JSONObject[SearchComparisonPredicateParameter.Options.rawValue]
+            
+            if optionsObject == nil {
+                
+                return NSComparisonPredicateOptions.allZeros
+            }
+            
+            let optionsArray = optionsObject as? [[String]]
+            
+            if optionsArray == nil {
+                
+                return nil
+            }
+            
+            for optionString in optionsArray! {
+                
+                
+            }
+            
+        }()
     }
     
     override func toJSON(#entity: NSEntityDescription, managedObjectContext: NSManagedObjectContext, resourceIDAttributeName: String) -> [String: AnyObject] {
@@ -218,8 +277,6 @@ public enum SearchPredicateType: String {
     
     /** The predicate is a compound type (NSCompoundPredicate). */
     case Compound = "Compound"
-    
-    
 }
 
 // MARK: Comparison Predicate
