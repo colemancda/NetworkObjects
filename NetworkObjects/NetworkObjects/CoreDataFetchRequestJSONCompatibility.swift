@@ -12,13 +12,97 @@ import CoreData
 internal extension NSFetchRequest {
     
     /** Creates a fetch request from a JSON object. */
-    convenience init?(entity: NSEntityDescription, JSONObject: [String: AnyObject]) {
+    convenience init?(JSONObject: [String: AnyObject], entity: NSEntityDescription, managedObjectContext: NSManagedObjectContext, resourceIDAttributeName: String, error: NSErrorPointer) {
         
         self.init()
         
         self.entity = entity
         
+        // set sort descriptors....
+        if let sortDescriptorsObject: AnyObject = JSONObject[SearchParameter.SortDescriptors.rawValue] {
+            
+            let sortDescriptorsJSONArray = sortDescriptorsObject as? [[String: Bool]]
+            
+            if sortDescriptorsJSONArray == nil {
+                
+                return nil
+            }
+            
+            var sortDescriptors = [NSSortDescriptor]()
+            
+            for sortDescriptorJSONObject in sortDescriptorsJSONArray! {
+                
+                let sortDescriptor = NSSortDescriptor(JSONObject: sortDescriptorJSONObject, entity: entity)
+                
+                if sortDescriptor == nil {
+                    
+                    return nil
+                }
+                
+                sortDescriptors.append(sortDescriptor!)
+            }
+            
+            self.sortDescriptors = sortDescriptors
+        }
         
+        // set the fetch limit
+        if let fetchLimitObject: AnyObject = JSONObject[SearchParameter.FetchLimit.rawValue] {
+            
+            let fetchLimit = fetchLimitObject as? UInt
+            
+            if fetchLimit == nil {
+                
+                return nil
+            }
+            
+            self.fetchLimit = Int(fetchLimit!)
+        }
+        
+        // set the fetch offset
+        if let fetchOffsetObject: AnyObject = JSONObject[SearchParameter.FetchOffset.rawValue] {
+            
+            let fetchOffset = fetchOffsetObject as? UInt
+            
+            if fetchOffset == nil {
+                
+                return nil
+            }
+            
+            self.fetchOffset = Int(fetchOffset!)
+        }
+        
+        // set includesSubentities
+        if let includesSubentitiesObject: AnyObject = JSONObject[SearchParameter.IncludesSubentities.rawValue] {
+            
+            let includesSubentities = includesSubentitiesObject as? Bool
+            
+            if includesSubentities == nil {
+                
+                return nil
+            }
+            
+            self.includesSubentities = includesSubentities!
+        }
+        
+        // set predicate
+        if let predicateObject: AnyObject = JSONObject[SearchParameter.Predicate.rawValue] {
+            
+            let predicateJSONObject = predicateObject as? [String: AnyObject]
+            
+            if predicateJSONObject == nil {
+                
+                return nil
+            }
+            
+            let predicate = NSPredicate.predicateWithJSON(predicateJSONObject!, entity: entity, managedObjectContext: managedObjectContext, resourceIDAttributeName: resourceIDAttributeName, error: error)
+            
+            if predicate == nil {
+                
+                return nil
+            }
+            
+            self.predicate = predicate
+        }
     }
     
     /// Serializes a fetch request to JSON. See SearchParameter for the keys of the generated JSON dictionary.
