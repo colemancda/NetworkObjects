@@ -9,7 +9,141 @@
 import Foundation
 import CoreData
 
-// MARK: - Extensions
+// MARK: - Internal Extensions
+
+internal extension NSPredicate {
+    
+    /// Creates a contrete subclass of NSPredicate from the provided JSON.
+    ///
+    /// :param: JSONObject The JSON dictionary used to create the predicate
+    /// :returns: A concrete subclass of NSPredicate or nil with the provided JSON was incorrect
+    class func predicateWithJSON(JSONObject: [String: AnyObject], entity: NSEntityDescription, managedObjectContext: NSManagedObjectContext, resourceIDAttributeName: String) -> NSPredicate? {
+        
+        // invalid JSON
+        if JSONObject.count != 1 {
+            
+            return nil
+        }
+        
+        // get predicate type
+        let predicateType = SearchPredicateType(rawValue: JSONObject.keys.first!)
+        
+        // get predicate value
+        let predicateJSONObject = JSONObject.values.first as? [String: AnyObject]
+        
+        // invalid JSON
+        if predicateJSONObject == nil || predicateType == nil {
+            
+            return nil
+        }
+        
+        // create concrete subclass from values
+        switch predicateType! {
+            
+        case .Comparison: return NSComparisonPredicate(JSONObject: predicateJSONObject!, entity: entity, managedObjectContext: managedObjectContext, resourceIDAttributeName: resourceIDAttributeName)
+            
+        case .Compound: return NSCompoundPredicate(JSONObject: predicateJSONObject!, entity: entity, managedObjectContext: managedObjectContext, resourceIDAttributeName: resourceIDAttributeName)
+        }
+    }
+    
+    func toJSON(#entity: NSEntityDescription, managedObjectContext: NSManagedObjectContext, resourceIDAttributeName: String) -> [String : AnyObject] {
+        
+        NSException(name: NSInternalInconsistencyException, reason: "NSPredicate cannot be converted to JSON, only its concrete subclasses", userInfo: nil).raise()
+        
+        return [String: AnyObject]()
+    }
+}
+
+internal extension NSComparisonPredicate {
+    
+    convenience init?(JSONObject: [String: AnyObject], entity: NSEntityDescription, managedObjectContext: NSManagedObjectContext, resourceIDAttributeName: String) {
+        
+        self.init()
+        
+        // set predicate
+        if let predicateOperatorObject: AnyObject? = JSONObject[SearchComparisonPredicateParameter.Operator.rawValue] {
+            
+            let predicateOperatorString = predicateOperatorObject as? String
+            
+            // bad JSON
+            if predicateOperatorString == nil {
+                
+                return nil
+            }
+            
+            let predicateOperator = SearchComparisonPredicateOperator(rawValue: predicateOperatorString!)
+            
+            if predicateOperator == nil {
+                
+                return nil
+            }
+        }
+        
+        
+        
+        return nil
+    }
+    
+    override func toJSON(#entity: NSEntityDescription, managedObjectContext: NSManagedObjectContext, resourceIDAttributeName: String) -> [String: AnyObject] {
+        
+        if self.predicateOperatorType == NSPredicateOperatorType.CustomSelectorPredicateOperatorType {
+            
+            NSException(name: NSInternalInconsistencyException, reason: "Comparison Predicates with NSCustomSelectorPredicateOperatorType cannot be serialized to JSON for NetworkObjects Server/Store use", userInfo: nil).raise()
+        }
+        
+        var jsonObject = [String: AnyObject]()
+        
+        // set primitive parameters
+        jsonObject[SearchComparisonPredicateParameter.Operator.rawValue] = SearchComparisonPredicateOperator(predicateOperatorTypeValue: predicateOperatorType)!.rawValue
+        jsonObject[SearchComparisonPredicateParameter.Modifier.rawValue] = SearchComparisonPredicateModifier(comparisonPredicateModifierValue: comparisonPredicateModifier).rawValue
+        
+        // array of options or nil
+        if let predicateOptions = options.toSearchComparisonPredicateOptions() {
+            
+            jsonObject[SearchComparisonPredicateParameter.Options.rawValue] = RawValues(predicateOptions)
+        }
+        
+        // set key
+        let key = leftExpression.keyPath
+        jsonObject[SearchComparisonPredicateParameter.Key.rawValue] = key
+        
+        // set value
+        jsonObject[SearchComparisonPredicateParameter.Value.rawValue] = entity.JSONObjectFromCoreDataValues([key: rightExpression.constantValue], usingResourceIDAttributeName: resourceIDAttributeName).values.first!
+        
+        return [SearchPredicateType.Comparison.rawValue: jsonObject]
+    }
+    
+}
+
+internal extension NSCompoundPredicate {
+    
+    convenience init?(JSONObject: [String: AnyObject], entity: NSEntityDescription, managedObjectContext: NSManagedObjectContext, resourceIDAttributeName: String) {
+        
+        return nil
+    }
+    
+    override func toJSON(#entity: NSEntityDescription, managedObjectContext: NSManagedObjectContext, resourceIDAttributeName: String) -> [String: AnyObject] {
+        
+        var jsonObject = [String: AnyObject]()
+        
+        // compound type is string
+        jsonObject[SearchCompoundPredicateParameter.PredicateType.rawValue] = SearchCompoundPredicateType(compoundPredicateTypeValue: self.compoundPredicateType).rawValue
+        
+        var subpredicateJSONArray = [[String: AnyObject]]()
+        
+        for predicate in self.subpredicates as [NSPredicate] {
+            
+            let predicateJSONObject = predicate.toJSON(entity: entity, managedObjectContext: managedObjectContext, resourceIDAttributeName: resourceIDAttributeName)
+            
+            subpredicateJSONArray.append(predicateJSONObject)
+        }
+        
+        // set subpredicates
+        jsonObject[SearchCompoundPredicateParameter.Subpredicates.rawValue] = subpredicateJSONArray
+        
+        return [SearchPredicateType.Compound.rawValue: jsonObject]
+    }
+}
 
 // MARK: - Enumeration Extensions
 
@@ -69,96 +203,6 @@ public extension NSComparisonPredicateOptions {
     }
 }
 
-// MARK: - Internal Extensions
-
-extension NSPredicate {
-    
-    func toJSON(#entity: NSEntityDescription, managedObjectContext: NSManagedObjectContext, resourceIDAttributeName: String) -> [String : AnyObject] {
-        
-        NSException(name: NSInternalInconsistencyException, reason: "NSPredicate cannot be converted to JSON, only its subclasses", userInfo: nil).raise()
-        
-        return [String: AnyObject]()
-    }
-    
-    convenience init?(JSONObject: [String: AnyObject]) {
-        
-        self.init(format: "")
-        
-        return nil
-    }
-}
-
-extension NSComparisonPredicate {
-    
-    override func toJSON(#entity: NSEntityDescription, managedObjectContext: NSManagedObjectContext, resourceIDAttributeName: String) -> [String: AnyObject] {
-        
-        if self.predicateOperatorType == NSPredicateOperatorType.CustomSelectorPredicateOperatorType {
-            
-            NSException(name: NSInternalInconsistencyException, reason: "Comparison Predicates with NSCustomSelectorPredicateOperatorType cannot be serialized to JSON for NetworkObjects Server/Store use", userInfo: nil).raise()
-        }
-        
-        var jsonObject = [String: AnyObject]()
-        
-        // set primitive parameters
-        jsonObject[SearchComparisonPredicateParameter.Operator.rawValue] = SearchComparisonPredicateOperator(predicateOperatorTypeValue: predicateOperatorType)!.rawValue
-        jsonObject[SearchComparisonPredicateParameter.Modifier.rawValue] = SearchComparisonPredicateModifier(comparisonPredicateModifierValue: comparisonPredicateModifier).rawValue
-        
-        // array of options or nil
-        jsonObject[SearchComparisonPredicateParameter.Options.rawValue] = {
-           
-            let searchOptions = self.options.toSearchComparisonPredicateOptions()
-            
-            if searchOptions == nil {
-                
-                return nil
-            }
-            
-            var rawValues = [String]()
-            
-            for option in searchOptions! {
-                
-                rawValues.append(option.rawValue)
-            }
-            
-            return rawValues
-        }()
-        
-        // set key
-        let key = leftExpression.keyPath
-        jsonObject[SearchComparisonPredicateParameter.Key.rawValue] = key
-        
-        // set value
-        jsonObject[SearchComparisonPredicateParameter.Value.rawValue] = entity.JSONObjectFromCoreDataValues([key: rightExpression.constantValue], usingResourceIDAttributeName: resourceIDAttributeName).values.first!
-        
-        return jsonObject
-    }
-    
-}
-
-extension NSCompoundPredicate {
-    
-    override func toJSON(#entity: NSEntityDescription, managedObjectContext: NSManagedObjectContext, resourceIDAttributeName: String) -> [String: AnyObject] {
-        
-        var jsonObject = [String: AnyObject]()
-        
-        // compound type is string
-        jsonObject[SearchCompoundPredicateParameter.PredicateType.rawValue] = SearchCompoundPredicateType(compoundPredicateTypeValue: self.compoundPredicateType).rawValue
-        
-        var subpredicateJSONArray = [[String: AnyObject]]()
-        
-        for predicate in self.subpredicates as [NSPredicate] {
-            
-            let predicateJSONObject = predicate.toJSON(entity: entity, managedObjectContext: managedObjectContext, resourceIDAttributeName: resourceIDAttributeName)
-            
-            subpredicateJSONArray.append(predicateJSONObject)
-        }
-        
-        // set subpredicates
-        jsonObject[SearchCompoundPredicateParameter.Subpredicates.rawValue] = subpredicateJSONArray
-        
-        return jsonObject
-    }
-}
 
 // MARK: - Enumerations
 
@@ -170,6 +214,8 @@ public enum SearchPredicateType: String {
     
     /** The predicate is a compound type (NSCompoundPredicate). */
     case Compound = "Compound"
+    
+    
 }
 
 // MARK: Comparison Predicate

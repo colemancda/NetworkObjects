@@ -11,7 +11,17 @@ import CoreData
 
 internal extension NSFetchRequest {
     
-    /// Serializes a fetch request into JSON. See SearchParameter for the keys of the generated JSON dictionary.
+    /** Creates a fetch request from a JSON object. */
+    convenience init?(entity: NSEntityDescription, JSONObject: [String: AnyObject]) {
+        
+        self.init()
+        
+        self.entity = entity
+        
+        
+    }
+    
+    /// Serializes a fetch request to JSON. See SearchParameter for the keys of the generated JSON dictionary.
     /// The fetch request's predicate must be a concrete subclass of NSPredicate. NSComparisonPredcate instances must specify a key on the left expression and a attribute or relationship value on the right expression.
     ///
     /// :param: managedObjectContext Used for retrieved the resourceID of managed objects referenced in predicates.

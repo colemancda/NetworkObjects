@@ -496,7 +496,7 @@ public class Server {
         // get search parameters
         
         /** The JSON-formatted dictionary */
-        let searchParameters = request.JSONObject
+        let searchParameters = request.JSONObject!
         
         let entity = request.entity
         
