@@ -9,6 +9,8 @@
 import Foundation
 import CoreData
 
+// MARK: - Internal Extensions
+
 internal extension NSFetchRequest {
     
     /** Creates a fetch request from a JSON object. */

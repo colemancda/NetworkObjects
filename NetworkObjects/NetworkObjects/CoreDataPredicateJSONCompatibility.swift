@@ -16,7 +16,7 @@ internal extension NSPredicate {
     /// Creates a contrete subclass of NSPredicate from the provided JSON.
     ///
     /// :param: JSONObject The JSON dictionary used to create the predicate
-    /// :returns: A concrete subclass of NSPredicate or nil with the provided JSON was incorrect
+    /// :returns: A concrete subclass of NSPredicate or nil if the provided JSON was incorrect
     class func predicateWithJSON(JSONObject: [String: AnyObject], entity: NSEntityDescription, managedObjectContext: NSManagedObjectContext, resourceIDAttributeName: String, error: NSErrorPointer) -> NSPredicate? {
         
         // invalid JSON
@@ -77,6 +77,8 @@ internal extension NSComparisonPredicate {
                 
                 return nil
             }
+            
+            
         }
         
         
@@ -118,6 +120,8 @@ internal extension NSComparisonPredicate {
 internal extension NSCompoundPredicate {
     
     convenience init?(JSONObject: [String: AnyObject], entity: NSEntityDescription, managedObjectContext: NSManagedObjectContext, resourceIDAttributeName: String, error: NSErrorPointer) {
+        
+        self.init()
         
         return nil
     }
