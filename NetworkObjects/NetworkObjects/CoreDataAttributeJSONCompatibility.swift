@@ -9,7 +9,7 @@
 import Foundation
 import CoreData
 
-// Static options for conversion
+/** Static options for CoreData <-> JSON conversion. */
 struct CoreDataAttributeJSONCompatibilityOptions {
     static var Base64EncodingOptions = NSDataBase64EncodingOptions.allZeros
     static var Base64DecodingOptions = NSDataBase64DecodingOptions.allZeros
@@ -100,7 +100,7 @@ internal extension NSEntityDescription {
     /// :param: jsonValue The JSON value that will be converted.
     /// :param: attributeName The name the of attribute that will be used to convert the value. Must be a valid attribute.
     /// :returns: A tuple with a Core Data compatible attribute value and a boolean indicating that the conversion was successful.
-    func attributeValueForJSONCompatibleValue(JSONCompatibleValue jsonValue: AnyObject, forAttribute attributeName: String) -> (AnyObject?, Bool) {
+    func attributeValueForJSONCompatibleValue(jsonValue: AnyObject, forAttribute attributeName: String) -> (AnyObject?, Bool) {
         
         let attributeDescription = self.attributesByName[attributeName] as? NSAttributeDescription
         
