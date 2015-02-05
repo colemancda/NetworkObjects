@@ -143,14 +143,14 @@ internal extension NSComparisonPredicate {
         // set right expression
         let rightExpression: NSExpression? = {
             
-            let valueObject: AnyObject? = JSONObject[SearchComparisonPredicateParameter.Value.rawValue]
+            let jsonPredicateValue: AnyObject? = JSONObject[SearchComparisonPredicateParameter.Value.rawValue]
             
-            if valueObject == nil {
+            if jsonPredicateValue == nil {
                 
                 return nil
             }
             
-            if (valueObject as? NSNull) != nil {
+            if (jsonPredicateValue as? NSNull) != nil {
                 
                 return NSExpression(forConstantValue: NSNull())
             }
@@ -171,17 +171,112 @@ internal extension NSComparisonPredicate {
                 // attribute
                 if attribute != nil {
                     
-                    let (newValue: AnyObject?, valid) = entity.attributeValueForJSONCompatibleValue(valueObject!, forAttribute: key)
+                    let (newValue: AnyObject?, valid) = entity.attributeValueForJSONCompatibleValue(jsonPredicateValue!, forAttribute: key)
                     
                     return newValue
                 }
                 
                 // relationship...
                 
+                let model = managedObjectContext.persistentStoreCoordinator!.managedObjectModel
+                
                 // to-one
                 if !relationship!.toMany {
                     
+                    let resourceDictionary = jsonPredicateValue as? [String: UInt]
                     
+                    // verify
+                    if resourceDictionary == nil || resourceDictionary?.count != 1  {
+                        
+                        return nil
+                    }
+                    
+                    let resourceID = resourceDictionary!.values.first!
+                    
+                    let resourceEntityName = resourceDictionary!.keys.first!
+                    
+                    let resourceEntity = model.entitiesByName[resourceEntityName] as? NSEntityDescription
+                    
+                    // verify
+                    if resourceEntity == nil || !(resourceEntity?.isKindOfEntity(relationship!.destinationEntity!) ?? true) {
+                        
+                        return nil
+                    }
+                    
+                    let (fetchedResource, fetchError) = FetchEntity(resourceEntity!, withResourceID: resourceID, usingContext: managedObjectContext, resourceIDAttributeName: resourceIDAttributeName, shouldPrefetch: false)
+                    
+                    // error fetching
+                    if fetchError != nil {
+                        
+                        error.memory = fetchError!
+                        
+                        return nil
+                    }
+                    
+                    // not found
+                    if fetchedResource == nil {
+                        
+                        return nil
+                    }
+                    
+                    // set value
+                    return fetchedResource!
+                }
+                    
+                // to-many relationships
+                else {
+                    
+                    let resourceDictionaries = jsonPredicateValue as? [[String: UInt]]
+                    
+                    // verify
+                    if resourceDictionaries == nil {
+                        
+                        return nil
+                    }
+                    
+                    var fetchedManagedObjects = [NSManagedObject]()
+                    
+                    for resourceDictionary in resourceDictionaries! {
+                        
+                        // verify
+                        if resourceDictionary.count != 1  {
+                            
+                            return nil
+                        }
+                        
+                        let resourceID = resourceDictionary.values.first!
+                        
+                        let resourceEntityName = resourceDictionary.keys.first!
+                        
+                        let resourceEntity = model.entitiesByName[resourceEntityName] as? NSEntityDescription
+                        
+                        // verify
+                        if resourceEntity == nil || !(resourceEntity?.isKindOfEntity(relationship!.destinationEntity!) ?? true)  {
+                            
+                            return nil
+                        }
+                        
+                        let (fetchedResource, fetchError) = FetchEntity(resourceEntity!, withResourceID: resourceID, usingContext: managedObjectContext, resourceIDAttributeName: resourceIDAttributeName, shouldPrefetch: false)
+                        
+                        // error fetching
+                        if fetchError != nil {
+                            
+                            error.memory = fetchError!
+                            
+                            return nil
+                        }
+                        
+                        // not found
+                        if fetchedResource == nil {
+                            
+                            return nil
+                        }
+                        
+                        fetchedManagedObjects.append(fetchedResource!)
+                    }
+                    
+                    // set value
+                    return fetchedManagedObjects
                 }
                 
             }()
