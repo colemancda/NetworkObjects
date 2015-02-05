@@ -94,59 +94,11 @@ public class Store {
         
         assert(self.searchPath != nil, "Cannot perform searches when searchPath is nil")
         
-        // build JSON request from fetch request
-        
-        var jsonObject = [String: AnyObject]()
-        
-        // optional comparison predicate
-        
-        let predicate = fetchRequest.predicate as? NSComparisonPredicate
-        
-        if predicate != nil && predicate?.predicateOperatorType != NSPredicateOperatorType.CustomSelectorPredicateOperatorType {
-            
-            jsonObject[SearchParameter.PredicateKey.rawValue] = predicate?.leftExpression.keyPath
-            
-            // convert from Core Data to JSON
-            let jsonValue: AnyObject? = fetchRequest.entity!.JSONObjectFromCoreDataValues([predicate!.leftExpression.keyPath: predicate!.rightExpression.constantValue], usingResourceIDAttributeName: self.resourceIDAttributeName).values.first
-            
-            jsonObject[SearchParameter.PredicateValue.rawValue] = jsonValue
-            
-            jsonObject[SearchParameter.PredicateOperator.rawValue] = predicate?.predicateOperatorType.rawValue
-            
-            jsonObject[SearchParameter.PredicateOption.rawValue] = predicate?.options.rawValue
-            
-            jsonObject[SearchParameter.PredicateModifier.rawValue] = predicate?.comparisonPredicateModifier.rawValue
-        }
-        
-        // other fetch parameters
-        
-        if fetchRequest.fetchLimit != 0 {
-            jsonObject[SearchParameter.FetchLimit.rawValue] = fetchRequest.fetchLimit
-        }
-        
-        if fetchRequest.fetchOffset != 0 {
-            jsonObject[SearchParameter.FetchOffset.rawValue] = fetchRequest.fetchOffset
-        }
-        
-        jsonObject[SearchParameter.IncludesSubentities.rawValue] = fetchRequest.includesSubentities
-        
-        // sort descriptors
-        
-        if fetchRequest.sortDescriptors!.count != 0 {
-            
-            var jsonSortDescriptors = [[String: AnyObject]]()
-            
-            for sort in fetchRequest.sortDescriptors as [NSSortDescriptor] {
-                
-                jsonSortDescriptors.append([sort.sortKey()! : sort.ascending])
-            }
-            
-            jsonObject[SearchParameter.SortDescriptors.rawValue] = jsonSortDescriptors
-        }
+        let searchParameters = fetchRequest.toJSON(self.managedObjectContext, resourceIDAttributeName: self.resourceIDAttributeName)
         
         // call API method
         
-        return self.searchForResource(fetchRequest.entity!, withParameters: jsonObject, URLSession: URLSession, completionBlock: { (httpError, results) -> Void in
+        return self.searchForResource(fetchRequest.entity!, withParameters: searchParameters, URLSession: URLSession, completionBlock: { (httpError, results) -> Void in
             
             if httpError != nil {
                 
@@ -1159,12 +1111,12 @@ public class Store {
             
             if attribute != nil {
                 
-                let newValue: AnyObject = managedObject.attributeValueForJSONCompatibleValue(jsonValue, forAttribute: key)!
+                let (newValue: AnyObject?, valid) = managedObject.entity.attributeValueForJSONCompatibleValue(jsonValue, forAttribute: key)
                 
                 let currentValue: AnyObject? = managedObject.valueForKey(key)
                 
                 // set value if not current value
-                if !newValue.isEqual(currentValue) {
+                if (newValue as? NSObject) != (currentValue as? NSObject) {
                     
                     managedObject.setValue(newValue, forKey: key)
                 }
@@ -1286,6 +1238,78 @@ public class Store {
     }
 }
 
+// MARK: - Internal Extensions
+
+internal extension NSEntityDescription {
+    
+    func JSONObjectFromCoreDataValues(values: [String: AnyObject], usingResourceIDAttributeName resourceIDAttributeName: String) -> [String: AnyObject] {
+        
+        var jsonObject = [String: AnyObject]()
+        
+        // convert values...
+        
+        for (key, value) in values {
+            
+            let attribute = self.attributesByName[key] as? NSAttributeDescription
+            
+            if attribute != nil {
+                
+                jsonObject[key] = self.JSONCompatibleValueForAttributeValue(value, forAttribute: key)
+            }
+            
+            let relationship = self.relationshipsByName[key] as? NSRelationshipDescription
+            
+            if relationship != nil {
+                
+                // to-one relationship
+                if !relationship!.toMany {
+                    
+                    // get the resource ID of the object
+                    let destinationResource = value as NSManagedObject
+                    
+                    let destinationResourceID = destinationResource.valueForKey(resourceIDAttributeName) as UInt
+                    
+                    jsonObject[key] = [destinationResource.entity.name!: destinationResourceID]
+                }
+                    
+                    // to-many relationship
+                else {
+                    
+                    let destinationResources: [NSManagedObject] = {
+                        
+                        // ordered set
+                        if relationship!.ordered {
+                            
+                            let orderedSet = value as NSOrderedSet
+                            
+                            return orderedSet.array as [NSManagedObject]
+                        }
+                        
+                        // set
+                        let set = value as NSSet
+                        
+                        return set.allObjects as [NSManagedObject]
+                        
+                        }()
+                    
+                    var destinationResourceIDs = [[String: UInt]]()
+                    
+                    for destinationResource in destinationResources {
+                        
+                        let destinationResourceID = destinationResource.valueForKey(resourceIDAttributeName) as UInt
+                        
+                        destinationResourceIDs.append([destinationResource.entity.name!: destinationResourceID])
+                    }
+                    
+                    jsonObject[key] = destinationResourceIDs
+                }
+            }
+        }
+        
+        return jsonObject
+    }
+}
+
 // MARK: - Private Extensions
 
 private extension NSManagedObjectModel {
@@ -1318,76 +1342,6 @@ private extension NSManagedObjectModel {
                 property.optional = true
             }
         }
-    }
-}
-
-private extension NSEntityDescription {
-    
-    func JSONObjectFromCoreDataValues(values: [String: AnyObject], usingResourceIDAttributeName resourceIDAttributeName: String) -> [String: AnyObject] {
-        
-        var jsonObject = [String: AnyObject]()
-        
-        // convert values...
-        
-        for (key, value) in values {
-            
-            let attribute = self.attributesByName[key] as? NSAttributeDescription
-            
-            if attribute != nil {
-                
-                jsonObject[key] = self.JSONCompatibleValueForAttributeValue(value, forAttribute: key)
-            }
-            
-            let relationship = self.relationshipsByName[key] as? NSRelationshipDescription
-            
-            if relationship != nil {
-                
-                // to-one relationship
-                if !relationship!.toMany {
-                    
-                    // get the resource ID of the object
-                    let destinationResource = value as NSManagedObject
-                    
-                    let destinationResourceID = destinationResource.valueForKey(resourceIDAttributeName) as UInt
-                    
-                    jsonObject[key] = [destinationResource.entity.name!: destinationResourceID]
-                }
-                
-                // to-many relationship
-                else {
-                    
-                    let destinationResources: [NSManagedObject] = {
-                       
-                        // ordered set
-                        if relationship!.ordered {
-                            
-                            let orderedSet = value as NSOrderedSet
-                            
-                            return orderedSet.array as [NSManagedObject]
-                        }
-                        
-                        // set
-                        let set = value as NSSet
-                        
-                        return set.allObjects as [NSManagedObject]
-                        
-                    }()
-                    
-                    var destinationResourceIDs = [[String: UInt]]()
-                    
-                    for destinationResource in destinationResources {
-                        
-                        let destinationResourceID = destinationResource.valueForKey(resourceIDAttributeName) as UInt
-                        
-                        destinationResourceIDs.append([destinationResource.entity.name!: destinationResourceID])
-                    }
-                    
-                    jsonObject[key] = destinationResourceIDs
-                }
-            }
-        }
-        
-        return jsonObject
     }
 }
 
