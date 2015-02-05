@@ -117,8 +117,6 @@ internal extension NSFetchRequest {
         
         // get the entity of the fetch request
         let entity: NSEntityDescription = {
-            
-            assert(self.entityName == nil && self.entity == nil, "No entity specified for the fetch request")
            
             if self.entity != nil {
                 
