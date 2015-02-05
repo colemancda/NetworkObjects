@@ -555,6 +555,17 @@ public class Server {
             }
         }
         
+        // check for permission of fetch request
+        if self.permissionsEnabled {
+            
+            // get all embedded comparison predicates
+            let comparisonPredicates: [NSComparisonPredicate] = {
+               
+                
+                
+            }()
+        }
+        
         // execute fetch request...
         
         var fetchError: NSError?
@@ -582,15 +593,9 @@ public class Server {
             
             for managedObject in results! {
                 
-                var resourceID: Int?
-                
-                context.performBlockAndWait({ () -> Void in
-                    
-                    resourceID = managedObject.valueForKey(self.resourceIDAttributeName) as? Int
-                })
+                let resourceID = managedObject.valueForKey(self.resourceIDAttributeName, managedObjectContext: context) as UInt
                 
                 // permission to view resource (must have at least readonly access)
-                
                 if (self.delegate?.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key: nil).rawValue >= ServerPermission.ReadOnly.rawValue) {
                     
                     // must have permission for keys accessed
@@ -603,9 +608,9 @@ public class Server {
                     }
                     
                     // must have read only permission for keys in sort descriptor
-                    if !sortDescriptors.isEmpty {
+                    if !fetchRequest!.sortDescriptors!.isEmpty {
                         
-                        for sort in sortDescriptors {
+                        for sort in fetchRequest!.sortDescriptors! as [NSSortDescriptor] {
                             
                             if self.delegate?.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key: sort.sortKey()!).rawValue >= ServerPermission.ReadOnly.rawValue {
                                 
