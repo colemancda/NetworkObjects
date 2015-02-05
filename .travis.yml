@@ -1,3 +1,5 @@
 language: objective-c
-xcode_project: NetworkObjects/NetworkObjects.xcodeproj
-xcode_scheme: NetworkObjects
+osx_image: xcode61
+before_install: true
+script:
+    - xcodebuild -scheme 'NetworkObjects' test
