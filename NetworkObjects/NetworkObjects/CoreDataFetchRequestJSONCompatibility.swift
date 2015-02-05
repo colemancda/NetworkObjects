@@ -191,13 +191,13 @@ internal extension NSSortDescriptor {
         }
         
         let key = JSONObject.keys.first!
-        
         let value = JSONObject.values.first!
         
         // validate key
-        let property = entity.propertiesByName[key] as? NSPropertyDescription
+        let attribute = entity.attributesByName[key] as? NSAttributeDescription
+        let relationship = entity.relationshipsByName[key] as? NSRelationshipDescription
         
-        if property == nil {
+        if attribute == nil && relationship == nil {
             
             self.init()
             return nil

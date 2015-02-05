@@ -117,9 +117,91 @@ internal extension NSComparisonPredicate {
            
             let keyString = JSONObject[SearchComparisonPredicateParameter.Key.rawValue] as? String
             
-            let keyString = 
+            if keyString == nil {
+                
+                return nil
+            }
             
+            let attribute = entity.attributesByName[keyString!] as? NSAttributeDescription
+            let relationship = entity.relationshipsByName[keyString!] as? NSRelationshipDescription
+            
+            if attribute == nil && relationship == nil {
+                
+                return nil
+            }
+            
+            return NSExpression(forKeyPath: keyString!)
         }()
+        
+        // verify no values are missing
+        if predicateOperatorType == nil || modifier == nil || options == nil || leftExpression == nil {
+            
+            self.init()
+            return nil
+        }
+        
+        // set right expression
+        let rightExpression: NSExpression? = {
+            
+            let valueObject: AnyObject? = JSONObject[SearchComparisonPredicateParameter.Value.rawValue]
+            
+            if valueObject == nil {
+                
+                return nil
+            }
+            
+            if (valueObject as? NSNull) != nil {
+                
+                return NSExpression(forConstantValue: NSNull())
+            }
+            
+            // convert
+            let convertedValue: AnyObject? = {
+                
+                let key = leftExpression!.keyPath
+                
+                let attribute = entity.attributesByName[key] as? NSAttributeDescription
+                let relationship = entity.relationshipsByName[key] as? NSRelationshipDescription
+                
+                if attribute == nil && relationship == nil {
+                    
+                    return nil
+                }
+                
+                // attribute
+                if attribute != nil {
+                    
+                    let (newValue: AnyObject?, valid) = entity.attributeValueForJSONCompatibleValue(valueObject!, forAttribute: key)
+                    
+                    return newValue
+                }
+                
+                // relationship...
+                
+                // to-one
+                if !relationship!.toMany {
+                    
+                    
+                }
+                
+            }()
+            
+            if convertedValue == nil {
+                
+                return nil
+            }
+            
+            return NSExpression(forConstantValue: convertedValue!)
+        }()
+        
+        if rightExpression == nil {
+            
+            self.init()
+            return nil
+        }
+        
+        // initialize with values
+        self.init(leftExpression: leftExpression!, rightExpression: rightExpression!, modifier: modifier!, type: predicateOperatorType!, options: options!)
     }
     
     override func toJSON(#entity: NSEntityDescription, managedObjectContext: NSManagedObjectContext, resourceIDAttributeName: String) -> [String: AnyObject] {

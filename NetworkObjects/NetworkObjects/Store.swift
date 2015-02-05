@@ -1111,12 +1111,12 @@ public class Store {
             
             if attribute != nil {
                 
-                let newValue: AnyObject = managedObject.attributeValueForJSONCompatibleValue(jsonValue, forAttribute: key)!
+                let (newValue: AnyObject?, valid) = managedObject.entity.attributeValueForJSONCompatibleValue(jsonValue, forAttribute: key)
                 
                 let currentValue: AnyObject? = managedObject.valueForKey(key)
                 
                 // set value if not current value
-                if !newValue.isEqual(currentValue) {
+                if (newValue as? NSObject) != (currentValue as? NSObject) {
                     
                     managedObject.setValue(newValue, forKey: key)
                 }
