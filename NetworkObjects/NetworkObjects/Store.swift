@@ -89,7 +89,9 @@ public class Store {
     
     // MARK: - Requests
     
-    /** Performs a search request on the server. The supplied fetch request's predicate must be a NSComparisonPredicate instance. */
+    /// Performs a search request on the server. The supplied fetch request's predicate must be a NSComparisonPredicate  or NSCompoundPredicate instance.
+    ///
+    ///
     public func performSearch(fetchRequest: NSFetchRequest, URLSession: NSURLSession = NSURLSession.sharedSession(), completionBlock: ((error: NSError?, results: [NSManagedObject]?) -> Void)) -> NSURLSessionDataTask {
         
         assert(self.searchPath != nil, "Cannot perform searches when searchPath is nil")
@@ -1235,6 +1237,16 @@ public class Store {
         }
         
         return nil
+    }
+    
+    // MARK: Validation
+    
+    /** Validates the JSON responses returned in GET requests. */
+    private func validateEntityJSONRepresentation(JSONObject: [String: AnyObject]) -> Bool {
+        
+        
+        
+        return true
     }
 }
 
