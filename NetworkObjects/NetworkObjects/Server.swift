@@ -506,357 +506,40 @@ public class Server {
         
         userInfo[ServerUserInfoKey.ManagedObjectContext] = context
         
-        // Put togeather fetch request
+        // create fetch request from JSON
         
-        let fetchRequest = NSFetchRequest(entityName: entity.name!)
+        var parseFetchRequestError: NSError?
         
-        // add search parameters...
+        let fetchRequest = NSFetchRequest(JSONObject: searchParameters, entity: entity, managedObjectContext: context, resourceIDAttributeName: self.resourceIDAttributeName, error: &parseFetchRequestError)
         
-        // MARK: Predicate
-        
-        let predicateDictionary = searchParameters![SearchParameter.Predicate.rawValue] as [String: AnyObject]
-        
-        let predicate = predicateKeyObject as? [String: AnyObject]
-        
-        let predicateOperatorObject: AnyObject? = searchParameters![SearchParameter.PredicateOperator.rawValue]
-        
-        let predicateOperatorNumber = predicateOperatorObject as? UInt
-        
-        var predicateOperator: NSPredicateOperatorType?
-        
-        if predicateOperatorNumber != nil {
+        // if error parsing (e.g. fetching an embedded entity in a comaprison predicate)
+        if parseFetchRequestError != nil {
             
-            predicateOperator = NSPredicateOperatorType(rawValue: predicateOperatorNumber!)
+            // tell delegate
+            self.delegate?.server(self, didEncounterInternalError: parseFetchRequestError!, forRequest: request, userInfo: userInfo)
+            
+            let response = ServerResponse(statusCode: ServerStatusCode.InternalServerError, JSONResponse: nil)
+            
+            return (response, userInfo)
         }
         
-        if (predicateKey != nil) && (predicateOperator != nil) && (jsonPredicateValue != nil) {
+        // no error but JSON was invalid
+        if fetchRequest == nil {
             
-            // validate operator (cant be CustomSelectorPredicateOperatorType)
+            let response = ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil)
             
-            if predicateOperator == NSPredicateOperatorType.CustomSelectorPredicateOperatorType {
-                
-                let response = ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil)
-                
-                return (response, userInfo)
-            }
-            
-            // convert to Core Data value...
-            var value: AnyObject?
-            
-            // one of these will be nil
-            let relationshipDescription = entity.relationshipsByName[predicateKey!] as? NSRelationshipDescription
-            
-            let attributeDescription = entity.attributesByName[predicateKey!] as? NSRelationshipDescription
-            
-            // validate that key is attribute or relationship
-            if (relationshipDescription == nil) && (attributeDescription == nil) {
-                
-                let response = ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil)
-                
-                return (response, userInfo)
-            }
-            
-            // attribute value
-            if attributeDescription != nil {
-                
-                // set value
-                value = entity.attributeValueForJSONCompatibleValue(JSONCompatibleValue: jsonPredicateValue!, forAttribute: predicateKey!)!
-            }
-            
-            // relationship value
-            if relationshipDescription != nil {
-                
-                // to-one
-                if !relationshipDescription!.toMany {
-                    
-                    let resourceDictionary = jsonPredicateValue as? [String: UInt]
-                    
-                    // verify
-                    if resourceDictionary == nil || resourceDictionary?.count != 1  {
-                        
-                        let response = ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil)
-                        
-                        return (response, userInfo)
-                    }
-                    
-                    let resourceID = resourceDictionary!.values.first!
-                    
-                    let resourceEntityName = resourceDictionary!.keys.first!
-                    
-                    let resourceEntity = self.managedObjectModel.entitiesByName[resourceEntityName] as? NSEntityDescription
-                    
-                    // verify
-                    if resourceEntity == nil || !(resourceEntity?.isKindOfEntity(relationshipDescription!.destinationEntity!) ?? true) {
-                        
-                        let response = ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil)
-                        
-                        return (response, userInfo)
-                    }
-                    
-                    let (fetchedResource, error) = FetchEntity(resourceEntity!, withResourceID: resourceID, usingContext: context, resourceIDAttributeName: self.resourceIDAttributeName, shouldPrefetch: false)
-                    
-                    // error fetching
-                    if error != nil {
-                        
-                        // tell delegate
-                        self.delegate?.server(self, didEncounterInternalError: error!, forRequest: request, userInfo: userInfo)
-                        
-                        let response = ServerResponse(statusCode: ServerStatusCode.InternalServerError, JSONResponse: nil)
-                        
-                        return (response, userInfo)
-                    }
-                    
-                    // not found
-                    if fetchedResource == nil {
-                        
-                        let response = ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil)
-                        
-                        return (response, userInfo)
-                    }
-                    
-                    // set value
-                    value = fetchedResource!
-                }
-                
-                // to-many relationships
-                else {
-                    
-                    let resourceDictionaries = jsonPredicateValue as? [[String: UInt]]
-                    
-                    // verify
-                    if resourceDictionaries == nil {
-                        
-                        let response = ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil)
-                        
-                        return (response, userInfo)
-                    }
-                    
-                    var fetchedManagedObjects = [NSManagedObject]()
-                    
-                    for resourceDictionary in resourceDictionaries! {
-                        
-                        // verify
-                        if resourceDictionary.count != 1  {
-                            
-                            let response = ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil)
-                            
-                            return (response, userInfo)
-                        }
-                        
-                        let resourceID = resourceDictionary.values.first!
-                        
-                        let resourceEntityName = resourceDictionary.keys.first!
-                        
-                        let resourceEntity = self.managedObjectModel.entitiesByName[resourceEntityName] as? NSEntityDescription
-                        
-                        // verify
-                        if resourceEntity == nil || !(resourceEntity?.isKindOfEntity(relationshipDescription!.destinationEntity!) ?? true)  {
-                            
-                            let response = ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil)
-                            
-                            return (response, userInfo)
-                        }
-                        
-                        let (fetchedResource, error) = FetchEntity(resourceEntity!, withResourceID: resourceID, usingContext: context, resourceIDAttributeName: self.resourceIDAttributeName, shouldPrefetch: false)
-                        
-                        // error fetching
-                        if error != nil {
-                            
-                            // tell delegate
-                            self.delegate?.server(self, didEncounterInternalError: error!, forRequest: request, userInfo: userInfo)
-                            
-                            let response = ServerResponse(statusCode: ServerStatusCode.InternalServerError, JSONResponse: nil)
-                            
-                            return (response, userInfo)
-                        }
-                        
-                        // not found
-                        if fetchedResource == nil {
-                            
-                            let response = ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil)
-                            
-                            return (response, userInfo)
-                        }
-                        
-                        fetchedManagedObjects.append(fetchedResource!)
-                    }
-                    
-                    // set value
-                    value = fetchedManagedObjects
-                }
-            }
-            
-            // add optional parameters...
-            
-            // MARK: Predicate Options
-            
-            var option = NSComparisonPredicateOptions.NormalizedPredicateOption // default value
-            
-            let optionNumberObject: AnyObject? = searchParameters![SearchParameter.PredicateOption.rawValue]
-            
-            if optionNumberObject != nil {
-                
-                let optionNumber = optionNumberObject as? UInt
-                
-                // validate NSUInteger bitmask
-                
-                if optionNumber == nil || (optionNumber != NSComparisonPredicateOptions.NormalizedPredicateOption.rawValue && optionNumber != NSComparisonPredicateOptions.DiacriticInsensitivePredicateOption.rawValue && optionNumber != NSComparisonPredicateOptions.CaseInsensitivePredicateOption.rawValue) {
-                    
-                    let response = ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil)
-                    
-                    return (response, userInfo)
-                }
-                
-                option = NSComparisonPredicateOptions(rawValue: optionNumber!)
-            }
-            
-            // MARK: Predicate Modifier
-            
-            var modifier: NSComparisonPredicateModifier? = NSComparisonPredicateModifier.DirectPredicateModifier // default value
-            
-            let modifierNumberObject: AnyObject? = searchParameters![SearchParameter.PredicateModifier.rawValue]
-            
-            if modifierNumberObject != nil {
-                
-                let modifierNumber = modifierNumberObject as? UInt
-                
-                modifier = NSComparisonPredicateModifier(rawValue: modifierNumber!)
-                
-                // validate
-                
-                if modifier == nil {
-                    
-                    let response = ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil)
-                    
-                    return (response, userInfo)
-                }
-            }
-            
-            // create predicate...
-            
-            let leftPredicateExpression = NSExpression(forKeyPath: predicateKey!)
-            
-            let rightPredicateExpression = NSExpression(forConstantValue: value!)
-            
-            fetchRequest.predicate = NSComparisonPredicate(leftExpression: leftPredicateExpression, rightExpression: rightPredicateExpression, modifier: modifier!, type: predicateOperator!, options: option)
-        }
-        
-        // MARK: Sort Descriptors
-        
-        let sortDescriptorsJSONArrayObject: AnyObject? = searchParameters![SearchParameter.SortDescriptors.rawValue]
-        
-        let sortDescriptorsJSONArray = sortDescriptorsJSONArrayObject as? [[String: Bool]]
-        
-        // empty mutable array
-        var sortDescriptors = [NSSortDescriptor]()
-        
-        if sortDescriptorsJSONArrayObject != nil {
-            
-            // validate
-            if sortDescriptorsJSONArray == nil || sortDescriptorsJSONArray?.isEmpty == true {
-                
-                let response = ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil)
-                
-                return (response, userInfo)
-            }
-            
-            for sortDescriptorJSON:[String: Bool] in sortDescriptorsJSONArray! {
-                
-                // validate JSON
-                
-                if sortDescriptorJSON.keys.array.count != 1 {
-                    
-                    let response = ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil)
-                    
-                    return (response, userInfo)
-                }
-                
-                let key = sortDescriptorJSON.keys.first
-                
-                let ascending = sortDescriptorJSON.values.first
-                
-                let sort = NSSortDescriptor(key: key!, ascending: ascending!)
-                
-                sortDescriptors.append(sort)
-            }
-            
-            fetchRequest.sortDescriptors = sortDescriptors
-        }
-        
-        // default Sort Descriptor
-        else {
-            
-            let defaultSortDescriptor = NSSortDescriptor(key: self.resourceIDAttributeName, ascending: true)
-            
-            fetchRequest.sortDescriptors = [defaultSortDescriptor]
-        }
-        
-        // MARK: Fetch Limit
-        
-        let fetchLimitObject: AnyObject? = searchParameters![SearchParameter.FetchLimit.rawValue]
-        
-        let fetchLimitNumber = fetchLimitObject as? Int
-        
-        if fetchLimitObject != nil {
-            
-            // validate
-            if fetchLimitNumber == nil {
-                
-                let response = ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil)
-                
-                return (response, userInfo)
-            }
-            
-            fetchRequest.fetchLimit = fetchLimitNumber!
-        }
-        
-        // MARK: Fetch Offset
-        
-        let fetchOffsetObject: AnyObject? = searchParameters![SearchParameter.FetchLimit.rawValue]
-        
-        let fetchOffsetNumber = fetchOffsetObject as? Int
-        
-        if fetchOffsetObject != nil {
-            
-            // validate
-            if fetchOffsetNumber == nil {
-                
-                let response = ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil)
-                
-                return (response, userInfo)
-            }
-            
-            fetchRequest.fetchOffset = fetchOffsetNumber!
-        }
-        
-        // MARK: Includes Subentities
-        
-        let includesSubentitiesObject: AnyObject? = searchParameters![SearchParameter.IncludesSubentities.rawValue]
-        
-        let includesSubentities = includesSubentitiesObject as? Bool
-        
-        if includesSubentitiesObject != nil {
-            
-            // validate
-            if includesSubentities == nil {
-                
-                let response = ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil)
-                
-                return (response, userInfo)
-            }
-            
-            fetchRequest.includesSubentities = includesSubentities!
+            return (response, userInfo)
         }
         
         // prefetch resourceID
         
-        fetchRequest.returnsObjectsAsFaults = false
+        fetchRequest!.returnsObjectsAsFaults = false
         
-        fetchRequest.includesPropertyValues = true
+        fetchRequest!.includesPropertyValues = true
         
         // add fully parsed fetch request to userInfo
         
-        userInfo[ServerUserInfoKey.FetchRequest] = fetchRequest
+        userInfo[ServerUserInfoKey.FetchRequest] = fetchRequest!
         
         // check for permission (now that we have fully parsed the request)
         
@@ -880,7 +563,7 @@ public class Server {
         
         context.performBlockAndWait { () -> Void in
             
-            results = context.executeFetchRequest(fetchRequest, error: &fetchError) as? [NSManagedObject]
+            results = context.executeFetchRequest(fetchRequest!, error: &fetchError) as? [NSManagedObject]
         }
         
         // invalid fetch
