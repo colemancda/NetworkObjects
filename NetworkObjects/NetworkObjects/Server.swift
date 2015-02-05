@@ -555,19 +555,37 @@ public class Server {
             }
         }
         
+        // get all embedded comparison predicates (only if permissions are enabled)
+        let comparisonPredicates: [NSComparisonPredicate]? = {
+            
+            if !self.permissionsEnabled {
+                
+                return nil
+            }
+           
+            return fetchRequest!.predicate?.extractComparisonSubpredicates()
+        }()
+        
         // check for permission of fetch request's predicate (embedded entities must be visible)
-        if self.permissionsEnabled && fetchRequest!.predicate != nil {
+        if self.delegate != nil && self.permissionsEnabled && fetchRequest!.predicate != nil {
             
-            let predicate = fetchRequest!.predicate!
-            
-            // get all embedded comparison predicates
-            let comparisonPredicates: [NSComparisonPredicate] = predicate.extractComparisonSubpredicates()
-            
-            
+            for comparisonPredicate in comparisonPredicates! {
+                
+                // get embedded entity
+                if let managedObject = comparisonPredicate.rightExpression.constantValue as? NSManagedObject {
+                    
+                    // must have at least readonly permisson
+                    if self.delegate!.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key: nil).rawValue < ServerPermission.ReadOnly.rawValue {
+                        
+                        let response = ServerResponse(statusCode: ServerStatusCode.Forbidden, JSONResponse: nil)
+                        
+                        return (response, userInfo)
+                    }
+                }
+            }
         }
         
         // execute fetch request...
-        
         var fetchError: NSError?
         
         var results: [NSManagedObject]?
@@ -580,13 +598,16 @@ public class Server {
         // invalid fetch
         if fetchError != nil {
             
-            let response = ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil)
+            // tell delegate
+            self.delegate?.server(self, didEncounterInternalError: fetchError!, forRequest: request, userInfo: userInfo)
+            
+            let response = ServerResponse(statusCode: ServerStatusCode.InternalServerError, JSONResponse: nil)
             
             return (response, userInfo)
         }
         
         // optionally filter results
-        if self.permissionsEnabled {
+        if self.permissionsEnabled && self.delegate != nil {
             
             var filteredResults = [NSManagedObject]()
             
@@ -595,13 +616,29 @@ public class Server {
                 let resourceID = managedObject.valueForKey(self.resourceIDAttributeName, managedObjectContext: context) as UInt
                 
                 // permission to view resource (must have at least readonly access)
-                if (self.delegate?.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key: nil).rawValue >= ServerPermission.ReadOnly.rawValue) {
+                if self.delegate!.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key: nil).rawValue >= ServerPermission.ReadOnly.rawValue {
                     
                     // must have permission for keys accessed
-                    if predicateKey != nil {
+                    if comparisonPredicates != nil {
                         
-                        if (self.delegate?.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key: predicateKey).rawValue >= ServerPermission.ReadOnly.rawValue) {
+                        var visible = true
+                        
+                        for comparisonPredicate in comparisonPredicates! {
                             
+                            let key = comparisonPredicate.leftExpression.keyPath
+                            
+                            if self.delegate!.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key: key).rawValue < ServerPermission.ReadOnly.rawValue {
+                                
+                                visible = false
+                                
+                                break
+                            }
+                        }
+                        
+                        // at least one of the keys specified in the comparison predicate should not be visible
+                        if !visible {
+                            
+                            // dont add to results
                             break
                         }
                     }

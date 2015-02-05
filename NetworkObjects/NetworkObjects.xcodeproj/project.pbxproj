@@ -88,8 +88,8 @@
 			children = (
 				6E5929A319C54FA700F391F3 /* CoreDataAttributeJSONCompatibility.swift */,
 				6ED13D0F1A827444001F684F /* CoreDataRelationshipJSONCompatibility.swift */,
-				6E6F44191A7FF6D800DEE699 /* CoreDataPredicateJSONCompatibility.swift */,
 				6EC6042B1A8123620013AD59 /* CoreDataFetchRequestJSONCompatibility.swift */,
+				6E6F44191A7FF6D800DEE699 /* CoreDataPredicateJSONCompatibility.swift */,
 			);
 			name = "Core Data JSON Compatibility";
 			sourceTree = "<group>";
