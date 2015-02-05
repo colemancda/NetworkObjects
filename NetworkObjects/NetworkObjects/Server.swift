@@ -555,12 +555,16 @@ public class Server {
             }
         }
         
-        // check for permission of fetch request
-        if self.permissionsEnabled {
+        // check for permission of fetch request's predicate (embedded entities must be visible)
+        if self.permissionsEnabled && fetchRequest!.predicate != nil {
+            
+            let predicate = fetchRequest!.predicate!
             
             // get all embedded comparison predicates
             let comparisonPredicates: [NSComparisonPredicate] = {
                
+                
+                
                 
                 
             }()
@@ -586,7 +590,6 @@ public class Server {
         }
         
         // optionally filter results
-        
         if self.permissionsEnabled {
             
             var filteredResults = [NSManagedObject]()
