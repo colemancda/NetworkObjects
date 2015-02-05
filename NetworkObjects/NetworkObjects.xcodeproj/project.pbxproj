@@ -8,12 +8,17 @@
 
 /* Begin PBXBuildFile section */
 		6E0F4B801A71DFFD00220888 /* NetworkObjectsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EAD585519C3B58300DC080A /* NetworkObjectsTests.swift */; };
-		6E5929A419C54FA700F391F3 /* CoreDataJSONCompatibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E5929A319C54FA700F391F3 /* CoreDataJSONCompatibility.swift */; };
+		6E5929A419C54FA700F391F3 /* CoreDataAttributeJSONCompatibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E5929A319C54FA700F391F3 /* CoreDataAttributeJSONCompatibility.swift */; };
+		6E66A46A1A833AD900B92742 /* CoreDataConvenienceExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E66A4691A833AD900B92742 /* CoreDataConvenienceExtensions.swift */; };
+		6E6F441A1A7FF6D800DEE699 /* CoreDataPredicateJSONCompatibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E6F44191A7FF6D800DEE699 /* CoreDataPredicateJSONCompatibility.swift */; };
 		6E91016219C4242300377498 /* RoutingHTTPServer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E91015D19C4240000377498 /* RoutingHTTPServer.framework */; };
 		6EAD584C19C3B58300DC080A /* NetworkObjects.h in Headers */ = {isa = PBXBuildFile; fileRef = 6EAD584B19C3B58300DC080A /* NetworkObjects.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6EAD586119C3B6CB00DC080A /* Server.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EAD585F19C3B6CB00DC080A /* Server.swift */; };
 		6EAD586219C3B6CB00DC080A /* Store.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EAD586019C3B6CB00DC080A /* Store.swift */; };
+		6EC6042C1A8123620013AD59 /* CoreDataFetchRequestJSONCompatibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EC6042B1A8123620013AD59 /* CoreDataFetchRequestJSONCompatibility.swift */; };
 		6EC750F319C3F5DD009F0E00 /* Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EC750F219C3F5DD009F0E00 /* Error.swift */; };
+		6ED13D101A827444001F684F /* CoreDataRelationshipJSONCompatibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ED13D0F1A827444001F684F /* CoreDataRelationshipJSONCompatibility.swift */; };
+		6EF3FC801A81BFB300D44B9A /* SwiftExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EF3FC7F1A81BFB300D44B9A /* SwiftExtensions.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -41,7 +46,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		6E5929A319C54FA700F391F3 /* CoreDataJSONCompatibility.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataJSONCompatibility.swift; sourceTree = "<group>"; };
+		6E5929A319C54FA700F391F3 /* CoreDataAttributeJSONCompatibility.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataAttributeJSONCompatibility.swift; sourceTree = "<group>"; };
+		6E66A4691A833AD900B92742 /* CoreDataConvenienceExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataConvenienceExtensions.swift; sourceTree = "<group>"; };
+		6E6F44191A7FF6D800DEE699 /* CoreDataPredicateJSONCompatibility.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataPredicateJSONCompatibility.swift; sourceTree = "<group>"; };
 		6E91015319C4240000377498 /* RoutingHTTPServer.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RoutingHTTPServer.xcodeproj; path = ../RoutingHTTPServer/Framework/RoutingHTTPServer/RoutingHTTPServer.xcodeproj; sourceTree = "<group>"; };
 		6EAD584619C3B58300DC080A /* NetworkObjects.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = NetworkObjects.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6EAD584A19C3B58300DC080A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -51,7 +58,10 @@
 		6EAD585519C3B58300DC080A /* NetworkObjectsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkObjectsTests.swift; sourceTree = "<group>"; };
 		6EAD585F19C3B6CB00DC080A /* Server.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Server.swift; sourceTree = "<group>"; };
 		6EAD586019C3B6CB00DC080A /* Store.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Store.swift; sourceTree = "<group>"; };
+		6EC6042B1A8123620013AD59 /* CoreDataFetchRequestJSONCompatibility.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataFetchRequestJSONCompatibility.swift; sourceTree = "<group>"; };
 		6EC750F219C3F5DD009F0E00 /* Error.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Error.swift; sourceTree = "<group>"; };
+		6ED13D0F1A827444001F684F /* CoreDataRelationshipJSONCompatibility.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataRelationshipJSONCompatibility.swift; sourceTree = "<group>"; };
+		6EF3FC7F1A81BFB300D44B9A /* SwiftExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftExtensions.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -73,6 +83,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		6E66A46C1A833B7F00B92742 /* Core Data JSON Compatibility */ = {
+			isa = PBXGroup;
+			children = (
+				6E5929A319C54FA700F391F3 /* CoreDataAttributeJSONCompatibility.swift */,
+				6ED13D0F1A827444001F684F /* CoreDataRelationshipJSONCompatibility.swift */,
+				6EC6042B1A8123620013AD59 /* CoreDataFetchRequestJSONCompatibility.swift */,
+				6E6F44191A7FF6D800DEE699 /* CoreDataPredicateJSONCompatibility.swift */,
+			);
+			name = "Core Data JSON Compatibility";
+			sourceTree = "<group>";
+		};
 		6E91015419C4240000377498 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -108,7 +129,9 @@
 				6EAD585F19C3B6CB00DC080A /* Server.swift */,
 				6EAD586019C3B6CB00DC080A /* Store.swift */,
 				6EC750F219C3F5DD009F0E00 /* Error.swift */,
-				6E5929A319C54FA700F391F3 /* CoreDataJSONCompatibility.swift */,
+				6E66A46C1A833B7F00B92742 /* Core Data JSON Compatibility */,
+				6E66A4691A833AD900B92742 /* CoreDataConvenienceExtensions.swift */,
+				6EF3FC7F1A81BFB300D44B9A /* SwiftExtensions.swift */,
 				6EAD584919C3B58300DC080A /* Supporting Files */,
 			);
 			path = NetworkObjects;
@@ -270,9 +293,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				6EAD586119C3B6CB00DC080A /* Server.swift in Sources */,
-				6E5929A419C54FA700F391F3 /* CoreDataJSONCompatibility.swift in Sources */,
+				6E5929A419C54FA700F391F3 /* CoreDataAttributeJSONCompatibility.swift in Sources */,
+				6E66A46A1A833AD900B92742 /* CoreDataConvenienceExtensions.swift in Sources */,
+				6EC6042C1A8123620013AD59 /* CoreDataFetchRequestJSONCompatibility.swift in Sources */,
 				6EAD586219C3B6CB00DC080A /* Store.swift in Sources */,
+				6E6F441A1A7FF6D800DEE699 /* CoreDataPredicateJSONCompatibility.swift in Sources */,
 				6EC750F319C3F5DD009F0E00 /* Error.swift in Sources */,
+				6EF3FC801A81BFB300D44B9A /* SwiftExtensions.swift in Sources */,
+				6ED13D101A827444001F684F /* CoreDataRelationshipJSONCompatibility.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
