@@ -189,6 +189,28 @@ internal extension NSEntityDescription {
     }
 }
 
+// MARK: - Convenience Extensions
+
+internal extension NSManagedObject {
+    
+    func JSONCompatibleValueForAttribute(attributeName: String) -> AnyObject? {
+        
+        let attributeValue: AnyObject? = self.valueForKey(attributeName)
+        
+        if attributeValue != nil {
+            
+            return self.JSONCompatibleValueForAttributeValue(attributeValue!, forAttribute: attributeName)
+        }
+        
+        return nil
+    }
+    
+    func JSONCompatibleValueForAttributeValue(attributeValue: AnyObject?, forAttribute attributeName: String) -> AnyObject? {
+        
+        return self.entity.JSONCompatibleValueForAttributeValue(attributeValue, forAttribute: attributeName)
+    }
+}
+
 // MARK: - Private Extensions
 
 private extension NSDate {

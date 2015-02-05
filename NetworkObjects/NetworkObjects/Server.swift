@@ -1360,15 +1360,9 @@ public class Server {
                 }
                 
                 // get pre-edit value
-                let newValue: AnyObject? = resource.attributeValueForJSONCompatibleValue(jsonValue, forAttribute: key)
+                let (newValue: AnyObject?, valid) = resource.entity.attributeValueForJSONCompatibleValue(jsonValue, forAttribute: key)
                 
-                if newValue == nil {
-                    
-                    return ServerStatusCode.BadRequest
-                }
-                
-                // validate that the pre-edit value is of the same class as the attribute it will be given
-                if !resource.isValidConvertedValue(newValue!, forAttribute: key) {
+                if !valid {
                     
                     return ServerStatusCode.BadRequest
                 }
