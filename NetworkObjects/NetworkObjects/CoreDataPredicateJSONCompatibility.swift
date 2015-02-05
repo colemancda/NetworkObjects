@@ -334,9 +334,55 @@ internal extension NSCompoundPredicate {
     
     convenience init?(JSONObject: [String: AnyObject], entity: NSEntityDescription, managedObjectContext: NSManagedObjectContext, resourceIDAttributeName: String, error: NSErrorPointer) {
         
-        self.init()
+        // get the type
+        let compoundPredicateType: NSCompoundPredicateType? = {
+           
+            let predicateTypeString = JSONObject[SearchCompoundPredicateParameter.PredicateType.rawValue] as? String
+            
+            if predicateTypeString == nil {
+                
+                return nil
+            }
+            
+            let predicateType = SearchCompoundPredicateType(rawValue: predicateTypeString!)
+            
+            return predicateType?.toCompoundPredicateType()
+        }()
         
-        return nil
+        // get the subpredicates
+        let subpredicates: [NSPredicate]? = {
+            
+            let subpredicatesJSONArray = JSONObject[SearchCompoundPredicateParameter.Subpredicates.rawValue] as? [[String: AnyObject]]
+            
+            if subpredicatesJSONArray == nil {
+                
+                return nil
+            }
+            
+            var predicates = [NSPredicate]()
+            
+            for predicateJSONObject in subpredicatesJSONArray! {
+                
+                let predicate = NSPredicate.predicateWithJSON(predicateJSONObject, entity: entity, managedObjectContext: managedObjectContext, resourceIDAttributeName: resourceIDAttributeName, error: error)
+                
+                if predicate == nil {
+                    
+                    return nil
+                }
+                
+                predicates.append(predicate!)
+            }
+            
+            return predicates
+        }()
+        
+        if subpredicates == nil || compoundPredicateType == nil {
+            
+            self.init()
+            return nil
+        }
+        
+        self.init(type: compoundPredicateType!, subpredicates: subpredicates!)
     }
     
     override func toJSON(#entity: NSEntityDescription, managedObjectContext: NSManagedObjectContext, resourceIDAttributeName: String) -> [String: AnyObject] {
