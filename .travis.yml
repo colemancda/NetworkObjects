@@ -1,0 +1,3 @@
+language: objective-c
+xcode_project: NetworkObjects/NetworkObjects.xcodeproj
+xcode_scheme: NetworkObjects
