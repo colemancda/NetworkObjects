@@ -9,11 +9,33 @@
 import Foundation
 import CoreData
 
+// MARK: - Conversion Options
+
 /** Static options for CoreData <-> JSON conversion. */
-struct CoreDataAttributeJSONCompatibilityOptions {
-    static var Base64EncodingOptions = NSDataBase64EncodingOptions.allZeros
-    static var Base64DecodingOptions = NSDataBase64DecodingOptions.allZeros
+internal class CoreDataAttributeJSONCompatibilityOptions {
+    
+    class var defaultOptions : CoreDataAttributeJSONCompatibilityOptions {
+        struct Static {
+            static var onceToken : dispatch_once_t = 0
+            static var instance : CoreDataAttributeJSONCompatibilityOptions? = nil
+        }
+        
+        dispatch_once(&Static.onceToken) {
+            Static.instance = CoreDataAttributeJSONCompatibilityOptions()
+        }
+        return Static.instance!
+    }
+    
+    var base64EncodingOptions = NSDataBase64EncodingOptions.allZeros
+    var base64DecodingOptions = NSDataBase64DecodingOptions.allZeros
+    var dateFormatter: NSDateFormatter = {
+        let dateFormatter = NSDateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZ"
+        return dateFormatter
+    }()
 }
+
+// MARK: - Extensions
 
 internal extension NSEntityDescription {
     
@@ -24,7 +46,7 @@ internal extension NSEntityDescription {
     /// :param: attributeValue The Core Data compatible value that will be converted to JSON. Accepts NSNull as a convenience is case this is called using the values of a dictionary, which cannot hold nil. 
     /// :param: attributeName The name the of attribute that will be used to convert the value. Must be a valid attribute.
     /// :returns: The converted JSON value.
-    func JSONCompatibleValueForAttributeValue(attributeValue: AnyObject?, forAttribute attributeName: String) -> AnyObject {
+    func JSONCompatibleValueForAttributeValue(attributeValue: AnyObject?, forAttribute attributeName: String, options: CoreDataAttributeJSONCompatibilityOptions = CoreDataAttributeJSONCompatibilityOptions.defaultOptions) -> AnyObject {
         
         let attributeDescription = self.attributesByName[attributeName] as? NSAttributeDescription
         
@@ -58,13 +80,13 @@ internal extension NSEntityDescription {
         case .DateAttributeType:
             
             let date = attributeValue as NSDate
-            return date.ISO8601String()
+            return options.dateFormatter.stringFromDate(date)
             
         // data
         case .BinaryDataAttributeType:
             
             let data = attributeValue as NSData
-            return data.base64EncodedStringWithOptions(CoreDataAttributeJSONCompatibilityOptions.Base64EncodingOptions)
+            return data.base64EncodedStringWithOptions(options.base64EncodingOptions)
             
         // transformable
         case .TransformableAttributeType:
@@ -81,7 +103,7 @@ internal extension NSEntityDescription {
                 let data = transformer!.reverseTransformedValue(attributeValue) as NSData
                 
                 // convert to string (for JSON export)
-                return data.base64EncodedStringWithOptions(CoreDataAttributeJSONCompatibilityOptions.Base64EncodingOptions)
+                return data.base64EncodedStringWithOptions(options.base64EncodingOptions)
             }
             
             // custom transformer
@@ -91,7 +113,7 @@ internal extension NSEntityDescription {
             let data = transformer!.transformedValue(attributeValue) as NSData
             
             // convert to string (for JSON export)
-            return data.base64EncodedStringWithOptions(CoreDataAttributeJSONCompatibilityOptions.Base64EncodingOptions)
+            return data.base64EncodedStringWithOptions(options.base64EncodingOptions)
         }
     }
     
@@ -100,7 +122,7 @@ internal extension NSEntityDescription {
     /// :param: jsonValue The JSON value that will be converted.
     /// :param: attributeName The name the of attribute that will be used to convert the value. Must be a valid attribute.
     /// :returns: A tuple with a Core Data compatible attribute value and a boolean indicating that the conversion was successful.
-    func attributeValueForJSONCompatibleValue(jsonValue: AnyObject, forAttribute attributeName: String) -> (AnyObject?, Bool) {
+    func attributeValueForJSONCompatibleValue(jsonValue: AnyObject, forAttribute attributeName: String, options: CoreDataAttributeJSONCompatibilityOptions = CoreDataAttributeJSONCompatibilityOptions.defaultOptions) -> (AnyObject?, Bool) {
         
         let attributeDescription = self.attributesByName[attributeName] as? NSAttributeDescription
         
@@ -131,7 +153,7 @@ internal extension NSEntityDescription {
         case .DateAttributeType:
             
             if let dateString = jsonValue as? String {
-                let date = NSDate.dateWithISO8601String(dateString)
+                let date = options.dateFormatter.dateFromString(dateString)
                 return (date, date != nil)
             }
             
@@ -140,7 +162,7 @@ internal extension NSEntityDescription {
         case .BinaryDataAttributeType:
             
             if let dataString = jsonValue as? String {
-                let data = NSData(base64EncodedString: dataString, options: CoreDataAttributeJSONCompatibilityOptions.Base64DecodingOptions)
+                let data = NSData(base64EncodedString: dataString, options: options.base64DecodingOptions)
                 return (data, data != nil)
             }
             
@@ -157,7 +179,7 @@ internal extension NSEntityDescription {
             }
             
             // get data from Base64 string
-            let data = NSData(base64EncodedString: base64EncodedString!, options: CoreDataAttributeJSONCompatibilityOptions.Base64DecodingOptions)
+            let data = NSData(base64EncodedString: base64EncodedString!, options: options.base64DecodingOptions)
             
             if data == nil {
                 
@@ -193,49 +215,21 @@ internal extension NSEntityDescription {
 
 internal extension NSManagedObject {
     
-    func JSONCompatibleValueForAttribute(attributeName: String) -> AnyObject? {
+    func JSONCompatibleValueForAttribute(attributeName: String, options: CoreDataAttributeJSONCompatibilityOptions = CoreDataAttributeJSONCompatibilityOptions.defaultOptions) -> AnyObject? {
         
         let attributeValue: AnyObject? = self.valueForKey(attributeName)
         
         if attributeValue != nil {
             
-            return self.JSONCompatibleValueForAttributeValue(attributeValue!, forAttribute: attributeName)
+            return self.JSONCompatibleValueForAttributeValue(attributeValue!, forAttribute: attributeName, options: options)
         }
         
         return nil
     }
     
-    func JSONCompatibleValueForAttributeValue(attributeValue: AnyObject?, forAttribute attributeName: String) -> AnyObject? {
+    func JSONCompatibleValueForAttributeValue(attributeValue: AnyObject?, forAttribute attributeName: String, options: CoreDataAttributeJSONCompatibilityOptions = CoreDataAttributeJSONCompatibilityOptions.defaultOptions) -> AnyObject? {
         
-        return self.entity.JSONCompatibleValueForAttributeValue(attributeValue, forAttribute: attributeName)
-    }
-}
-
-// MARK: - Private Extensions
-
-private extension NSDate {
-    
-    class func ISO8601DateFormatter() -> NSDateFormatter {
-        
-        struct Static {
-            static var onceToken : dispatch_once_t = 0
-            static var instance : NSDateFormatter? = nil
-        }
-        dispatch_once(&Static.onceToken) {
-            Static.instance = NSDateFormatter()
-            Static.instance?.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZ"
-        }
-        return Static.instance!
-    }
-    
-    class func dateWithISO8601String(ISO8601String: String) -> NSDate? {
-        
-        return self.ISO8601DateFormatter().dateFromString(ISO8601String)
-    }
-    
-    func ISO8601String() -> String {
-        
-        return NSDate.ISO8601DateFormatter().stringFromDate(self)
+        return self.entity.JSONCompatibleValueForAttributeValue(attributeValue, forAttribute: attributeName, options: options)
     }
 }
 
