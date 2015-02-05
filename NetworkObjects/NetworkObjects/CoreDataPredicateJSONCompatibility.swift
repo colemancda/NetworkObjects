@@ -61,9 +61,7 @@ internal extension NSComparisonPredicate {
         // set predicate operator type
         let predicateOperatorType: NSPredicateOperatorType? = {
             
-            let predicateOperatorObject: AnyObject? = JSONObject[SearchComparisonPredicateParameter.Operator.rawValue]
-            
-            let predicateOperatorString = predicateOperatorObject as? String
+            let predicateOperatorString = JSONObject[SearchComparisonPredicateParameter.Operator.rawValue] as? String
             
             // bad JSON
             if predicateOperatorString == nil {
@@ -71,41 +69,20 @@ internal extension NSComparisonPredicate {
                 return nil
             }
             
-            let predicateOperator = SearchComparisonPredicateOperator(rawValue: predicateOperatorString!)
-            
-            if predicateOperator == nil {
-                
-                return nil
-            }
-            
-            return predicateOperator!.toPredicateOperatorType()
+            return SearchComparisonPredicateOperator(rawValue: predicateOperatorString!)?.toPredicateOperatorType()
         }()
         
         // set modifier
         let modifier: NSComparisonPredicateModifier? = {
-           
-            let modifierObject: AnyObject? = JSONObject[SearchComparisonPredicateParameter.Modifier.rawValue]
             
-            if modifierObject == nil {
-                
-                return nil
-            }
-            
-            let modifierString = modifierObject as? String
+            let modifierString = JSONObject[SearchComparisonPredicateParameter.Modifier.rawValue] as? String
             
             if modifierString == nil {
                 
                 return nil
             }
             
-            let modifier = SearchComparisonPredicateModifier(rawValue: modifierString!)
-            
-            if modifier == nil {
-                
-                return nil
-            }
-            
-            return modifier!.toComparisonPredicateModifier()
+            return SearchComparisonPredicateModifier(rawValue: modifierString!)?.toComparisonPredicateModifier()
         }()
         
         // set options
