@@ -561,13 +561,9 @@ public class Server {
             let predicate = fetchRequest!.predicate!
             
             // get all embedded comparison predicates
-            let comparisonPredicates: [NSComparisonPredicate] = {
-               
-                
-                
-                
-                
-            }()
+            let comparisonPredicates: [NSComparisonPredicate] = predicate.extractComparisonSubpredicates()
+            
+            
         }
         
         // execute fetch request...

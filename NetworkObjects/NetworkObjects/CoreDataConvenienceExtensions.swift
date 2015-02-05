@@ -57,3 +57,31 @@ internal extension NSManagedObject {
         return value
     }
 }
+
+internal extension NSPredicate {
+    
+    /** Transverses the predicate tree and returns all comparison predicates. If this is called on an instance of NSComparisonPredicate, then an array with self is returned. Only use with concrete subclasses of NSPredicate. */
+    func extractComparisonSubpredicates() -> [NSComparisonPredicate] {
+        
+        assert((self as? NSComparisonPredicate) != nil && (self as? NSCompoundPredicate) != nil, "Cannot extract comparison subpredicates from NSPredicate, must use concrete subclasses")
+        
+        // main predicate is comparison predicate
+        if let comparisonPredicate = self as? NSComparisonPredicate {
+            
+            return [comparisonPredicate]
+        }
+        
+        let compoundPredicate = self as NSCompoundPredicate
+        
+        let comparisonPredicates = NSMutableArray()
+        
+        for subpredicate in compoundPredicate.subpredicates as [NSPredicate] {
+            
+            let subpredicates = subpredicate.extractComparisonSubpredicates()
+            
+            comparisonPredicates.addObjectsFromArray(subpredicates)
+        }
+        
+        return (comparisonPredicates as NSArray) as [NSComparisonPredicate]
+    }
+}
