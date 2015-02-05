@@ -593,7 +593,7 @@ public class Server {
                         return (response, userInfo)
                     }
                     
-                    let (fetchedResource, error) = self.fetchEntity(resourceEntity!, withResourceID: resourceID, usingContext: context, shouldPrefetch: false)
+                    let (fetchedResource, error) = FetchEntity(resourceEntity!, withResourceID: resourceID, usingContext: context, resourceIDAttributeName: self.resourceIDAttributeName, shouldPrefetch: false)
                     
                     // error fetching
                     if error != nil {
@@ -657,7 +657,7 @@ public class Server {
                             return (response, userInfo)
                         }
                         
-                        let (fetchedResource, error) = self.fetchEntity(resourceEntity!, withResourceID: resourceID, usingContext: context, shouldPrefetch: false)
+                        let (fetchedResource, error) = FetchEntity(resourceEntity!, withResourceID: resourceID, usingContext: context, resourceIDAttributeName: self.resourceIDAttributeName, shouldPrefetch: false)
                         
                         // error fetching
                         if error != nil {
@@ -1099,7 +1099,7 @@ public class Server {
         userInfo[ServerUserInfoKey.ManagedObjectContext] = context
         
         // fetch managedObject
-        let (managedObject, error) = self.fetchEntity(entity, withResourceID: resourceID!, usingContext: context, shouldPrefetch: true)
+        let (managedObject, error) = FetchEntity(entity, withResourceID: resourceID!, usingContext: context,  resourceIDAttributeName: self.resourceIDAttributeName ,shouldPrefetch: true)
         
         // internal error
         if error != nil {
@@ -1183,7 +1183,7 @@ public class Server {
         userInfo[ServerUserInfoKey.ManagedObjectContext] = context
         
         // fetch managedObject
-        let (managedObject, error) = self.fetchEntity(entity, withResourceID: resourceID!, usingContext: context, shouldPrefetch: true)
+        let (managedObject, error) = FetchEntity(entity, withResourceID: resourceID!, usingContext: context, resourceIDAttributeName: self.resourceIDAttributeName, shouldPrefetch: true)
         
         // internal error
         if error != nil {
@@ -1304,7 +1304,7 @@ public class Server {
         userInfo[ServerUserInfoKey.ManagedObjectContext] = context
         
         // fetch managedObject
-        let (managedObject, error) = self.fetchEntity(entity, withResourceID: resourceID!, usingContext: context, shouldPrefetch: true)
+        let (managedObject, error) = FetchEntity(entity, withResourceID: resourceID!, usingContext: context,  resourceIDAttributeName: self.resourceIDAttributeName, shouldPrefetch: true)
         
         // internal error
         if error != nil {
@@ -1403,7 +1403,7 @@ public class Server {
         userInfo[ServerUserInfoKey.ManagedObjectContext] = context
         
         // fetch managedObject
-        let (managedObject, error) = self.fetchEntity(entity, withResourceID: resourceID!, usingContext: context, shouldPrefetch: true)
+        let (managedObject, error) = FetchEntity(entity, withResourceID: resourceID!, usingContext: context, resourceIDAttributeName: self.resourceIDAttributeName, shouldPrefetch: true)
         
         // internal error
         if error != nil {
@@ -1488,67 +1488,6 @@ public class Server {
             
             return NSJSONWritingOptions.allZeros
         }
-    }
-    
-    private func fetchEntity(entity: NSEntityDescription, withResourceID resourceID: UInt, usingContext context: NSManagedObjectContext, shouldPrefetch: Bool) -> (NSManagedObject?, NSError?) {
-        
-        let fetchRequest = NSFetchRequest(entityName: entity.name!)
-        
-        fetchRequest.fetchLimit = 1
-        
-        fetchRequest.includesSubentities = false
-        
-        fetchRequest.predicate = NSComparisonPredicate(leftExpression: NSExpression(forKeyPath: self.resourceIDAttributeName), rightExpression: NSExpression(forConstantValue: resourceID), modifier: NSComparisonPredicateModifier.DirectPredicateModifier, type: NSPredicateOperatorType.EqualToPredicateOperatorType, options: NSComparisonPredicateOptions.NormalizedPredicateOption)
-        
-        if shouldPrefetch {
-            
-            fetchRequest.returnsObjectsAsFaults = false
-        }
-        else {
-            
-            fetchRequest.includesPropertyValues = false
-        }
-        
-        var error: NSError?
-        
-        var result: [NSManagedObject]?
-        
-        context.performBlockAndWait { () -> Void in
-            
-            result = context.executeFetchRequest(fetchRequest, error: &error) as? [NSManagedObject]
-        }
-        
-        return (result?.first, error)
-    }
-    
-    private func fetchEntity(entity: NSEntityDescription, withResourceIDs resourceIDs: [UInt], usingContext context: NSManagedObjectContext, shouldPrefetch: Bool) -> ([NSManagedObject]?, NSError?) {
-        
-        let fetchRequest = NSFetchRequest(entityName: entity.name!)
-        
-        fetchRequest.fetchLimit = resourceIDs.count
-        
-        fetchRequest.predicate = NSComparisonPredicate(leftExpression: NSExpression(forKeyPath: self.resourceIDAttributeName), rightExpression: NSExpression(forConstantValue: resourceIDs), modifier: NSComparisonPredicateModifier.DirectPredicateModifier, type: NSPredicateOperatorType.InPredicateOperatorType, options: NSComparisonPredicateOptions.NormalizedPredicateOption)
-        
-        if shouldPrefetch {
-            
-            fetchRequest.returnsObjectsAsFaults = false
-        }
-        else {
-            
-            fetchRequest.includesPropertyValues = false
-        }
-        
-        var error: NSError?
-        
-        var result: [NSManagedObject]?
-        
-        context.performBlockAndWait { () -> Void in
-            
-            result = context.executeFetchRequest(fetchRequest, error: &error) as? [NSManagedObject]
-        }
-        
-        return (result, error)
-        
     }
     
     private func JSONRepresentationOfManagedObject(managedObject: NSManagedObject) -> [String: AnyObject] {
@@ -1808,7 +1747,7 @@ public class Server {
                         return ServerStatusCode.BadRequest
                     }
                     
-                    let (newValue, error) = self.fetchEntity(destinationEntity!, withResourceID: destinationResourceID, usingContext: context, shouldPrefetch: false)
+                    let (newValue, error) = FetchEntity(destinationEntity!, withResourceID: destinationResourceID, usingContext: context, resourceIDAttributeName: self.resourceIDAttributeName, shouldPrefetch: false)
                     
                     if error != nil {
                         
@@ -1878,7 +1817,7 @@ public class Server {
                             return ServerStatusCode.BadRequest
                         }
                         
-                        let (newValue, error) = self.fetchEntity(destinationEntity!, withResourceID: destinationResourceID, usingContext: context, shouldPrefetch: false)
+                        let (newValue, error) = FetchEntity(destinationEntity!, withResourceID: destinationResourceID, usingContext: context, resourceIDAttributeName: self.resourceIDAttributeName, shouldPrefetch: false)
                         
                         if error != nil {
                             
@@ -2220,5 +2159,67 @@ internal extension NSSortDescriptor {
         return self.key()
             #endif
     }
+}
+
+// MARK: - Internal Functions
+
+internal func FetchEntity(entity: NSEntityDescription, withResourceID resourceID: UInt, usingContext context: NSManagedObjectContext, #resourceIDAttributeName: String, #shouldPrefetch: Bool) -> (NSManagedObject?, NSError?) {
+    
+    let fetchRequest = NSFetchRequest(entityName: entity.name!)
+    
+    fetchRequest.fetchLimit = 1
+    
+    fetchRequest.includesSubentities = false
+    
+    fetchRequest.predicate = NSComparisonPredicate(leftExpression: NSExpression(forKeyPath: resourceIDAttributeName), rightExpression: NSExpression(forConstantValue: resourceID), modifier: NSComparisonPredicateModifier.DirectPredicateModifier, type: NSPredicateOperatorType.EqualToPredicateOperatorType, options: NSComparisonPredicateOptions.NormalizedPredicateOption)
+    
+    if shouldPrefetch {
+        
+        fetchRequest.returnsObjectsAsFaults = false
+    }
+    else {
+        
+        fetchRequest.includesPropertyValues = false
+    }
+    
+    var error: NSError?
+    
+    var result: [NSManagedObject]?
+    
+    context.performBlockAndWait { () -> Void in
+        
+        result = context.executeFetchRequest(fetchRequest, error: &error) as? [NSManagedObject]
+    }
+    
+    return (result?.first, error)
+}
+
+internal func FetchEntity(entity: NSEntityDescription, withResourceIDs resourceIDs: [UInt], usingContext context: NSManagedObjectContext, #resourceIDAttributeName: String, #shouldPrefetch: Bool) -> ([NSManagedObject]?, NSError?) {
+    
+    let fetchRequest = NSFetchRequest(entityName: entity.name!)
+    
+    fetchRequest.fetchLimit = resourceIDs.count
+    
+    fetchRequest.predicate = NSComparisonPredicate(leftExpression: NSExpression(forKeyPath: resourceIDAttributeName), rightExpression: NSExpression(forConstantValue: resourceIDs), modifier: NSComparisonPredicateModifier.DirectPredicateModifier, type: NSPredicateOperatorType.InPredicateOperatorType, options: NSComparisonPredicateOptions.NormalizedPredicateOption)
+    
+    if shouldPrefetch {
+        
+        fetchRequest.returnsObjectsAsFaults = false
+    }
+    else {
+        
+        fetchRequest.includesPropertyValues = false
+    }
+    
+    var error: NSError?
+    
+    var result: [NSManagedObject]?
+    
+    context.performBlockAndWait { () -> Void in
+        
+        result = context.executeFetchRequest(fetchRequest, error: &error) as? [NSManagedObject]
+    }
+    
+    return (result, error)
 }
 
