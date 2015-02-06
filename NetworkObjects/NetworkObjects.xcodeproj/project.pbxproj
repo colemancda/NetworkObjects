@@ -114,15 +114,16 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		6E66A46C1A833B7F00B92742 /* Core Data JSON Compatibility */ = {
+		6E66A46C1A833B7F00B92742 /* Core Data Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				6E66A4691A833AD900B92742 /* CoreDataConvenienceExtensions.swift */,
 				6E5929A319C54FA700F391F3 /* CoreDataAttributeJSONCompatibility.swift */,
 				6ED13D0F1A827444001F684F /* CoreDataRelationshipJSONCompatibility.swift */,
 				6EC6042B1A8123620013AD59 /* CoreDataFetchRequestJSONCompatibility.swift */,
 				6E6F44191A7FF6D800DEE699 /* CoreDataPredicateJSONCompatibility.swift */,
 			);
-			name = "Core Data JSON Compatibility";
+			name = "Core Data Extensions";
 			sourceTree = "<group>";
 		};
 		6E91015419C4240000377498 /* Products */ = {
@@ -161,8 +162,7 @@
 				6EAD585F19C3B6CB00DC080A /* Server.swift */,
 				6EAD586019C3B6CB00DC080A /* Store.swift */,
 				6EC750F219C3F5DD009F0E00 /* Error.swift */,
-				6E66A46C1A833B7F00B92742 /* Core Data JSON Compatibility */,
-				6E66A4691A833AD900B92742 /* CoreDataConvenienceExtensions.swift */,
+				6E66A46C1A833B7F00B92742 /* Core Data Extensions */,
 				6EAD584919C3B58300DC080A /* Supporting Files */,
 			);
 			path = NetworkObjects;
