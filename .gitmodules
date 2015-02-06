@@ -1,3 +1,6 @@
 [submodule "RoutingHTTPServer"]
 	path = RoutingHTTPServer
 	url = https://github.com/colemancda/RoutingHTTPServer.git
+[submodule "ExSwift"]
+	path = ExSwift
+	url = https://github.com/colemancda/ExSwift.git
