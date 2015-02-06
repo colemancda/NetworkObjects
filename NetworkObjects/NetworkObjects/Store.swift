@@ -1242,9 +1242,39 @@ public class Store {
     // MARK: Validation
     
     /** Validates the JSON responses returned in GET requests. */
-    private func validateEntityJSONRepresentation(JSONObject: [String: AnyObject]) -> Bool {
+    private func validateJSONRepresentation(JSONObject: [String: AnyObject], forEntity entity: NSEntityDescription) -> Bool {
         
-        
+        for (key, value) in JSONObject {
+            
+            // validate key
+            let attribute = entity.attributesByName[key] as? NSAttributeDescription
+            let relationship = entity.relationshipsByName[key] as? NSRelationshipDescription
+            
+            if attribute == nil && relationship == nil {
+                
+                return false
+            }
+            
+            // validate value
+            if attribute != nil {
+                
+                let (newValue: AnyObject?, valid) = entity.attributeValueForJSONCompatibleValue(value, forAttribute: key)
+                
+                if !valid {
+                    
+                    return false
+                }
+            }
+            
+            // relationship
+            else {
+                
+                if !relationship!.toMany {
+                    
+                    
+                }
+            }
+        }
         
         return true
     }
