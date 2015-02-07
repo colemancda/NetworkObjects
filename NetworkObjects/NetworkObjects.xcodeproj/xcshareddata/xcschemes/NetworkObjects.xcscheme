@@ -32,9 +32,9 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "6EAD585019C3B58300DC080A"
-               BuildableName = "NetworkObjectsTests.xctest"
-               BlueprintName = "NetworkObjectsTests"
+               BlueprintIdentifier = "6E8BF7551A85EF7100E39E72"
+               BuildableName = "NetworkObjectsTestsiOS.xctest"
+               BlueprintName = "NetworkObjectsTestsiOS"
                ReferencedContainer = "container:NetworkObjects.xcodeproj">
             </BuildableReference>
          </TestableReference>
