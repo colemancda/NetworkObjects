@@ -6,6 +6,13 @@
 //  Copyright (c) 2014 ColemanCDA. All rights reserved.
 //
 
+#if os(iOS)
+import UIKit
+#endif
+#if os(OSX)
+import AppKit
+#endif
+
 import Foundation
 import XCTest
 import CoreData
