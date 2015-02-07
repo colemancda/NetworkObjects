@@ -20,6 +20,8 @@
 		<string>https://github.com/mattstevens/RoutingHTTPServer.git</string>
 		<key>A5260C930E0CFC29BE4E638F3BCB24458F4E5121</key>
 		<string>https://github.com/colemancda/NetworkObjects.git</string>
+		<key>E2F476CE895D3596DBE8080E8F363F8F94823E70</key>
+		<string>https://github.com/colemancda/ExSwift.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
 	<string>NetworkObjects/NetworkObjects.xcodeproj</string>
@@ -35,6 +37,8 @@
 		<string>../../..Dependencies/RoutingHTTPServer</string>
 		<key>A5260C930E0CFC29BE4E638F3BCB24458F4E5121</key>
 		<string>../../..</string>
+		<key>E2F476CE895D3596DBE8080E8F363F8F94823E70</key>
+		<string>../../../ExSwift/</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
 	<string>https://github.com/colemancda/NetworkObjects.git</string>
@@ -67,6 +71,14 @@
 			<string>35B5C9A93714EC9BEB56BAE809C5551E5C66E52D</string>
 			<key>IDESourceControlWCCName</key>
 			<string>CocoaLumberjack</string>
+		</dict>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>E2F476CE895D3596DBE8080E8F363F8F94823E70</string>
+			<key>IDESourceControlWCCName</key>
+			<string>ExSwift</string>
 		</dict>
 		<dict>
 			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
