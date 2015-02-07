@@ -12,6 +12,7 @@
 		6E5929A419C54FA700F391F3 /* CoreDataAttributeJSONCompatibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E5929A319C54FA700F391F3 /* CoreDataAttributeJSONCompatibility.swift */; };
 		6E66A46A1A833AD900B92742 /* CoreDataConvenienceExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E66A4691A833AD900B92742 /* CoreDataConvenienceExtensions.swift */; };
 		6E6F441A1A7FF6D800DEE699 /* CoreDataPredicateJSONCompatibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E6F44191A7FF6D800DEE699 /* CoreDataPredicateJSONCompatibility.swift */; };
+		6E8BF71C1A85E75B00E39E72 /* NetworkObjects.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6EAD584619C3B58300DC080A /* NetworkObjects.framework */; };
 		6E91016219C4242300377498 /* RoutingHTTPServer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E91015D19C4240000377498 /* RoutingHTTPServer.framework */; };
 		6EAD584C19C3B58300DC080A /* NetworkObjects.h in Headers */ = {isa = PBXBuildFile; fileRef = 6EAD584B19C3B58300DC080A /* NetworkObjects.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6EAD586119C3B6CB00DC080A /* Server.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EAD585F19C3B6CB00DC080A /* Server.swift */; };
@@ -42,6 +43,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 1E11AF831943222D006BCE48;
 			remoteInfo = ExSwift;
+		};
+		6E8BF7181A85E75800E39E72 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6EAD583D19C3B58300DC080A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6EAD584519C3B58300DC080A;
+			remoteInfo = NetworkObjects;
 		};
 		6E91015C19C4240000377498 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -99,6 +107,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6E8BF71C1A85E75B00E39E72 /* NetworkObjects.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -238,6 +247,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				6E8BF7191A85E75800E39E72 /* PBXTargetDependency */,
 			);
 			name = NetworkObjectsTests;
 			productName = NetworkObjectsTests;
@@ -368,6 +378,11 @@
 			isa = PBXTargetDependency;
 			name = ExSwift;
 			targetProxy = 6E063C4F1A8516DB0030479D /* PBXContainerItemProxy */;
+		};
+		6E8BF7191A85E75800E39E72 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 6EAD584519C3B58300DC080A /* NetworkObjects */;
+			targetProxy = 6E8BF7181A85E75800E39E72 /* PBXContainerItemProxy */;
 		};
 		6E91016119C4241A00377498 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -515,7 +530,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(SDKROOT)",
 					"$(inherited)",
 				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -536,7 +551,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(SDKROOT)",
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = NetworkObjectsTests/Info.plist;
