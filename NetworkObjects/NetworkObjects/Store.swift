@@ -826,20 +826,12 @@ public class Store {
                 return
             }
             
-            // make sure every key in jsonObject is a valid key
-            
-            for (key, value) in jsonObject! {
+            // validate JSON
+            if !self.validateJSONRepresentation(jsonObject!, forEntity: entity) {
                 
-                let attribute = entity.attributesByName[key] as? NSAttributeDescription
+                completionBlock(error: ErrorCode.InvalidServerResponse.toError(), resource: nil)
                 
-                let relationship = entity.relationshipsByName[key] as? NSRelationshipDescription
-                
-                if attribute == nil && relationship == nil {
-                    
-                    completionBlock(error: ErrorCode.InvalidServerResponse.toError(), resource: nil)
-                    
-                    return
-                }
+                return
             }
             
             // success
@@ -1271,12 +1263,64 @@ public class Store {
                 
                 if !relationship!.toMany {
                     
+                    let jsonValue = value as? [String: UInt]
                     
+                    if jsonValue == nil {
+                        
+                        return false
+                    }
+                    
+                    if !self.validateJSONValue(jsonValue!, inRelationship: relationship!) {
+                        
+                        return false
+                    }
+                }
+                else {
+                    
+                    let jsonArrayValue = value as? [[String: UInt]]
+                    
+                    if jsonArrayValue == nil {
+                        
+                        return false
+                    }
+                    
+                    for jsonValue in jsonArrayValue! {
+                        
+                        if !self.validateJSONValue(jsonValue, inRelationship: relationship!) {
+                            
+                            return false
+                        }
+                    }
                 }
             }
         }
         
         return true
+    }
+    
+    /** Validates the individual JSON values in to-one or to-many relationship. */
+    private func validateJSONValue(JSONValue: [String: UInt], inRelationship relationship: NSRelationshipDescription) -> Bool {
+        
+        if JSONValue.count != 1 {
+            
+            return false
+        }
+        
+        let entityName = JSONValue.keys.first!
+        
+        let resourceID = JSONValue.values.first!
+        
+        // verify entity is same kind as destination entity
+        let entity = self.managedObjectModel.entitiesByName[entityName] as? NSEntityDescription
+        
+        if entity == nil {
+            
+            return false
+        }
+        
+        let validEntity = entity!.isKindOfEntity(relationship.destinationEntity!)
+        
+        return validEntity
     }
 }
 
