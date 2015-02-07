@@ -8,6 +8,8 @@
 
 import Foundation
 import XCTest
+import CoreData
+import NetworkObjects
 
 class NetworkObjectsTests: XCTestCase {
     
@@ -21,8 +23,19 @@ class NetworkObjectsTests: XCTestCase {
         super.tearDown()
     }
     
-    func testExample() {
+    func testStoreInit() {
         // This is an example of a functional test case.
+        
+        let store = Store(managedObjectModel: NSManagedObjectModel(), managedObjectContextConcurrencyType: NSManagedObjectContextConcurrencyType.MainQueueConcurrencyType, serverURL: NSURL(string: "http://localhost:8080")!, prettyPrintJSON: true, resourceIDAttributeName: "id", dateCachedAttributeName: "dateCached", searchPath: "search")
+        
+        XCTAssert(store.dynamicType === Store.self, "Store should have been initialized")
+    }
+    
+    func testServerInit() {
+        // This is an example of a functional test case.
+        
+        
+        
         XCTAssert(true, "Pass")
     }
     
