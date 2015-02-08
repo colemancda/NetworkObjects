@@ -224,6 +224,7 @@
 				6EAD584219C3B58300DC080A /* Frameworks */,
 				6EAD584319C3B58300DC080A /* Headers */,
 				6EAD584419C3B58300DC080A /* Resources */,
+				6EDE12901A87202000FDF672 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -346,6 +347,22 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		6EDE12901A87202000FDF672 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /usr/bin/ruby;
+			shellScript = "#!/usr/bin/ruby\n# xcode-git-cfbundleversion.rb\n# Update CFBundleVersion in Info.plist file with short Git revision string\n# http://github.com/digdog/xcode-git-cfbundleversion/\n#\n# This is based on\n# http://github.com/jsallis/xcode-git-versioner\n# http://github.com/juretta/iphone-project-tools/tree/v1.0.3\n\n# Fail if not run from Xcode\nraise \"Must be run from Xcode's Run Script Build Phase\" unless ENV['XCODE_VERSION_ACTUAL']\n\n# Get the current git revision hash\nrevision = `/opt/local/bin/git rev-parse --short HEAD`.chomp!\n\n# Update Info.plist file\nplistFile = File.join(ENV['BUILT_PRODUCTS_DIR'], ENV['INFOPLIST_PATH'])\n\n# Convert the binary plist to xml based\n`/usr/bin/plutil -convert xml1 #{plistFile}`\n\n# Open Info.plist and set the CFBundleVersion value to the revision hash\nlines = IO.readlines(plistFile).join\nlines.gsub! /(<key>CFBundleVersion<\\/key>\\n\\t<string>).*?(<\\/string>)/, \"\\\\1#{ENV['CURRENT_PROJECT_VERSION']}-#{revision}\\\\2\"\n\n# Overwrite the original Info.plist file with our updated version\nFile.open(plistFile, 'w') {|f| f.puts lines}\n\n# Convert back to binary plist\n`/usr/bin/plutil -convert binary1 #{plistFile}`\n\n# Report to the user\nputs \"CFBundleVersion in #{plistFile} sets to '#{revision}'\"";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		6EAD584119C3B58300DC080A /* Sources */ = {
