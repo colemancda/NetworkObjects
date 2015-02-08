@@ -81,7 +81,12 @@ public class Store {
             
             self.privateQueueManagedObjectContext.undoManager = nil
             self.privateQueueManagedObjectContext.persistentStoreCoordinator = self.managedObjectContext.persistentStoreCoordinator
-            self.privateQueueManagedObjectContext.name = "NetworkObjects.Store Private Managed Object Context"
+            
+            // set private context name
+            if self.privateQueueManagedObjectContext.respondsToSelector("setName:") {
+                
+                self.privateQueueManagedObjectContext.name = "NetworkObjects.Store Private Managed Object Context"
+            }
             
             // listen for notifications (for merging changes)
             NSNotificationCenter.defaultCenter().addObserver(self, selector: "mergeChangesFromContextDidSaveNotification:", name: NSManagedObjectContextDidSaveNotification, object: self.privateQueueManagedObjectContext)
