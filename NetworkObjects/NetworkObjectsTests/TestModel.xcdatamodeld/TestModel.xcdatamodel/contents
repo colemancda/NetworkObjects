@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="6254" systemVersion="14C109" minimumToolsVersion="Xcode 4.3" macOSVersion="Automatic" iOSVersion="Automatic">
+    <entity name="TestAttributes" syncable="YES">
+        <attribute name="boolAttribute" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="dataAttribute" optional="YES" attributeType="Binary" syncable="YES"/>
+        <attribute name="dateAttribute" optional="YES" attributeType="Date" syncable="YES"/>
+        <attribute name="decimalAttribute" optional="YES" attributeType="Decimal" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="doubleAttribute" optional="YES" attributeType="Double" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="floatAttribute" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="int16Attribute" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+        <attribute name="int32Attribute" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+        <attribute name="int64Attribute" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="stringAttribute" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
+    <entity name="TestRelationships1" syncable="YES">
+        <relationship name="children" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="TestRelationships1" inverseName="parent" inverseEntity="TestRelationships1" syncable="YES"/>
+        <relationship name="manyToMany" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="TestRelationships2" inverseName="manyToManyInverse" inverseEntity="TestRelationships2" syncable="YES"/>
+        <relationship name="oneToMany" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TestRelationships2" inverseName="oneToManyInverse" inverseEntity="TestRelationships2" syncable="YES"/>
+        <relationship name="oneToOne" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TestRelationships2" inverseName="oneToOneInverse" inverseEntity="TestRelationships2" syncable="YES"/>
+        <relationship name="parent" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TestRelationships1" inverseName="children" inverseEntity="TestRelationships1" syncable="YES"/>
+    </entity>
+    <entity name="TestRelationships2" syncable="YES">
+        <relationship name="manyToManyInverse" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="TestRelationships1" inverseName="manyToMany" inverseEntity="TestRelationships1" syncable="YES"/>
+        <relationship name="oneToManyInverse" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="TestRelationships1" inverseName="oneToMany" inverseEntity="TestRelationships1" syncable="YES"/>
+        <relationship name="oneToOneInverse" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TestRelationships1" inverseName="oneToOne" inverseEntity="TestRelationships1" syncable="YES"/>
+    </entity>
+    <entity name="TestTransformableAttributes" syncable="YES">
+        <attribute name="defaultTransformer" optional="YES" attributeType="Transformable" syncable="YES"/>
+    </entity>
+    <elements>
+        <element name="TestAttributes" positionX="-63" positionY="-18" width="128" height="193"/>
+        <element name="TestTransformableAttributes" positionX="-54" positionY="-9" width="128" height="58"/>
+        <element name="TestRelationships1" positionX="-36" positionY="72" width="128" height="118"/>
+        <element name="TestRelationships2" positionX="-18" positionY="81" width="128" height="88"/>
+    </elements>
+</model>
