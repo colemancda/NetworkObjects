@@ -17,6 +17,7 @@ import Foundation
 import XCTest
 import CoreData
 import NetworkObjects
+import ExSwift
 
 class NetworkObjectsTests: XCTestCase {
     
@@ -28,6 +29,19 @@ class NetworkObjectsTests: XCTestCase {
     override func tearDown() {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
         super.tearDown()
+    }
+    
+    func testFrameworkVersion() {
+        
+        let frameworkBundle = NSBundle(identifier: "com.ColemanCDA.NetworkObjects")!
+        
+        let shortFrameworkVersion = frameworkBundle.infoDictionary!["CFBundleShortVersionString"] as String
+        
+        let frameworkVersion = frameworkBundle.infoDictionary![kCFBundleVersionKey]! as String
+        
+        println("Testing NetworkObjects \(shortFrameworkVersion) Build \(frameworkVersion)")
+        
+        XCTAssert(shortFrameworkVersion != "1", "Short framework version (\(shortFrameworkVersion)) should be greater than 1")
     }
     
     func testStoreInit() {
