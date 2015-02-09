@@ -41,7 +41,9 @@ class NetworkObjectsTests: XCTestCase {
         
         println("Testing NetworkObjects \(shortFrameworkVersion) Build \(frameworkVersion)")
         
-        XCTAssert(shortFrameworkVersion != "1", "Short framework version (\(shortFrameworkVersion)) should be greater than 1")
+        XCTAssert(shortFrameworkVersion != "1", "Short framework version (\(shortFrameworkVersion)) should not equal 1")
+        
+        XCTAssert(frameworkVersion.toUInt()! > 1, "Framework version (\(frameworkVersion)) should be greater than 1")
     }
     
     func testStoreInit() {
