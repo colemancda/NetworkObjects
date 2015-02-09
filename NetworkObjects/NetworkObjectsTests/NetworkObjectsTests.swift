@@ -39,6 +39,13 @@ class NetworkObjectsTests: XCTestCase {
         
         let frameworkVersion = frameworkBundle.infoDictionary![kCFBundleVersionKey]! as String
         
+        if frameworkVersion == "TRAVISCI" {
+            
+            println("Skipping framework version assertion, running from Travis CI")
+            
+            return
+        }
+        
         println("Testing NetworkObjects \(shortFrameworkVersion) Build \(frameworkVersion)")
         
         XCTAssert(shortFrameworkVersion != "1", "Short framework version (\(shortFrameworkVersion)) should not equal 1")
