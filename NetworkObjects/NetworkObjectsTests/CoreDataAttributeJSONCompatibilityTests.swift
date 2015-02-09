@@ -37,7 +37,7 @@ class CoreDataAttributeJSONCompatibilityTests: XCTestCase {
         
     }
     
-    // MARK: - Convert JSON to CoreData Tests
+    // MARK: - Convert JSON to CoreData Test Cases
     
     func testConvertJSONNullToCoreDataNil() {
         
@@ -50,7 +50,7 @@ class CoreDataAttributeJSONCompatibilityTests: XCTestCase {
         XCTAssert(newValue == nil, "Converted value should be nil")
     }
     
-    // MARK: - Convert CoreData to JSON Tests
+    // MARK: - Convert CoreData to JSON Cases
     
     func testConvertCoreDataNilToJSONNull() {
         
