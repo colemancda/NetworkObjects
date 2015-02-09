@@ -37,35 +37,27 @@ class CoreDataAttributeJSONCompatibilityTests: XCTestCase {
         
     }
     
-    // MARK: - Convert JSON to Core Data Tests
+    // MARK: - Convert JSON to CoreData Tests
     
-    func testConvertJSONNullToCoreData() {
+    func testConvertJSONNullToCoreDataNil() {
         
         let null = NSNull()
         
-        // create entity
-        let model = NSManagedObjectModel()
-        
-        let entity = NSEntityDescription()
-        
-        entity.name = "TestConvertJSONNullToCoreData"
-        
-        let attribute = NSAttributeDescription()
-        
-        attribute.name = "nilStringAttribute"
-        
-        attribute.attributeType = NSAttributeType.StringAttributeType
-        
-        entity.properties = [attribute]
-        
-        let (newValue: AnyObject?, valid) = entity.attributeValueForJSONCompatibleValue(null, forAttribute: attribute.name)
+        let (newValue: AnyObject?, valid) = testAttributesEntity.attributeValueForJSONCompatibleValue(null, forAttribute: "stringAttribute")
         
         XCTAssert(valid, "Conversion should be valid")
         
         XCTAssert(newValue == nil, "Converted value should be nil")
     }
     
-    // MARK: - Convert Core Data to JSON Tests
+    // MARK: - Convert CoreData to JSON Tests
     
-
+    func testConvertCoreDataNilToJSONNull() {
+        
+        let nilValue: AnyObject? = nil
+        
+        let jsonValue: AnyObject? = testAttributesEntity.JSONCompatibleValueForAttributeValue(nilValue, forAttribute: "stringAttribute")
+        
+        XCTAssert(jsonValue === NSNull(), "Converted value should be NSNull singleton")
+    }
 }
