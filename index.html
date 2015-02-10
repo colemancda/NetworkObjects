@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <title>Networkobjects by colemancda</title>
+  </head>
+
+  <body>
+    <header>
+      <div class="inner">
+        <h1>Networkobjects</h1>
+        <h2>Swift backend framework</h2>
+        <a href="https://github.com/colemancda/NetworkObjects" class="button"><small>View project on</small> GitHub</a>
+      </div>
+    </header>
+
+    <div id="content-wrapper">
+      <div class="inner clearfix">
+        <section id="main-content">
+          <h1>
+<a id="networkobjects-" class="anchor" href="#networkobjects-" aria-hidden="true"><span class="octicon octicon-link"></span></a>NetworkObjects </h1>
+
+<p><a href="https://gitter.im/colemancda/NetworkObjects?utm_source=badge&amp;utm_medium=badge&amp;utm_campaign=pr-badge&amp;utm_content=badge"><img src="https://badges.gitter.im/Join%20Chat.svg" alt="Join the chat at https://gitter.im/colemancda/NetworkObjects"></a>
+<a href="https://travis-ci.org/colemancda/NetworkObjects"><img src="https://travis-ci.org/colemancda/NetworkObjects.svg?branch=develop" alt="Build Status"></a></p>
+
+<p>NetworkObjects is a distributed object graph inspired by Apple's WebObjects. This framework compiles for OS X and iOS and serves as the foundation for building powerful Swift servers as well as serving as a cross-platform alternative to Cocoa's Distributed Objects. Powered by Core Data and Grand Central Dispatch, the framework comes with server and client classes which abstract away advanced networking code so the developer can focus on distributing Core Data entities over a network.</p>
+
+<h1>
+<a id="auto-generated-rest-server" class="anchor" href="#auto-generated-rest-server" aria-hidden="true"><span class="octicon octicon-link"></span></a>Auto-Generated REST Server</h1>
+
+<p>The Server class, as its name implies, broadcasts a Core Data managed object context over the network (via HTTP) in way that it can be incrementally accessed and modified. It will also ask the data source to keep track of unique identifiers (unsigned integer) assigned to an instance of an entity. This will create a schema as follows:</p>
+
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>URL</th>
+<th>JSON Request Body</th>
+<th>JSON Response Body</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>POST</td>
+<td>/entityName</td>
+<td>Yes (Optional)</td>
+<td>Yes (ResourceID Only)</td>
+</tr>
+<tr>
+<td>GET</td>
+<td>/entityName/id</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>PUT</td>
+<td>/entityName/id</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td>DELETE</td>
+<td>/entityName/id</td>
+<td>No</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+
+<p>The JSON recieved from or sent to the server follows the following schema:</p>
+
+<pre><code>{
+    "attributeName": attributeValue,
+    "toOneRelationshipName": {"DestinationEntityName": resourceID}
+    "toManyRelationshipName": [{"DestinationEntityName": resourceID1}, {"DestinationEntityName": resourceID2}, ...]
+}
+</code></pre>
+
+<p>Nil values are ommited from the JSON Body in GET responses. In PUT or POST requests it is represented by the JSON null type.</p>
+
+<p>Attribute Values are converted in the following way:</p>
+
+<table>
+<thead>
+<tr>
+<th>CoreData Value</th>
+<th>JSON Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>String</td>
+<td>String</td>
+</tr>
+<tr>
+<td>Number</td>
+<td>Number</td>
+</tr>
+<tr>
+<td>Date</td>
+<td>ISO8601 String</td>
+</tr>
+<tr>
+<td>Data</td>
+<td>Base64 String</td>
+</tr>
+<tr>
+<td>Transformable</td>
+<td>Base64 String</td>
+</tr>
+<tr>
+<td>Nil</td>
+<td>Null (PUT, POST), Ommited from JSON body in GET</td>
+</tr>
+</tbody>
+</table>
+
+<p>Optionally the Server can create function and search URLs for special requests</p>
+
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>URL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>POST</td>
+<td>/search/entityName</td>
+</tr>
+<tr>
+<td>POST</td>
+<td>/entityName/id/functionName</td>
+</tr>
+</tbody>
+</table>
+
+<h1>
+<a id="server-permissions--access-control" class="anchor" href="#server-permissions--access-control" aria-hidden="true"><span class="octicon octicon-link"></span></a>Server Permissions / Access Control</h1>
+
+<p>By default the server provides no authentication, but the Server can use SSL and the can ask its delegate for access control based on HTTP headers, making authentication completely customizeable. In addition to HTTP, the Server's data source and delegate protocols are built to be agnostic to connection protocols, making it open to other protocols in the future (WebSockets support is planned).</p>
+
+<p>There are two delegate protocol methods for access control:</p>
+
+<pre><code>func server(Server, statusCodeForRequest request: ServerRequest, managedObject: NSManagedObject?, context: NSManagedObjectContext?) -&gt; ServerStatusCode
+func server(Server, permissionForRequest request: ServerRequest, managedObject: NSManagedObject?, context: NSManagedObjectContext?, key: String?) -&gt; ServerPermission
+</code></pre>
+
+<h1>
+<a id="client-side-caching" class="anchor" href="#client-side-caching" aria-hidden="true"><span class="octicon octicon-link"></span></a>Client-side caching</h1>
+
+<p>The Store class is what clients will use to communicate with the server. A dateCached attribute can be optionally added at runtime for cache validation.</p>
+
+<h1>
+<a id="deployment" class="anchor" href="#deployment" aria-hidden="true"><span class="octicon octicon-link"></span></a>Deployment</h1>
+
+<p>The NetworkObjects framework is built as a dynamically linked framework for both OS X and iOS. It requires Xcode 6.1 and a minimum operating system of iOS 8 or OS X 10.10.</p>
+
+<h1>
+<a id="support-and-documentation" class="anchor" href="#support-and-documentation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Support and Documentation</h1>
+
+<p>If you have any questions you can contact me on Twitter at <a href="https://github.com/colemancda" class="user-mention">@colemancda</a></p>
+        </section>
+
+        <aside id="sidebar">
+          <a href="https://github.com/colemancda/NetworkObjects/zipball/master" class="button">
+            <small>Download</small>
+            .zip file
+          </a>
+          <a href="https://github.com/colemancda/NetworkObjects/tarball/master" class="button">
+            <small>Download</small>
+            .tar.gz file
+          </a>
+
+          <p class="repo-owner"><a href="https://github.com/colemancda/NetworkObjects"></a> is maintained by <a href="https://github.com/colemancda">colemancda</a>.</p>
+
+          <p>This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
+        </aside>
+      </div>
+    </div>
+
+  
+  </body>
+</html>
