@@ -44,26 +44,26 @@ class CoreDataAttributeJSONCompatibilityTests: XCTestCase {
         
         let null = NSNull()
         
-        let (convertedValue: AnyObject?, valid) = testAttributesEntity.attributeValueForJSONCompatibleValue(null, forAttribute: "stringAttribute")
-        
-        XCTAssert(valid, "Conversion should be valid")
-        
-        XCTAssert(convertedValue == nil, "Converted value should be nil")
+        // set nil to all the attributes
+        for (attributeName, attribute) in self.testAttributesEntity.attributesByName as [String: NSAttributeDescription] {
+            
+            let (convertedValue: AnyObject?, valid) = testAttributesEntity.attributeValueForJSONCompatibleValue(null, forAttribute: attributeName)
+            
+            XCTAssert(valid, "Conversion should be valid")
+            
+            XCTAssert(convertedValue == nil, "Converted value should be nil")
+        }
     }
     
-    func testConvertJSONDefaultTransformerTranformedValueToCoreDataTranformedValue() {
+    func testConvertJSONStringToCoreDataString() {
         
-        let archivedDictionary = ["key": "value"] as NSDictionary
+        let sampleString = "sampleString"
         
-        let data = NSKeyedArchiver.archivedDataWithRootObject(archivedDictionary)
-        
-        let base64String = data.base64EncodedStringWithOptions(CoreDataAttributeJSONCompatibilityOptions.defaultOptions.base64EncodingOptions)
-        
-        let (convertedValue: AnyObject?, valid) = testAttributesEntity.attributeValueForJSONCompatibleValue(base64String, forAttribute: "defaultTransformer")
+        let (convertedValue: AnyObject?, valid) = testAttributesEntity.attributeValueForJSONCompatibleValue(sampleString, forAttribute: "stringAttribute")
         
         XCTAssert(valid, "Conversion should be valid")
         
-        XCTAssert(convertedValue as? NSDictionary == archivedDictionary, "Converted Value should be original archived dictionary")
+        XCTAssert(convertedValue as? String == sampleString, "Converted value should equal original value")
     }
     
     func testConvertJSONDateToCoreDataDate() {
@@ -96,6 +96,21 @@ class CoreDataAttributeJSONCompatibilityTests: XCTestCase {
         XCTAssert(valid, "Conversion should be valid")
         
         XCTAssert(convertedValue as? NSData == data, "Converted value should equal original value")
+    }
+    
+    func testConvertJSONDefaultTransformerTranformedValueToCoreDataTranformedValue() {
+        
+        let archivedDictionary = ["key": "value"] as NSDictionary
+        
+        let data = NSKeyedArchiver.archivedDataWithRootObject(archivedDictionary)
+        
+        let base64String = data.base64EncodedStringWithOptions(CoreDataAttributeJSONCompatibilityOptions.defaultOptions.base64EncodingOptions)
+        
+        let (convertedValue: AnyObject?, valid) = testAttributesEntity.attributeValueForJSONCompatibleValue(base64String, forAttribute: "defaultTransformer")
+        
+        XCTAssert(valid, "Conversion should be valid")
+        
+        XCTAssert(convertedValue as? NSDictionary == archivedDictionary, "Converted Value should be original archived dictionary")
     }
     
     // MARK: - Convert Garbage JSON to CoreData Test Cases
