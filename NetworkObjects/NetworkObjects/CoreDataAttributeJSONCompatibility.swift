@@ -189,15 +189,12 @@ internal extension NSEntityDescription {
             // get transformer
             let valueTransformerName = attributeDescription!.valueTransformerName
             
-            // default transformer: NSKeyedUnarchiveFromDataTransformerName in reverse
+            // default transformer: NSKeyedUnarchiveFromDataTransformerName in reverse (unarchive data)
             if valueTransformerName == nil {
                 
-                let transformer = NSValueTransformer(forName: NSKeyedUnarchiveFromDataTransformerName)!
+                let unarchivedObject: AnyObject? = NSKeyedUnarchiver.unarchiveObjectWithData(data!)
                 
-                // unarchive
-                let transformedValue: AnyObject? = transformer.transformedValue(data)
-                
-                return (transformedValue, transformedValue != nil)
+                return (unarchivedObject, unarchivedObject != nil)
             }
             
             // custom transformer

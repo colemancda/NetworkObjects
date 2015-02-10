@@ -50,6 +50,17 @@ class CoreDataAttributeJSONCompatibilityTests: XCTestCase {
         XCTAssert(newValue == nil, "Converted value should be nil")
     }
     
+    func testConvertGarbageJSONTranformedValueDataToCoreDataBinaryData() {
+        
+        let data = "GarbageData".dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: true)!
+        
+        let (newValue: AnyObject?, valid) = testAttributesEntity.attributeValueForJSONCompatibleValue(data, forAttribute: "defaultTransformer")
+        
+        XCTAssert(!valid, "Conversion should be invalid")
+        
+        XCTAssert(newValue == nil, "Converted Value should be nil")
+    }
+    
     // MARK: - Convert CoreData to JSON Cases
     
     func testConvertCoreDataNilToJSONNull() {
