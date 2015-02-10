@@ -66,6 +66,44 @@ class CoreDataAttributeJSONCompatibilityTests: XCTestCase {
         XCTAssert(convertedValue as? String == sampleString, "Converted value should equal original value")
     }
     
+    func testConvertJSONBoolToCoreDataBool() {
+        
+        let jsonValue = true as NSNumber
+        
+        let (convertedValue: AnyObject?, valid) = testAttributesEntity.attributeValueForJSONCompatibleValue(jsonValue, forAttribute: "boolAttribute")
+        
+        XCTAssert(valid, "Conversion should be valid")
+        
+        XCTAssert(convertedValue as? Bool == jsonValue, "Converted value should equal original value")
+    }
+    
+    func testConvertJSONIntegerToCoreDataInteger() {
+        
+        let jsonValue = Int(100) as NSNumber
+        
+        let integerAttributes = ["int16Attribute", "int32Attribute", "int64Attribute"]
+        
+        for attributeName in integerAttributes {
+            
+            let (convertedValue: AnyObject?, valid) = testAttributesEntity.attributeValueForJSONCompatibleValue(jsonValue, forAttribute: attributeName)
+            
+            XCTAssert(valid, "Conversion should be valid")
+            
+            XCTAssert(convertedValue as? Int == jsonValue, "Converted value should equal original value")
+        }
+    }
+    
+    func testConvertJSONFloatToCoreDataFloat() {
+        
+        let jsonValue = Float(1.11) as NSNumber
+        
+        let (convertedValue: AnyObject?, valid) = testAttributesEntity.attributeValueForJSONCompatibleValue(jsonValue, forAttribute: "floatAttribute")
+        
+        XCTAssert(valid, "Conversion should be valid")
+        
+        XCTAssert(convertedValue as? Float == jsonValue, "Converted value should equal original value")
+    }
+    
     func testConvertJSONDateToCoreDataDate() {
         
         let date = NSDate()
