@@ -53,8 +53,8 @@ public class Store {
         serverURL: NSURL,
         prettyPrintJSON: Bool = false,
         resourceIDAttributeName: String = "id",
-        dateCachedAttributeName: String?,
-        searchPath: String?) {
+        dateCachedAttributeName: String? = "dateCached",
+        searchPath: String? = "search") {
             
             self.serverURL = serverURL
             self.searchPath = searchPath

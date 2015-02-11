@@ -69,3 +69,7 @@ class NetworkObjectsTests: XCTestCase {
         XCTAssert(true, "Pass")
     }
 }
+
+// MARK: - Constants
+
+let ServerTestingPort: UInt = 8089

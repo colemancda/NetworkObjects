@@ -171,15 +171,6 @@ public class Server {
                     functionName: nil,
                     headers: request.headers as [String: String])
                 
-                if (jsonObject == nil) {
-                    
-                    response.statusCode = ServerStatusCode.BadRequest.rawValue
-                    
-                    self.delegate?.server(self, didPerformRequest: serverRequest, withResponse: ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil), userInfo: [ServerUserInfoKey : AnyObject]())
-                    
-                    return
-                }
-                
                 // process request and return a response
                 let (serverResponse, userInfo) = self.responseForCreateRequest(serverRequest)
                 
