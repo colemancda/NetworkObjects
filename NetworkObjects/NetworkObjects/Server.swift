@@ -768,10 +768,7 @@ public class Server {
         
         // tell delegate we just created a new resource (delegate may want to give more initial values)
         
-        if self.delegate != nil {
-            
-            self.delegate!.server(self, didInsertManagedObject: managedObject!, context: context)
-        }
+        self.delegate?.server(self, didInsertManagedObject: managedObject!, context: context)
         
         // perform Core Data validation (to make sure there will be no errors saving)
         
@@ -786,6 +783,25 @@ public class Server {
         if !validCoreData {
             
             let response = ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil)
+            
+            return (response, userInfo)
+        }
+        
+        // save
+        var saveError: NSError?
+        
+        context.performBlockAndWait({ () -> Void in
+            
+            context.save(&saveError)
+            
+            return
+        })
+        
+        if saveError != nil {
+            
+            self.delegate?.server(self, didEncounterInternalError: saveError!, forRequest: request, userInfo: userInfo)
+            
+            let response = ServerResponse(statusCode: ServerStatusCode.InternalServerError, JSONResponse: nil)
             
             return (response, userInfo)
         }
@@ -819,10 +835,7 @@ public class Server {
         // internal error
         if error != nil {
             
-            if self.delegate != nil {
-                
-                self.delegate?.server(self, didEncounterInternalError: error!, forRequest: request, userInfo: userInfo)
-            }
+            self.delegate?.server(self, didEncounterInternalError: error!, forRequest: request, userInfo: userInfo)
             
             let response = ServerResponse(statusCode: ServerStatusCode.InternalServerError, JSONResponse: nil)
             
@@ -903,10 +916,7 @@ public class Server {
         // internal error
         if error != nil {
             
-            if self.delegate != nil {
-                
-                self.delegate?.server(self, didEncounterInternalError: error!, forRequest: request, userInfo: userInfo)
-            }
+            self.delegate?.server(self, didEncounterInternalError: error!, forRequest: request, userInfo: userInfo)
             
             let response = ServerResponse(statusCode: ServerStatusCode.InternalServerError, JSONResponse: nil)
             
@@ -999,6 +1009,25 @@ public class Server {
             return (response, userInfo)
         }
         
+        // save
+        var saveError: NSError?
+        
+        context.performBlockAndWait({ () -> Void in
+            
+            context.save(&saveError)
+            
+            return
+        })
+        
+        if saveError != nil {
+            
+            self.delegate?.server(self, didEncounterInternalError: saveError!, forRequest: request, userInfo: userInfo)
+            
+            let response = ServerResponse(statusCode: ServerStatusCode.InternalServerError, JSONResponse: nil)
+            
+            return (response, userInfo)
+        }
+        
         let response = ServerResponse(statusCode: ServerStatusCode.OK, JSONResponse: nil)
         
         return (response, userInfo)
@@ -1024,10 +1053,7 @@ public class Server {
         // internal error
         if error != nil {
             
-            if self.delegate != nil {
-                
-                self.delegate?.server(self, didEncounterInternalError: error!, forRequest: request, userInfo: userInfo)
-            }
+            self.delegate?.server(self, didEncounterInternalError: error!, forRequest: request, userInfo: userInfo)
             
             let response = ServerResponse(statusCode: ServerStatusCode.InternalServerError, JSONResponse: nil)
             
@@ -1093,9 +1119,26 @@ public class Server {
         }
         
         // delete...
+        
+        // save
+        var saveError: NSError?
+        
         context.performBlockAndWait { () -> Void in
             
             context.deleteObject(managedObject!)
+            
+            context.save(&saveError)
+            
+            return
+        }
+        
+        if saveError != nil {
+            
+            self.delegate?.server(self, didEncounterInternalError: saveError!, forRequest: request, userInfo: userInfo)
+            
+            let response = ServerResponse(statusCode: ServerStatusCode.InternalServerError, JSONResponse: nil)
+            
+            return (response, userInfo)
         }
         
         let response = ServerResponse(statusCode: ServerStatusCode.OK, JSONResponse: nil)
@@ -1123,10 +1166,7 @@ public class Server {
         // internal error
         if error != nil {
             
-            if self.delegate != nil {
-                
-                self.delegate?.server(self, didEncounterInternalError: error!, forRequest: request, userInfo: userInfo)
-            }
+            self.delegate?.server(self, didEncounterInternalError: error!, forRequest: request, userInfo: userInfo)
             
             let response = ServerResponse(statusCode: ServerStatusCode.InternalServerError, JSONResponse: nil)
             
@@ -1465,7 +1505,7 @@ public class Server {
                     
                     if newValue == nil {
                         
-                        return ServerStatusCode.Forbidden
+                        return ServerStatusCode.BadRequest
                     }
                     
                     // destination resource must be visible
@@ -1535,7 +1575,7 @@ public class Server {
                         
                         if newValue == nil {
                             
-                            return ServerStatusCode.Forbidden
+                            return ServerStatusCode.BadRequest
                         }
                         
                         // destination resource must be visible

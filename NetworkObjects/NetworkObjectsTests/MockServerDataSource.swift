@@ -29,15 +29,22 @@ class MockServerDataSource: ServerDataSource {
         return operationQueue
         }()
     
+    lazy var persistentStoreCoordinator: NSPersistentStoreCoordinator = {
+       
+        // setup persistent store coordinator
+        let psc = NSPersistentStoreCoordinator(managedObjectModel: self.model!)
+        
+        psc.addPersistentStoreWithType(NSInMemoryStoreType, configuration: nil, URL: nil, options: nil, error: nil)!
+        
+        return psc
+    }()
+    
     /** Mock function handler mapped by [EntityName : [FunctionName: FunctionHandler]] */
     var mockFunctionHandlers = [String: [String: MockFunctionHandler]]()
     
     // MARK: - Initialization
     
-    init() {
-        
-        
-    }
+    init() {}
     
     // MARK: - Methods
     
@@ -68,9 +75,7 @@ class MockServerDataSource: ServerDataSource {
         let managedObjectContext = NSManagedObjectContext(concurrencyType: .PrivateQueueConcurrencyType)
         
         // setup persistent store coordinator
-        managedObjectContext.persistentStoreCoordinator = NSPersistentStoreCoordinator(managedObjectModel: self.model)
-        
-        managedObjectContext.persistentStoreCoordinator!.addPersistentStoreWithType(NSInMemoryStoreType, configuration: nil, URL: nil, options: nil, error: nil)!
+        managedObjectContext.persistentStoreCoordinator = self.persistentStoreCoordinator
         
         return managedObjectContext
     }
