@@ -17,6 +17,7 @@ import Foundation
 import XCTest
 import CoreData
 import NetworkObjects
+import ExSwift
 
 class NetworkObjectsTests: XCTestCase {
     
@@ -28,6 +29,28 @@ class NetworkObjectsTests: XCTestCase {
     override func tearDown() {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
         super.tearDown()
+    }
+    
+    func testFrameworkVersion() {
+        
+        let frameworkBundle = NSBundle(identifier: "com.ColemanCDA.NetworkObjects")!
+        
+        let shortFrameworkVersion = frameworkBundle.infoDictionary!["CFBundleShortVersionString"] as String
+        
+        let frameworkVersion = frameworkBundle.infoDictionary![kCFBundleVersionKey]! as String
+        
+        if frameworkVersion == "TRAVISCI" {
+            
+            println("Skipping framework version assertion, running from Travis CI")
+            
+            return
+        }
+        
+        println("Testing NetworkObjects \(shortFrameworkVersion) Build \(frameworkVersion)")
+        
+        XCTAssert(shortFrameworkVersion != "1", "Short framework version (\(shortFrameworkVersion)) should not equal 1")
+        
+        XCTAssert(frameworkVersion.toUInt()! > 1, "Framework version (\(frameworkVersion)) should be greater than 1")
     }
     
     func testStoreInit() {
@@ -45,12 +68,8 @@ class NetworkObjectsTests: XCTestCase {
         
         XCTAssert(true, "Pass")
     }
-    
-    func testPerformanceExample() {
-        // This is an example of a performance test case.
-        self.measureBlock() {
-            // Put the code you want to measure the time of here.
-        }
-    }
-    
 }
+
+// MARK: - Constants
+
+let ServerTestingPort: UInt = 8089

@@ -53,8 +53,8 @@ public class Store {
         serverURL: NSURL,
         prettyPrintJSON: Bool = false,
         resourceIDAttributeName: String = "id",
-        dateCachedAttributeName: String?,
-        searchPath: String?) {
+        dateCachedAttributeName: String? = "dateCached",
+        searchPath: String? = "search") {
             
             self.serverURL = serverURL
             self.searchPath = searchPath
@@ -998,7 +998,7 @@ public class Store {
             }
             
             // get response body
-            let jsonResponse = NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.AllowFragments, error: nil) as? [String: AnyObject]
+            let jsonResponse = NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.allZeros, error: nil) as? [String: AnyObject]
             
             completionBlock(error: nil, functionCode: functionCode, JSONResponse: jsonResponse)
         })
