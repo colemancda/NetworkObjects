@@ -47,7 +47,7 @@ public class Server {
     // MARK: - Initialization
     
     public init(dataSource: ServerDataSource,
-        delegate: ServerDelegate?,
+        delegate: ServerDelegate? = nil,
         managedObjectModel: NSManagedObjectModel,
         searchPath: String? = "search",
         resourceIDAttributeName: String = "id",
@@ -56,7 +56,7 @@ public class Server {
         permissionsEnabled: Bool = false) {
             
             self.dataSource = dataSource
-            self.managedObjectModel = managedObjectModel
+            self.managedObjectModel = managedObjectModel.copy() as NSManagedObjectModel
             self.delegate = delegate
             self.sslIdentityAndCertificates = sslIdentityAndCertificates
             self.resourceIDAttributeName = resourceIDAttributeName
@@ -191,7 +191,7 @@ public class Server {
                 response.respondWithData(jsonData)
                 
                 // tell the delegate
-                self.delegate!.server(self, didPerformRequest: serverRequest, withResponse: serverResponse, userInfo: userInfo)
+                self.delegate?.server(self, didPerformRequest: serverRequest, withResponse: serverResponse, userInfo: userInfo)
             }
             
             httpServer.post(createInstancePathExpression, withBlock: createInstanceRequestHandler)
@@ -716,15 +716,15 @@ public class Server {
         
         let resourceID = self.dataSource.server(self, newResourceIDForEntity: entity)
         
-        var managedObject: NSManagedObject?
+        var managedObject: NSManagedObject!
         
         context.performBlockAndWait { () -> Void in
             
-            managedObject = NSEntityDescription.insertNewObjectForEntityForName(entity.name!, inManagedObjectContext: context) as? NSManagedObject
+            managedObject = NSEntityDescription.insertNewObjectForEntityForName(entity.name!, inManagedObjectContext: context) as NSManagedObject
             
             // set resourceID
             
-            managedObject!.setValue(resourceID, forKey:self.resourceIDAttributeName)
+            managedObject.setValue(resourceID, forKey:self.resourceIDAttributeName)
         }
         
         if request.JSONObject != nil {
@@ -740,7 +740,7 @@ public class Server {
             // validate and convert JSON
             context.performBlockAndWait({ () -> Void in
                 
-                editStatusCode = self.verifyEditResource(managedObject!, forRequest: request, context: context, newValues: &newValues, error: &error)
+                editStatusCode = self.verifyEditResource(managedObject, forRequest: request, context: context, newValues: &newValues, error: &error)
             })
             
             if editStatusCode != ServerStatusCode.OK {
@@ -760,7 +760,7 @@ public class Server {
             // set new values from dictionary
             context.performBlockAndWait({ () -> Void in
                 
-                managedObject?.setValuesForKeysWithDictionary(newValues)
+                managedObject.setValuesForKeysWithDictionary(newValues)
                 
                 return
             })

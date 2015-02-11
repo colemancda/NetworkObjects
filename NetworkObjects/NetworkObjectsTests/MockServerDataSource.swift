@@ -14,7 +14,7 @@ class MockServerDataSource: ServerDataSource {
     
     // MARK: - Properties
     
-    let persistentStoreCoordinator: NSPersistentStoreCoordinator = NSPersistentStoreCoordinator(managedObjectModel: NSManagedObjectModel.mergedModelFromBundles([NSBundle(identifier: "com.ColemanCDA.NetworkObjectsTests")!])!)
+    var model: NSManagedObjectModel!
     
     var lastResourceIDByEntityName = [String: UInt]()
     
@@ -31,6 +31,13 @@ class MockServerDataSource: ServerDataSource {
     
     /** Mock function handler mapped by [EntityName : [FunctionName: FunctionHandler]] */
     var mockFunctionHandlers = [String: [String: MockFunctionHandler]]()
+    
+    // MARK: - Initialization
+    
+    init() {
+        
+        
+    }
     
     // MARK: - Methods
     
@@ -61,7 +68,9 @@ class MockServerDataSource: ServerDataSource {
         let managedObjectContext = NSManagedObjectContext(concurrencyType: .PrivateQueueConcurrencyType)
         
         // setup persistent store coordinator
-        managedObjectContext.persistentStoreCoordinator = self.persistentStoreCoordinator
+        managedObjectContext.persistentStoreCoordinator = NSPersistentStoreCoordinator(managedObjectModel: self.model)
+        
+        managedObjectContext.persistentStoreCoordinator!.addPersistentStoreWithType(NSInMemoryStoreType, configuration: nil, URL: nil, options: nil, error: nil)!
         
         return managedObjectContext
     }

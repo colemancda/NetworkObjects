@@ -16,9 +16,9 @@ class DeleteTests: XCTestCase {
     
     // MARK: - Properties
     
-    var testModel: NSManagedObjectModel!
+    var server: Server!
     
-    var testServer: Server!
+    var store: Store!
     
     // MARK: - Setup
     
@@ -26,9 +26,22 @@ class DeleteTests: XCTestCase {
         super.setUp()
         // Put setup code here. This method is called before the invocation of each test method in the class.
         
-        self.testModel = NSManagedObjectModel.mergedModelFromBundles([NSBundle(identifier: "com.ColemanCDA.NetworkObjectsTests")!])!
+        // get model
+        let model = NSManagedObjectModel.mergedModelFromBundles([NSBundle(identifier: "com.ColemanCDA.NetworkObjectsTests")!])!
         
+        // setup server
+        let mockServerDataSource = MockServerDataSource()
         
+        self.server = Server(dataSource: mockServerDataSource, delegate: nil, managedObjectModel: model)
+        
+        mockServerDataSource.model = self.server.managedObjectModel
+        
+        self.server.start(onPort: ServerTestingPort)
+        
+        // setup store
+        self.store = Store(managedObjectModel: model, serverURL: NSURL(string: "http://localhost:\(ServerTestingPort)")!, prettyPrintJSON: true)
+        
+        self.store.managedObjectContext.persistentStoreCoordinator!.addPersistentStoreWithType(NSInMemoryStoreType, configuration: nil, URL: nil, options: nil, error: nil)!
     }
     
     override func tearDown() {
@@ -39,8 +52,54 @@ class DeleteTests: XCTestCase {
     
     // MARK: - Test Cases
     
-    func testDeleteEntityWithOneToOneRelationship() {
+    /*
+    func testDeleteEntityWithOneToOneRelationshipAndNonNilValue() {
         
+        // create destination entity
+        weak var networkRequestsExpectation = expectationWithDescription("Network Requests Expectation")
         
+        store.createEntity("TestInverseRelationships", withInitialValues: nil, completionBlock: { (error: NSError?, destinationManagedObject: NSManagedObject?) -> Void in
+            
+            if error != nil {
+                
+                XCTFail("Error should have not been produced. \(error)")
+                
+                networkRequestsExpectation?.fulfill()
+                
+                return
+            }
+            
+            // create entity
+            self.store.createEntity("TestRelationships", withInitialValues: ["oneToOne" : destinationManagedObject!], completionBlock: { (error, managedObject) -> Void in
+                
+                if error != nil {
+                    
+                    XCTFail("Error should have not been produced. \(error)")
+                    
+                    networkRequestsExpectation?.fulfill()
+                    
+                    return
+                }
+                
+                // delete entity
+                self.store.deleteManagedObject(managedObject!, completionBlock: { (error) -> Void in
+                    
+                    if error != nil {
+                        
+                        XCTFail("Error should have not been produced. \(error)")
+                        
+                        networkRequestsExpectation?.fulfill()
+                        
+                        return
+                    }
+                    
+                    networkRequestsExpectation?.fulfill()
+                    
+                })
+            })
+        })
+        
+        waitForExpectationsWithTimeout(10, handler: nil)
     }
+    */
 }
