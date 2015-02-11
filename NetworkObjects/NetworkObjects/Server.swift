@@ -91,7 +91,7 @@ public class Server {
                 
                 let searchRequestHandler: RequestHandler = { (request: RouteRequest!, response: RouteResponse!) -> Void in
                     
-                    let searchParameters = NSJSONSerialization.JSONObjectWithData(request.body(), options: NSJSONReadingOptions.AllowFragments, error: nil) as? [String: AnyObject]
+                    let searchParameters = NSJSONSerialization.JSONObjectWithData(request.body(), options: NSJSONReadingOptions.allZeros, error: nil) as? [String: AnyObject]
                     
                     let serverRequest = ServerRequest(requestType: ServerRequestType.Search,
                         connectionType: ServerConnectionType.HTTP,
