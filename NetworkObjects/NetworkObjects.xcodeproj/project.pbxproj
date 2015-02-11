@@ -12,6 +12,9 @@
 		6E5929A419C54FA700F391F3 /* CoreDataAttributeJSONCompatibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E5929A319C54FA700F391F3 /* CoreDataAttributeJSONCompatibility.swift */; };
 		6E66A46A1A833AD900B92742 /* CoreDataConvenienceExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E66A4691A833AD900B92742 /* CoreDataConvenienceExtensions.swift */; };
 		6E6F441A1A7FF6D800DEE699 /* CoreDataPredicateJSONCompatibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E6F44191A7FF6D800DEE699 /* CoreDataPredicateJSONCompatibility.swift */; };
+		6E7EF35D1A8B170400F6FECC /* FetchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E7EF35C1A8B170400F6FECC /* FetchTests.swift */; };
+		6E7EF35F1A8B178800F6FECC /* DeleteTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E7EF35E1A8B178800F6FECC /* DeleteTests.swift */; };
+		6E7EF3611A8B18A200F6FECC /* MockServerDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E7EF3601A8B18A200F6FECC /* MockServerDataSource.swift */; };
 		6E8BF71C1A85E75B00E39E72 /* NetworkObjects.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6EAD584619C3B58300DC080A /* NetworkObjects.framework */; };
 		6E91016219C4242300377498 /* RoutingHTTPServer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E91015D19C4240000377498 /* RoutingHTTPServer.framework */; };
 		6EAD584C19C3B58300DC080A /* NetworkObjects.h in Headers */ = {isa = PBXBuildFile; fileRef = 6EAD584B19C3B58300DC080A /* NetworkObjects.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -82,6 +85,9 @@
 		6E5929A319C54FA700F391F3 /* CoreDataAttributeJSONCompatibility.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataAttributeJSONCompatibility.swift; sourceTree = "<group>"; };
 		6E66A4691A833AD900B92742 /* CoreDataConvenienceExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataConvenienceExtensions.swift; sourceTree = "<group>"; };
 		6E6F44191A7FF6D800DEE699 /* CoreDataPredicateJSONCompatibility.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataPredicateJSONCompatibility.swift; sourceTree = "<group>"; };
+		6E7EF35C1A8B170400F6FECC /* FetchTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FetchTests.swift; sourceTree = "<group>"; };
+		6E7EF35E1A8B178800F6FECC /* DeleteTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeleteTests.swift; sourceTree = "<group>"; };
+		6E7EF3601A8B18A200F6FECC /* MockServerDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MockServerDataSource.swift; sourceTree = "<group>"; };
 		6E91015319C4240000377498 /* RoutingHTTPServer.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RoutingHTTPServer.xcodeproj; path = ../RoutingHTTPServer/Framework/RoutingHTTPServer/RoutingHTTPServer.xcodeproj; sourceTree = "<group>"; };
 		6EAD584619C3B58300DC080A /* NetworkObjects.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = NetworkObjects.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6EAD584A19C3B58300DC080A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -140,6 +146,15 @@
 			name = "Core Data Extensions";
 			sourceTree = "<group>";
 		};
+		6E7EF3621A8B18F900F6FECC /* Mock */ = {
+			isa = PBXGroup;
+			children = (
+				6EDE12D61A8853E500FDF672 /* TestModel.xcdatamodeld */,
+				6E7EF3601A8B18A200F6FECC /* MockServerDataSource.swift */,
+			);
+			name = Mock;
+			sourceTree = "<group>";
+		};
 		6E91015419C4240000377498 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -194,8 +209,10 @@
 			isa = PBXGroup;
 			children = (
 				6EAD585519C3B58300DC080A /* NetworkObjectsTests.swift */,
-				6EDE12D61A8853E500FDF672 /* TestModel.xcdatamodeld */,
 				6EDE12D41A88530100FDF672 /* CoreDataAttributeJSONCompatibilityTests.swift */,
+				6E7EF35C1A8B170400F6FECC /* FetchTests.swift */,
+				6E7EF35E1A8B178800F6FECC /* DeleteTests.swift */,
+				6E7EF3621A8B18F900F6FECC /* Mock */,
 				6EAD585319C3B58300DC080A /* Supporting Files */,
 			);
 			path = NetworkObjectsTests;
@@ -391,9 +408,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6E7EF3611A8B18A200F6FECC /* MockServerDataSource.swift in Sources */,
 				6EDE12D51A88530100FDF672 /* CoreDataAttributeJSONCompatibilityTests.swift in Sources */,
 				6EDE12D11A8852C100FDF672 /* CoreDataAttributeJSONCompatibility.swift in Sources */,
+				6E7EF35F1A8B178800F6FECC /* DeleteTests.swift in Sources */,
 				6E0F4B801A71DFFD00220888 /* NetworkObjectsTests.swift in Sources */,
+				6E7EF35D1A8B170400F6FECC /* FetchTests.swift in Sources */,
 				6EDE12D81A8853E500FDF672 /* TestModel.xcdatamodeld in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

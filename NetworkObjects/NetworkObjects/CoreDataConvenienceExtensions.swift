@@ -41,7 +41,7 @@ internal extension NSManagedObject {
         // set
         let set = value as NSSet
         
-        return set.allObjects  as? [NSManagedObject]
+        return set.allObjects as? [NSManagedObject]
     }
     
     /** Wraps the -valueForKey: method in the context's queue. */
