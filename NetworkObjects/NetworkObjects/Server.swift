@@ -261,7 +261,7 @@ public class Server {
                     response.respondWithData(jsonData)
                     
                     // tell the delegate
-                    self.delegate!.server(self, didPerformRequest: serverRequest, withResponse: serverResponse, userInfo: userInfo)
+                    self.delegate?.server(self, didPerformRequest: serverRequest, withResponse: serverResponse, userInfo: userInfo)
                 }
                 
                 // PUT
@@ -305,7 +305,7 @@ public class Server {
                     response.statusCode = ServerStatusCode.OK.rawValue
                     
                     // tell the delegate
-                    self.delegate!.server(self, didPerformRequest: serverRequest, withResponse: serverResponse, userInfo: userInfo)
+                    self.delegate?.server(self, didPerformRequest: serverRequest, withResponse: serverResponse, userInfo: userInfo)
                 }
                 
                 // DELETE
@@ -349,7 +349,7 @@ public class Server {
                     response.statusCode = ServerStatusCode.OK.rawValue
                     
                     // tell the delegate
-                    self.delegate!.server(self, didPerformRequest: serverRequest, withResponse: serverResponse, userInfo: userInfo)
+                    self.delegate?.server(self, didPerformRequest: serverRequest, withResponse: serverResponse, userInfo: userInfo)
                 }
             }
             
@@ -423,12 +423,12 @@ public class Server {
                         // could not serialize json response, internal error
                         if (jsonData == nil) {
                             
-                            self.delegate!.server(self, didEncounterInternalError: error!, forRequest: serverRequest, userInfo: userInfo)
+                            self.delegate?.server(self, didEncounterInternalError: error!, forRequest: serverRequest, userInfo: userInfo)
                             
                             response.statusCode = ServerStatusCode.InternalServerError.rawValue
                             
                             // tell the delegate
-                            self.delegate!.server(self, didPerformRequest: serverRequest, withResponse: serverResponse, userInfo: userInfo)
+                            self.delegate?.server(self, didPerformRequest: serverRequest, withResponse: serverResponse, userInfo: userInfo)
                             
                             return
                         }
@@ -441,7 +441,7 @@ public class Server {
                     response.statusCode = serverResponse.statusCode.rawValue
                     
                     // tell the delegate
-                    self.delegate!.server(self, didPerformRequest: serverRequest, withResponse: serverResponse, userInfo: userInfo)
+                    self.delegate?.server(self, didPerformRequest: serverRequest, withResponse: serverResponse, userInfo: userInfo)
                 }
                 
                 httpServer.post(functionExpressionPath, withBlock: functionRequestHandler)
@@ -1095,6 +1095,8 @@ public class Server {
             }
         }
         
+        /* Not working #104
+        
         // perform Core Data validation (to make sure there will be no errors saving)
         let (validCoreData: Bool, deletionError: NSError?) = {
             
@@ -1117,6 +1119,7 @@ public class Server {
             
             return (response, userInfo)
         }
+        */
         
         // delete...
         

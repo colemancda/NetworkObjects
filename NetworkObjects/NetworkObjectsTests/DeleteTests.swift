@@ -52,7 +52,6 @@ class DeleteTests: XCTestCase {
     
     // MARK: - Test Cases
     
-    /*
     func testDeleteEntityWithOneToOneRelationshipAndNonNilValue() {
         
         // create destination entity
@@ -101,5 +100,5 @@ class DeleteTests: XCTestCase {
         
         waitForExpectationsWithTimeout(10, handler: nil)
     }
-    */
+    
 }
