@@ -63,7 +63,7 @@ internal extension NSPredicate {
     /** Transverses the predicate tree and returns all comparison predicates. If this is called on an instance of NSComparisonPredicate, then an array with self is returned. Only use with concrete subclasses of NSPredicate. */
     func extractComparisonSubpredicates() -> [NSComparisonPredicate] {
         
-        assert((self as? NSComparisonPredicate) != nil && (self as? NSCompoundPredicate) != nil, "Cannot extract comparison subpredicates from NSPredicate, must use concrete subclasses")
+        assert(self.dynamicType !== NSPredicate.self, "Cannot extract comparison subpredicates from NSPredicate, must use concrete subclasses")
         
         // main predicate is comparison predicate
         if let comparisonPredicate = self as? NSComparisonPredicate {
