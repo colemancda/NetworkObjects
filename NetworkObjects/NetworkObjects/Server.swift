@@ -657,7 +657,7 @@ public class Server {
         
         // return the resource IDs of objects mapped to their resource path
         
-        var jsonResponse = [[String: String]]()
+        var jsonResponse = [[String: UInt]]()
         
         context.performBlockAndWait { () -> Void in
             
@@ -667,9 +667,9 @@ public class Server {
                 
                 let resourcePath = managedObject.entity.name!
                 
-                let resourceID = "\(managedObject.valueForKey(self.resourceIDAttributeName) as UInt)"
+                let resourceID = (managedObject.valueForKey(self.resourceIDAttributeName) as UInt)
                 
-                jsonResponse.append([resourceID: resourcePath])
+                jsonResponse.append([resourcePath: resourceID])
             }
         }
         

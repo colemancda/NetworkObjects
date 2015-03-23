@@ -122,17 +122,17 @@ public class Store {
             
             self.privateQueueManagedObjectContext.performBlockAndWait({ () -> Void in
                 
-                for resourcePathByResourceID in results! {
+                for resourceIDByResourcePath in results! {
                     
-                    let resourceID = UInt(resourcePathByResourceID.keys.first!.toInt()!)
+                    let resourcePath = resourceIDByResourcePath.keys.first!
                     
-                    let resourcePath = resourcePathByResourceID.values.first
+                    let resourceID = resourceIDByResourcePath.values.first!
                     
                     // get the entity
                     
                     let entities = self.managedObjectModel.entitiesByName as [String: NSEntityDescription]
                     
-                    let entity = entities[resourcePath!]
+                    let entity = entities[resourcePath]
                     
                     let (resource, cacheError) = self.findOrCreateEntity(entity!, withResourceID: resourceID, context: self.privateQueueManagedObjectContext)
                     
@@ -594,7 +594,7 @@ public class Store {
     // The API private methods separate the JSON validation and HTTP requests from Core Data caching.
     
     /** Makes the actual search request to the server based on JSON input. */
-    private func searchForResource(entity: NSEntityDescription, withParameters parameters:[String: AnyObject], URLSession: NSURLSession, completionBlock: ((error: NSError?, results: [[String: String]]?) -> Void)) -> NSURLSessionDataTask {
+    private func searchForResource(entity: NSEntityDescription, withParameters parameters:[String: AnyObject], URLSession: NSURLSession, completionBlock: ((error: NSError?, results: [[String: UInt]]?) -> Void)) -> NSURLSessionDataTask {
         
         // build URL
         
@@ -646,7 +646,7 @@ public class Store {
             
             // no error status code...
             
-            let jsonResponse = NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.AllowFragments, error: nil) as? [[String: String]]
+            let jsonResponse = NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.AllowFragments, error: nil) as? [[String: UInt]]
             
             // invalid JSON response
             if jsonResponse == nil {
@@ -657,18 +657,15 @@ public class Store {
             }
             
             // dictionaries must have one key-value pair
-            for resultResourcePathByResourceID in jsonResponse! {
+            for resultResourceIDByEntityName in jsonResponse! {
                 
-                let dictionary = resultResourcePathByResourceID as NSDictionary
-                
-                if dictionary.count != 1 {
+                if resultResourceIDByEntityName.count != 1 {
                     
                     completionBlock(error: ErrorCode.InvalidServerResponse.toError(), results: nil)
                     
                     return
                 }
             }
-            
             
             // JSON has been validated
             completionBlock(error: nil, results: jsonResponse)
