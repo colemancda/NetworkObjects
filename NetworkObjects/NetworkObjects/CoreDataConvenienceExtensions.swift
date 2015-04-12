@@ -18,7 +18,7 @@ internal extension NSManagedObject {
         assert(self.entity.relationshipsByName[key] as? NSRelationshipDescription != nil, "Relationship \(key) doesnt exist on \(self.entity.name)")
         
         // get relationship
-        let relationship = self.entity.relationshipsByName[key] as NSRelationshipDescription
+        let relationship = self.entity.relationshipsByName[key] as! NSRelationshipDescription
         
         // assert that relationship is to-many
         assert(relationship.toMany, "Relationship \(key) on \(self.entity.name) is not to-many")
@@ -39,7 +39,7 @@ internal extension NSManagedObject {
         }
         
         // set
-        let set = value as NSSet
+        let set = value as! NSSet
         
         return set.allObjects as? [NSManagedObject]
     }
@@ -71,7 +71,7 @@ internal extension NSPredicate {
             return [comparisonPredicate]
         }
         
-        let compoundPredicate = self as NSCompoundPredicate
+        let compoundPredicate = self as! NSCompoundPredicate
         
         let comparisonPredicates = NSMutableArray()
         
@@ -82,6 +82,6 @@ internal extension NSPredicate {
             comparisonPredicates.addObjectsFromArray(subpredicates)
         }
         
-        return (comparisonPredicates as NSArray) as [NSComparisonPredicate]
+        return (comparisonPredicates as NSArray) as! [NSComparisonPredicate]
     }
 }

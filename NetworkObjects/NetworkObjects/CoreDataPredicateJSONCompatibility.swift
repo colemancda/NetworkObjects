@@ -395,7 +395,7 @@ internal extension NSCompoundPredicate {
         
         var subpredicateJSONArray = [[String: AnyObject]]()
         
-        for predicate in self.subpredicates as [NSPredicate] {
+        for predicate in self.subpredicates as! [NSPredicate] {
             
             let predicateJSONObject = predicate.toJSON(entity: entity, managedObjectContext: managedObjectContext, resourceIDAttributeName: resourceIDAttributeName)
             

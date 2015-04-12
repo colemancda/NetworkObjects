@@ -79,13 +79,13 @@ internal extension NSEntityDescription {
         // date
         case .DateAttributeType:
             
-            let date = attributeValue as NSDate
+            let date = attributeValue as! NSDate
             return options.dateFormatter.stringFromDate(date)
             
         // data
         case .BinaryDataAttributeType:
             
-            let data = attributeValue as NSData
+            let data = attributeValue as! NSData
             return data.base64EncodedStringWithOptions(options.base64EncodingOptions)
             
         // transformable
@@ -100,7 +100,7 @@ internal extension NSEntityDescription {
                 let transformer = NSValueTransformer(forName: NSKeyedUnarchiveFromDataTransformerName)
                 
                 // convert to data
-                let data = transformer!.reverseTransformedValue(attributeValue) as NSData
+                let data = transformer!.reverseTransformedValue(attributeValue) as! NSData
                 
                 // convert to string (for JSON export)
                 return data.base64EncodedStringWithOptions(options.base64EncodingOptions)
@@ -110,7 +110,7 @@ internal extension NSEntityDescription {
             let transformer = NSValueTransformer(forName: valueTransformerName!)
             
             // convert to data
-            let data = transformer!.transformedValue(attributeValue) as NSData
+            let data = transformer!.transformedValue(attributeValue) as! NSData
             
             // convert to string (for JSON export)
             return data.base64EncodedStringWithOptions(options.base64EncodingOptions)
