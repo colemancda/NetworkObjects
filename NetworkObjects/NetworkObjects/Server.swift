@@ -100,7 +100,7 @@ public class Server {
                         resourceID: nil,
                         JSONObject: searchParameters,
                         functionName: nil,
-                        headers: request.headers as [String: String])
+                        headers: request.headers as! [String: String])
                     
                     // seach requests require HTTP body
                     if searchParameters == nil {
@@ -169,7 +169,7 @@ public class Server {
                     resourceID: nil,
                     JSONObject: jsonObject,
                     functionName: nil,
-                    headers: request.headers as [String: String])
+                    headers: request.headers as! [String: String])
                 
                 // process request and return a response
                 let (serverResponse, userInfo) = self.responseForCreateRequest(serverRequest)
@@ -208,7 +208,7 @@ public class Server {
                 
                 let parameters = request.params
                 
-                let captures = parameters["captures"] as [String]
+                let captures = parameters["captures"] as! [String]
                 
                 let resourceID = UInt(captures.first!.toInt()!)
                 
@@ -227,7 +227,7 @@ public class Server {
                         resourceID: resourceID,
                         JSONObject: jsonObject,
                         functionName: nil,
-                        headers: request.headers as [String: String])
+                        headers: request.headers as! [String: String])
                     
                     // should not have a body (also validate thate JSON is dictionary
                     
@@ -275,7 +275,7 @@ public class Server {
                         resourceID: resourceID,
                         JSONObject: jsonObject,
                         functionName: nil,
-                        headers: request.headers as [String: String])
+                        headers: request.headers as! [String: String])
                     
                     // should have a body (and not a empty JSON dicitonary)
                     
@@ -319,7 +319,7 @@ public class Server {
                         resourceID: resourceID,
                         JSONObject: jsonObject,
                         functionName: nil,
-                        headers: request.headers as [String: String])
+                        headers: request.headers as! [String: String])
                     
                     // should not have a body
                     
@@ -378,7 +378,7 @@ public class Server {
                     
                     let parameters = request.params
                     
-                    let captures = parameters["captures"] as [String]
+                    let captures = parameters["captures"] as! [String]
                     
                     let resourceID = UInt(captures.first!.toInt()!)
                     
@@ -396,7 +396,7 @@ public class Server {
                         resourceID: resourceID,
                         JSONObject: jsonObject,
                         functionName: functionName,
-                        headers: request.headers as [String: String])
+                        headers: request.headers as! [String: String])
                     
                     // invalid json body
                     if jsonObject == nil && jsonBody != nil {
@@ -1275,7 +1275,7 @@ public class Server {
                 if let destinationResource = managedObject.valueForKey(relationshipName) as? NSManagedObject {
                     
                     // get resource ID
-                    let destinationResourceID = destinationResource.valueForKey(self.resourceIDAttributeName) as UInt
+                    let destinationResourceID = destinationResource.valueForKey(self.resourceIDAttributeName) as! UInt
                     
                     // add to JSON object
                     jsonObject[relationshipName] = [destinationResource.entity.name!: destinationResourceID]
@@ -1292,7 +1292,7 @@ public class Server {
                     
                     for destinationResource in arrayValue {
                         
-                        let destinationResourceID = destinationResource.valueForKey(self.resourceIDAttributeName) as UInt
+                        let destinationResourceID = destinationResource.valueForKey(self.resourceIDAttributeName) as! UInt
                         
                         resourceIDs.append([destinationResource.entity.name!: destinationResourceID])
                     }
@@ -1353,7 +1353,8 @@ public class Server {
                         if self.delegate?.server(self, permissionForRequest: request, managedObject: destinationResource, context: context, key: nil).rawValue >= ServerPermission.ReadOnly.rawValue {
                             
                             // get resource ID
-                            let destinationResourceID = destinationResource.valueForKey(self.resourceIDAttributeName) as UInt
+                            let destinationResourceID = destinationResource.valueForKey(self.resourceIDAttributeName) as!
+                            UInt
                             
                             // add to JSON object
                             jsonObject[relationshipName] = [destinationResource.entity.name!: destinationResourceID]
@@ -1375,7 +1376,7 @@ public class Server {
                             if self.delegate?.server(self, permissionForRequest: request, managedObject: destinationResource, context: context, key: nil).rawValue >= ServerPermission.ReadOnly.rawValue {
                                 
                                 // get destination resource ID
-                                let destinationResourceID = destinationResource.valueForKey(self.resourceIDAttributeName) as UInt
+                                let destinationResourceID = destinationResource.valueForKey(self.resourceIDAttributeName) as! UInt
                                 
                                 resourceIDs.append([destinationResource.entity.name!: destinationResourceID])
                             }
@@ -1908,7 +1909,7 @@ internal extension NSSortDescriptor {
         #if os(iOS)
             return self.key
             #else
-        return self.key!
+        return self.key()
             #endif
     }
 }

@@ -1136,7 +1136,7 @@ public class Store {
                     
                     let destinationResourceID = destinationResourceDictionary.values.first!
                     
-                    let destinationEntity = self.managedObjectModel.entitiesByName[destinationResourceEntityName] as NSEntityDescription
+                    let destinationEntity = self.managedObjectModel.entitiesByName[destinationResourceEntityName] as! NSEntityDescription
                     
                     // fetch
                     let (destinationResource, error) = self.findOrCreateEntity(destinationEntity, withResourceID: destinationResourceID, context: context)
@@ -1173,7 +1173,7 @@ public class Store {
                         
                         let destinationResourceID = destinationResourceDictionary.values.first!
                         
-                        let destinationEntity = self.managedObjectModel.entitiesByName[destinationResourceEntityName] as NSEntityDescription
+                        let destinationEntity = self.managedObjectModel.entitiesByName[destinationResourceEntityName] as! NSEntityDescription
                         
                         let (destinationResource, error) = self.findOrCreateEntity(destinationEntity, withResourceID: destinationResourceID, context: context)
                         
@@ -1355,7 +1355,7 @@ internal extension NSEntityDescription {
                     // get the resource ID of the object
                     let destinationResource = value as! NSManagedObject
                     
-                    let destinationResourceID = destinationResource.valueForKey(resourceIDAttributeName) as UInt
+                    let destinationResourceID = destinationResource.valueForKey(resourceIDAttributeName) as! UInt
                     
                     jsonObject[key] = [destinationResource.entity.name!: destinationResourceID]
                 }
@@ -1370,13 +1370,13 @@ internal extension NSEntityDescription {
                             
                             let orderedSet = value as! NSOrderedSet
                             
-                            return orderedSet.array as [NSManagedObject]
+                            return orderedSet.array as! [NSManagedObject]
                         }
                         
                         // set
                         let set = value as! NSSet
                         
-                        return set.allObjects as [NSManagedObject]
+                        return set.allObjects as! [NSManagedObject]
                         
                         }()
                     
@@ -1425,7 +1425,7 @@ private extension NSManagedObjectModel {
         // add a date attribute to managed object model
         for (entityName, entity) in self.entitiesByName as! [String: NSEntityDescription] {
             
-            for (propertyName, property) in entity.propertiesByName as [String: NSPropertyDescription] {
+            for (propertyName, property) in entity.propertiesByName as! [String: NSPropertyDescription] {
                 
                 property.optional = true
             }

@@ -33,7 +33,7 @@ internal extension NSManagedObject {
         // ordered set
         if relationship.ordered {
             
-            let orderedSet = value as NSOrderedSet
+            let orderedSet = value as! NSOrderedSet
             
             return orderedSet.array as? [NSManagedObject]
         }
@@ -75,7 +75,7 @@ internal extension NSPredicate {
         
         let comparisonPredicates = NSMutableArray()
         
-        for subpredicate in compoundPredicate.subpredicates as [NSPredicate] {
+        for subpredicate in compoundPredicate.subpredicates as! [NSPredicate] {
             
             let subpredicates = subpredicate.extractComparisonSubpredicates()
             
