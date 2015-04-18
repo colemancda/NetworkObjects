@@ -110,7 +110,10 @@ internal extension NSComparisonPredicate {
                 return nil
             }
             
-            return NSComparisonPredicateOptions(searchComparisonPredicateOptions: searchComparisonOptions!)
+            // Compiler error in Xcode 6.3
+            //return NSComparisonPredicateOptions(searchComparisonPredicateOptions: searchComparisonOptions!)
+            
+            return SearchComparisonPredicateOptionsToNSComparisonPredicateOptions(searchComparisonOptions!)
         }()
         
         // set left expression
@@ -411,11 +414,26 @@ internal extension NSCompoundPredicate {
 
 // MARK: - Enumeration Extensions
 
+public func SearchComparisonPredicateOptionsToNSComparisonPredicateOptions(searchComparisonPredicateOptions: [SearchComparisonPredicateOption]) -> NSComparisonPredicateOptions {
+    
+    var rawOptionValue: UInt = 0
+    
+    for option in searchComparisonPredicateOptions {
+        
+        let convertedOption = option.toComparisonPredicateOption()
+        
+        rawOptionValue = rawOptionValue | convertedOption.rawValue
+    }
+    
+    return NSComparisonPredicateOptions(rawValue: rawOptionValue)
+}
+
 public extension NSComparisonPredicateOptions {
     
+    /* Compiler error in Xcode 6.3
     public init(searchComparisonPredicateOptions: [SearchComparisonPredicateOption]) {
         
-        var rawOptionValue: UInt = NSComparisonPredicateOptions.allZeros.rawValue
+        var rawOptionValue: UInt = 0
         
         for option in searchComparisonPredicateOptions {
             
@@ -426,6 +444,7 @@ public extension NSComparisonPredicateOptions {
         
         self = NSComparisonPredicateOptions(rawValue: rawOptionValue)
     }
+    */
     
     public func toSearchComparisonPredicateOptions() -> [SearchComparisonPredicateOption]? {
         
