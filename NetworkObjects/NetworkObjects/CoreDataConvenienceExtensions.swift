@@ -18,7 +18,7 @@ internal extension NSManagedObject {
         assert(self.entity.relationshipsByName[key] as? NSRelationshipDescription != nil, "Relationship \(key) doesnt exist on \(self.entity.name)")
         
         // get relationship
-        let relationship = self.entity.relationshipsByName[key] as NSRelationshipDescription
+        let relationship = self.entity.relationshipsByName[key] as! NSRelationshipDescription
         
         // assert that relationship is to-many
         assert(relationship.toMany, "Relationship \(key) on \(self.entity.name) is not to-many")
@@ -33,13 +33,13 @@ internal extension NSManagedObject {
         // ordered set
         if relationship.ordered {
             
-            let orderedSet = value as NSOrderedSet
+            let orderedSet = value as! NSOrderedSet
             
             return orderedSet.array as? [NSManagedObject]
         }
         
         // set
-        let set = value as NSSet
+        let set = value as! NSSet
         
         return set.allObjects as? [NSManagedObject]
     }
@@ -63,7 +63,7 @@ internal extension NSPredicate {
     /** Transverses the predicate tree and returns all comparison predicates. If this is called on an instance of NSComparisonPredicate, then an array with self is returned. Only use with concrete subclasses of NSPredicate. */
     func extractComparisonSubpredicates() -> [NSComparisonPredicate] {
         
-        assert((self as? NSComparisonPredicate) != nil && (self as? NSCompoundPredicate) != nil, "Cannot extract comparison subpredicates from NSPredicate, must use concrete subclasses")
+        assert(self.dynamicType !== NSPredicate.self, "Cannot extract comparison subpredicates from NSPredicate, must use concrete subclasses")
         
         // main predicate is comparison predicate
         if let comparisonPredicate = self as? NSComparisonPredicate {
@@ -71,17 +71,17 @@ internal extension NSPredicate {
             return [comparisonPredicate]
         }
         
-        let compoundPredicate = self as NSCompoundPredicate
+        let compoundPredicate = self as! NSCompoundPredicate
         
         let comparisonPredicates = NSMutableArray()
         
-        for subpredicate in compoundPredicate.subpredicates as [NSPredicate] {
+        for subpredicate in compoundPredicate.subpredicates as! [NSPredicate] {
             
             let subpredicates = subpredicate.extractComparisonSubpredicates()
             
             comparisonPredicates.addObjectsFromArray(subpredicates)
         }
         
-        return (comparisonPredicates as NSArray) as [NSComparisonPredicate]
+        return (comparisonPredicates as NSArray) as! [NSComparisonPredicate]
     }
 }

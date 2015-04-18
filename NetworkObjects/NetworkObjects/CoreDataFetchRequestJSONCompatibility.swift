@@ -123,7 +123,7 @@ internal extension NSFetchRequest {
                 return self.entity!
             }
             
-            return managedObjectContext.persistentStoreCoordinator!.managedObjectModel.entitiesByName[self.entityName!] as NSEntityDescription
+            return managedObjectContext.persistentStoreCoordinator!.managedObjectModel.entitiesByName[self.entityName!] as! NSEntityDescription
         }()
         
         // create JSON object

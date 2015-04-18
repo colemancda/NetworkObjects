@@ -61,7 +61,7 @@ public class Store {
             self.prettyPrintJSON = prettyPrintJSON
             self.resourceIDAttributeName = resourceIDAttributeName
             self.dateCachedAttributeName = dateCachedAttributeName
-            self.managedObjectModel = managedObjectModel.copy() as NSManagedObjectModel
+            self.managedObjectModel = managedObjectModel.copy() as! NSManagedObjectModel
             
             // edit model
             
@@ -122,17 +122,17 @@ public class Store {
             
             self.privateQueueManagedObjectContext.performBlockAndWait({ () -> Void in
                 
-                for resourcePathByResourceID in results! {
+                for resourceIDByResourcePath in results! {
                     
-                    let resourceID = UInt(resourcePathByResourceID.keys.first!.toInt()!)
+                    let resourcePath = resourceIDByResourcePath.keys.first!
                     
-                    let resourcePath = resourcePathByResourceID.values.first
+                    let resourceID = resourceIDByResourcePath.values.first!
                     
                     // get the entity
                     
-                    let entities = self.managedObjectModel.entitiesByName as [String: NSEntityDescription]
+                    let entities = self.managedObjectModel.entitiesByName as! [String: NSEntityDescription]
                     
-                    let entity = entities[resourcePath!]
+                    let entity = entities[resourcePath]
                     
                     let (resource, cacheError) = self.findOrCreateEntity(entity!, withResourceID: resourceID, context: self.privateQueueManagedObjectContext)
                     
@@ -186,7 +186,7 @@ public class Store {
     
     public func fetchEntity(name: String, resourceID: UInt, URLSession: NSURLSession = NSURLSession.sharedSession(), completionBlock: ((error: NSError?, managedObject: NSManagedObject?) -> Void)) -> NSURLSessionDataTask {
         
-        let entity = self.managedObjectModel.entitiesByName[name]! as NSEntityDescription
+        let entity = self.managedObjectModel.entitiesByName[name]! as! NSEntityDescription
         
         return self.getResource(entity, withID: resourceID, URLSession: URLSession, completionBlock: { (error, jsonObject) -> Void in
             
@@ -305,7 +305,7 @@ public class Store {
     
     public func createEntity(name: String, withInitialValues initialValues: [String: AnyObject]?, URLSession: NSURLSession = NSURLSession.sharedSession(), completionBlock: ((error: NSError?, managedObject: NSManagedObject?) -> Void)) -> NSURLSessionDataTask {
         
-        let entity = self.managedObjectModel.entitiesByName[name]! as NSEntityDescription
+        let entity = self.managedObjectModel.entitiesByName[name]! as! NSEntityDescription
         
         var jsonValues: [String: AnyObject]?
         
@@ -382,7 +382,7 @@ public class Store {
         let jsonValues = managedObject.entity.JSONObjectFromCoreDataValues(changes, usingResourceIDAttributeName: self.resourceIDAttributeName)
         
         // get resourceID
-        let resourceID = managedObject.valueForKey(self.resourceIDAttributeName) as UInt
+        let resourceID = managedObject.valueForKey(self.resourceIDAttributeName) as! UInt
         
         return self.editResource(managedObject.entity, withID: resourceID, changes: jsonValues, URLSession: URLSession, completionBlock: { (httpError) -> Void in
             
@@ -425,7 +425,7 @@ public class Store {
     public func deleteManagedObject(managedObject: NSManagedObject, URLSession: NSURLSession = NSURLSession.sharedSession(), completionBlock: ((error: NSError?) -> Void)) -> NSURLSessionDataTask {
         
         // get resourceID
-        let resourceID = managedObject.valueForKey(self.resourceIDAttributeName) as UInt
+        let resourceID = managedObject.valueForKey(self.resourceIDAttributeName) as! UInt
         
         return self.deleteResource(managedObject.entity, withID: resourceID, URLSession: URLSession, completionBlock: { (httpError) -> Void in
             
@@ -465,7 +465,7 @@ public class Store {
     public func performFunction(function functionName: String, forManagedObject managedObject: NSManagedObject, withJSONObject JSONObject: [String: AnyObject]?, URLSession: NSURLSession = NSURLSession.sharedSession(), completionBlock: ((error: NSError?, functionCode: ServerFunctionCode?, JSONResponse: [String: AnyObject]?) -> Void)) -> NSURLSessionDataTask {
         
         // get resourceID
-        let resourceID = managedObject.valueForKey(self.resourceIDAttributeName) as UInt
+        let resourceID = managedObject.valueForKey(self.resourceIDAttributeName) as! UInt
         
         return self.performFunction(functionName, onResource: managedObject.entity, withID: resourceID, withJSONObject: JSONObject, URLSession: URLSession, completionBlock: { (error, functionCode, JSONResponse) -> Void in
             
@@ -594,7 +594,7 @@ public class Store {
     // The API private methods separate the JSON validation and HTTP requests from Core Data caching.
     
     /** Makes the actual search request to the server based on JSON input. */
-    private func searchForResource(entity: NSEntityDescription, withParameters parameters:[String: AnyObject], URLSession: NSURLSession, completionBlock: ((error: NSError?, results: [[String: String]]?) -> Void)) -> NSURLSessionDataTask {
+    private func searchForResource(entity: NSEntityDescription, withParameters parameters:[String: AnyObject], URLSession: NSURLSession, completionBlock: ((error: NSError?, results: [[String: UInt]]?) -> Void)) -> NSURLSessionDataTask {
         
         // build URL
         
@@ -609,7 +609,7 @@ public class Store {
                 return
             }
             
-            let httpResponse = response as NSHTTPURLResponse
+            let httpResponse = response as! NSHTTPURLResponse
             
             // error codes
             
@@ -646,7 +646,7 @@ public class Store {
             
             // no error status code...
             
-            let jsonResponse = NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.AllowFragments, error: nil) as? [[String: String]]
+            let jsonResponse = NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.AllowFragments, error: nil) as? [[String: UInt]]
             
             // invalid JSON response
             if jsonResponse == nil {
@@ -657,18 +657,15 @@ public class Store {
             }
             
             // dictionaries must have one key-value pair
-            for resultResourcePathByResourceID in jsonResponse! {
+            for resultResourceIDByEntityName in jsonResponse! {
                 
-                let dictionary = resultResourcePathByResourceID as NSDictionary
-                
-                if dictionary.count != 1 {
+                if resultResourceIDByEntityName.count != 1 {
                     
                     completionBlock(error: ErrorCode.InvalidServerResponse.toError(), results: nil)
                     
                     return
                 }
             }
-            
             
             // JSON has been validated
             completionBlock(error: nil, results: jsonResponse)
@@ -697,7 +694,7 @@ public class Store {
             
             // error status codes
             
-            let httpResponse = response as NSHTTPURLResponse
+            let httpResponse = response as! NSHTTPURLResponse
             
             // error codes
             
@@ -783,7 +780,7 @@ public class Store {
                 return
             }
             
-            let httpResponse = response as NSHTTPURLResponse
+            let httpResponse = response as! NSHTTPURLResponse
             
             // error codes
             
@@ -863,7 +860,7 @@ public class Store {
                 return
             }
             
-            let httpResponse = response as NSHTTPURLResponse
+            let httpResponse = response as! NSHTTPURLResponse
             
             // error codes
             
@@ -924,7 +921,7 @@ public class Store {
                 return
             }
             
-            let httpResponse = response as NSHTTPURLResponse
+            let httpResponse = response as! NSHTTPURLResponse
             
             // error codes
             
@@ -985,7 +982,7 @@ public class Store {
                 return
             }
             
-            let httpResponse = response as NSHTTPURLResponse
+            let httpResponse = response as! NSHTTPURLResponse
             
             let functionCode = ServerFunctionCode(rawValue: httpResponse.statusCode)
             
@@ -1131,7 +1128,7 @@ public class Store {
                 if !relationship!.toMany {
                     
                     // get the resourceID
-                    let destinationResourceDictionary = jsonValue as [String: UInt]
+                    let destinationResourceDictionary = jsonValue as! [String: UInt]
                     
                     // get key and value
                     
@@ -1139,7 +1136,7 @@ public class Store {
                     
                     let destinationResourceID = destinationResourceDictionary.values.first!
                     
-                    let destinationEntity = self.managedObjectModel.entitiesByName[destinationResourceEntityName] as NSEntityDescription
+                    let destinationEntity = self.managedObjectModel.entitiesByName[destinationResourceEntityName] as! NSEntityDescription
                     
                     // fetch
                     let (destinationResource, error) = self.findOrCreateEntity(destinationEntity, withResourceID: destinationResourceID, context: context)
@@ -1162,7 +1159,7 @@ public class Store {
                     
                     // get the resourceIDs
                     
-                    let destinationResourceIDs = jsonValue as [[String: UInt]]
+                    let destinationResourceIDs = jsonValue as! [[String: UInt]]
                     
                     let currentValues: AnyObject? = managedObject.valueForKey(key)
                     
@@ -1176,7 +1173,7 @@ public class Store {
                         
                         let destinationResourceID = destinationResourceDictionary.values.first!
                         
-                        let destinationEntity = self.managedObjectModel.entitiesByName[destinationResourceEntityName] as NSEntityDescription
+                        let destinationEntity = self.managedObjectModel.entitiesByName[destinationResourceEntityName] as! NSEntityDescription
                         
                         let (destinationResource, error) = self.findOrCreateEntity(destinationEntity, withResourceID: destinationResourceID, context: context)
                         
@@ -1356,9 +1353,9 @@ internal extension NSEntityDescription {
                 if !relationship!.toMany {
                     
                     // get the resource ID of the object
-                    let destinationResource = value as NSManagedObject
+                    let destinationResource = value as! NSManagedObject
                     
-                    let destinationResourceID = destinationResource.valueForKey(resourceIDAttributeName) as UInt
+                    let destinationResourceID = destinationResource.valueForKey(resourceIDAttributeName) as! UInt
                     
                     jsonObject[key] = [destinationResource.entity.name!: destinationResourceID]
                 }
@@ -1371,15 +1368,15 @@ internal extension NSEntityDescription {
                         // ordered set
                         if relationship!.ordered {
                             
-                            let orderedSet = value as NSOrderedSet
+                            let orderedSet = value as! NSOrderedSet
                             
-                            return orderedSet.array as [NSManagedObject]
+                            return orderedSet.array as! [NSManagedObject]
                         }
                         
                         // set
-                        let set = value as NSSet
+                        let set = value as! NSSet
                         
-                        return set.allObjects as [NSManagedObject]
+                        return set.allObjects as! [NSManagedObject]
                         
                         }()
                     
@@ -1387,7 +1384,7 @@ internal extension NSEntityDescription {
                     
                     for destinationResource in destinationResources {
                         
-                        let destinationResourceID = destinationResource.valueForKey(resourceIDAttributeName) as UInt
+                        let destinationResourceID = destinationResource.valueForKey(resourceIDAttributeName) as! UInt
                         
                         destinationResourceIDs.append([destinationResource.entity.name!: destinationResourceID])
                     }
@@ -1408,7 +1405,7 @@ private extension NSManagedObjectModel {
     func addDateCachedAttribute(dateCachedAttributeName: String) {
         
         // add a date attribute to managed object model
-        for (entityName, entity) in self.entitiesByName as [String: NSEntityDescription] {
+        for (entityName, entity) in self.entitiesByName as! [String: NSEntityDescription] {
             
             if entity.superentity == nil {
                 
@@ -1426,9 +1423,9 @@ private extension NSManagedObjectModel {
     func markAllPropertiesAsOptional() {
         
         // add a date attribute to managed object model
-        for (entityName, entity) in self.entitiesByName as [String: NSEntityDescription] {
+        for (entityName, entity) in self.entitiesByName as! [String: NSEntityDescription] {
             
-            for (propertyName, property) in entity.propertiesByName as [String: NSPropertyDescription] {
+            for (propertyName, property) in entity.propertiesByName as! [String: NSPropertyDescription] {
                 
                 property.optional = true
             }
@@ -1456,7 +1453,7 @@ private extension NSManagedObject {
                 // to-one relationships
                 if !relationship.toMany {
                     
-                    let managedObject = managedObjectContext.objectWithID((value as NSManagedObject).objectID)
+                    let managedObject = managedObjectContext.objectWithID((value as! NSManagedObject).objectID)
                     
                     newValues[key] = managedObject
                 }
@@ -1472,17 +1469,17 @@ private extension NSManagedObject {
                         
                         if value is [NSManagedObject] {
                             
-                            return value as [NSManagedObject]
+                            return value as! [NSManagedObject]
                         }
                         
                         if let set = value as? NSSet {
                             
-                            return set.allObjects as [NSManagedObject]
+                            return set.allObjects as! [NSManagedObject]
                         }
                         
                         if let orderedSet = value as? NSOrderedSet {
                             
-                            return orderedSet.array as [NSManagedObject]
+                            return orderedSet.array as! [NSManagedObject]
                         }
                         
                         NSException(name: NSInternalInconsistencyException, reason: "Provided value \(value) for Core Data to-many relationship is not an accepted collection type", userInfo: nil)

@@ -56,7 +56,7 @@ public class Server {
         permissionsEnabled: Bool = false) {
             
             self.dataSource = dataSource
-            self.managedObjectModel = managedObjectModel.copy() as NSManagedObjectModel
+            self.managedObjectModel = managedObjectModel.copy() as! NSManagedObjectModel
             self.delegate = delegate
             self.sslIdentityAndCertificates = sslIdentityAndCertificates
             self.resourceIDAttributeName = resourceIDAttributeName
@@ -81,7 +81,7 @@ public class Server {
         
         // add HTTP REST handlers...
         
-        for (path, entity) in self.managedObjectModel.entitiesByName as [String: NSEntityDescription] {
+        for (path, entity) in self.managedObjectModel.entitiesByName as! [String: NSEntityDescription] {
             
             // MARK: HTTP Search Request Handler Block
             
@@ -100,7 +100,7 @@ public class Server {
                         resourceID: nil,
                         JSONObject: searchParameters,
                         functionName: nil,
-                        headers: request.headers as [String: String])
+                        headers: request.headers as! [String: String])
                     
                     // seach requests require HTTP body
                     if searchParameters == nil {
@@ -169,7 +169,7 @@ public class Server {
                     resourceID: nil,
                     JSONObject: jsonObject,
                     functionName: nil,
-                    headers: request.headers as [String: String])
+                    headers: request.headers as! [String: String])
                 
                 // process request and return a response
                 let (serverResponse, userInfo) = self.responseForCreateRequest(serverRequest)
@@ -208,7 +208,7 @@ public class Server {
                 
                 let parameters = request.params
                 
-                let captures = parameters["captures"] as [String]
+                let captures = parameters["captures"] as! [String]
                 
                 let resourceID = UInt(captures.first!.toInt()!)
                 
@@ -227,7 +227,7 @@ public class Server {
                         resourceID: resourceID,
                         JSONObject: jsonObject,
                         functionName: nil,
-                        headers: request.headers as [String: String])
+                        headers: request.headers as! [String: String])
                     
                     // should not have a body (also validate thate JSON is dictionary
                     
@@ -275,7 +275,7 @@ public class Server {
                         resourceID: resourceID,
                         JSONObject: jsonObject,
                         functionName: nil,
-                        headers: request.headers as [String: String])
+                        headers: request.headers as! [String: String])
                     
                     // should have a body (and not a empty JSON dicitonary)
                     
@@ -319,7 +319,7 @@ public class Server {
                         resourceID: resourceID,
                         JSONObject: jsonObject,
                         functionName: nil,
-                        headers: request.headers as [String: String])
+                        headers: request.headers as! [String: String])
                     
                     // should not have a body
                     
@@ -378,7 +378,7 @@ public class Server {
                     
                     let parameters = request.params
                     
-                    let captures = parameters["captures"] as [String]
+                    let captures = parameters["captures"] as! [String]
                     
                     let resourceID = UInt(captures.first!.toInt()!)
                     
@@ -396,7 +396,7 @@ public class Server {
                         resourceID: resourceID,
                         JSONObject: jsonObject,
                         functionName: functionName,
-                        headers: request.headers as [String: String])
+                        headers: request.headers as! [String: String])
                     
                     // invalid json body
                     if jsonObject == nil && jsonBody != nil {
@@ -604,7 +604,7 @@ public class Server {
             
             for managedObject in results! {
                 
-                let resourceID = managedObject.valueForKey(self.resourceIDAttributeName, managedObjectContext: context) as UInt
+                let resourceID = managedObject.valueForKey(self.resourceIDAttributeName, managedObjectContext: context) as! UInt
                 
                 // permission to view resource (must have at least readonly access)
                 if self.delegate!.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key: nil).rawValue >= ServerPermission.ReadOnly.rawValue {
@@ -637,7 +637,7 @@ public class Server {
                     // must have read only permission for keys in sort descriptor
                     if !fetchRequest!.sortDescriptors!.isEmpty {
                         
-                        for sort in fetchRequest!.sortDescriptors! as [NSSortDescriptor] {
+                        for sort in fetchRequest!.sortDescriptors! as! [NSSortDescriptor] {
                             
                             if self.delegate?.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key: sort.sortKey()!).rawValue >= ServerPermission.ReadOnly.rawValue {
                                 
@@ -657,7 +657,7 @@ public class Server {
         
         // return the resource IDs of objects mapped to their resource path
         
-        var jsonResponse = [[String: String]]()
+        var jsonResponse = [[String: UInt]]()
         
         context.performBlockAndWait { () -> Void in
             
@@ -667,9 +667,9 @@ public class Server {
                 
                 let resourcePath = managedObject.entity.name!
                 
-                let resourceID = "\(managedObject.valueForKey(self.resourceIDAttributeName) as UInt)"
+                let resourceID = (managedObject.valueForKey(self.resourceIDAttributeName) as! UInt)
                 
-                jsonResponse.append([resourceID: resourcePath])
+                jsonResponse.append([resourcePath: resourceID])
             }
         }
         
@@ -720,7 +720,7 @@ public class Server {
         
         context.performBlockAndWait { () -> Void in
             
-            managedObject = NSEntityDescription.insertNewObjectForEntityForName(entity.name!, inManagedObjectContext: context) as NSManagedObject
+            managedObject = NSEntityDescription.insertNewObjectForEntityForName(entity.name!, inManagedObjectContext: context) as! NSManagedObject
             
             // set resourceID
             
@@ -1255,7 +1255,7 @@ public class Server {
         var jsonObject = [String: AnyObject]()
         
         // first the attributes
-        for (attributeName, attribute) in managedObject.entity.attributesByName as [String: NSAttributeDescription] {
+        for (attributeName, attribute) in managedObject.entity.attributesByName as! [String: NSAttributeDescription] {
             
             // make sure the attribute is not undefined
             if attribute.attributeType != NSAttributeType.UndefinedAttributeType {
@@ -1266,7 +1266,7 @@ public class Server {
         }
         
         // then the relationships
-        for (relationshipName, relationshipDescription) in managedObject.entity.relationshipsByName as [String: NSRelationshipDescription] {
+        for (relationshipName, relationshipDescription) in managedObject.entity.relationshipsByName as! [String: NSRelationshipDescription] {
             
             // to-one relationship
             if !relationshipDescription.toMany {
@@ -1275,7 +1275,7 @@ public class Server {
                 if let destinationResource = managedObject.valueForKey(relationshipName) as? NSManagedObject {
                     
                     // get resource ID
-                    let destinationResourceID = destinationResource.valueForKey(self.resourceIDAttributeName) as UInt
+                    let destinationResourceID = destinationResource.valueForKey(self.resourceIDAttributeName) as! UInt
                     
                     // add to JSON object
                     jsonObject[relationshipName] = [destinationResource.entity.name!: destinationResourceID]
@@ -1292,7 +1292,7 @@ public class Server {
                     
                     for destinationResource in arrayValue {
                         
-                        let destinationResourceID = destinationResource.valueForKey(self.resourceIDAttributeName) as UInt
+                        let destinationResourceID = destinationResource.valueForKey(self.resourceIDAttributeName) as! UInt
                         
                         resourceIDs.append([destinationResource.entity.name!: destinationResourceID])
                     }
@@ -1313,7 +1313,7 @@ public class Server {
         var jsonObject = [String: AnyObject]()
         
         // first the attributes
-        for (attributeName, attribute) in managedObject.entity.attributesByName as [String: NSAttributeDescription] {
+        for (attributeName, attribute) in managedObject.entity.attributesByName as! [String: NSAttributeDescription] {
             
             // check access permissions (unless its the resourceID, thats always visible)
             if attributeName != self.resourceIDAttributeName {
@@ -1338,7 +1338,7 @@ public class Server {
         }
         
         // then the relationships
-        for (relationshipName, relationshipDescription) in managedObject.entity.relationshipsByName as [String: NSRelationshipDescription] {
+        for (relationshipName, relationshipDescription) in managedObject.entity.relationshipsByName as! [String: NSRelationshipDescription] {
             
             // make sure relationship is visible
             if self.delegate?.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key: relationshipName).rawValue >= ServerPermission.ReadOnly.rawValue {
@@ -1353,7 +1353,8 @@ public class Server {
                         if self.delegate?.server(self, permissionForRequest: request, managedObject: destinationResource, context: context, key: nil).rawValue >= ServerPermission.ReadOnly.rawValue {
                             
                             // get resource ID
-                            let destinationResourceID = destinationResource.valueForKey(self.resourceIDAttributeName) as UInt
+                            let destinationResourceID = destinationResource.valueForKey(self.resourceIDAttributeName) as!
+                            UInt
                             
                             // add to JSON object
                             jsonObject[relationshipName] = [destinationResource.entity.name!: destinationResourceID]
@@ -1375,7 +1376,7 @@ public class Server {
                             if self.delegate?.server(self, permissionForRequest: request, managedObject: destinationResource, context: context, key: nil).rawValue >= ServerPermission.ReadOnly.rawValue {
                                 
                                 // get destination resource ID
-                                let destinationResourceID = destinationResource.valueForKey(self.resourceIDAttributeName) as UInt
+                                let destinationResourceID = destinationResource.valueForKey(self.resourceIDAttributeName) as! UInt
                                 
                                 resourceIDs.append([destinationResource.entity.name!: destinationResourceID])
                             }
@@ -1399,9 +1400,9 @@ public class Server {
         
         for (key, jsonValue) in recievedJsonObject {
             
-            let attribute = (resource.entity.attributesByName as [String: NSAttributeDescription])[key]
+            let attribute = (resource.entity.attributesByName as! [String: NSAttributeDescription])[key]
             
-            let relationship = (resource.entity.relationshipsByName as [String: NSRelationshipDescription])[key]
+            let relationship = (resource.entity.relationshipsByName as! [String: NSRelationshipDescription])[key]
             
             // not found
             
@@ -1635,7 +1636,7 @@ public class Server {
             
             let cocoaHTTPServer: CocoaHTTPServer.HTTPServer = self.config().server
             
-            let httpServer = cocoaHTTPServer as ServerHTTPServer
+            let httpServer = cocoaHTTPServer as! ServerHTTPServer
             
             let server = httpServer.server
             
@@ -1880,7 +1881,7 @@ internal extension NSManagedObjectModel {
     func addResourceIDAttribute(resourceIDAttributeName: String) {
         
         // add a resourceID attribute to managed object model
-        for (entityName, entity) in self.entitiesByName as [String: NSEntityDescription] {
+        for (entityName, entity) in self.entitiesByName as! [String: NSEntityDescription] {
             
             if entity.superentity == nil {
                 
