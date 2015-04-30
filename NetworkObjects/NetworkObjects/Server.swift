@@ -1773,7 +1773,7 @@ public enum ServerUserInfoKey: String {
     case FunctionJSONOutput = "FunctionJSONOutput"
 }
 
-/** These are HTTP status codes used with NOServer instances. */
+/** These are HTTP status codes used with NetworkObjects servers. */
 public enum ServerStatusCode: Int {
     
     /** OK status code. */
