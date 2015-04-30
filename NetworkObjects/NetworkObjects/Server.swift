@@ -1622,27 +1622,6 @@ public class Server {
         
         return ServerStatusCode.OK
     }
-    
-    // MARK: - Private Classes
-    
-    private class ServerHTTPConnection: RoutingConnection {
-        
-        override func isSecureServer() -> Bool {
-            
-            return (self.sslIdentityAndCertificates() != nil)
-        }
-        
-        override func sslIdentityAndCertificates() -> [AnyObject]! {
-            
-            let cocoaHTTPServer: CocoaHTTPServer.HTTPServer = self.config().server
-            
-            let httpServer = cocoaHTTPServer as! ServerHTTPServer
-            
-            let server = httpServer.server
-            
-            return server.sslIdentityAndCertificates
-        }
-    }
 }
 
 // MARK: - Supporting Classes
@@ -1710,6 +1689,25 @@ public class ServerHTTPServer: RoutingHTTPServer {
     public init(server: Server) {
         
         self.server = server
+    }
+}
+
+public class ServerHTTPConnection: RoutingConnection {
+    
+    override public func isSecureServer() -> Bool {
+        
+        return (self.sslIdentityAndCertificates() != nil)
+    }
+    
+    override public func sslIdentityAndCertificates() -> [AnyObject]! {
+        
+        let cocoaHTTPServer: CocoaHTTPServer.HTTPServer = self.config().server
+        
+        let httpServer = cocoaHTTPServer as! ServerHTTPServer
+        
+        let server = httpServer.server
+        
+        return server.sslIdentityAndCertificates
     }
 }
 
