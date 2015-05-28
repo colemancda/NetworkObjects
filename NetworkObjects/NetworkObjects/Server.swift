@@ -1220,7 +1220,7 @@ public class Server {
         }
         
         // perform function
-        let (functionCode, jsonObject) = self.dataSource.server(self, performFunction: request.functionName!, forManagedObject: managedObject!, context: context, recievedJsonObject: recievedJSONObject, request: request)
+        let (functionCode, jsonObject) = self.dataSource.server(self, performFunction: request.functionName!, forManagedObject: managedObject!, context: context, recievedJsonObject: recievedJSONObject, request: request, userInfo: &userInfo)
         
         if jsonObject != nil {
             
@@ -1727,7 +1727,7 @@ public protocol ServerDataSource {
     
     /** Asks the data source to perform a function on a managed object. Returns a tuple containing a ServerFunctionCode and JSON-compatible dictionary. */
     func server(server: Server, performFunction functionName:String, forManagedObject managedObject: NSManagedObject,
-        context: NSManagedObjectContext, recievedJsonObject: [String: AnyObject]?, request: ServerRequest) -> (ServerFunctionCode, [String: AnyObject]?)
+        context: NSManagedObjectContext, recievedJsonObject: [String: AnyObject]?, request: ServerRequest, inout userInfo: [String: AnyObject]) -> (ServerFunctionCode, [String: AnyObject]?)
 }
 
 /** Server Delegate Protocol */
