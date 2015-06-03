@@ -28,7 +28,7 @@ class CoreDataAttributeJSONCompatibilityTests: XCTestCase {
         // create model
         self.testModel = NSManagedObjectModel.mergedModelFromBundles([NSBundle(identifier: "com.ColemanCDA.NetworkObjectsTests")!])!
         
-        self.testAttributesEntity = self.testModel.entitiesByName["TestAttributes"] as NSEntityDescription
+        self.testAttributesEntity = self.testModel.entitiesByName["TestAttributes"] as! NSEntityDescription
         
     }
     
@@ -45,7 +45,7 @@ class CoreDataAttributeJSONCompatibilityTests: XCTestCase {
         let null = NSNull()
         
         // set nil to all the attributes
-        for (attributeName, attribute) in self.testAttributesEntity.attributesByName as [String: NSAttributeDescription] {
+        for (attributeName, attribute) in self.testAttributesEntity.attributesByName as! [String: NSAttributeDescription] {
             
             let (convertedValue: AnyObject?, valid) = testAttributesEntity.attributeValueForJSONCompatibleValue(null, forAttribute: attributeName)
             

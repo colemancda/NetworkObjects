@@ -35,9 +35,9 @@ class NetworkObjectsTests: XCTestCase {
         
         let frameworkBundle = NSBundle(identifier: "com.ColemanCDA.NetworkObjects")!
         
-        let shortFrameworkVersion = frameworkBundle.infoDictionary!["CFBundleShortVersionString"] as String
+        let shortFrameworkVersion = frameworkBundle.infoDictionary!["CFBundleShortVersionString"] as! String
         
-        let frameworkVersion = frameworkBundle.infoDictionary![kCFBundleVersionKey]! as String
+        let frameworkVersion = frameworkBundle.infoDictionary![kCFBundleVersionKey]! as! String
         
         if frameworkVersion == "TRAVISCI" {
             
