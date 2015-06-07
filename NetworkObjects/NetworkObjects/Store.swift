@@ -48,6 +48,7 @@ public class Store {
         NSNotificationCenter.defaultCenter().removeObserver(self, name: NSManagedObjectContextDidSaveNotification, object: self.privateQueueManagedObjectContext)
     }
     
+    /** Creates the Store using the specified options. The created managedObjectContext will need a persistent store added to its store coordinator. */
     public init(managedObjectModel: NSManagedObjectModel,
         managedObjectContextConcurrencyType: NSManagedObjectContextConcurrencyType = .MainQueueConcurrencyType,
         serverURL: NSURL,

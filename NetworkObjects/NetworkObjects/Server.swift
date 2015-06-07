@@ -109,7 +109,7 @@ public class Server {
                         response.statusCode = ServerStatusCode.BadRequest.rawValue
                         
                         // tell delegate
-                        self.delegate?.server(self, didPerformRequest: serverRequest, withResponse: ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil), userInfo: [ServerUserInfoKey : AnyObject]())
+                        self.delegate?.server(self, didPerformRequest: serverRequest, withResponse: ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil), userInfo: [String : AnyObject]())
                         
                         return
                     }
@@ -235,7 +235,7 @@ public class Server {
                         
                         response.statusCode = ServerStatusCode.BadRequest.rawValue
                         
-                        self.delegate?.server(self, didPerformRequest: serverRequest, withResponse: ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil), userInfo: [ServerUserInfoKey : AnyObject]())
+                        self.delegate?.server(self, didPerformRequest: serverRequest, withResponse: ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil), userInfo: [String: AnyObject]())
                         
                         return
                     }
@@ -283,7 +283,7 @@ public class Server {
                         
                         response.statusCode = ServerStatusCode.BadRequest.rawValue
                         
-                        self.delegate?.server(self, didPerformRequest: serverRequest, withResponse: ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil), userInfo: [ServerUserInfoKey : AnyObject]())
+                        self.delegate?.server(self, didPerformRequest: serverRequest, withResponse: ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil), userInfo: [String: AnyObject]())
                         
                         return
                     }
@@ -327,7 +327,7 @@ public class Server {
                         
                         response.statusCode = ServerStatusCode.BadRequest.rawValue
                         
-                        self.delegate?.server(self, didPerformRequest: serverRequest, withResponse: ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil), userInfo: [ServerUserInfoKey : AnyObject]())
+                        self.delegate?.server(self, didPerformRequest: serverRequest, withResponse: ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil), userInfo: [String: AnyObject]())
                         
                         return
                     }
@@ -403,13 +403,13 @@ public class Server {
                         
                         response.statusCode = ServerStatusCode.BadRequest.rawValue
                         
-                        self.delegate?.server(self, didPerformRequest: serverRequest, withResponse: ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil), userInfo: [ServerUserInfoKey : AnyObject]())
+                        self.delegate?.server(self, didPerformRequest: serverRequest, withResponse: ServerResponse(statusCode: ServerStatusCode.BadRequest, JSONResponse: nil), userInfo: [String: AnyObject]())
                         
                         return
                     }
                     
                     // get response
-                    let (serverResponse, userInfo) = self.responseForFunctionRequest(serverRequest)
+                    var (serverResponse, userInfo) = self.responseForFunctionRequest(serverRequest)
                     
                     // respond with JSON if availible
                     if serverResponse.JSONResponse != nil  {
@@ -480,9 +480,9 @@ public class Server {
     
     // MARK: - Request Handlers
     
-    private func responseForSearchRequest(request: ServerRequest) -> (ServerResponse, [ServerUserInfoKey: AnyObject]) {
+    private func responseForSearchRequest(request: ServerRequest) -> (ServerResponse, [String: AnyObject]) {
         
-        var userInfo = [ServerUserInfoKey: AnyObject]()
+        var userInfo = [String: AnyObject]()
         
         // get search parameters
         
@@ -495,7 +495,7 @@ public class Server {
         
         let context = self.dataSource.server(self, managedObjectContextForRequest: request)
         
-        userInfo[ServerUserInfoKey.ManagedObjectContext] = context
+        userInfo[ServerUserInfoKey.ManagedObjectContext.rawValue] = context
         
         // create fetch request from JSON
         
@@ -530,13 +530,13 @@ public class Server {
         
         // add fully parsed fetch request to userInfo
         
-        userInfo[ServerUserInfoKey.FetchRequest] = fetchRequest!
+        userInfo[ServerUserInfoKey.FetchRequest.rawValue] = fetchRequest!
         
         // check for permission (now that we have fully parsed the request)
         
         if self.delegate != nil {
             
-            let statusCode = self.delegate?.server(self, statusCodeForRequest: request, managedObject: nil, context: context)
+            let statusCode = self.delegate?.server(self, statusCodeForRequest: request, managedObject: nil, context: context, userInfo: &userInfo)
             
             if statusCode != ServerStatusCode.OK {
                 
@@ -566,7 +566,7 @@ public class Server {
                 if let managedObject = comparisonPredicate.rightExpression.constantValue as? NSManagedObject {
                     
                     // must have at least readonly permisson
-                    if self.delegate!.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key: nil).rawValue < ServerPermission.ReadOnly.rawValue {
+                    if self.delegate!.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key: nil, userInfo: &userInfo).rawValue < ServerPermission.ReadOnly.rawValue {
                         
                         let response = ServerResponse(statusCode: ServerStatusCode.Forbidden, JSONResponse: nil)
                         
@@ -607,7 +607,7 @@ public class Server {
                 let resourceID = managedObject.valueForKey(self.resourceIDAttributeName, managedObjectContext: context) as! UInt
                 
                 // permission to view resource (must have at least readonly access)
-                if self.delegate!.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key: nil).rawValue >= ServerPermission.ReadOnly.rawValue {
+                if self.delegate!.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key: nil, userInfo: &userInfo).rawValue >= ServerPermission.ReadOnly.rawValue {
                     
                     // must have permission for keys accessed
                     if comparisonPredicates != nil {
@@ -618,7 +618,7 @@ public class Server {
                             
                             let key = comparisonPredicate.leftExpression.keyPath
                             
-                            if self.delegate!.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key: key).rawValue < ServerPermission.ReadOnly.rawValue {
+                            if self.delegate!.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key: key, userInfo: &userInfo).rawValue < ServerPermission.ReadOnly.rawValue {
                                 
                                 visible = false
                                 
@@ -639,7 +639,7 @@ public class Server {
                         
                         for sort in fetchRequest!.sortDescriptors! as! [NSSortDescriptor] {
                             
-                            if self.delegate?.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key: sort.sortKey()!).rawValue >= ServerPermission.ReadOnly.rawValue {
+                            if self.delegate?.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key: sort.sortKey()!, userInfo: &userInfo).rawValue >= ServerPermission.ReadOnly.rawValue {
                                 
                                 filteredResults.append(managedObject)
                             }
@@ -678,7 +678,7 @@ public class Server {
         return (response, userInfo)
     }
     
-    private func responseForCreateRequest(request: ServerRequest) -> (ServerResponse, [ServerUserInfoKey: AnyObject]) {
+    private func responseForCreateRequest(request: ServerRequest) -> (ServerResponse, [String: AnyObject]) {
         
         let entity = request.entity
         
@@ -686,12 +686,12 @@ public class Server {
         
         let context = self.dataSource.server(self, managedObjectContextForRequest: request)
         
-        var userInfo: [ServerUserInfoKey: AnyObject] = [ServerUserInfoKey.ManagedObjectContext: context]
+        var userInfo: [String: AnyObject] = [ServerUserInfoKey.ManagedObjectContext.rawValue: context]
         
         // ask delegate
         if self.delegate != nil {
             
-            let statusCode = self.delegate?.server(self, statusCodeForRequest: request, managedObject: nil, context: context)
+            let statusCode = self.delegate?.server(self, statusCodeForRequest: request, managedObject: nil, context: context, userInfo: &userInfo)
             
             if statusCode != ServerStatusCode.OK {
                 
@@ -704,7 +704,7 @@ public class Server {
         // check for permissions
         if permissionsEnabled {
             
-            if self.delegate?.server(self, permissionForRequest: request, managedObject: nil, context: context, key: nil).rawValue < ServerPermission.EditPermission.rawValue {
+            if self.delegate?.server(self, permissionForRequest: request, managedObject: nil, context: context, key: nil, userInfo: &userInfo).rawValue < ServerPermission.EditPermission.rawValue {
                 
                 let response = ServerResponse(statusCode: ServerStatusCode.Forbidden, JSONResponse: nil)
                 
@@ -740,7 +740,7 @@ public class Server {
             // validate and convert JSON
             context.performBlockAndWait({ () -> Void in
                 
-                editStatusCode = self.verifyEditResource(managedObject, forRequest: request, context: context, newValues: &newValues, error: &error)
+                editStatusCode = self.verifyEditResource(managedObject, forRequest: request, context: context, newValues: &newValues, userInfo: &userInfo, error: &error)
             })
             
             if editStatusCode != ServerStatusCode.OK {
@@ -755,7 +755,7 @@ public class Server {
                 return (response, userInfo)
             }
             
-            userInfo[ServerUserInfoKey.NewValues] = newValues
+            userInfo[ServerUserInfoKey.NewValues.rawValue] = newValues
             
             // set new values from dictionary
             context.performBlockAndWait({ () -> Void in
@@ -768,7 +768,7 @@ public class Server {
         
         // tell delegate we just created a new resource (delegate may want to give more initial values)
         
-        self.delegate?.server(self, didInsertManagedObject: managedObject!, context: context)
+        self.delegate?.server(self, didInsertManagedObject: managedObject!, context: context, userInfo: &userInfo)
         
         // perform Core Data validation (to make sure there will be no errors saving)
         
@@ -815,19 +815,19 @@ public class Server {
         return (response, userInfo)
     }
     
-    private func responseForGetRequest(request: ServerRequest) -> (ServerResponse, [ServerUserInfoKey: AnyObject]) {
+    private func responseForGetRequest(request: ServerRequest) -> (ServerResponse, [String: AnyObject]) {
         
         let resourceID = request.resourceID
         
         let entity = request.entity
         
         // user info
-        var userInfo: [ServerUserInfoKey: AnyObject] = [ServerUserInfoKey.ResourceID: resourceID!]
+        var userInfo: [String: AnyObject] = [ServerUserInfoKey.ResourceID.rawValue: resourceID!]
         
         // get context
         let context = self.dataSource.server(self, managedObjectContextForRequest: request)
         
-        userInfo[ServerUserInfoKey.ManagedObjectContext] = context
+        userInfo[ServerUserInfoKey.ManagedObjectContext.rawValue] = context
         
         // fetch managedObject
         let (managedObject, error) = FetchEntity(entity, withResourceID: resourceID!, usingContext: context,  resourceIDAttributeName: self.resourceIDAttributeName ,shouldPrefetch: true)
@@ -851,12 +851,12 @@ public class Server {
         }
         
         // add to userInfo
-        userInfo[ServerUserInfoKey.ManagedObject] = managedObject
+        userInfo[ServerUserInfoKey.ManagedObject.rawValue] = managedObject
         
         // ask delegate for access
         if delegate != nil {
             
-            let statusCode = self.delegate?.server(self, statusCodeForRequest: request, managedObject: managedObject, context:context)
+            let statusCode = self.delegate?.server(self, statusCodeForRequest: request, managedObject: managedObject, context:context, userInfo: &userInfo)
             
             if statusCode != ServerStatusCode.OK {
                 
@@ -870,7 +870,7 @@ public class Server {
         if permissionsEnabled {
             
             // must have at least read permission
-            if self.delegate?.server(self, permissionForRequest: request, managedObject: nil, context: context, key: nil).rawValue < ServerPermission.ReadOnly.rawValue {
+            if self.delegate?.server(self, permissionForRequest: request, managedObject: nil, context: context, key: nil, userInfo: &userInfo).rawValue < ServerPermission.ReadOnly.rawValue {
                 
                 let response = ServerResponse(statusCode: ServerStatusCode.Forbidden, JSONResponse: nil)
                 
@@ -885,7 +885,7 @@ public class Server {
             
             if self.permissionsEnabled {
                 
-                jsonObject = self.filteredJSONRepresentationOfManagedObject(managedObject!, context: context, request: request)
+                jsonObject = self.filteredJSONRepresentationOfManagedObject(managedObject!, context: context, request: request, userInfo: &userInfo)
             }
             else {
                 
@@ -896,19 +896,19 @@ public class Server {
         return (ServerResponse(statusCode: ServerStatusCode.OK, JSONResponse: jsonObject), userInfo)
     }
     
-    private func responseForEditRequest(request: ServerRequest) -> (ServerResponse, [ServerUserInfoKey: AnyObject]) {
+    private func responseForEditRequest(request: ServerRequest) -> (ServerResponse, [String: AnyObject]) {
         
         let resourceID = request.resourceID
         
         let entity = request.entity
         
         // user info
-        var userInfo: [ServerUserInfoKey: AnyObject] = [ServerUserInfoKey.ResourceID: resourceID!]
+        var userInfo: [String: AnyObject] = [ServerUserInfoKey.ResourceID.rawValue: resourceID!]
         
         // get context
         let context = self.dataSource.server(self, managedObjectContextForRequest: request)
         
-        userInfo[ServerUserInfoKey.ManagedObjectContext] = context
+        userInfo[ServerUserInfoKey.ManagedObjectContext.rawValue] = context
         
         // fetch managedObject
         let (managedObject, error) = FetchEntity(entity, withResourceID: resourceID!, usingContext: context, resourceIDAttributeName: self.resourceIDAttributeName, shouldPrefetch: true)
@@ -932,12 +932,12 @@ public class Server {
         }
         
         // add to userInfo
-        userInfo[ServerUserInfoKey.ManagedObject] = managedObject
+        userInfo[ServerUserInfoKey.ManagedObject.rawValue] = managedObject
         
         // ask delegate for access
         if delegate != nil {
             
-            let statusCode = self.delegate?.server(self, statusCodeForRequest: request, managedObject: managedObject, context: context)
+            let statusCode = self.delegate?.server(self, statusCodeForRequest: request, managedObject: managedObject, context: context, userInfo: &userInfo)
             
             if statusCode != ServerStatusCode.OK {
                 
@@ -950,7 +950,7 @@ public class Server {
         // check for permissions
         if permissionsEnabled {
             
-            if self.delegate?.server(self, permissionForRequest: request, managedObject: nil, context: context, key: nil).rawValue < ServerPermission.EditPermission.rawValue {
+            if self.delegate?.server(self, permissionForRequest: request, managedObject: nil, context: context, key: nil, userInfo: &userInfo).rawValue < ServerPermission.EditPermission.rawValue {
                 
                 let response = ServerResponse(statusCode: ServerStatusCode.Forbidden, JSONResponse: nil)
                 
@@ -969,7 +969,7 @@ public class Server {
         // validate and convert JSON
         context.performBlockAndWait({ () -> Void in
             
-            editStatusCode = self.verifyEditResource(managedObject!, forRequest: request, context: context, newValues: &newValues, error: &editError)
+            editStatusCode = self.verifyEditResource(managedObject!, forRequest: request, context: context, newValues: &newValues, userInfo: &userInfo, error: &editError)
         })
         
         if editStatusCode != ServerStatusCode.OK {
@@ -984,7 +984,7 @@ public class Server {
             return (response, userInfo)
         }
         
-        userInfo[ServerUserInfoKey.NewValues] = newValues
+        userInfo[ServerUserInfoKey.NewValues.rawValue] = newValues
         
         // set new values from dictionary
         context.performBlockAndWait({ () -> Void in
@@ -1033,19 +1033,19 @@ public class Server {
         return (response, userInfo)
     }
     
-    private func responseForDeleteRequest(request: ServerRequest) -> (ServerResponse, [ServerUserInfoKey: AnyObject]) {
+    private func responseForDeleteRequest(request: ServerRequest) -> (ServerResponse, [String: AnyObject]) {
         
         let resourceID = request.resourceID
         
         let entity = request.entity
         
         // user info
-        var userInfo: [ServerUserInfoKey: AnyObject] = [ServerUserInfoKey.ResourceID: resourceID!]
+        var userInfo: [String: AnyObject] = [ServerUserInfoKey.ResourceID.rawValue: resourceID!]
         
         // get context
         let context = self.dataSource.server(self, managedObjectContextForRequest: request)
         
-        userInfo[ServerUserInfoKey.ManagedObjectContext] = context
+        userInfo[ServerUserInfoKey.ManagedObjectContext.rawValue] = context
         
         // fetch managedObject
         let (managedObject, error) = FetchEntity(entity, withResourceID: resourceID!, usingContext: context,  resourceIDAttributeName: self.resourceIDAttributeName, shouldPrefetch: true)
@@ -1069,12 +1069,12 @@ public class Server {
         }
         
         // add to userInfo
-        userInfo[ServerUserInfoKey.ManagedObject] = managedObject
+        userInfo[ServerUserInfoKey.ManagedObject.rawValue] = managedObject
         
         // ask delegate for access
         if delegate != nil {
             
-            let statusCode = self.delegate?.server(self, statusCodeForRequest: request, managedObject: managedObject, context: context)
+            let statusCode = self.delegate?.server(self, statusCodeForRequest: request, managedObject: managedObject, context: context, userInfo: &userInfo)
             
             if statusCode != ServerStatusCode.OK {
                 
@@ -1087,7 +1087,7 @@ public class Server {
         // check for permissions
         if permissionsEnabled {
             
-            if self.delegate?.server(self, permissionForRequest: request, managedObject: nil, context: context, key: nil).rawValue < ServerPermission.EditPermission.rawValue {
+            if self.delegate?.server(self, permissionForRequest: request, managedObject: nil, context: context, key: nil, userInfo: &userInfo).rawValue < ServerPermission.EditPermission.rawValue {
                 
                 let response = ServerResponse(statusCode: ServerStatusCode.Forbidden, JSONResponse: nil)
                 
@@ -1149,19 +1149,19 @@ public class Server {
         return (response, userInfo)
     }
     
-    private func responseForFunctionRequest(request: ServerRequest) -> (ServerResponse, [ServerUserInfoKey: AnyObject]) {
+    private func responseForFunctionRequest(request: ServerRequest) -> (ServerResponse, [String: AnyObject]) {
         
         let resourceID = request.resourceID
         
         let entity = request.entity
         
         // user info
-        var userInfo: [ServerUserInfoKey: AnyObject] = [ServerUserInfoKey.ResourceID: resourceID!]
+        var userInfo: [String: AnyObject] = [ServerUserInfoKey.ResourceID.rawValue: resourceID!]
         
         // get context
         let context = self.dataSource.server(self, managedObjectContextForRequest: request)
         
-        userInfo[ServerUserInfoKey.ManagedObjectContext] = context
+        userInfo[ServerUserInfoKey.ManagedObjectContext.rawValue] = context
         
         // fetch managedObject
         let (managedObject, error) = FetchEntity(entity, withResourceID: resourceID!, usingContext: context, resourceIDAttributeName: self.resourceIDAttributeName, shouldPrefetch: true)
@@ -1185,20 +1185,20 @@ public class Server {
         }
         
         // add to userInfo
-        userInfo[ServerUserInfoKey.ManagedObject] = managedObject
+        userInfo[ServerUserInfoKey.ManagedObject.rawValue] = managedObject
         
         // add jsonObject to userInfo
         let recievedJSONObject = request.JSONObject
         
         if recievedJSONObject != nil {
             
-            userInfo[ServerUserInfoKey.FunctionJSONInput] = recievedJSONObject
+            userInfo[ServerUserInfoKey.FunctionJSONInput.rawValue] = recievedJSONObject
         }
         
         // ask delegate for access
         if delegate != nil {
             
-            let statusCode = self.delegate?.server(self, statusCodeForRequest: request, managedObject: managedObject, context: context)
+            let statusCode = self.delegate?.server(self, statusCodeForRequest: request, managedObject: managedObject, context: context, userInfo: &userInfo)
             
             if statusCode != ServerStatusCode.OK {
                 
@@ -1211,7 +1211,7 @@ public class Server {
         // check for permissions
         if permissionsEnabled {
             
-            if self.delegate?.server(self, permissionForRequest: request, managedObject: nil, context: context, key: nil).rawValue < ServerPermission.EditPermission.rawValue {
+            if self.delegate?.server(self, permissionForRequest: request, managedObject: nil, context: context, key: nil, userInfo: &userInfo).rawValue < ServerPermission.EditPermission.rawValue {
                 
                 let response = ServerResponse(statusCode: ServerStatusCode.Forbidden, JSONResponse: nil)
                 
@@ -1220,12 +1220,12 @@ public class Server {
         }
         
         // perform function
-        let (functionCode, jsonObject) = self.dataSource.server(self, performFunction: request.functionName!, forManagedObject: managedObject!, context: context, recievedJsonObject: recievedJSONObject, request: request)
+        let (functionCode, jsonObject) = self.dataSource.server(self, performFunction: request.functionName!, forManagedObject: managedObject!, context: context, recievedJsonObject: recievedJSONObject, request: request, userInfo: &userInfo)
         
         if jsonObject != nil {
             
             // add to userInfo
-            userInfo[ServerUserInfoKey.FunctionJSONOutput] = jsonObject
+            userInfo[ServerUserInfoKey.FunctionJSONOutput.rawValue] = jsonObject
         }
         
         let response = ServerResponse(statusCode: functionCode.toServerStatusCode(), JSONResponse: jsonObject)
@@ -1306,7 +1306,7 @@ public class Server {
         return jsonObject
     }
     
-    private func filteredJSONRepresentationOfManagedObject(managedObject: NSManagedObject, context: NSManagedObjectContext, request: ServerRequest) -> [String: AnyObject] {
+    private func filteredJSONRepresentationOfManagedObject(managedObject: NSManagedObject, context: NSManagedObjectContext, request: ServerRequest, inout userInfo: [String: AnyObject]) -> [String: AnyObject] {
         
         // build JSON object...
         
@@ -1318,7 +1318,7 @@ public class Server {
             // check access permissions (unless its the resourceID, thats always visible)
             if attributeName != self.resourceIDAttributeName {
                 
-                if self.delegate?.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key: attributeName).rawValue >= ServerPermission.ReadOnly.rawValue {
+                if self.delegate?.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key: attributeName, userInfo: &userInfo).rawValue >= ServerPermission.ReadOnly.rawValue {
                     
                     // make sure the attribute is not undefined
                     if attribute.attributeType != NSAttributeType.UndefinedAttributeType {
@@ -1341,7 +1341,7 @@ public class Server {
         for (relationshipName, relationshipDescription) in managedObject.entity.relationshipsByName as! [String: NSRelationshipDescription] {
             
             // make sure relationship is visible
-            if self.delegate?.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key: relationshipName).rawValue >= ServerPermission.ReadOnly.rawValue {
+            if self.delegate?.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key: relationshipName, userInfo: &userInfo).rawValue >= ServerPermission.ReadOnly.rawValue {
                 
                 // to-one relationship
                 if !relationshipDescription.toMany {
@@ -1350,7 +1350,7 @@ public class Server {
                     if let destinationResource = managedObject.valueForKey(relationshipName) as? NSManagedObject {
                         
                         // check access permissions (the relationship & the single distination object must be visible)
-                        if self.delegate?.server(self, permissionForRequest: request, managedObject: destinationResource, context: context, key: nil).rawValue >= ServerPermission.ReadOnly.rawValue {
+                        if self.delegate?.server(self, permissionForRequest: request, managedObject: destinationResource, context: context, key: nil, userInfo: &userInfo).rawValue >= ServerPermission.ReadOnly.rawValue {
                             
                             // get resource ID
                             let destinationResourceID = destinationResource.valueForKey(self.resourceIDAttributeName) as!
@@ -1373,7 +1373,7 @@ public class Server {
                         
                         for destinationResource in arrayValue {
                             
-                            if self.delegate?.server(self, permissionForRequest: request, managedObject: destinationResource, context: context, key: nil).rawValue >= ServerPermission.ReadOnly.rawValue {
+                            if self.delegate?.server(self, permissionForRequest: request, managedObject: destinationResource, context: context, key: nil, userInfo: &userInfo).rawValue >= ServerPermission.ReadOnly.rawValue {
                                 
                                 // get destination resource ID
                                 let destinationResourceID = destinationResource.valueForKey(self.resourceIDAttributeName) as! UInt
@@ -1394,7 +1394,7 @@ public class Server {
     }
     
     /** Verifies the JSON values and converts them to Core Data equivalents. */
-    private func verifyEditResource(resource: NSManagedObject, forRequest request:ServerRequest, context: NSManagedObjectContext, inout newValues: [String: AnyObject], error: NSErrorPointer) -> ServerStatusCode {
+    private func verifyEditResource(resource: NSManagedObject, forRequest request:ServerRequest, context: NSManagedObjectContext, inout newValues: [String: AnyObject], inout userInfo: [String: AnyObject], error: NSErrorPointer) -> ServerStatusCode {
         
         let recievedJsonObject = request.JSONObject!
         
@@ -1423,7 +1423,7 @@ public class Server {
                 // check for permissions
                 if permissionsEnabled {
                     
-                    if self.delegate?.server(self, permissionForRequest: request, managedObject: resource, context: context, key: key).rawValue < ServerPermission.EditPermission.rawValue {
+                    if self.delegate?.server(self, permissionForRequest: request, managedObject: resource, context: context, key: key, userInfo: &userInfo).rawValue < ServerPermission.EditPermission.rawValue {
                         
                         return ServerStatusCode.Forbidden
                     }
@@ -1462,7 +1462,7 @@ public class Server {
                 // check permissions of relationship
                 if permissionsEnabled {
                     
-                    if self.delegate?.server(self, permissionForRequest: request, managedObject: resource, context: context, key: key).rawValue < ServerPermission.EditPermission.rawValue {
+                    if self.delegate?.server(self, permissionForRequest: request, managedObject: resource, context: context, key: key, userInfo: &userInfo).rawValue < ServerPermission.EditPermission.rawValue {
                         
                         return ServerStatusCode.Forbidden
                     }
@@ -1515,7 +1515,7 @@ public class Server {
                     // destination resource must be visible
                     if self.permissionsEnabled {
                         
-                        if self.delegate?.server(self, permissionForRequest: request, managedObject: newValue, context: context, key: nil).rawValue < ServerPermission.ReadOnly.rawValue {
+                        if self.delegate?.server(self, permissionForRequest: request, managedObject: newValue, context: context, key: nil, userInfo: &userInfo).rawValue < ServerPermission.ReadOnly.rawValue {
                             
                             return ServerStatusCode.Forbidden
                         }
@@ -1585,7 +1585,7 @@ public class Server {
                         // destination resource must be visible
                         if self.permissionsEnabled {
                             
-                            if self.delegate?.server(self, permissionForRequest: request, managedObject: newValue, context: context, key: nil).rawValue < ServerPermission.ReadOnly.rawValue {
+                            if self.delegate?.server(self, permissionForRequest: request, managedObject: newValue, context: context, key: nil, userInfo: &userInfo).rawValue < ServerPermission.ReadOnly.rawValue {
                                 
                                 return ServerStatusCode.Forbidden
                             }
@@ -1621,27 +1621,6 @@ public class Server {
         }
         
         return ServerStatusCode.OK
-    }
-    
-    // MARK: - Private Classes
-    
-    private class ServerHTTPConnection: RoutingConnection {
-        
-        override func isSecureServer() -> Bool {
-            
-            return (self.sslIdentityAndCertificates() != nil)
-        }
-        
-        override func sslIdentityAndCertificates() -> [AnyObject]! {
-            
-            let cocoaHTTPServer: CocoaHTTPServer.HTTPServer = self.config().server
-            
-            let httpServer = cocoaHTTPServer as! ServerHTTPServer
-            
-            let server = httpServer.server
-            
-            return server.sslIdentityAndCertificates
-        }
     }
 }
 
@@ -1713,6 +1692,25 @@ public class ServerHTTPServer: RoutingHTTPServer {
     }
 }
 
+public class ServerHTTPConnection: RoutingConnection {
+    
+    override public func isSecureServer() -> Bool {
+        
+        return (self.sslIdentityAndCertificates() != nil)
+    }
+    
+    override public func sslIdentityAndCertificates() -> [AnyObject]! {
+        
+        let cocoaHTTPServer: CocoaHTTPServer.HTTPServer = self.config().server
+        
+        let httpServer = cocoaHTTPServer as! ServerHTTPServer
+        
+        let server = httpServer.server
+        
+        return server.sslIdentityAndCertificates
+    }
+}
+
 // MARK: - Protocols
 
 /** Server Data Source Protocol */
@@ -1729,26 +1727,26 @@ public protocol ServerDataSource {
     
     /** Asks the data source to perform a function on a managed object. Returns a tuple containing a ServerFunctionCode and JSON-compatible dictionary. */
     func server(server: Server, performFunction functionName:String, forManagedObject managedObject: NSManagedObject,
-        context: NSManagedObjectContext, recievedJsonObject: [String: AnyObject]?, request: ServerRequest) -> (ServerFunctionCode, [String: AnyObject]?)
+        context: NSManagedObjectContext, recievedJsonObject: [String: AnyObject]?, request: ServerRequest, inout userInfo: [String: AnyObject]) -> (ServerFunctionCode, [String: AnyObject]?)
 }
 
 /** Server Delegate Protocol */
 public protocol ServerDelegate {
     
-    /** Notifies the delegate that an internal error ocurred (e.g. could not serialize a JSON object). */
-    func server(server: Server, didEncounterInternalError error: NSError, forRequest request: ServerRequest, userInfo: [ServerUserInfoKey: AnyObject])
-    
     /** Asks the delegate for a status code for a request. Any response that is not ServerStatusCode.OK, will be forwarded to the client and the request will end. This can be used to implement authentication or access control. */
-    func server(server: Server, statusCodeForRequest request: ServerRequest, managedObject: NSManagedObject?, context: NSManagedObjectContext) -> ServerStatusCode
+    func server(server: Server, statusCodeForRequest request: ServerRequest, managedObject: NSManagedObject?, context: NSManagedObjectContext, inout userInfo: [String: AnyObject]) -> ServerStatusCode
     
     /** Asks the delegate for access control for a request. Server must have its permissions enabled for this method to be called. */
-    func server(server: Server, permissionForRequest request: ServerRequest, managedObject: NSManagedObject?, context: NSManagedObjectContext, key: String?) -> ServerPermission
+    func server(server: Server, permissionForRequest request: ServerRequest, managedObject: NSManagedObject?, context: NSManagedObjectContext, key: String?, inout userInfo: [String: AnyObject]) -> ServerPermission
     
     /** Notifies the delegate that a new resource was created. Values are prevalidated. This is a good time to set initial values that cannot be set in -awakeFromInsert: or -awakeFromFetch:.  */
-    func server(server: Server, didInsertManagedObject managedObject: NSManagedObject, context: NSManagedObjectContext)
+    func server(server: Server, didInsertManagedObject managedObject: NSManagedObject, context: NSManagedObjectContext, inout userInfo: [String: AnyObject])
     
     /** Notifies the delegate that a request was processed. */
-    func server(server: Server, didPerformRequest request: ServerRequest, withResponse response: ServerResponse, userInfo: [ServerUserInfoKey: AnyObject])
+    func server(server: Server, didPerformRequest request: ServerRequest, withResponse response: ServerResponse, userInfo: [String: AnyObject])
+    
+    /** Notifies the delegate that an internal error ocurred (e.g. could not serialize a JSON object). */
+    func server(server: Server, didEncounterInternalError error: NSError, forRequest request: ServerRequest, userInfo: [String: AnyObject])
 }
 
 // MARK: - Enumerations
@@ -1773,7 +1771,7 @@ public enum ServerUserInfoKey: String {
     case FunctionJSONOutput = "FunctionJSONOutput"
 }
 
-/** These are HTTP status codes used with NOServer instances. */
+/** These are HTTP status codes used with NetworkObjects servers. */
 public enum ServerStatusCode: Int {
     
     /** OK status code. */

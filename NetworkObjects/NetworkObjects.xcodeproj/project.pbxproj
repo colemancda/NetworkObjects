@@ -248,7 +248,7 @@
 				6EAD584219C3B58300DC080A /* Frameworks */,
 				6EAD584319C3B58300DC080A /* Headers */,
 				6EAD584419C3B58300DC080A /* Resources */,
-				6EDE12A91A87283B00FDF672 /* ShellScript */,
+				6EDE12A91A87283B00FDF672 /* Increment Build */,
 			);
 			buildRules = (
 			);
@@ -373,13 +373,14 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		6EDE12A91A87283B00FDF672 /* ShellScript */ = {
+		6EDE12A91A87283B00FDF672 /* Increment Build */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
+			name = "Increment Build";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
