@@ -33,11 +33,11 @@ class NetworkObjectsTests: XCTestCase {
     
     func testFrameworkVersion() {
         
-        let frameworkBundle = NSBundle(identifier: "com.ColemanCDA.NetworkObjects")!
+        let frameworkBundle = NSBundle(identifier: "com.colemancda.NetworkObjects")!
         
         let shortFrameworkVersion = frameworkBundle.infoDictionary!["CFBundleShortVersionString"] as! String
         
-        let frameworkVersion = frameworkBundle.infoDictionary![kCFBundleVersionKey]! as! String
+        let frameworkVersion = frameworkBundle.infoDictionary![kCFBundleVersionKey as String]! as! String
         
         if frameworkVersion == "TRAVISCI" {
             

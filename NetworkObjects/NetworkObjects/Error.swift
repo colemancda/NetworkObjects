@@ -50,7 +50,7 @@ public extension ErrorCode {
     /** Returns generic errors for error codes. */
     func toError() -> NSError {
         
-        let frameworkBundle = NSBundle(identifier: "com.ColemanCDA.NetworkObjects")
+        let frameworkBundle = NSBundle(identifier: "com.colemancda.NetworkObjects")!
         
         let tableName = "Error"
         
@@ -95,7 +95,7 @@ public extension ErrorCode {
             value = "Error"
         }
         
-        let userInfo = [NSLocalizedDescriptionKey: NSLocalizedString(key, tableName: tableName, bundle: frameworkBundle!, value: value!, comment: comment)]
+        let userInfo = [NSLocalizedDescriptionKey: NSLocalizedString(key, tableName: tableName, bundle: frameworkBundle, value: value!, comment: comment)]
         
         return NSError(domain: NetworkObjectsErrorDomain, code: self.rawValue, userInfo: userInfo)
     }
