@@ -46,6 +46,12 @@ internal extension NSFetchRequest {
             
             self.sortDescriptors = sortDescriptors
         }
+            
+        // default sort descriptor
+        else {
+            
+            self.sortDescriptors = [NSSortDescriptor(key: resourceIDAttributeName, ascending: false)]
+        }
         
         // set the fetch limit
         if let fetchLimitObject: AnyObject = JSONObject[SearchParameter.FetchLimit.rawValue] {
