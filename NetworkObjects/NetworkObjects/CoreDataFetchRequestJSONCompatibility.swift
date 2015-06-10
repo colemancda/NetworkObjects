@@ -116,15 +116,19 @@ internal extension NSFetchRequest {
     func toJSON(managedObjectContext: NSManagedObjectContext, resourceIDAttributeName: String) -> [String: AnyObject] {
         
         // get the entity of the fetch request
-        let entity: NSEntityDescription = {
-           
-            if self.entity != nil {
-                
-                return self.entity!
-            }
+        
+        let entity: NSEntityDescription
+        
+        if let entityName = self.entityName {
             
-            return managedObjectContext.persistentStoreCoordinator!.managedObjectModel.entitiesByName[self.entityName!] as! NSEntityDescription
-        }()
+            assert(managedObjectContext.persistentStoreCoordinator != nil, "Managed Object Context must have a Persistent Store Coordinator for fetch requests created with strings")
+            
+            entity = managedObjectContext.persistentStoreCoordinator!.managedObjectModel.entitiesByName[entityName] as! NSEntityDescription
+        }
+        else {
+            
+            entity = self.entity!
+        }
         
         // create JSON object
         var jsonObject = [String: AnyObject]()

@@ -104,9 +104,20 @@ public class Store {
         
         let searchParameters = fetchRequest.toJSON(self.managedObjectContext, resourceIDAttributeName: self.resourceIDAttributeName)
         
+        let entity: NSEntityDescription
+        
+        if let entityName = fetchRequest.entityName {
+            
+            entity = self.managedObjectModel.entitiesByName[entityName] as! NSEntityDescription
+        }
+        else {
+            
+            entity = fetchRequest.entity!
+        }
+        
         // call API method
         
-        return self.searchForResource(fetchRequest.entity!, withParameters: searchParameters, URLSession: URLSession, completionBlock: { (httpError, results) -> Void in
+        return self.searchForResource(entity, withParameters: searchParameters, URLSession: URLSession, completionBlock: { (httpError, results) -> Void in
             
             if httpError != nil {
                 
