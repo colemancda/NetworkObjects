@@ -9,7 +9,7 @@ notifications:
     on_start: false     # default: false
 before_install:
     - brew install carthage
-    - carthage update
+    - carthage checkout
     - TRAVIS="true" # sets the framework version to TRAVISCI
 script:
     - xcodebuild -project NetworkObjects/NetworkObjects.xcodeproj -scheme 'NetworkObjects' -sdk macosx -arch x86_64 test CODE_SIGNING_REQUIRED=NO OTHER_LDFLAGS='-framework Foundation -ObjC'
