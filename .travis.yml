@@ -1,4 +1,4 @@
-language: objective-c
+language: swift
 osx_image: beta-xcode6.3
 notifications:
   webhooks:
@@ -8,8 +8,8 @@ notifications:
     on_failure: always  # options: [always|never|change] default: always
     on_start: false     # default: false
 before_install:
-    - git submodule update --init --recursive # fetches submodules
+    - brew install carthage
+	- carthage update
     - TRAVIS="true" # sets the framework version to TRAVISCI
 script:
     - xcodebuild -project NetworkObjects/NetworkObjects.xcodeproj -scheme 'NetworkObjects' -sdk macosx -arch x86_64 test CODE_SIGNING_REQUIRED=NO OTHER_LDFLAGS='-framework Foundation -ObjC'
-    - xcodebuild -project NetworkObjects/NetworkObjects.xcodeproj -scheme 'NetworkObjects' -sdk iphonesimulator -arch i386 test CODE_SIGNING_REQUIRED=NO OTHER_LDFLAGS='-framework Foundation -ObjC'
