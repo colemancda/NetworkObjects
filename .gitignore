@@ -2,3 +2,5 @@
 *.xcbkptlist
 NetworkObjects/NetworkObjects.xcodeproj/xcuserdata/*
 nth-commit.sh
+
+Carthage/*
