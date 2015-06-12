@@ -42,6 +42,26 @@
 		6E95D1A21B2B25B9000DD4DA /* FetchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E7EF35C1A8B170400F6FECC /* FetchTests.swift */; };
 		6E95D1A31B2B25B9000DD4DA /* TestModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 6EDE12D61A8853E500FDF672 /* TestModel.xcdatamodeld */; };
 		6E95D1A51B2B25B9000DD4DA /* NetworkObjects.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6EAD584619C3B58300DC080A /* NetworkObjects.framework */; };
+		6E95D1AC1B2B2962000DD4DA /* CocoaAsyncSocket.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E95D1831B2B15B0000DD4DA /* CocoaAsyncSocket.framework */; };
+		6E95D1AD1B2B2962000DD4DA /* CocoaHTTPServer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E95D1841B2B15B0000DD4DA /* CocoaHTTPServer.framework */; };
+		6E95D1AE1B2B2962000DD4DA /* CocoaLumberjack.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E95D1851B2B15B0000DD4DA /* CocoaLumberjack.framework */; };
+		6E95D1AF1B2B2962000DD4DA /* ExSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E95D1861B2B15B0000DD4DA /* ExSwift.framework */; };
+		6E95D1B01B2B2962000DD4DA /* RoutingHTTPServer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E95D1871B2B15B0000DD4DA /* RoutingHTTPServer.framework */; };
+		6E95D1B11B2B2966000DD4DA /* CocoaAsyncSocket.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E95D1911B2B22A4000DD4DA /* CocoaAsyncSocket.framework */; };
+		6E95D1B21B2B2966000DD4DA /* CocoaHTTPServer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E95D1921B2B22A4000DD4DA /* CocoaHTTPServer.framework */; };
+		6E95D1B31B2B2966000DD4DA /* ExSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E95D1931B2B22A4000DD4DA /* ExSwift.framework */; };
+		6E95D1B41B2B2966000DD4DA /* RoutingHTTPServer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E95D1941B2B22A4000DD4DA /* RoutingHTTPServer.framework */; };
+		6E95D1B51B2B2966000DD4DA /* CocoaLumberjack.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E95D18E1B2B15B9000DD4DA /* CocoaLumberjack.framework */; };
+		6E95D1B71B2B2B46000DD4DA /* CocoaAsyncSocket.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 6E95D1831B2B15B0000DD4DA /* CocoaAsyncSocket.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		6E95D1B81B2B2B46000DD4DA /* CocoaHTTPServer.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 6E95D1841B2B15B0000DD4DA /* CocoaHTTPServer.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		6E95D1B91B2B2B46000DD4DA /* CocoaLumberjack.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 6E95D1851B2B15B0000DD4DA /* CocoaLumberjack.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		6E95D1BA1B2B2B46000DD4DA /* ExSwift.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 6E95D1861B2B15B0000DD4DA /* ExSwift.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		6E95D1BB1B2B2B46000DD4DA /* RoutingHTTPServer.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 6E95D1871B2B15B0000DD4DA /* RoutingHTTPServer.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		6E95D1BD1B2B2C15000DD4DA /* CocoaAsyncSocket.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 6E95D1911B2B22A4000DD4DA /* CocoaAsyncSocket.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		6E95D1BE1B2B2C15000DD4DA /* CocoaHTTPServer.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 6E95D1921B2B22A4000DD4DA /* CocoaHTTPServer.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		6E95D1BF1B2B2C15000DD4DA /* ExSwift.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 6E95D1931B2B22A4000DD4DA /* ExSwift.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		6E95D1C01B2B2C15000DD4DA /* RoutingHTTPServer.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 6E95D1941B2B22A4000DD4DA /* RoutingHTTPServer.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		6E95D1C11B2B2C15000DD4DA /* CocoaLumberjack.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 6E95D18E1B2B15B9000DD4DA /* CocoaLumberjack.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		6EAD584C19C3B58300DC080A /* NetworkObjects.h in Headers */ = {isa = PBXBuildFile; fileRef = 6EAD584B19C3B58300DC080A /* NetworkObjects.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6EAD586119C3B6CB00DC080A /* Server.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EAD585F19C3B6CB00DC080A /* Server.swift */; };
 		6EAD586219C3B6CB00DC080A /* Store.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EAD586019C3B6CB00DC080A /* Store.swift */; };
@@ -69,6 +89,37 @@
 			remoteInfo = NetworkObjects;
 		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		6E95D1B61B2B2B3B000DD4DA /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				6E95D1B71B2B2B46000DD4DA /* CocoaAsyncSocket.framework in CopyFiles */,
+				6E95D1B81B2B2B46000DD4DA /* CocoaHTTPServer.framework in CopyFiles */,
+				6E95D1B91B2B2B46000DD4DA /* CocoaLumberjack.framework in CopyFiles */,
+				6E95D1BA1B2B2B46000DD4DA /* ExSwift.framework in CopyFiles */,
+				6E95D1BB1B2B2B46000DD4DA /* RoutingHTTPServer.framework in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6E95D1BC1B2B2C0A000DD4DA /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				6E95D1BD1B2B2C15000DD4DA /* CocoaAsyncSocket.framework in CopyFiles */,
+				6E95D1BE1B2B2C15000DD4DA /* CocoaHTTPServer.framework in CopyFiles */,
+				6E95D1BF1B2B2C15000DD4DA /* ExSwift.framework in CopyFiles */,
+				6E95D1C01B2B2C15000DD4DA /* RoutingHTTPServer.framework in CopyFiles */,
+				6E95D1C11B2B2C15000DD4DA /* CocoaLumberjack.framework in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		6E5929A319C54FA700F391F3 /* CoreDataAttributeJSONCompatibility.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataAttributeJSONCompatibility.swift; sourceTree = "<group>"; };
@@ -121,7 +172,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6E95D1B21B2B2966000DD4DA /* CocoaHTTPServer.framework in Frameworks */,
+				6E95D1B11B2B2966000DD4DA /* CocoaAsyncSocket.framework in Frameworks */,
+				6E95D1B41B2B2966000DD4DA /* RoutingHTTPServer.framework in Frameworks */,
 				6E95D1A51B2B25B9000DD4DA /* NetworkObjects.framework in Frameworks */,
+				6E95D1B51B2B2966000DD4DA /* CocoaLumberjack.framework in Frameworks */,
+				6E95D1B31B2B2966000DD4DA /* ExSwift.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -141,6 +197,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6E95D1AD1B2B2962000DD4DA /* CocoaHTTPServer.framework in Frameworks */,
+				6E95D1AF1B2B2962000DD4DA /* ExSwift.framework in Frameworks */,
+				6E95D1AC1B2B2962000DD4DA /* CocoaAsyncSocket.framework in Frameworks */,
+				6E95D1AE1B2B2962000DD4DA /* CocoaLumberjack.framework in Frameworks */,
+				6E95D1B01B2B2962000DD4DA /* RoutingHTTPServer.framework in Frameworks */,
 				6E8BF71C1A85E75B00E39E72 /* NetworkObjects.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -315,6 +376,7 @@
 				6E95D19C1B2B25B9000DD4DA /* Sources */,
 				6E95D1A41B2B25B9000DD4DA /* Frameworks */,
 				6E95D1A61B2B25B9000DD4DA /* Resources */,
+				6E95D1BC1B2B2C0A000DD4DA /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -352,6 +414,7 @@
 				6EAD584D19C3B58300DC080A /* Sources */,
 				6EAD584E19C3B58300DC080A /* Frameworks */,
 				6EAD584F19C3B58300DC080A /* Resources */,
+				6E95D1B61B2B2B3B000DD4DA /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -602,6 +665,7 @@
 					"$(SDKROOT)",
 					"$(inherited)",
 					$SRCROOT/../Carthage/Build/iOS,
+					/Users/Coleman/Developer/MyProjects/NetworkObjects/Carthage/Build/iOS,
 				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
@@ -628,6 +692,7 @@
 					"$(SDKROOT)",
 					"$(inherited)",
 					$SRCROOT/../Carthage/Build/iOS,
+					/Users/Coleman/Developer/MyProjects/NetworkObjects/Carthage/Build/iOS,
 				);
 				INFOPLIST_FILE = NetworkObjectsTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks @executable_path/../Frameworks @loader_path/../Frameworks";
@@ -682,7 +747,7 @@
 				SUPPORTED_PLATFORMS = macosx;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				VALID_ARCHS = x86_64;
+				VALID_ARCHS = "";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -724,7 +789,7 @@
 				SUPPORTED_PLATFORMS = macosx;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
-				VALID_ARCHS = x86_64;
+				VALID_ARCHS = "";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -793,6 +858,7 @@
 					"$(SDKROOT)",
 					"$(inherited)",
 					$SRCROOT/../Carthage/Build/Mac,
+					/Users/Coleman/Developer/MyProjects/NetworkObjects/Carthage/Build/Mac,
 				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
@@ -818,6 +884,7 @@
 					"$(SDKROOT)",
 					"$(inherited)",
 					$SRCROOT/../Carthage/Build/Mac,
+					/Users/Coleman/Developer/MyProjects/NetworkObjects/Carthage/Build/Mac,
 				);
 				INFOPLIST_FILE = NetworkObjectsTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks @executable_path/../Frameworks @loader_path/../Frameworks";
