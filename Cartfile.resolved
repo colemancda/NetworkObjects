@@ -1,5 +1,5 @@
 github "ColemanCDA/CocoaLumberjack" "05cff2065cc9f56bc3aeca4ccbba3b2504fba5bd"
 github "ColemanCDA/ExSwift" "bab0f541e29bfc3e04e22f846615d67229e41da5"
-github "ColemanCDA/CocoaAsyncSocket" "94916b79ccf2f32732af80e247f1bb9655af11ee"
-github "ColemanCDA/CocoaHTTPServer" "c23f4e215ec6ec80e84a79649f55c221a06144fe"
+github "ColemanCDA/CocoaAsyncSocket" "332ba0eecca1c6adfd48dd14a98dcb6bddc7e557"
+github "ColemanCDA/CocoaHTTPServer" "1f41483c48c92ffd66e5928a99cb39ead10b70f4"
 github "ColemanCDA/RoutingHTTPServer" "0229a57d99f98072f6364800cb09c2f597123632"
