@@ -636,7 +636,7 @@ public class Store {
                     
                     if errorCode == ErrorCode.ServerStatusCodeForbidden {
                         
-                        let frameworkBundle = NSBundle(identifier: "com.ColemanCDA.NetworkObjects")
+                        let frameworkBundle = NSBundle(identifier: "com.colemancda.NetworkObjects")
                         let tableName = "Error"
                         let comment = "Description for ErrorCode.\(errorCode!.rawValue) for Search Request"
                         let key = "ErrorCode.\(errorCode!.rawValue).LocalizedDescription.Search"
@@ -724,7 +724,7 @@ public class Store {
                         
                         let method = "POST"
                         let value = "Permission to create new resource is denied"
-                        let frameworkBundle = NSBundle(identifier: "com.ColemanCDA.NetworkObjects")
+                        let frameworkBundle = NSBundle(identifier: "com.colemancda.NetworkObjects")
                         let tableName = "Error"
                         let comment = "Description for ErrorCode.\(errorCode!.rawValue) for \(method) Request"
                         let key = "ErrorCode.\(errorCode!.rawValue).LocalizedDescription.\(method)"
@@ -807,7 +807,7 @@ public class Store {
                     
                     if errorCode == ErrorCode.ServerStatusCodeForbidden {
                         
-                        let frameworkBundle = NSBundle(identifier: "com.ColemanCDA.NetworkObjects")
+                        let frameworkBundle = NSBundle(identifier: "com.colemancda.NetworkObjects")
                         let tableName = "Error"
                         let comment = "Description for ErrorCode.\(errorCode!.rawValue) for GET Request"
                         let key = "ErrorCode.\(errorCode!.rawValue).LocalizedDescription.GET"
@@ -889,7 +889,7 @@ public class Store {
                         
                         let method = "PUT"
                         let value = "Permission to edit resource is denied"
-                        let frameworkBundle = NSBundle(identifier: "com.ColemanCDA.NetworkObjects")
+                        let frameworkBundle = NSBundle(identifier: "com.colemancda.NetworkObjects")
                         let tableName = "Error"
                         let comment = "Description for ErrorCode.\(errorCode!.rawValue) for \(method) Request"
                         let key = "ErrorCode.\(errorCode!.rawValue).LocalizedDescription.\(method)"
@@ -950,7 +950,7 @@ public class Store {
                         
                         let method = "DELETE"
                         let value = "Permission to delete resource is denied"
-                        let frameworkBundle = NSBundle(identifier: "com.ColemanCDA.NetworkObjects")
+                        let frameworkBundle = NSBundle(identifier: "com.colemancda.NetworkObjects")
                         let tableName = "Error"
                         let comment = "Description for ErrorCode.\(errorCode!.rawValue) for \(method) Request"
                         let key = "ErrorCode.\(errorCode!.rawValue).LocalizedDescription.\(method)"
