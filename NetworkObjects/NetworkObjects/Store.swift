@@ -199,6 +199,18 @@ public class Store {
         })
     }
     
+    public func fetchResource<T: NSManagedObject>(resource: T, URLSession: NSURLSession? = nil, completionBlock: ((error: NSError?) -> Void)) -> NSURLSessionDataTask {
+        
+        let entityName = resource.entity.name!
+        
+        let resourceID = resource.valueForKey(self.resourceIDAttributeName) as! UInt
+        
+        return self.fetchEntity(entityName, resourceID: resourceID, URLSession: URLSession, completionBlock: { (error, managedObject) -> Void in
+            
+            completionBlock(error: error)
+        })
+    }
+    
     public func fetchEntity(name: String, resourceID: UInt, URLSession: NSURLSession? = nil, completionBlock: ((error: NSError?, managedObject: NSManagedObject?) -> Void)) -> NSURLSessionDataTask {
         
         let entity = self.managedObjectModel.entitiesByName[name]! as! NSEntityDescription
