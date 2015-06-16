@@ -588,8 +588,6 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)",
 					"$(inherited)",
-					$SRCROOT/../Carthage/Build/Mac,
-					/Users/Coleman/Developer/MyProjects/NetworkObjects/Carthage/Build/Mac,
 				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
@@ -611,8 +609,6 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)",
 					"$(inherited)",
-					$SRCROOT/../Carthage/Build/Mac,
-					/Users/Coleman/Developer/MyProjects/NetworkObjects/Carthage/Build/Mac,
 				);
 				INFOPLIST_FILE = NetworkObjectsTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks @executable_path/../Frameworks @loader_path/../Frameworks";
