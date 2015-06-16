@@ -219,9 +219,9 @@ internal extension NSSortDescriptor {
     /// :returns: JSON dictionary with a single key and the ascending value.
     func toJSON() -> [String: Bool] {
         
-        assert(self.sortKey() != nil, "Key must be specified for sort descriptor")
+        assert(self.key != nil, "Key must be specified for sort descriptor")
         
-        return [self.sortKey()!: ascending]
+        return [self.key!: ascending]
     }
 }
 

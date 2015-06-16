@@ -639,7 +639,7 @@ public class Server {
                         
                         for sort in fetchRequest!.sortDescriptors! as! [NSSortDescriptor] {
                             
-                            if self.delegate?.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key: sort.sortKey()!, userInfo: &userInfo).rawValue >= ServerPermission.ReadOnly.rawValue {
+                            if self.delegate?.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key: sort.key!, userInfo: &userInfo).rawValue >= ServerPermission.ReadOnly.rawValue {
                                 
                                 filteredResults.append(managedObject)
                             }
@@ -1893,22 +1893,6 @@ internal extension NSManagedObjectModel {
                 entity.properties.append(resourceIDAttribute)
             }
         }
-    }
-}
-
-// TODO: Remove OS X Swift Compiler NSSortDescriptor Fix
-
-/* There is an inconsistency between the documented API and what the Swift compiler expects on OS X. Note that on iOS, the Swift compiler is consistent with the documented API. */
-
-internal extension NSSortDescriptor {
-    
-    func sortKey() -> String? {
-        
-        #if os(iOS)
-            return self.key
-            #else
-        return self.key()
-            #endif
     }
 }
 
