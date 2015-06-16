@@ -57,7 +57,7 @@
 			remoteGlobalIDString = 6EC750FE19C40645009F0E00;
 			remoteInfo = RoutingHTTPServer;
 		};
-		6E02697A1B306B2E0035A643 /* PBXContainerItemProxy */ = {
+		6E0269841B306CE10035A643 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 6E0269621B3065E80035A643 /* ExSwift.xcodeproj */;
 			proxyType = 1;
@@ -265,8 +265,8 @@
 			buildRules = (
 			);
 			dependencies = (
+				6E0269851B306CE10035A643 /* PBXTargetDependency */,
 				6E0269791B306B2E0035A643 /* PBXTargetDependency */,
-				6E02697B1B306B2E0035A643 /* PBXTargetDependency */,
 			);
 			name = NetworkObjects;
 			productName = NetworkObjects;
@@ -433,10 +433,10 @@
 			name = RoutingHTTPServer;
 			targetProxy = 6E0269781B306B2E0035A643 /* PBXContainerItemProxy */;
 		};
-		6E02697B1B306B2E0035A643 /* PBXTargetDependency */ = {
+		6E0269851B306CE10035A643 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = ExSwift;
-			targetProxy = 6E02697A1B306B2E0035A643 /* PBXContainerItemProxy */;
+			targetProxy = 6E0269841B306CE10035A643 /* PBXContainerItemProxy */;
 		};
 		6E8BF7191A85E75800E39E72 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -546,10 +546,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					$SRCROOT/../Carthage/Build/Mac,
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = NetworkObjects/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -571,10 +568,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					$SRCROOT/../Carthage/Build/Mac,
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = NetworkObjects/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
