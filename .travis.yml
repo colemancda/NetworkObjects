@@ -8,7 +8,8 @@ notifications:
     on_failure: always  # options: [always|never|change] default: always
     on_start: false     # default: false
 before_install:
-    - git submodule update --init --recursive
+    - brew install carthage
+    - carthage build --platform "macosx"
     - TRAVIS="true" # sets the framework version to TRAVISCI
 script:
-    - xcodebuild -project NetworkObjects/NetworkObjects.xcodeproj -scheme 'NetworkObjects' -sdk macosx -arch x86_64 test CODE_SIGNING_REQUIRED=NO OTHER_LDFLAGS='-framework Foundation -ObjC'
+    - xcodebuild -project NetworkObjects/NetworkObjects.xcodeproj -scheme 'NetworkObjects OS X' -sdk macosx -arch x86_64 test CODE_SIGNING_REQUIRED=NO OTHER_LDFLAGS='-framework Foundation -ObjC'
