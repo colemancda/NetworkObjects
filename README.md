@@ -8,7 +8,7 @@ NetworkObjects is a distributed object graph inspired by Apple's WebObjects. Thi
 
 # Auto-Generated REST Server
 
-The Server class, as its name implies, broadcasts a Core Data managed object context over the network (via HTTP) in way that it can be incrementally accessed and modified. It will also ask the data source to keep track of unique identifiers (unsigned integer) assigned to an instance of an entity. This will create a schema as follows:
+The *Server* class, as its name implies, broadcasts a Core Data managed object context over the network (via HTTP) in way that it can be incrementally accessed and modified. It will also ask the data source to keep track of unique identifiers (unsigned integer) assigned to an instance of an entity. This will create a schema as follows:
 
 |Method  |URL				|JSON Request Body|JSON Response Body   |
 |--------|------------------|-----------------|---------------------|
@@ -58,13 +58,18 @@ There are two delegate protocol methods for access control:
 
 # Client-side caching
 
-The Store class is what clients will use to communicate with the server. A dateCached attribute can be optionally added at runtime for cache validation.
+The *Store* class is what clients will use to communicate with the server. A ```dateCached``` attribute can be optionally added at runtime for cache validation.
 
 # Deployment
 
-The NetworkObjects framework is built as a dynamically linked framework for both OS X and iOS. It requires Xcode 6.1 and a minimum operating system of iOS 8 or OS X 10.10.
+The NetworkObjects framework is built as a dynamically linked framework for both OS X and iOS. It requires Xcode 6.3 and a minimum operating system of iOS 8 or OS X 10.10.
+
+# Example
+
+- [NetworkObjectsUI](https://github.com/colemancda/NetworkObjectsUI) - iOS framework that provides view and controller classes for easily integrating NetworkObjects into your iOS app.
+- [Pedido](https://github.com/colemancda/Pedido) - Open Source suite of client / server apps for restaurant ordering system. Powered by NetworkObjects.
 
 # Support and Documentation
 
-If you have any questions you can contact me on Twitter at @colemancda
+If you have any questions you can contact me on Twitter at [@colemancda](https://twitter.com/colemancda) or send me an IM me on [Gitter](https://gitter.im/colemancda/NetworkObjects?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge).
 
