@@ -34,7 +34,7 @@ class MockServerDataSource: ServerDataSource {
         // setup persistent store coordinator
         let psc = NSPersistentStoreCoordinator(managedObjectModel: self.model!)
         
-        psc.addPersistentStoreWithType(NSInMemoryStoreType, configuration: nil, URL: nil, options: nil, error: nil)!
+        try! psc.addPersistentStoreWithType(NSInMemoryStoreType, configuration: nil, URL: nil, options: nil)
         
         return psc
     }()

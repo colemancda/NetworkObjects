@@ -14,7 +14,8 @@ import CoreData
 internal extension NSFetchRequest {
     
     /** Creates a fetch request from a JSON object. */
-    convenience init?(JSONObject: [String: AnyObject], entity: NSEntityDescription, managedObjectContext: NSManagedObjectContext, resourceIDAttributeName: String, error: NSErrorPointer) {
+    convenience init(JSONObject: [String: AnyObject], entity: NSEntityDescription, managedObjectContext: NSManagedObjectContext, resourceIDAttributeName: String) throws {
+        var error: NSError! = NSError(domain: "Migrator", code: 0, userInfo: nil)
         
         self.init()
         
@@ -27,7 +28,7 @@ internal extension NSFetchRequest {
             
             if sortDescriptorsJSONArray == nil {
                 
-                return nil
+                throw error
             }
             
             var sortDescriptors = [NSSortDescriptor]()
@@ -38,7 +39,7 @@ internal extension NSFetchRequest {
                 
                 if sortDescriptor == nil {
                     
-                    return nil
+                    throw error
                 }
                 
                 sortDescriptors.append(sortDescriptor!)
@@ -60,7 +61,7 @@ internal extension NSFetchRequest {
             
             if fetchLimit == nil {
                 
-                return nil
+                throw error
             }
             
             self.fetchLimit = Int(fetchLimit!)
@@ -73,7 +74,7 @@ internal extension NSFetchRequest {
             
             if fetchOffset == nil {
                 
-                return nil
+                throw error
             }
             
             self.fetchOffset = Int(fetchOffset!)
@@ -86,7 +87,7 @@ internal extension NSFetchRequest {
             
             if includesSubentities == nil {
                 
-                return nil
+                throw error
             }
             
             self.includesSubentities = includesSubentities!
@@ -99,14 +100,20 @@ internal extension NSFetchRequest {
             
             if predicateJSONObject == nil {
                 
-                return nil
+                throw error
             }
             
-            let predicate = NSPredicate.predicateWithJSON(predicateJSONObject!, entity: entity, managedObjectContext: managedObjectContext, resourceIDAttributeName: resourceIDAttributeName, error: error)
+            let predicate: NSPredicate?
+            do {
+                predicate = try NSPredicate.predicateWithJSON(predicateJSONObject!, entity: entity, managedObjectContext: managedObjectContext, resourceIDAttributeName: resourceIDAttributeName)
+            } catch var error1 as NSError {
+                error = error1
+                predicate = nil
+            }
             
             if predicate == nil {
                 
-                return nil
+                throw error
             }
             
             self.predicate = predicate
@@ -116,9 +123,9 @@ internal extension NSFetchRequest {
     /// Serializes a fetch request to JSON. See SearchParameter for the keys of the generated JSON dictionary.
     /// The fetch request's predicate must be a concrete subclass of NSPredicate. NSComparisonPredcate instances must specify a key on the left expression and a attribute or relationship value on the right expression.
     ///
-    /// :param: managedObjectContext Used for retrieved the resourceID of managed objects referenced in predicates.
-    /// :param: resourceIDAttributeName Key for retreiving the resourceID of referenced managed objects.
-    /// :returns: JSON object representing the fetch request. Will raise an exception if the fetch request cannot be serialized due to invalid values.
+    /// - parameter managedObjectContext: Used for retrieved the resourceID of managed objects referenced in predicates.
+    /// - parameter resourceIDAttributeName: Key for retreiving the resourceID of referenced managed objects.
+    /// - returns: JSON object representing the fetch request. Will raise an exception if the fetch request cannot be serialized due to invalid values.
     func toJSON(managedObjectContext: NSManagedObjectContext, resourceIDAttributeName: String) -> [String: AnyObject] {
         
         // get the entity of the fetch request
@@ -187,8 +194,8 @@ internal extension NSSortDescriptor {
     
     /// Initializes from a JSON dictionary, fails for invalid JSON or invalid key.
     ///
-    /// :param: JSONObject JSON dictionary with a single key and a boolean value
-    /// :param: entity The entity to use to validate the key
+    /// - parameter JSONObject: JSON dictionary with a single key and a boolean value
+    /// - parameter entity: The entity to use to validate the key
     convenience init?(JSONObject: [String: Bool], entity: NSEntityDescription) {
         
         // validate JSON
@@ -216,7 +223,7 @@ internal extension NSSortDescriptor {
     
     /// Converts to JSON.
     ///
-    /// :returns: JSON dictionary with a single key and the ascending value.
+    /// - returns: JSON dictionary with a single key and the ascending value.
     func toJSON() -> [String: Bool] {
         
         assert(self.key != nil, "Key must be specified for sort descriptor")

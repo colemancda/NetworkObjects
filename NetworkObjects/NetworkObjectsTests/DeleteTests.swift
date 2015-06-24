@@ -41,7 +41,7 @@ class DeleteTests: XCTestCase {
         // setup store
         self.store = Store(managedObjectModel: model, serverURL: NSURL(string: "http://localhost:\(ServerTestingPort)")!, prettyPrintJSON: true)
         
-        self.store.managedObjectContext.persistentStoreCoordinator!.addPersistentStoreWithType(NSInMemoryStoreType, configuration: nil, URL: nil, options: nil, error: nil)!
+        try! self.store.managedObjectContext.persistentStoreCoordinator!.addPersistentStoreWithType(NSInMemoryStoreType, configuration: nil, URL: nil, options: nil)
     }
     
     override func tearDown() {

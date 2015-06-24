@@ -145,7 +145,7 @@ public class Store {
                     
                     // get the entity
                     
-                    let entities = self.managedObjectModel.entitiesByName as! [String: NSEntityDescription]
+                    let entities = self.managedObjectModel.entitiesByName as [String: NSEntityDescription]
                     
                     let entity = entities[resourcePath]
                     
@@ -164,11 +164,16 @@ public class Store {
                     
                     var saveError: NSError?
                     
-                    if !self.privateQueueManagedObjectContext.save(&saveError) {
+                    do {
+                        try self.privateQueueManagedObjectContext.save()
+                    } catch var error1 as NSError {
+                        saveError = error1
                         
                         error = saveError
                         
                         return
+                    } catch {
+                        fatalError()
                     }
                 }
             })
@@ -213,7 +218,7 @@ public class Store {
     
     public func fetchEntity(name: String, resourceID: UInt, URLSession: NSURLSession? = nil, completionBlock: ((error: NSError?, managedObject: NSManagedObject?) -> Void)) -> NSURLSessionDataTask {
         
-        let entity = self.managedObjectModel.entitiesByName[name]! as! NSEntityDescription
+        let entity = self.managedObjectModel.entitiesByName[name]! as NSEntityDescription
         
         return self.getResource(entity, withID: resourceID, URLSession: URLSession ?? self.defaultURLSession, completionBlock: { (error, jsonObject) -> Void in
             
@@ -247,11 +252,16 @@ public class Store {
                         
                         var saveError: NSError?
                         
-                        if !self.privateQueueManagedObjectContext.save(&saveError) {
+                        do {
+                            try self.privateQueueManagedObjectContext.save()
+                        } catch var error as NSError {
+                            saveError = error
                             
                             deleteError = saveError
                             
                             return
+                        } catch {
+                            fatalError()
                         }
                     })
                     
@@ -302,11 +312,16 @@ public class Store {
                 // save
                 var saveError: NSError?
                 
-                if !self.privateQueueManagedObjectContext.save(&saveError) {
+                do {
+                    try self.privateQueueManagedObjectContext.save()
+                } catch var error as NSError {
+                    saveError = error
                     
                     contextError = saveError
                     
                     return
+                } catch {
+                    fatalError()
                 }
             })
             
@@ -332,7 +347,7 @@ public class Store {
     
     public func createEntity(name: String, withInitialValues initialValues: [String: AnyObject]?, URLSession: NSURLSession? = nil, completionBlock: ((error: NSError?, managedObject: NSManagedObject?) -> Void)) -> NSURLSessionDataTask {
         
-        let entity = self.managedObjectModel.entitiesByName[name]! as! NSEntityDescription
+        let entity = self.managedObjectModel.entitiesByName[name]! as NSEntityDescription
         
         var jsonValues: [String: AnyObject]?
         
@@ -375,11 +390,16 @@ public class Store {
                 // save
                 var saveError: NSError?
                 
-                if !self.privateQueueManagedObjectContext.save(&saveError) {
+                do {
+                    try self.privateQueueManagedObjectContext.save()
+                } catch var error1 as NSError {
+                    saveError = error1
                     
                     error = saveError
                     
                     return
+                } catch {
+                    fatalError()
                 }
             })
             
@@ -436,11 +456,16 @@ public class Store {
                 // save
                 var saveError: NSError?
                 
-                if !self.privateQueueManagedObjectContext.save(&saveError) {
+                do {
+                    try self.privateQueueManagedObjectContext.save()
+                } catch var error1 as NSError {
+                    saveError = error1
                     
                     error = saveError
                     
                     return
+                } catch {
+                    fatalError()
                 }
             })
             
@@ -476,11 +501,16 @@ public class Store {
                 // save
                 var saveError: NSError?
                 
-                if !self.privateQueueManagedObjectContext.save(&saveError) {
+                do {
+                    try self.privateQueueManagedObjectContext.save()
+                } catch var error1 as NSError {
+                    saveError = error1
                     
                     error = saveError
                     
                     return
+                } catch {
+                    fatalError()
                 }
             })
             
@@ -524,7 +554,7 @@ public class Store {
         
         // add JSON data
         
-        let jsonData = NSJSONSerialization.dataWithJSONObject(parameters, options: self.jsonWritingOption(), error: nil)!
+        let jsonData = try! NSJSONSerialization.dataWithJSONObject(parameters, options: self.jsonWritingOption())
         
         urlRequest.HTTPBody = jsonData
         
@@ -544,7 +574,11 @@ public class Store {
         // add initial values to request
         if initialValues != nil {
             
-            request.HTTPBody = NSJSONSerialization.dataWithJSONObject(initialValues!, options: self.jsonWritingOption(), error: nil)
+            do {
+                request.HTTPBody = try NSJSONSerialization.dataWithJSONObject(initialValues!, options: self.jsonWritingOption())
+            } catch _ {
+                request.HTTPBody = nil
+            }
         }
         
         return request
@@ -558,7 +592,7 @@ public class Store {
         
         request.HTTPMethod = "PUT"
         
-        request.HTTPBody = NSJSONSerialization.dataWithJSONObject(changes, options: self.jsonWritingOption(), error: nil)!
+        request.HTTPBody = try! NSJSONSerialization.dataWithJSONObject(changes, options: self.jsonWritingOption())
         
         return request
     }
@@ -585,7 +619,7 @@ public class Store {
         // add HTTP body
         if JSONObject != nil {
             
-            request.HTTPBody = NSJSONSerialization.dataWithJSONObject(JSONObject!, options: self.jsonWritingOption(), error: nil)!
+            request.HTTPBody = try! NSJSONSerialization.dataWithJSONObject(JSONObject!, options: self.jsonWritingOption())
         }
         
         return request
@@ -602,7 +636,7 @@ public class Store {
             
         else {
             
-            return NSJSONWritingOptions.allZeros
+            return NSJSONWritingOptions()
         }
     }
     
@@ -673,7 +707,7 @@ public class Store {
             
             // no error status code...
             
-            let jsonResponse = NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.AllowFragments, error: nil) as? [[String: UInt]]
+            let jsonResponse = NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.AllowFragments) as? [[String: UInt]]
             
             // invalid JSON response
             if jsonResponse == nil {
@@ -761,7 +795,7 @@ public class Store {
             
             // parse response...
             
-            let jsonObject = NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments, error: nil) as? [String: AnyObject]
+            let jsonObject = NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments) as? [String: AnyObject]
             
             if jsonObject == nil {
                 
@@ -845,7 +879,7 @@ public class Store {
             
             // parse response...
             
-            let jsonObject = NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.allZeros, error: nil) as? [String: AnyObject]
+            let jsonObject = NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions()) as? [String: AnyObject]
             
             // invalid JSON response
             if jsonObject == nil {
@@ -1022,7 +1056,7 @@ public class Store {
             }
             
             // get response body
-            let jsonResponse = NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.allZeros, error: nil) as? [String: AnyObject]
+            let jsonResponse = NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions()) as? [String: AnyObject]
             
             completionBlock(error: nil, functionCode: functionCode, JSONResponse: jsonResponse)
         })
@@ -1061,9 +1095,9 @@ public class Store {
         
         // fetch
         
-        var error: NSError?
+        let error: NSError?
         
-        let results = context.executeFetchRequest(fetchRequest, error: &error) as? [NSManagedObjectID]
+        let results = context.executeFetchRequest(fetchRequest) as? [NSManagedObjectID]
         
         // halt execution if error
         if error != nil {
@@ -1071,7 +1105,7 @@ public class Store {
             return (nil, error)
         }
         
-        var objectID = results?.first
+        let objectID = results?.first
         
         return (objectID, nil)
     }
@@ -1094,9 +1128,9 @@ public class Store {
         
         // fetch
         
-        var error: NSError?
+        let error: NSError?
         
-        let results = context.executeFetchRequest(fetchRequest, error: &error) as? [NSManagedObject]
+        let results = context.executeFetchRequest(fetchRequest) as? [NSManagedObject]
         
         // halt execution if error
         if error != nil {
@@ -1134,7 +1168,7 @@ public class Store {
             
             if attribute != nil {
                 
-                let (newValue: AnyObject?, valid) = managedObject.entity.attributeValueForJSONCompatibleValue(jsonValue, forAttribute: key)
+                let (newValue: AnyObject,?, valid) = managedObject.entity.attributeValueForJSONCompatibleValue(jsonValue, forAttribute: key)
                 
                 let currentValue: AnyObject? = managedObject.valueForKey(key)
                 
@@ -1237,7 +1271,7 @@ public class Store {
         // set nil for values that were not included
         for property in managedObject.entity.properties {
             
-            let key = property.name!
+            let key = property.name
             
             // omit resourceID attribute and dateCached
             if key == self.resourceIDAttributeName || key == self.dateCachedAttributeName {
@@ -1279,7 +1313,7 @@ public class Store {
             // validate value
             if attribute != nil {
                 
-                let (newValue: AnyObject?, valid) = entity.attributeValueForJSONCompatibleValue(value, forAttribute: key)
+                let (newValue: AnyObject,?, valid) = entity.attributeValueForJSONCompatibleValue(value, forAttribute: key)
                 
                 if !valid {
                     
@@ -1432,7 +1466,7 @@ private extension NSManagedObjectModel {
     func addDateCachedAttribute(dateCachedAttributeName: String) {
         
         // add a date attribute to managed object model
-        for (entityName, entity) in self.entitiesByName as! [String: NSEntityDescription] {
+        for (entityName, entity) in self.entitiesByName as [String: NSEntityDescription] {
             
             if entity.superentity == nil {
                 
@@ -1450,9 +1484,9 @@ private extension NSManagedObjectModel {
     func markAllPropertiesAsOptional() {
         
         // add a date attribute to managed object model
-        for (entityName, entity) in self.entitiesByName as! [String: NSEntityDescription] {
+        for (entityName, entity) in self.entitiesByName as [String: NSEntityDescription] {
             
-            for (propertyName, property) in entity.propertiesByName as! [String: NSPropertyDescription] {
+            for (propertyName, property) in entity.propertiesByName as [String: NSPropertyDescription] {
                 
                 property.optional = true
             }
