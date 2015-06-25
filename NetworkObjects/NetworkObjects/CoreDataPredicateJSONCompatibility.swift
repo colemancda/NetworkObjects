@@ -18,8 +18,7 @@ internal extension NSPredicate {
     ///
     /// - parameter JSONObject: The JSON dictionary used to create the predicate
     /// - returns: A concrete subclass of NSPredicate or nil if the provided JSON was incorrect
-    class func predicateWithJSON(JSONObject: [String: AnyObject], entity: NSEntityDescription, managedObjectContext: NSManagedObjectContext, resourceIDAttributeName: String) throws -> NSPredicate {
-        let error: NSError! = NSError(domain: "Migrator", code: 0, userInfo: nil)
+    class func predicateWithJSON(JSONObject: [String: AnyObject], entity: NSEntityDescription, managedObjectContext: NSManagedObjectContext, resourceIDAttributeName: String) throws -> NSPredicate? {
         
         // invalid JSON
         if JSONObject.count != 1 {
@@ -177,7 +176,7 @@ internal extension NSComparisonPredicate {
                 // attribute
                 if attribute != nil {
                     
-                    let (newValue: AnyObject,?, valid) = entity.attributeValueForJSONCompatibleValue(jsonPredicateValue!, forAttribute: key)
+                    let (newValue: AnyObject, valid) = entity.attributeValueForJSONCompatibleValue(jsonPredicateValue!, forAttribute: key)
                     
                     return newValue
                 }

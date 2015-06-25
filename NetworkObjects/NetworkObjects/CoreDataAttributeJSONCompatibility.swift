@@ -48,9 +48,9 @@ internal extension NSEntityDescription {
     /// - returns: The converted JSON value.
     func JSONCompatibleValueForAttributeValue(attributeValue: AnyObject?, forAttribute attributeName: String, options: CoreDataAttributeJSONCompatibilityOptions = CoreDataAttributeJSONCompatibilityOptions.defaultOptions) -> AnyObject {
         
-        let attributeDescription = self.attributesByName[attributeName] as? NSAttributeDescription
+        assert(self.attributesByName[attributeName] != nil, "Attribute named \(attributeName) not found on entity \(self)")
         
-        assert(attributeDescription != nil, "Attribute named \(attributeName) not found on entity \(self)")
+        let attributeDescription = self.attributesByName[attributeName]!
         
         // give value based on attribute type...
         
@@ -62,7 +62,7 @@ internal extension NSEntityDescription {
             return NSNull()
         }
         
-        switch attributeDescription!.attributeType {
+        switch attributeDescription.attributeType {
             
         // invalid types
         case .UndefinedAttributeType, .ObjectIDAttributeType:
@@ -92,7 +92,7 @@ internal extension NSEntityDescription {
         case .TransformableAttributeType:
             
             // get transformer
-            let valueTransformerName = attributeDescription?.valueTransformerName
+            let valueTransformerName = attributeDescription.valueTransformerName
             
             // default transformer: NSKeyedUnarchiveFromDataTransformerName in reverse
             if valueTransformerName == nil {
@@ -124,9 +124,9 @@ internal extension NSEntityDescription {
     /// - returns: A tuple with a Core Data compatible attribute value and a boolean indicating that the conversion was successful.
     func attributeValueForJSONCompatibleValue(jsonValue: AnyObject, forAttribute attributeName: String, options: CoreDataAttributeJSONCompatibilityOptions = CoreDataAttributeJSONCompatibilityOptions.defaultOptions) -> (AnyObject?, Bool) {
         
-        let attributeDescription = self.attributesByName[attributeName] as? NSAttributeDescription
+        assert(self.attributesByName[attributeName] != nil, "Attribute named \(attributeName) not found on entity \(self)")
         
-        assert(attributeDescription != nil, "Attribute named \(attributeName) not found on entity \(self)")
+        let attributeDescription = self.attributesByName[attributeName]!
         
         // if value is NSNull
         if jsonValue as? NSNull != nil {
@@ -134,7 +134,7 @@ internal extension NSEntityDescription {
             return (nil, true)
         }
         
-        switch attributeDescription!.attributeType {
+        switch attributeDescription.attributeType {
             
         case .UndefinedAttributeType, .ObjectIDAttributeType:
             return (nil, false)

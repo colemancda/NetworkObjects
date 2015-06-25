@@ -111,7 +111,7 @@ public class Store {
         
         if let entityName = fetchRequest.entityName {
             
-            entity = self.managedObjectModel.entitiesByName[entityName] as! NSEntityDescription
+            entity = self.managedObjectModel.entitiesByName[entityName]!
         }
         else {
             
@@ -1168,7 +1168,7 @@ public class Store {
             
             if attribute != nil {
                 
-                let (newValue: AnyObject,?, valid) = managedObject.entity.attributeValueForJSONCompatibleValue(jsonValue, forAttribute: key)
+                let (newValue: AnyObject, valid) = managedObject.entity.attributeValueForJSONCompatibleValue(jsonValue, forAttribute: key)
                 
                 let currentValue: AnyObject? = managedObject.valueForKey(key)
                 
@@ -1313,7 +1313,7 @@ public class Store {
             // validate value
             if attribute != nil {
                 
-                let (newValue: AnyObject,?, valid) = entity.attributeValueForJSONCompatibleValue(value, forAttribute: key)
+                let (newValue: AnyObject, valid) = entity.attributeValueForJSONCompatibleValue(value, forAttribute: key)
                 
                 if !valid {
                     

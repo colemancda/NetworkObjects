@@ -1485,7 +1485,7 @@ public class Server {
                 }
                 
                 // get pre-edit value
-                let (newValue: AnyObject,?, valid) = resource.entity.attributeValueForJSONCompatibleValue(jsonValue, forAttribute: key)
+                let (newValue: AnyObject, valid) = resource.entity.attributeValueForJSONCompatibleValue(jsonValue, forAttribute: key)
                 
                 if !valid {
                     
@@ -1802,129 +1802,6 @@ public protocol ServerDelegate {
     
     /** Notifies the delegate that an internal error ocurred (e.g. could not serialize a JSON object). */
     func server(server: Server, didEncounterInternalError error: NSError, forRequest request: ServerRequest, userInfo: [String: AnyObject])
-}
-
-// MARK: - Enumerations
-
-/** Keys used in userInfo dictionaries. */
-public enum ServerUserInfoKey: String {
-    
-    case FetchRequest = "FetchRequest"
-    
-    case ResourceID = "ResourceID"
-    
-    case ManagedObject = "ManagedObject"
-    
-    case ManagedObjectContext = "ManagedObjectContext"
-    
-    case NewValues = "NewValues"
-    
-    case FunctionName = "FunctionName"
-    
-    case FunctionJSONInput = "FunctionJSONInput"
-    
-    case FunctionJSONOutput = "FunctionJSONOutput"
-}
-
-/** These are HTTP status codes used with NetworkObjects servers. */
-public enum ServerStatusCode: Int {
-    
-    /** OK status code. */
-    case OK = 200
-    
-    /** Bad request status code. */
-    case BadRequest = 400
-    
-    /** Unauthorized status code. e.g. Used when authentication is required. */
-    case Unauthorized = 401 // not logged in
-    
-    case PaymentRequired = 402
-    
-    /** Forbidden status code. e.g. Used when permission is denied. */
-    case Forbidden = 403 // item is invisible to user or api app
-    
-    /** Not Found status code. e.g. Used when a Resource instance cannot be found. */
-    case NotFound = 404 // item doesnt exist
-    
-    /** Method Not Allowed status code. e.g. Used for invalid requests. */
-    case MethodNotAllowed = 405
-    
-    /** Conflict status code. e.g. Used when a user with the specified username already exists. */
-    case Conflict = 409 // user already exists
-    
-    /** Internal Server Error status code. e.g. Used when a JSON cannot be converted to NSData for a HTTP response. */
-    case InternalServerError = 500
-    
-}
-
-/** Server Permission Enumeration */
-
-public enum ServerPermission: Int {
-    
-    /**  No access permission */
-    case NoAccess = 0
-    
-    /**  Read Only permission */
-    case ReadOnly = 1
-    
-    /**  Read and Write permission */
-    case EditPermission = 2
-}
-
-/** Server Request Type */
-public enum ServerRequestType {
-    
-    /** Undetermined request */
-    case Undetermined
-    
-    /** GET request */
-    case GET
-    
-    /** PUT (edit) request */
-    case PUT
-    
-    /** DELETE request */
-    case DELETE
-    
-    /** POST (create new) request */
-    case POST
-    
-    /** Search request */
-    case Search
-    
-    /** Function request */
-    case Function
-}
-
-/** Resource Function constants */
-public enum ServerFunctionCode: Int {
-    
-    /** The function performed successfully */
-    case PerformedSuccesfully = 200
-    
-    /** The function recieved an invalid JSON object */
-    case RecievedInvalidJSONObject = 400
-    
-    /** The function cannot be performed, possibly due to session permissions */
-    case CannotPerformFunction = 403
-    
-    /** There was an internal error while performing the function */
-    case InternalErrorPerformingFunction = 500
-    
-    func toServerStatusCode() -> ServerStatusCode {
-        
-        return ServerStatusCode(rawValue: self.rawValue)!
-    }
-}
-
-/** Defines the connection protocols used communicate with the server. */
-public enum ServerConnectionType {
-    
-    /** The connection to the server was made via the HTTP protocol. */
-    case HTTP
-    
-    /** The connection to the server was made via the WebSockets protocol. */
-    case WebSocket
 }
 
 // MARK: - Internal Extensions
