@@ -14,8 +14,7 @@ import CoreData
 internal extension NSFetchRequest {
     
     /** Creates a fetch request from a JSON object. */
-    convenience init(JSONObject: [String: AnyObject], entity: NSEntityDescription, managedObjectContext: NSManagedObjectContext, resourceIDAttributeName: String) throws {
-        var error: NSError! = NSError(domain: "Migrator", code: 0, userInfo: nil)
+    convenience init?(JSONObject: [String: AnyObject], entity: NSEntityDescription, managedObjectContext: NSManagedObjectContext, resourceIDAttributeName: String) throws {
         
         self.init()
         
@@ -24,25 +23,21 @@ internal extension NSFetchRequest {
         // set sort descriptors....
         if let sortDescriptorsObject: AnyObject = JSONObject[SearchParameter.SortDescriptors.rawValue] {
             
-            let sortDescriptorsJSONArray = sortDescriptorsObject as? [[String: Bool]]
-            
-            if sortDescriptorsJSONArray == nil {
+            guard let sortDescriptorsJSONArray = sortDescriptorsObject as? [[String: Bool]] else {
                 
-                throw error
+                return nil
             }
             
             var sortDescriptors = [NSSortDescriptor]()
             
-            for sortDescriptorJSONObject in sortDescriptorsJSONArray! {
+            for sortDescriptorJSONObject in sortDescriptorsJSONArray {
                 
-                let sortDescriptor = NSSortDescriptor(JSONObject: sortDescriptorJSONObject, entity: entity)
-                
-                if sortDescriptor == nil {
+                guard let sortDescriptor = NSSortDescriptor(JSONObject: sortDescriptorJSONObject, entity: entity) else {
                     
-                    throw error
+                    return nil
                 }
                 
-                sortDescriptors.append(sortDescriptor!)
+                sortDescriptors.append(sortDescriptor)
             }
             
             self.sortDescriptors = sortDescriptors
@@ -57,64 +52,45 @@ internal extension NSFetchRequest {
         // set the fetch limit
         if let fetchLimitObject: AnyObject = JSONObject[SearchParameter.FetchLimit.rawValue] {
             
-            let fetchLimit = fetchLimitObject as? UInt
-            
-            if fetchLimit == nil {
+            guard let fetchLimit = fetchLimitObject as? UInt else {
                 
-                throw error
+                return nil
             }
             
-            self.fetchLimit = Int(fetchLimit!)
+            self.fetchLimit = Int(fetchLimit)
         }
         
         // set the fetch offset
         if let fetchOffsetObject: AnyObject = JSONObject[SearchParameter.FetchOffset.rawValue] {
             
-            let fetchOffset = fetchOffsetObject as? UInt
-            
-            if fetchOffset == nil {
+            guard let fetchOffset = fetchOffsetObject as? UInt else {
                 
-                throw error
+                return nil
             }
             
-            self.fetchOffset = Int(fetchOffset!)
+            self.fetchOffset = Int(fetchOffset)
         }
         
         // set includesSubentities
         if let includesSubentitiesObject: AnyObject = JSONObject[SearchParameter.IncludesSubentities.rawValue] {
             
-            let includesSubentities = includesSubentitiesObject as? Bool
-            
-            if includesSubentities == nil {
+            guard let includesSubentities = includesSubentitiesObject as? Bool else {
                 
-                throw error
+                return nil
             }
             
-            self.includesSubentities = includesSubentities!
+            self.includesSubentities = includesSubentities
         }
         
         // set predicate
         if let predicateObject: AnyObject = JSONObject[SearchParameter.Predicate.rawValue] {
             
-            let predicateJSONObject = predicateObject as? [String: AnyObject]
-            
-            if predicateJSONObject == nil {
+            guard let predicateJSONObject = predicateObject as? [String: AnyObject] else {
                 
-                throw error
+                return nil
             }
             
-            let predicate: NSPredicate?
-            do {
-                predicate = try NSPredicate.predicateWithJSON(predicateJSONObject!, entity: entity, managedObjectContext: managedObjectContext, resourceIDAttributeName: resourceIDAttributeName)
-            } catch var error1 as NSError {
-                error = error1
-                predicate = nil
-            }
-            
-            if predicate == nil {
-                
-                throw error
-            }
+            let predicate: NSPredicate! = try NSPredicate.predicateWithJSON(predicateJSONObject, entity: entity, managedObjectContext: managedObjectContext, resourceIDAttributeName: resourceIDAttributeName)
             
             self.predicate = predicate
         }
@@ -136,7 +112,7 @@ internal extension NSFetchRequest {
             
             assert(managedObjectContext.persistentStoreCoordinator != nil, "Managed Object Context must have a Persistent Store Coordinator for fetch requests created with strings")
             
-            entity = managedObjectContext.persistentStoreCoordinator!.managedObjectModel.entitiesByName[entityName] as! NSEntityDescription
+            entity = managedObjectContext.persistentStoreCoordinator!.managedObjectModel.entitiesByName[entityName]!
         }
         else {
             
@@ -147,7 +123,7 @@ internal extension NSFetchRequest {
         var jsonObject = [String: AnyObject]()
         
         // set the sort descriptors...
-        if let sortDescriptors = self.sortDescriptors as? [NSSortDescriptor] {
+        if let sortDescriptors = self.sortDescriptors {
             
             var sortDescriptorsJSONArray = [[String: Bool]]()
             
@@ -209,8 +185,9 @@ internal extension NSSortDescriptor {
         let value = JSONObject.values.first!
         
         // validate key
-        let attribute = entity.attributesByName[key] as? NSAttributeDescription
-        let relationship = entity.relationshipsByName[key] as? NSRelationshipDescription
+        let attribute = entity.attributesByName[key]
+        
+        let relationship = entity.relationshipsByName[key]
         
         if attribute == nil && relationship == nil {
             

@@ -19,7 +19,6 @@
 		6E17986B1B323A61005D2844 /* NetworkObjects.h in Headers */ = {isa = PBXBuildFile; fileRef = 6EAD584B19C3B58300DC080A /* NetworkObjects.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6E1798771B323A91005D2844 /* MockServerDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E7EF3601A8B18A200F6FECC /* MockServerDataSource.swift */; };
 		6E1798781B323A91005D2844 /* CoreDataAttributeJSONCompatibilityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EDE12D41A88530100FDF672 /* CoreDataAttributeJSONCompatibilityTests.swift */; };
-		6E1798791B323A91005D2844 /* CoreDataAttributeJSONCompatibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E5929A319C54FA700F391F3 /* CoreDataAttributeJSONCompatibility.swift */; };
 		6E17987A1B323A91005D2844 /* DeleteTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E7EF35E1A8B178800F6FECC /* DeleteTests.swift */; };
 		6E17987B1B323A91005D2844 /* NetworkObjectsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EAD585519C3B58300DC080A /* NetworkObjectsTests.swift */; };
 		6E17987C1B323A91005D2844 /* FetchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E7EF35C1A8B170400F6FECC /* FetchTests.swift */; };
@@ -64,7 +63,6 @@
 		6EC6042C1A8123620013AD59 /* CoreDataFetchRequestJSONCompatibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EC6042B1A8123620013AD59 /* CoreDataFetchRequestJSONCompatibility.swift */; };
 		6EC750F319C3F5DD009F0E00 /* ErrorDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EC750F219C3F5DD009F0E00 /* ErrorDescription.swift */; };
 		6ED13D101A827444001F684F /* CoreDataRelationshipJSONCompatibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ED13D0F1A827444001F684F /* CoreDataRelationshipJSONCompatibility.swift */; };
-		6EDE12D11A8852C100FDF672 /* CoreDataAttributeJSONCompatibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E5929A319C54FA700F391F3 /* CoreDataAttributeJSONCompatibility.swift */; };
 		6EDE12D51A88530100FDF672 /* CoreDataAttributeJSONCompatibilityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EDE12D41A88530100FDF672 /* CoreDataAttributeJSONCompatibilityTests.swift */; };
 		6EDE12D81A8853E500FDF672 /* TestModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 6EDE12D61A8853E500FDF672 /* TestModel.xcdatamodeld */; };
 /* End PBXBuildFile section */
@@ -575,7 +573,6 @@
 			files = (
 				6E1798771B323A91005D2844 /* MockServerDataSource.swift in Sources */,
 				6E1798781B323A91005D2844 /* CoreDataAttributeJSONCompatibilityTests.swift in Sources */,
-				6E1798791B323A91005D2844 /* CoreDataAttributeJSONCompatibility.swift in Sources */,
 				6E17987A1B323A91005D2844 /* DeleteTests.swift in Sources */,
 				6E17987B1B323A91005D2844 /* NetworkObjectsTests.swift in Sources */,
 				6E17987C1B323A91005D2844 /* FetchTests.swift in Sources */,
@@ -613,7 +610,6 @@
 			files = (
 				6E7EF3611A8B18A200F6FECC /* MockServerDataSource.swift in Sources */,
 				6EDE12D51A88530100FDF672 /* CoreDataAttributeJSONCompatibilityTests.swift in Sources */,
-				6EDE12D11A8852C100FDF672 /* CoreDataAttributeJSONCompatibility.swift in Sources */,
 				6E7EF35F1A8B178800F6FECC /* DeleteTests.swift in Sources */,
 				6E0F4B801A71DFFD00220888 /* NetworkObjectsTests.swift in Sources */,
 				6E7EF35D1A8B170400F6FECC /* FetchTests.swift in Sources */,

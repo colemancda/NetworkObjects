@@ -419,7 +419,7 @@ public class Server {
                     }
                     
                     // get response
-                    var (serverResponse, userInfo) = self.responseForFunctionRequest(serverRequest)
+                    let (serverResponse, userInfo) = self.responseForFunctionRequest(serverRequest)
                     
                     // respond with JSON if availible
                     if serverResponse.JSONResponse != nil  {
@@ -803,12 +803,19 @@ public class Server {
         
         // perform Core Data validation (to make sure there will be no errors saving)
         
-        var validCoreData: Bool = false
+        var validCoreData: Bool = true
         
-        context.performBlockAndWait({ () -> Void in
+        context.performBlockAndWait { () -> Void in
             
-            validCoreData = managedObject!.validateForInsert()
-        })
+            do {
+                
+                try managedObject.validateForInsert()
+            }
+            catch {
+                
+                validCoreData = false
+            }
+        }
         
         // invalid (e.g. non-optional property is nil)
         if !validCoreData {
@@ -821,18 +828,16 @@ public class Server {
         // save
         var saveError: NSError?
         
-        context.performBlockAndWait({ () -> Void in
+        context.performBlockAndWait { () -> Void in
             
             do {
                 try context.save()
-            } catch var error as NSError {
+            } catch let error as NSError {
                 saveError = error
-            } catch {
-                fatalError()
             }
             
             return
-        })
+        }
         
         if saveError != nil {
             

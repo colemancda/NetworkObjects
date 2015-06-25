@@ -23,7 +23,7 @@ internal extension NSPredicate {
         // invalid JSON
         if JSONObject.count != 1 {
             
-            throw error
+            return nil
         }
         
         // get predicate type
@@ -35,7 +35,7 @@ internal extension NSPredicate {
         // invalid JSON
         if predicateJSONObject == nil || predicateType == nil {
             
-            throw error
+            return nil
         }
         
         // create concrete subclass from values
@@ -57,37 +57,23 @@ internal extension NSPredicate {
 
 internal extension NSComparisonPredicate {
     
-    convenience init(JSONObject: [String: AnyObject], entity: NSEntityDescription, managedObjectContext: NSManagedObjectContext, resourceIDAttributeName: String) throws {
-        var error: NSError! = NSError(domain: "Migrator", code: 0, userInfo: nil)
+    convenience init?(JSONObject: [String: AnyObject], entity: NSEntityDescription, managedObjectContext: NSManagedObjectContext, resourceIDAttributeName: String) throws {
         
         // set predicate operator type
-        let predicateOperatorType: NSPredicateOperatorType? = {
+        
+        guard let predicateOperatorString = JSONObject[SearchComparisonPredicateParameter.Operator.rawValue] as? String, let predicateOperatorType =  SearchComparisonPredicateOperator(rawValue: predicateOperatorString)?.toPredicateOperatorType() else {
             
-            let predicateOperatorString = JSONObject[SearchComparisonPredicateParameter.Operator.rawValue] as? String
-            
-            // bad JSON
-            if predicateOperatorString == nil {
-
-                return nil
-            }
-            
-            return SearchComparisonPredicateOperator(rawValue: predicateOperatorString!)?.toPredicateOperatorType()
-        }()
+            return nil
+        }
         
         // set modifier
-        let modifier: NSComparisonPredicateModifier? = {
+        guard let modifierString = JSONObject[SearchComparisonPredicateParameter.Modifier.rawValue] as? String, let modifier = SearchComparisonPredicateModifier(rawValue: modifierString)?.toComparisonPredicateModifier() else {
             
-            let modifierString = JSONObject[SearchComparisonPredicateParameter.Modifier.rawValue] as? String
-            
-            if modifierString == nil {
-                
-                return nil
-            }
-            
-            return SearchComparisonPredicateModifier(rawValue: modifierString!)?.toComparisonPredicateModifier()
-        }()
+            return nil
+        }
         
         // set options
+        guard let optionsObject: AnyObject? = JSONObject[SearchComparisonPredicateParameter.Options.rawValue],
         let options: NSComparisonPredicateOptions? = {
             
             let optionsObject: AnyObject? = JSONObject[SearchComparisonPredicateParameter.Options.rawValue]
@@ -104,7 +90,7 @@ internal extension NSComparisonPredicate {
                 return nil
             }
             
-            let searchComparisonOptions = RawRepresentables(SearchComparisonPredicateOption.self, optionsArray!)
+            let searchComparisonOptions = RawRepresentables(SearchComparisonPredicateOption.self, rawValues: optionsArray!)
             
             if searchComparisonOptions == nil {
                 
@@ -127,8 +113,9 @@ internal extension NSComparisonPredicate {
                 return nil
             }
             
-            let attribute = entity.attributesByName[keyString!] as? NSAttributeDescription
-            let relationship = entity.relationshipsByName[keyString!] as? NSRelationshipDescription
+            let attribute = entity.attributesByName[keyString!]
+            
+            let relationship = entity.relationshipsByName[keyString!]
             
             if attribute == nil && relationship == nil {
                 
@@ -137,13 +124,6 @@ internal extension NSComparisonPredicate {
             
             return NSExpression(forKeyPath: keyString!)
         }()
-        
-        // verify no values are missing
-        if predicateOperatorType == nil || modifier == nil || options == nil || leftExpression == nil {
-            
-            self.init()
-            throw error
-        }
         
         // set right expression
         let rightExpression: NSExpression? = {
@@ -165,8 +145,9 @@ internal extension NSComparisonPredicate {
                 
                 let key = leftExpression!.keyPath
                 
-                let attribute = entity.attributesByName[key] as? NSAttributeDescription
-                let relationship = entity.relationshipsByName[key] as? NSRelationshipDescription
+                let attribute = entity.attributesByName[key]
+                
+                let relationship = entity.relationshipsByName[key]
                 
                 if attribute == nil && relationship == nil {
                     

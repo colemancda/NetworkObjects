@@ -187,7 +187,7 @@ internal extension NSEntityDescription {
             }
             
             // get transformer
-            let valueTransformerName = attributeDescription!.valueTransformerName
+            let valueTransformerName = attributeDescription.valueTransformerName
             
             // default transformer: NSKeyedUnarchiveFromDataTransformerName in reverse (unarchive data)
             if valueTransformerName == nil {
