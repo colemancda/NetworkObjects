@@ -34,6 +34,8 @@
 		6E1798931B324217005D2844 /* RoutingHTTPServer.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 6E17985E1B323995005D2844 /* RoutingHTTPServer.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		6E18477E1B3CDFC400D82C41 /* CoreDataError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E18477D1B3CDFC400D82C41 /* CoreDataError.swift */; };
 		6E18477F1B3CDFC400D82C41 /* CoreDataError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E18477D1B3CDFC400D82C41 /* CoreDataError.swift */; };
+		6E1847811B3CE93C00D82C41 /* ErrorValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E1847801B3CE93C00D82C41 /* ErrorValue.swift */; };
+		6E1847821B3CE93C00D82C41 /* ErrorValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E1847801B3CE93C00D82C41 /* ErrorValue.swift */; };
 		6E5929A419C54FA700F391F3 /* CoreDataAttributeJSONCompatibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E5929A319C54FA700F391F3 /* CoreDataAttributeJSONCompatibility.swift */; };
 		6E66A46A1A833AD900B92742 /* CoreDataConvenienceExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E66A4691A833AD900B92742 /* CoreDataConvenienceExtensions.swift */; };
 		6E6F441A1A7FF6D800DEE699 /* CoreDataPredicateJSONCompatibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E6F44191A7FF6D800DEE699 /* CoreDataPredicateJSONCompatibility.swift */; };
@@ -147,6 +149,7 @@
 		6E1798711B323A61005D2844 /* NetworkObjects.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = NetworkObjects.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6E1798851B323A91005D2844 /* NetworkObjectsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NetworkObjectsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		6E18477D1B3CDFC400D82C41 /* CoreDataError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataError.swift; sourceTree = "<group>"; };
+		6E1847801B3CE93C00D82C41 /* ErrorValue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ErrorValue.swift; sourceTree = "<group>"; };
 		6E5929A319C54FA700F391F3 /* CoreDataAttributeJSONCompatibility.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataAttributeJSONCompatibility.swift; sourceTree = "<group>"; };
 		6E66A4691A833AD900B92742 /* CoreDataConvenienceExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataConvenienceExtensions.swift; sourceTree = "<group>"; };
 		6E6F44191A7FF6D800DEE699 /* CoreDataPredicateJSONCompatibility.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataPredicateJSONCompatibility.swift; sourceTree = "<group>"; };
@@ -294,6 +297,7 @@
 				6EAF65851B3B8D2600884605 /* Define.swift */,
 				6EAD585F19C3B6CB00DC080A /* Server.swift */,
 				6EAD586019C3B6CB00DC080A /* Store.swift */,
+				6E1847801B3CE93C00D82C41 /* ErrorValue.swift */,
 				6EC750F219C3F5DD009F0E00 /* ErrorDescription.swift */,
 				6EAF656C1B3B866400884605 /* Enums */,
 				6E66A46C1A833B7F00B92742 /* Core Data Extensions */,
@@ -559,6 +563,7 @@
 				6E18477F1B3CDFC400D82C41 /* CoreDataError.swift in Sources */,
 				6EAF657B1B3B88B100884605 /* ServerPermission.swift in Sources */,
 				6EAF656F1B3B868900884605 /* ServerRequestType.swift in Sources */,
+				6E1847821B3CE93C00D82C41 /* ErrorValue.swift in Sources */,
 				6E1798651B323A61005D2844 /* CoreDataConvenienceExtensions.swift in Sources */,
 				6E1798661B323A61005D2844 /* CoreDataFetchRequestJSONCompatibility.swift in Sources */,
 				6EAF65751B3B870A00884605 /* ServerConnectionType.swift in Sources */,
@@ -597,6 +602,7 @@
 				6E18477E1B3CDFC400D82C41 /* CoreDataError.swift in Sources */,
 				6EAF657A1B3B88B100884605 /* ServerPermission.swift in Sources */,
 				6EAF656E1B3B868900884605 /* ServerRequestType.swift in Sources */,
+				6E1847811B3CE93C00D82C41 /* ErrorValue.swift in Sources */,
 				6E66A46A1A833AD900B92742 /* CoreDataConvenienceExtensions.swift in Sources */,
 				6EC6042C1A8123620013AD59 /* CoreDataFetchRequestJSONCompatibility.swift in Sources */,
 				6EAF65741B3B870A00884605 /* ServerConnectionType.swift in Sources */,
