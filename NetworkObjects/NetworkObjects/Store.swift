@@ -101,7 +101,7 @@ public class Store {
     /// Performs a search request on the server. The supplied fetch request's predicate must be a NSComparisonPredicate  or NSCompoundPredicate instance.
     ///
     ///
-    public func performSearch(fetchRequest: NSFetchRequest, URLSession: NSURLSession? = nil, completionBlock: ((error: NSError?, results: [NSManagedObject]?) -> Void)) -> NSURLSessionDataTask {
+    public func performSearch(fetchRequest: NSFetchRequest, URLSession: NSURLSession? = nil, completionBlock: ((error: ErrorType?, results: [NSManagedObject]?) -> Void)) -> NSURLSessionDataTask {
         
         assert(self.searchPath != nil, "Cannot perform searches when searchPath is nil")
         
@@ -133,9 +133,9 @@ public class Store {
             
             var cachedResults = [NSManagedObject]()
             
-            var error: NSError?
+            do {
             
-            self.privateQueueManagedObjectContext.performBlockAndWait({ () -> Void in
+            try self.privateQueueManagedObjectContext.performErrorBlock({ () -> Void in
                 
                 for resourceIDByResourcePath in results! {
                     
@@ -149,37 +149,18 @@ public class Store {
                     
                     let entity = entities[resourcePath]
                     
-                    let (resource, cacheError) = self.findOrCreateEntity(entity!, withResourceID: resourceID, context: self.privateQueueManagedObjectContext)
+                    let resource: NSManagedObject = try self.findOrCreateEntity(entity!, withResourceID: resourceID, context: self.privateQueueManagedObjectContext)
                     
-                    if cacheError != nil {
-                        
-                        error = cacheError
-                        
-                        return
-                    }
-                    
-                    cachedResults.append(resource!)
+                    cachedResults.append(resource)
                     
                     // save
                     
-                    var saveError: NSError?
-                    
-                    do {
-                        try self.privateQueueManagedObjectContext.save()
-                    } catch var error1 as NSError {
-                        saveError = error1
-                        
-                        error = saveError
-                        
-                        return
-                    } catch {
-                        fatalError()
-                    }
+                    try self.privateQueueManagedObjectContext.save()
                 }
             })
-            
-            // error occurred
-            if error != nil {
+                
+            }
+            catch {
                 
                 completionBlock(error: error, results: nil)
                 
@@ -204,7 +185,7 @@ public class Store {
         })
     }
     
-    public func fetchResource<T: NSManagedObject>(resource: T, URLSession: NSURLSession? = nil, completionBlock: ((error: NSError?) -> Void)) -> NSURLSessionDataTask {
+    public func fetchResource<T: NSManagedObject>(resource: T, URLSession: NSURLSession? = nil, completionBlock: ((error: ErrorType?) -> Void)) -> NSURLSessionDataTask {
         
         let entityName = resource.entity.name!
         
@@ -216,7 +197,7 @@ public class Store {
         })
     }
     
-    public func fetchEntity(name: String, resourceID: UInt, URLSession: NSURLSession? = nil, completionBlock: ((error: NSError?, managedObject: NSManagedObject?) -> Void)) -> NSURLSessionDataTask {
+    public func fetchEntity(name: String, resourceID: UInt, URLSession: NSURLSession? = nil, completionBlock: ((error: ErrorType?, managedObject: NSManagedObject?) -> Void)) -> NSURLSessionDataTask {
         
         let entity = self.managedObjectModel.entitiesByName[name]! as NSEntityDescription
         
@@ -226,13 +207,13 @@ public class Store {
             if error != nil {
                 
                 // not found, delete object from cache
-                if error!.code == ServerStatusCode.NotFound.rawValue {
+                if let error = StoreError.ErrorStatusCode(ServerErrorCode.NotFound) {
                     
                     // delete object on private thread
                     
-                    var deleteError: NSError?
+                    do {
                     
-                    self.privateQueueManagedObjectContext.performBlockAndWait({ () -> Void in
+                    try self.privateQueueManagedObjectContext.performErrorBlock({ () -> Void in
                         
                         let (objectID, cacheError) = self.findEntity(entity, withResourceID: resourceID, context: self.privateQueueManagedObjectContext)
                         
@@ -250,22 +231,10 @@ public class Store {
                         
                         // save
                         
-                        var saveError: NSError?
-                        
-                        do {
-                            try self.privateQueueManagedObjectContext.save()
-                        } catch var error as NSError {
-                            saveError = error
-                            
-                            deleteError = saveError
-                            
-                            return
-                        } catch {
-                            fatalError()
-                        }
+                        try self.privateQueueManagedObjectContext.save()
                     })
-                    
-                    if deleteError != nil {
+                    }
+                    catch {
                         
                         completionBlock(error: deleteError, managedObject: nil)
                         
@@ -280,7 +249,7 @@ public class Store {
             
             var managedObject: NSManagedObject?
             
-            var contextError: NSError?
+            var contextError: ErrorType?
             
             self.privateQueueManagedObjectContext.performBlockAndWait({ () -> Void in
                 
@@ -310,11 +279,11 @@ public class Store {
                 self.didCacheManagedObject(resource!)
                 
                 // save
-                var saveError: NSError?
+                var saveError: ErrorType?
                 
                 do {
                     try self.privateQueueManagedObjectContext.save()
-                } catch var error as NSError {
+                } catch var error as ErrorType {
                     saveError = error
                     
                     contextError = saveError
@@ -345,7 +314,7 @@ public class Store {
         })
     }
     
-    public func createEntity(name: String, withInitialValues initialValues: [String: AnyObject]?, URLSession: NSURLSession? = nil, completionBlock: ((error: NSError?, managedObject: NSManagedObject?) -> Void)) -> NSURLSessionDataTask {
+    public func createEntity(name: String, withInitialValues initialValues: [String: AnyObject]?, URLSession: NSURLSession? = nil, completionBlock: ((error: ErrorType?, managedObject: NSManagedObject?) -> Void)) -> NSURLSessionDataTask {
         
         let entity = self.managedObjectModel.entitiesByName[name]! as NSEntityDescription
         
@@ -368,7 +337,7 @@ public class Store {
             
             var managedObject: NSManagedObject?
             
-            var error: NSError?
+            var error: ErrorType?
             
             self.privateQueueManagedObjectContext.performBlockAndWait({ () -> Void in
                 
@@ -388,11 +357,11 @@ public class Store {
                 self.didCacheManagedObject(managedObject!)
                 
                 // save
-                var saveError: NSError?
+                var saveError: ErrorType?
                 
                 do {
                     try self.privateQueueManagedObjectContext.save()
-                } catch var error1 as NSError {
+                } catch var error1 as ErrorType {
                     saveError = error1
                     
                     error = saveError
@@ -423,7 +392,7 @@ public class Store {
         })
     }
     
-    public func editManagedObject(managedObject: NSManagedObject, changes: [String: AnyObject], URLSession: NSURLSession? = nil, completionBlock: ((error: NSError?) -> Void)) -> NSURLSessionDataTask {
+    public func editManagedObject(managedObject: NSManagedObject, changes: [String: AnyObject], URLSession: NSURLSession? = nil, completionBlock: ((error: ErrorType?) -> Void)) -> NSURLSessionDataTask {
         
         // convert new values to JSON
         let jsonValues = managedObject.entity.JSONObjectFromCoreDataValues(changes, usingResourceIDAttributeName: self.resourceIDAttributeName)
@@ -440,7 +409,7 @@ public class Store {
                 return
             }
             
-            var error: NSError?
+            var error: ErrorType?
             
             self.privateQueueManagedObjectContext.performBlockAndWait({ () -> Void in
                 
@@ -454,11 +423,11 @@ public class Store {
                 self.didCacheManagedObject(contextResource)
                 
                 // save
-                var saveError: NSError?
+                var saveError: ErrorType?
                 
                 do {
                     try self.privateQueueManagedObjectContext.save()
-                } catch var error1 as NSError {
+                } catch var error1 as ErrorType {
                     saveError = error1
                     
                     error = saveError
@@ -474,7 +443,7 @@ public class Store {
         })
     }
     
-    public func deleteManagedObject(managedObject: NSManagedObject, URLSession: NSURLSession? = nil, completionBlock: ((error: NSError?) -> Void)) -> NSURLSessionDataTask {
+    public func deleteManagedObject(managedObject: NSManagedObject, URLSession: NSURLSession? = nil, completionBlock: ((error: ErrorType?) -> Void)) -> NSURLSessionDataTask {
         
         // get resourceID
         let resourceID = managedObject.valueForKey(self.resourceIDAttributeName) as! UInt
@@ -488,7 +457,7 @@ public class Store {
                 return
             }
             
-            var error: NSError?
+            var error: ErrorType?
             
             self.privateQueueManagedObjectContext.performBlockAndWait({ () -> Void in
                 
@@ -499,11 +468,11 @@ public class Store {
                 self.privateQueueManagedObjectContext.deleteObject(contextResource)
                 
                 // save
-                var saveError: NSError?
+                var saveError: ErrorType?
                 
                 do {
                     try self.privateQueueManagedObjectContext.save()
-                } catch var error1 as NSError {
+                } catch var error1 as ErrorType {
                     saveError = error1
                     
                     error = saveError
@@ -519,7 +488,7 @@ public class Store {
         })
     }
     
-    public func performFunction(function functionName: String, forManagedObject managedObject: NSManagedObject, withJSONObject JSONObject: [String: AnyObject]?, URLSession: NSURLSession? = nil, completionBlock: ((error: NSError?, functionCode: ServerFunctionCode?, JSONResponse: [String: AnyObject]?) -> Void)) -> NSURLSessionDataTask {
+    public func performFunction(function functionName: String, forManagedObject managedObject: NSManagedObject, withJSONObject JSONObject: [String: AnyObject]?, URLSession: NSURLSession? = nil, completionBlock: ((error: ErrorType?, functionCode: ServerFunctionCode?, JSONResponse: [String: AnyObject]?) -> Void)) -> NSURLSessionDataTask {
         
         // get resourceID
         let resourceID = managedObject.valueForKey(self.resourceIDAttributeName) as! UInt
@@ -655,7 +624,7 @@ public class Store {
     // The API private methods separate the JSON validation and HTTP requests from Core Data caching.
     
     /** Makes the actual search request to the server based on JSON input. */
-    private func searchForResource(entity: NSEntityDescription, withParameters parameters:[String: AnyObject], URLSession: NSURLSession, completionBlock: ((error: NSError?, results: [[String: UInt]]?) -> Void)) -> NSURLSessionDataTask {
+    private func searchForResource(entity: NSEntityDescription, withParameters parameters:[String: AnyObject], URLSession: NSURLSession, completionBlock: ((error: ErrorType?, results: [[String: UInt]]?) -> Void)) -> NSURLSessionDataTask {
         
         // build URL
         
@@ -687,7 +656,7 @@ public class Store {
                         let comment = "Description for ErrorCode.\(errorCode!.rawValue) for Search Request"
                         let key = "ErrorCode.\(errorCode!.rawValue).LocalizedDescription.Search"
                         
-                        let customError = NSError(domain: NetworkObjectsErrorDomain, code: errorCode!.rawValue, userInfo: [NSLocalizedDescriptionKey: NSLocalizedString(key, tableName: tableName, bundle: frameworkBundle!, value: "Permission to perform search is denied", comment: comment)])
+                        let customError = ErrorType(domain: NetworkObjectsErrorDomain, code: errorCode!.rawValue, userInfo: [NSLocalizedDescriptionKey: NSLocalizedString(key, tableName: tableName, bundle: frameworkBundle!, value: "Permission to perform search is denied", comment: comment)])
                         
                         completionBlock(error: customError, results: nil)
                         
@@ -737,7 +706,7 @@ public class Store {
         return dataTask
     }
     
-    private func createResource(entity: NSEntityDescription, withInitialValues initialValues: [String: AnyObject]?, URLSession: NSURLSession, completionBlock: ((error: NSError?, resourceID: UInt?) -> Void)) -> NSURLSessionDataTask {
+    private func createResource(entity: NSEntityDescription, withInitialValues initialValues: [String: AnyObject]?, URLSession: NSURLSession, completionBlock: ((error: ErrorType?, resourceID: UInt?) -> Void)) -> NSURLSessionDataTask {
         
         // build URL
         
@@ -775,7 +744,7 @@ public class Store {
                         let comment = "Description for ErrorCode.\(errorCode!.rawValue) for \(method) Request"
                         let key = "ErrorCode.\(errorCode!.rawValue).LocalizedDescription.\(method)"
                         
-                        let customError = NSError(domain: NetworkObjectsErrorDomain, code: errorCode!.rawValue, userInfo: [NSLocalizedDescriptionKey: NSLocalizedString(key, tableName: tableName, bundle: frameworkBundle!, value: value, comment: comment)])
+                        let customError = ErrorType(domain: NetworkObjectsErrorDomain, code: errorCode!.rawValue, userInfo: [NSLocalizedDescriptionKey: NSLocalizedString(key, tableName: tableName, bundle: frameworkBundle!, value: value, comment: comment)])
                         
                         completionBlock(error: customError, resourceID: nil)
                         
@@ -826,7 +795,7 @@ public class Store {
         return dataTask
     }
     
-    private func getResource(entity: NSEntityDescription, withID resourceID: UInt, URLSession: NSURLSession, completionBlock: ((error: NSError?, resource: [String: AnyObject]?) -> Void)) -> NSURLSessionDataTask {
+    private func getResource(entity: NSEntityDescription, withID resourceID: UInt, URLSession: NSURLSession, completionBlock: ((error: ErrorType?, resource: [String: AnyObject]?) -> Void)) -> NSURLSessionDataTask {
         
         // build URL
         
@@ -859,7 +828,7 @@ public class Store {
                         let key = "ErrorCode.\(errorCode!.rawValue).LocalizedDescription.GET"
                         let value = "Access to resource is denied"
                         
-                        let customError = NSError(domain: NetworkObjectsErrorDomain, code: errorCode!.rawValue, userInfo: [NSLocalizedDescriptionKey: NSLocalizedString(key, tableName: tableName, bundle: frameworkBundle!, value: value, comment: comment)])
+                        let customError = ErrorType(domain: NetworkObjectsErrorDomain, code: errorCode!.rawValue, userInfo: [NSLocalizedDescriptionKey: NSLocalizedString(key, tableName: tableName, bundle: frameworkBundle!, value: value, comment: comment)])
                         
                         completionBlock(error: customError, resource: nil)
                         
@@ -906,7 +875,7 @@ public class Store {
         return dataTask
     }
     
-    private func editResource(entity: NSEntityDescription, withID resourceID: UInt, changes: [String: AnyObject], URLSession: NSURLSession, completionBlock: ((error: NSError?) -> Void)) -> NSURLSessionDataTask {
+    private func editResource(entity: NSEntityDescription, withID resourceID: UInt, changes: [String: AnyObject], URLSession: NSURLSession, completionBlock: ((error: ErrorType?) -> Void)) -> NSURLSessionDataTask {
         
         // build URL
         
@@ -940,7 +909,7 @@ public class Store {
                         let comment = "Description for ErrorCode.\(errorCode!.rawValue) for \(method) Request"
                         let key = "ErrorCode.\(errorCode!.rawValue).LocalizedDescription.\(method)"
                         
-                        let customError = NSError(domain: NetworkObjectsErrorDomain, code: errorCode!.rawValue, userInfo: [NSLocalizedDescriptionKey: NSLocalizedString(key, tableName: tableName, bundle: frameworkBundle!, value: value, comment: comment)])
+                        let customError = ErrorType(domain: NetworkObjectsErrorDomain, code: errorCode!.rawValue, userInfo: [NSLocalizedDescriptionKey: NSLocalizedString(key, tableName: tableName, bundle: frameworkBundle!, value: value, comment: comment)])
                         
                         completionBlock(error: customError)
                         
@@ -967,7 +936,7 @@ public class Store {
         return dataTask
     }
     
-    private func deleteResource(entity: NSEntityDescription, withID resourceID: UInt, URLSession: NSURLSession, completionBlock: ((error: NSError?) -> Void)) -> NSURLSessionDataTask {
+    private func deleteResource(entity: NSEntityDescription, withID resourceID: UInt, URLSession: NSURLSession, completionBlock: ((error: ErrorType?) -> Void)) -> NSURLSessionDataTask {
         
         // build URL
         
@@ -1001,7 +970,7 @@ public class Store {
                         let comment = "Description for ErrorCode.\(errorCode!.rawValue) for \(method) Request"
                         let key = "ErrorCode.\(errorCode!.rawValue).LocalizedDescription.\(method)"
                         
-                        let customError = NSError(domain: NetworkObjectsErrorDomain, code: errorCode!.rawValue, userInfo: [NSLocalizedDescriptionKey: NSLocalizedString(key, tableName: tableName, bundle: frameworkBundle!, value: value, comment: comment)])
+                        let customError = ErrorType(domain: NetworkObjectsErrorDomain, code: errorCode!.rawValue, userInfo: [NSLocalizedDescriptionKey: NSLocalizedString(key, tableName: tableName, bundle: frameworkBundle!, value: value, comment: comment)])
                         
                         completionBlock(error: customError)
                         
@@ -1028,7 +997,7 @@ public class Store {
         return dataTask
     }
     
-    private func performFunction(functionName: String, onResource entity: NSEntityDescription, withID resourceID: UInt, withJSONObject JSONObject: [String: AnyObject]?, URLSession: NSURLSession, completionBlock: ((error: NSError?, functionCode: ServerFunctionCode?, JSONResponse: [String: AnyObject]?) -> Void)) -> NSURLSessionDataTask {
+    private func performFunction(functionName: String, onResource entity: NSEntityDescription, withID resourceID: UInt, withJSONObject JSONObject: [String: AnyObject]?, URLSession: NSURLSession, completionBlock: ((error: ErrorType?, functionCode: ServerFunctionCode?, JSONResponse: [String: AnyObject]?) -> Void)) -> NSURLSessionDataTask {
         
         // build URL
         
@@ -1077,7 +1046,7 @@ public class Store {
         }
     }
     
-    private func findEntity(entity: NSEntityDescription, withResourceID resourceID: UInt, context: NSManagedObjectContext) -> (NSManagedObjectID?, NSError?) {
+    private func findEntity(entity: NSEntityDescription, withResourceID resourceID: UInt, context: NSManagedObjectContext) throws -> NSManagedObjectID? {
         
         // get cached resource...
         
@@ -1095,22 +1064,14 @@ public class Store {
         
         // fetch
         
-        let error: NSError?
+        let results = try context.executeFetchRequest(fetchRequest) as! [NSManagedObjectID]
         
-        let results = context.executeFetchRequest(fetchRequest) as? [NSManagedObjectID]
+        let objectID = results.first
         
-        // halt execution if error
-        if error != nil {
-            
-            return (nil, error)
-        }
-        
-        let objectID = results?.first
-        
-        return (objectID, nil)
+        return objectID
     }
     
-    private func findOrCreateEntity(entity: NSEntityDescription, withResourceID resourceID: UInt, context: NSManagedObjectContext) -> (NSManagedObject?, NSError?) {
+    private func findOrCreateEntity(entity: NSEntityDescription, withResourceID resourceID: UInt, context: NSManagedObjectContext) throws -> NSManagedObject {
         
         // get cached resource...
         
@@ -1128,17 +1089,9 @@ public class Store {
         
         // fetch
         
-        let error: NSError?
+        let results = try context.executeFetchRequest(fetchRequest) as! [NSManagedObject]
         
-        let results = context.executeFetchRequest(fetchRequest) as? [NSManagedObject]
-        
-        // halt execution if error
-        if error != nil {
-            
-            return (nil, error!)
-        }
-        
-        var resource = results?.first
+        var resource = results.first
         
         // create cached resource if not found
         
@@ -1146,17 +1099,17 @@ public class Store {
             
             // create a new entity
             
-            resource = NSEntityDescription.insertNewObjectForEntityForName(entity.name!, inManagedObjectContext: context) as? NSManagedObject
+            resource = NSEntityDescription.insertNewObjectForEntityForName(entity.name!, inManagedObjectContext: context)
             
             // set resource ID
             
-            resource?.setValue(resourceID, forKey: self.resourceIDAttributeName)
+            resource!.setValue(resourceID, forKey: self.resourceIDAttributeName)
         }
         
-        return (resource!, nil)
+        return resource!
     }
     
-    private func setJSONObject(JSONObject: [String: AnyObject], forManagedObject managedObject: NSManagedObject, context: NSManagedObjectContext) -> NSError? {
+    private func setJSONObject(JSONObject: [String: AnyObject], forManagedObject managedObject: NSManagedObject, context: NSManagedObjectContext) -> ErrorType? {
         
         // set values...
         
