@@ -91,19 +91,22 @@ public class Server {
                 
                 let searchRequestHandler: RequestHandler = { (request: RouteRequest!, response: RouteResponse!) -> Void in
                     
-                    let searchParameters = NSJSONSerialization.JSONObjectWithData(request.body(), options: NSJSONReadingOptions()) as? [String: AnyObject]
+                    let searchParameters: [String: AnyObject]
                     
-                    let serverRequest = ServerRequest(requestType: ServerRequestType.Search,
-                        connectionType: ServerConnectionType.HTTP,
-                        entity: entity,
-                        underlyingRequest: request,
-                        resourceID: nil,
-                        JSONObject: searchParameters,
-                        functionName: nil,
-                        headers: request.headers as! [String: String])
-                    
-                    // seach requests require HTTP body
-                    if searchParameters == nil {
+                    do {
+                        
+                        searchParameters = try NSJSONSerialization.JSONObjectWithData(request.body(), options: NSJSONReadingOptions()) as! [String: AnyObject]
+                    }
+                    catch {
+                        
+                        let serverRequest = ServerRequest(requestType: ServerRequestType.Search,
+                            connectionType: ServerConnectionType.HTTP,
+                            entity: entity,
+                            underlyingRequest: request,
+                            resourceID: nil,
+                            JSONObject: nil,
+                            functionName: nil,
+                            headers: request.headers as! [String: String])
                         
                         // return BadRequest
                         response.statusCode = ServerStatusCode.BadRequest.rawValue
@@ -113,9 +116,17 @@ public class Server {
                         
                         return
                     }
+
+                    let serverRequest = ServerRequest(requestType: ServerRequestType.Search,
+                        connectionType: ServerConnectionType.HTTP,
+                        entity: entity,
+                        underlyingRequest: request,
+                        resourceID: nil,
+                        JSONObject: searchParameters,
+                        functionName: nil,
+                        headers: request.headers as! [String: String])
                     
                     // create server request
-                    
                     let (serverResponse, userInfo) = self.responseForSearchRequest(serverRequest)
                     
                     // return error
@@ -132,12 +143,7 @@ public class Server {
                     
                     // respond with data
                     
-                let jsonData: NSData?
-                    do {
-                        jsonData = try NSJSONSerialization.dataWithJSONObject(serverResponse.JSONResponse!, options: self.jsonWritingOption())
-                    } catch _ {
-                        jsonData = nil
-                    }
+                    let jsonData: NSData = try! NSJSONSerialization.dataWithJSONObject(serverResponse.JSONResponse!, options: self.jsonWritingOption())
                     
                     response.respondWithData(jsonData)
                     
@@ -164,7 +170,13 @@ public class Server {
                 
                 // get initial values
                 
-                let jsonObject = NSJSONSerialization.JSONObjectWithData(request.body(), options: NSJSONReadingOptions()) as? [String: AnyObject]
+                let jsonObject: [String: AnyObject]
+                
+                do {
+                    
+                    jsonObject = try NSJSONSerialization.JSONObjectWithData(request.body(), options: NSJSONReadingOptions()) as! [String: AnyObject]
+                }
+                catch { }
                 
                 // convert to server request
                 let serverRequest = ServerRequest(requestType: ServerRequestType.POST,
@@ -219,7 +231,14 @@ public class Server {
                 
                 // get json body
                 
-                let jsonObject = NSJSONSerialization.JSONObjectWithData(request.body(), options: NSJSONReadingOptions()) as? [String: AnyObject]
+                let jsonObject: [String: AnyObject]?
+                
+                do {
+                    
+                    try NSJSONSerialization.JSONObjectWithData(request.body(), options: NSJSONReadingOptions()) as! [String: AnyObject]
+                }
+                catch { }
+                
                 
                 // GET
                 if request.method() == "GET" {
@@ -389,14 +408,11 @@ public class Server {
                     
                     // get json body
                     
-                let jsonBody: AnyObject?
-                    do {
-                        jsonBody = try NSJSONSerialization.JSONObjectWithData(request.body(), options: NSJSONReadingOptions())
-                    } catch _ {
-                        jsonBody = nil
-                    }
+                    let jsonObject: [String: AnyObject]?
                     
-                    let jsonObject = jsonBody as? [String: AnyObject]
+                    do {
+                        jsonObject = try NSJSONSerialization.JSONObjectWithData(request.body(), options: NSJSONReadingOptions()) as? [String: AnyObject]
+                    } catch _ { }
                     
                     // convert to server request
                     let serverRequest = ServerRequest(requestType: ServerRequestType.Function,
@@ -409,7 +425,7 @@ public class Server {
                         headers: request.headers as! [String: String])
                     
                     // invalid json body
-                    if jsonObject == nil && jsonBody != nil {
+                    if jsonObject == nil {
                         
                         response.statusCode = ServerStatusCode.BadRequest.rawValue
                         
@@ -431,7 +447,7 @@ public class Server {
                         let jsonData: NSData?
                         do {
                             jsonData = try NSJSONSerialization.dataWithJSONObject(serverResponse.JSONResponse!, options: self.jsonWritingOption())
-                        } catch var error1 as NSError {
+                        } catch let error1 as NSError {
                             error = error1
                             jsonData = nil
                         } catch {
@@ -472,29 +488,11 @@ public class Server {
     // MARK: - Server Control
     
     /** Starts broadcasting the server. */
-    public func start(onPort port: UInt) -> NSError? {
-        
-        var error: NSError?
+    public func start(onPort port: UInt) throws {
         
         self.httpServer.setPort(UInt16(port))
         
-        let success: Bool
-        do {
-            try self.httpServer.start()
-            success = true
-        } catch var error1 as NSError {
-            error = error1
-            success = false
-        }
-        
-        if !success {
-            
-            return error
-        }
-        else {
-            
-            return nil
-        }
+        try self.httpServer.start()
     }
     
     /** Stops broadcasting the server. */
@@ -524,21 +522,17 @@ public class Server {
         
         // create fetch request from JSON
         
-        var parseFetchRequestError: NSError?
-        
         let fetchRequest: NSFetchRequest?
+        
         do {
             fetchRequest = try NSFetchRequest(JSONObject: searchParameters, entity: entity, managedObjectContext: context, resourceIDAttributeName: self.resourceIDAttributeName)
-        } catch var error as NSError {
-            parseFetchRequestError = error
-            fetchRequest = nil
         }
         
         // if error parsing (e.g. fetching an embedded entity in a comaprison predicate)
-        if parseFetchRequestError != nil {
+        catch let parseFetchRequestError {
             
-            // tell delegate
-            self.delegate?.server(self, didEncounterInternalError: parseFetchRequestError!, forRequest: request, userInfo: userInfo)
+            // tell delegatex
+            self.delegate?.server(self, didEncounterInternalError: parseFetchRequestError, forRequest: request, userInfo: userInfo)
             
             let response = ServerResponse(statusCode: ServerStatusCode.InternalServerError, JSONResponse: nil)
             
@@ -608,13 +602,20 @@ public class Server {
         }
         
         // execute fetch request...
-        let fetchError: NSError?
+        var fetchError: ErrorType?
         
         var results: [NSManagedObject]?
         
         context.performBlockAndWait { () -> Void in
             
-            results = context.executeFetchRequest(fetchRequest!) as? [NSManagedObject]
+            do {
+                
+                results = try context.executeFetchRequest(fetchRequest!) as? [NSManagedObject]
+            }
+            catch {
+                
+                fetchError = error
+            }
         }
         
         // invalid fetch
@@ -635,7 +636,7 @@ public class Server {
             
             for managedObject in results! {
                 
-                let resourceID = managedObject.valueForKey(self.resourceIDAttributeName, managedObjectContext: context) as! UInt
+                // let resourceID = managedObject.valueForKey(self.resourceIDAttributeName, managedObjectContext: context) as! UInt
                 
                 // permission to view resource (must have at least readonly access)
                 if self.delegate!.server(self, permissionForRequest: request, managedObject: managedObject, context: context, key: nil, userInfo: &userInfo).rawValue >= ServerPermission.ReadOnly.rawValue {
@@ -826,13 +827,13 @@ public class Server {
         }
         
         // save
-        var saveError: NSError?
+        var saveError: ErrorType?
         
         context.performBlockAndWait { () -> Void in
             
             do {
                 try context.save()
-            } catch let error as NSError {
+            } catch {
                 saveError = error
             }
             
@@ -872,12 +873,15 @@ public class Server {
         userInfo[ServerUserInfoKey.ManagedObjectContext.rawValue] = context
         
         // fetch managedObject
-        let (managedObject, error) = FetchEntity(entity, withResourceID: resourceID!, usingContext: context,  resourceIDAttributeName: self.resourceIDAttributeName ,shouldPrefetch: true)
+        let managedObject: NSManagedObject?
         
-        // internal error
-        if error != nil {
+        do {
             
-            self.delegate?.server(self, didEncounterInternalError: error!, forRequest: request, userInfo: userInfo)
+           managedObject = try FetchEntity(entity, withResourceID: resourceID!, usingContext: context,  resourceIDAttributeName: self.resourceIDAttributeName, shouldPrefetch: true)
+        }
+        catch {
+            
+            self.delegate?.server(self, didEncounterInternalError: error, forRequest: request, userInfo: userInfo)
             
             let response = ServerResponse(statusCode: ServerStatusCode.InternalServerError, JSONResponse: nil)
             
@@ -953,12 +957,14 @@ public class Server {
         userInfo[ServerUserInfoKey.ManagedObjectContext.rawValue] = context
         
         // fetch managedObject
-        let (managedObject, error) = FetchEntity(entity, withResourceID: resourceID!, usingContext: context, resourceIDAttributeName: self.resourceIDAttributeName, shouldPrefetch: true)
+        let managedObject: NSManagedObject?
         
-        // internal error
-        if error != nil {
+        do {
+            managedObject = try FetchEntity(entity, withResourceID: resourceID!, usingContext: context, resourceIDAttributeName: self.resourceIDAttributeName, shouldPrefetch: true)
+        }
+        catch {
             
-            self.delegate?.server(self, didEncounterInternalError: error!, forRequest: request, userInfo: userInfo)
+            self.delegate?.server(self, didEncounterInternalError: error, forRequest: request, userInfo: userInfo)
             
             let response = ServerResponse(statusCode: ServerStatusCode.InternalServerError, JSONResponse: nil)
             
@@ -1036,11 +1042,18 @@ public class Server {
         
         // perform Core Data validation (to make sure there will be no errors saving)
         
-        var validCoreData: Bool = false
+        var validCoreData: Bool = true
         
         context.performBlockAndWait({ () -> Void in
             
-            validCoreData = managedObject!.validateForUpdate()
+            do {
+                
+                try managedObject!.validateForUpdate()
+            }
+            catch _ {
+                
+                validCoreData = false
+            }
         })
         
         // invalid (e.g. non-optional property is nil)
@@ -1052,16 +1065,15 @@ public class Server {
         }
         
         // save
-        var saveError: NSError?
+        var saveError: ErrorType?
         
         context.performBlockAndWait({ () -> Void in
             
             do {
                 try context.save()
-            } catch var error as NSError {
-                saveError = error
+                
             } catch {
-                fatalError()
+                saveError = error
             }
             
             return
@@ -1096,12 +1108,14 @@ public class Server {
         userInfo[ServerUserInfoKey.ManagedObjectContext.rawValue] = context
         
         // fetch managedObject
-        let (managedObject, error) = FetchEntity(entity, withResourceID: resourceID!, usingContext: context,  resourceIDAttributeName: self.resourceIDAttributeName, shouldPrefetch: true)
+        let managedObject: NSManagedObject?
         
-        // internal error
-        if error != nil {
+        do {
+            managedObject = try FetchEntity(entity, withResourceID: resourceID!, usingContext: context, resourceIDAttributeName: self.resourceIDAttributeName, shouldPrefetch: true)
+        }
+        catch {
             
-            self.delegate?.server(self, didEncounterInternalError: error!, forRequest: request, userInfo: userInfo)
+            self.delegate?.server(self, didEncounterInternalError: error, forRequest: request, userInfo: userInfo)
             
             let response = ServerResponse(statusCode: ServerStatusCode.InternalServerError, JSONResponse: nil)
             
@@ -1172,7 +1186,7 @@ public class Server {
         // delete...
         
         // save
-        var saveError: NSError?
+        var saveError: ErrorType?
         
         context.performBlockAndWait { () -> Void in
             
@@ -1180,10 +1194,9 @@ public class Server {
             
             do {
                 try context.save()
-            } catch var error as NSError {
-                saveError = error
+                
             } catch {
-                fatalError()
+                saveError = error
             }
             
             return
@@ -1218,12 +1231,14 @@ public class Server {
         userInfo[ServerUserInfoKey.ManagedObjectContext.rawValue] = context
         
         // fetch managedObject
-        let (managedObject, error) = FetchEntity(entity, withResourceID: resourceID!, usingContext: context, resourceIDAttributeName: self.resourceIDAttributeName, shouldPrefetch: true)
+        let managedObject: NSManagedObject?
         
-        // internal error
-        if error != nil {
+        do {
+            managedObject = try FetchEntity(entity, withResourceID: resourceID!, usingContext: context, resourceIDAttributeName: self.resourceIDAttributeName, shouldPrefetch: true)
+        }
+        catch {
             
-            self.delegate?.server(self, didEncounterInternalError: error!, forRequest: request, userInfo: userInfo)
+            self.delegate?.server(self, didEncounterInternalError: error, forRequest: request, userInfo: userInfo)
             
             let response = ServerResponse(statusCode: ServerStatusCode.InternalServerError, JSONResponse: nil)
             
@@ -1490,7 +1505,7 @@ public class Server {
                 }
                 
                 // get pre-edit value
-                let (newValue: AnyObject, valid) = resource.entity.attributeValueForJSONCompatibleValue(jsonValue, forAttribute: key)
+                let (newValue, valid) = resource.entity.attributeValueForJSONCompatibleValue(jsonValue, forAttribute: key)
                 
                 if !valid {
                     
@@ -1500,7 +1515,7 @@ public class Server {
                 // let the managed object verify that the new attribute value is a valid new value
                 
                 // pointer
-                var newValuePointer: AnyObject? = newValue as AnyObject?
+                var newValuePointer = newValue
                 
                 do {
                     try resource.validateValue(&newValuePointer, forKey: key)
@@ -1548,7 +1563,7 @@ public class Server {
                     
                     let destinationResourceID = destinationResourceDictionary!.values.first!
                     
-                    let destinationEntity = self.managedObjectModel.entitiesByName[destinationResourceEntityName] as? NSEntityDescription
+                    let destinationEntity = self.managedObjectModel.entitiesByName[destinationResourceEntityName]
                     
                     // verify that entity is subentity
                     if (destinationEntity == nil) || !(destinationEntity?.isKindOfEntity(relationship!.destinationEntity!) ?? true) {
@@ -1556,9 +1571,13 @@ public class Server {
                         return ServerStatusCode.BadRequest
                     }
                     
-                    let (newValue, error) = FetchEntity(destinationEntity!, withResourceID: destinationResourceID, usingContext: context, resourceIDAttributeName: self.resourceIDAttributeName, shouldPrefetch: false)
+                    let newValue: NSManagedObject?
                     
-                    if error != nil {
+                    do {
+                        
+                        newValue = try FetchEntity(destinationEntity!, withResourceID: destinationResourceID, usingContext: context, resourceIDAttributeName: self.resourceIDAttributeName, shouldPrefetch: false)
+                    }
+                    catch _ {
                         
                         return ServerStatusCode.InternalServerError
                     }
@@ -1620,7 +1639,7 @@ public class Server {
                         
                         let destinationResourceID = destinationResourceDictionary.values.first!
                         
-                        let destinationEntity = self.managedObjectModel.entitiesByName[destinationResourceEntityName] as? NSEntityDescription
+                        let destinationEntity = self.managedObjectModel.entitiesByName[destinationResourceEntityName]
                         
                         // verify that entity is subentity
                         if (destinationEntity == nil) || !(destinationEntity?.isKindOfEntity(relationship!.destinationEntity!) ?? true) {
@@ -1628,9 +1647,13 @@ public class Server {
                             return ServerStatusCode.BadRequest
                         }
                         
-                        let (newValue, error) = FetchEntity(destinationEntity!, withResourceID: destinationResourceID, usingContext: context, resourceIDAttributeName: self.resourceIDAttributeName, shouldPrefetch: false)
+                        let newValue: NSManagedObject?
                         
-                        if error != nil {
+                        do {
+                            
+                            newValue = try FetchEntity(destinationEntity!, withResourceID: destinationResourceID, usingContext: context, resourceIDAttributeName: self.resourceIDAttributeName, shouldPrefetch: false)
+                        }
+                        catch _ {
                             
                             return ServerStatusCode.InternalServerError
                         }
@@ -1806,7 +1829,7 @@ public protocol ServerDelegate {
     func server(server: Server, didPerformRequest request: ServerRequest, withResponse response: ServerResponse, userInfo: [String: AnyObject])
     
     /** Notifies the delegate that an internal error ocurred (e.g. could not serialize a JSON object). */
-    func server(server: Server, didEncounterInternalError error: NSError, forRequest request: ServerRequest, userInfo: [String: AnyObject])
+    func server(server: Server, didEncounterInternalError error: ErrorType, forRequest request: ServerRequest, userInfo: [String: AnyObject])
 }
 
 // MARK: - Internal Extensions
@@ -1816,7 +1839,7 @@ internal extension NSManagedObjectModel {
     func addResourceIDAttribute(resourceIDAttributeName: String) {
         
         // add a resourceID attribute to managed object model
-        for (entityName, entity) in self.entitiesByName as [String: NSEntityDescription] {
+        for (_, entity) in self.entitiesByName as [String: NSEntityDescription] {
             
             if entity.superentity == nil {
                 
@@ -1835,7 +1858,7 @@ internal extension NSManagedObjectModel {
 
 // MARK: - Internal Functions
 
-internal func FetchEntity(entity: NSEntityDescription, withResourceID resourceID: UInt, usingContext context: NSManagedObjectContext, resourceIDAttributeName: String, shouldPrefetch: Bool) -> (NSManagedObject?, NSError?) {
+internal func FetchEntity(entity: NSEntityDescription, withResourceID resourceID: UInt, usingContext context: NSManagedObjectContext, resourceIDAttributeName: String, shouldPrefetch: Bool) throws -> NSManagedObject? {
     
     let fetchRequest = NSFetchRequest(entityName: entity.name!)
     
@@ -1854,44 +1877,26 @@ internal func FetchEntity(entity: NSEntityDescription, withResourceID resourceID
         fetchRequest.includesPropertyValues = false
     }
     
-    let error: NSError?
+    var fetchError: ErrorType?
     
     var result: [NSManagedObject]?
     
     context.performBlockAndWait { () -> Void in
         
-        result = context.executeFetchRequest(fetchRequest) as? [NSManagedObject]
+        do {
+            
+            result = try context.executeFetchRequest(fetchRequest) as? [NSManagedObject]
+        }
+        catch  {
+            
+            fetchError = error
+        }
     }
     
-    return (result?.first, error)
+    if fetchError != nil {
+        
+        throw fetchError!
+    }
+    
+    return result?.first
 }
-
-internal func FetchEntity(entity: NSEntityDescription, withResourceIDs resourceIDs: [UInt], usingContext context: NSManagedObjectContext, resourceIDAttributeName: String, shouldPrefetch: Bool) -> ([NSManagedObject]?, NSError?) {
-    
-    let fetchRequest = NSFetchRequest(entityName: entity.name!)
-    
-    fetchRequest.fetchLimit = resourceIDs.count
-    
-    fetchRequest.predicate = NSComparisonPredicate(leftExpression: NSExpression(forKeyPath: resourceIDAttributeName), rightExpression: NSExpression(forConstantValue: resourceIDs), modifier: NSComparisonPredicateModifier.DirectPredicateModifier, type: NSPredicateOperatorType.InPredicateOperatorType, options: NSComparisonPredicateOptions.NormalizedPredicateOption)
-    
-    if shouldPrefetch {
-        
-        fetchRequest.returnsObjectsAsFaults = false
-    }
-    else {
-        
-        fetchRequest.includesPropertyValues = false
-    }
-    
-    let error: NSError?
-    
-    var result: [NSManagedObject]?
-    
-    context.performBlockAndWait { () -> Void in
-        
-        result = context.executeFetchRequest(fetchRequest) as? [NSManagedObject]
-    }
-    
-    return (result, error)
-}
-
