@@ -1,13 +1,13 @@
 //
-//  ServerPermission.swift
+//  AccessControl.swift
 //  NetworkObjects
 //
 //  Created by Alsey Coleman Miller on 6/24/15.
 //  Copyright © 2015 ColemanCDA. All rights reserved.
 //
 
-/** Server Access Control level */
-public enum ServerPermission: Int {
+/** Access Control level */
+public enum AccessControl: Int {
     
     /**  No access permission */
     case NoAccess = 0

@@ -118,15 +118,19 @@ public class Store {
         
         let searchParameters = fetchRequest.toJSON(self.managedObjectContext, resourceIDAttributeName: self.resourceIDAttributeName)
         
-        let request = self.requestForSearchEntity(entityName, withParameters: searchParameters)
+        let request = self.requestForSearchEntity(entity.name!, withParameters: searchParameters)
         
         let session = URLSession ?? self.defaultURLSession
         
-        return session.dataTaskWithRequest(request, completionHandler: { (data: NSData?, response: NSURLResponse?, taskError: NSError?) -> Void in
+        let dataTask = session.dataTaskWithRequest(request, completionHandler: { (data: NSData?, response: NSURLResponse?, taskError: NSError?) -> Void in
+            
+            let searchResponse: [T]
             
             do {
                 
-                try self.validateSearchResponse((data, response, taskError))
+                let jsonResponse = try self.validateSearchResponse((data, response, taskError))
+                
+                searchResponse = try self.cacheSearchResponse(jsonResponse)
             }
             catch {
                 
@@ -134,10 +138,16 @@ public class Store {
                 return
             }
             
-            
-            
-        })
+            completionBlock(ErrorValue.Value(searchResponse))
+        })!
         
+        dataTask.resume()
+        
+        return dataTask
+    }
+    
+    
+    {
         // call API method
         
         return self.searchForResource(entity, withParameters: searchParameters, URLSession: URLSession ?? self.defaultURLSession, completionBlock: { (httpError, results) -> Void in
@@ -539,13 +549,9 @@ public class Store {
         
         let urlRequest = NSMutableURLRequest(URL: searchURL)
         
-        urlRequest.HTTPMethod = "POST"
+        urlRequest.HTTPMethod = RequestType.Search.HTTPMethod
         
-        // add JSON data
-        
-        let jsonData = try! NSJSONSerialization.dataWithJSONObject(parameters, options: self.jsonWritingOption())
-        
-        urlRequest.HTTPBody = jsonData
+        urlRequest.HTTPBody = NSData(JSON: parameters, prettyPrintJSON: self.prettyPrintJSON)
         
         return urlRequest
     }
@@ -558,7 +564,7 @@ public class Store {
         
         let request = NSMutableURLRequest(URL: createResourceURL)
         
-        request.HTTPMethod = "POST"
+        request.HTTPMethod = RequestType.Create.HTTPMethod
         
         // add initial values to request
         if initialValues != nil {
@@ -608,23 +614,13 @@ public class Store {
         // add HTTP body
         if JSONObject != nil {
             
-            request.HTTPBody = try! NSJSONSerialization.dataWithJSONObject(JSONObject!, options: self.jsonWritingOption())
+            request.HTTPBody = try! NSJSONSerialization.dataWithJSONObject(JSONObject!, options: NSJSONWritingOptions(prettyPrint: self.prettyPrintJSON)
         }
         
         return request
     }
     
-    // MARK: Notifications
-    
-    @objc private func mergeChangesFromContextDidSaveNotification(notification: NSNotification) {
-        
-        self.managedObjectContext.performBlock { () -> Void in
-            
-            self.managedObjectContext.mergeChangesFromContextDidSaveNotification(notification)
-        }
-    }
-    
-    // MARK: Response Validation
+    // MARK: - Response Parsing
     
     // The API private methods separate the JSON validation and HTTP requests from Core Data caching.
     
@@ -645,26 +641,24 @@ public class Store {
             throw StoreError.InvalidServerResponse
         }
         
-        guard let statusCode = ServerStatusCode(rawValue: httpResponse.statusCode) else {
+        guard let statusCode = StatusCode(rawValue: httpResponse.statusCode) else {
             
-            throw StoreError.UnknownServerStatusCode(httpResponse.statusCode)
+            throw StoreError.UnknownStatusCode(httpResponse.statusCode)
         }
         
-        guard (statusCode.toErrorStatusCode() == nil) else {
+        let errorStatusCode = statusCode.toErrorStatusCode()
+        
+        guard (errorStatusCode == nil) else {
             
-            throw StoreError.ErrorStatusCode(statusCode.toErrorStatusCode()!)
+            throw StoreError.ErrorStatusCode(errorStatusCode!)
         }
     }
     
-    private func validateSearchResponse(response: DataTaskResponse) throws {
+    private func validateSearchResponse(response: DataTaskResponse) throws -> [[String: UInt]] {
         
-        try self.validateSearchResponse(response)
+        try self.validateServerResponse(response)
         
-        let jsonData = response.0
-        
-        // no error status code...
-        
-        guard let jsonResponse = jsonData.toJSON() as? [[String: UInt]] else {
+        guard let jsonData = response.0, let jsonResponse = jsonData.toJSON() as? [[String: UInt]] else {
             
             throw StoreError.InvalidServerResponse
         }
@@ -678,6 +672,7 @@ public class Store {
             }
         }
         
+        return  jsonResponse
     }
     
     private func createResource(entity: NSEntityDescription, withInitialValues initialValues: [String: AnyObject]?, URLSession: NSURLSession, completionBlock: ((error: ErrorType?, resourceID: UInt?) -> Void)) -> NSURLSessionDataTask {
@@ -1007,6 +1002,13 @@ public class Store {
         dataTask.resume()
         
         return dataTask
+    }
+    
+    // MARK: - Cache Response
+    
+    private func cacheSearchResponse<T: NSManagedObject>(response: [[String: UInt]]) throws -> [T] {
+        
+        
     }
     
     // MARK: Cache
@@ -1507,4 +1509,4 @@ private extension NSManagedObject {
     }
 }
 
-private typealias DataTaskResponse = (NSData, NSURLResponse, ErrorType?)
+private typealias DataTaskResponse = (NSData?, NSURLResponse?, ErrorType?)

@@ -1,13 +1,16 @@
 //
-//  ServerErrorStatusCode.swift
+//  StatusCode.swift
 //  NetworkObjects
 //
 //  Created by Alsey Coleman Miller on 6/24/15.
 //  Copyright © 2015 ColemanCDA. All rights reserved.
 //
 
-/** HTTP error code returned from the server. */
-public enum ServerErrorStatusCode: Int {
+/** These HTTP status code returned from NetworkObjects servers. */
+public enum StatusCode: Int {
+    
+    /** OK status code. */
+    case OK = 200
     
     /** Bad request status code. */
     case BadRequest = 400
@@ -15,7 +18,6 @@ public enum ServerErrorStatusCode: Int {
     /** Unauthorized status code. e.g. Used when authentication is required. */
     case Unauthorized = 401
     
-    /** Payment required. */
     case PaymentRequired = 402
     
     /** Forbidden status code. e.g. Used when permission is denied. */
@@ -33,13 +35,8 @@ public enum ServerErrorStatusCode: Int {
     /** Internal Server Error status code. e.g. Used when a JSON cannot be converted to NSData for a HTTP response. */
     case InternalServerError = 500
     
-    public init?(serverStatusCode: ServerStatusCode) {
+    func toErrorStatusCode() -> ErrorStatusCode? {
         
-        guard let errorCode = ServerErrorStatusCode(rawValue: serverStatusCode.rawValue) else {
-            
-            return nil
-        }
-        
-        self = errorCode
+        return ErrorStatusCode(rawValue: self.rawValue)
     }
 }

@@ -29,7 +29,7 @@ public extension NSData {
         }
         catch _ {}
         
-        self.init(data: data)
+        self.init(data: data!)
     }
     
     /** Parses the data as JSON into an array or dictionary. Doesn't throw. */
@@ -49,9 +49,9 @@ public extension NSData {
 
 public extension NSJSONWritingOptions {
     
-    init(prettyPrinted: Bool) {
+    init(prettyPrint: Bool) {
         
-        if prettyPrinted {
+        if prettyPrint {
             
             self = NSJSONWritingOptions.PrettyPrinted
         }

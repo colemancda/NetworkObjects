@@ -1,5 +1,5 @@
 //
-//  ServerFunctionCode.swift
+//  FunctionCode.swift
 //  NetworkObjects
 //
 //  Created by Alsey Coleman Miller on 6/24/15.
@@ -7,7 +7,7 @@
 //
 
 /** Resource Function constants */
-public enum ServerFunctionCode: Int {
+public enum FunctionCode: Int {
     
     /** The function performed successfully */
     case PerformedSuccesfully = 200
@@ -21,8 +21,8 @@ public enum ServerFunctionCode: Int {
     /** There was an internal error while performing the function */
     case InternalErrorPerformingFunction = 500
     
-    func toServerStatusCode() -> ServerStatusCode {
+    func toStatusCode() -> StatusCode {
         
-        return ServerStatusCode(rawValue: self.rawValue)!
+        return StatusCode(rawValue: self.rawValue)!
     }
 }

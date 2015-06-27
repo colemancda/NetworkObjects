@@ -10,10 +10,10 @@
 public enum StoreError: ErrorType {
     
     /** The server returned a status code indicating an error. */
-    case ErrorStatusCode(ServerErrorStatusCode)
+    case ErrorStatusCode(NetworkObjects.ErrorStatusCode)
     
     /** The server returned an invalid status code. */
-    case UnknownServerStatusCode(Int)
+    case UnknownStatusCode(Int)
     
     /** The server returned an invalid response. */
     case InvalidServerResponse

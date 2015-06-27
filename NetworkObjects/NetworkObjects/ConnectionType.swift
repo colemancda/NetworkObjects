@@ -1,5 +1,5 @@
 //
-//  ServerConnectionType.swift
+//  ConnectionType.swift
 //  NetworkObjects
 //
 //  Created by Alsey Coleman Miller on 6/24/15.
@@ -7,7 +7,7 @@
 //
 
 /** Defines the connection protocols used communicate with the server. */
-public enum ServerConnectionType {
+public enum ConnectionType {
     
     /** The connection to the server was made via the HTTP protocol. */
     case HTTP
