@@ -75,7 +75,6 @@ public class Store {
             }
             
             self.managedObjectModel.markAllPropertiesAsOptional()
-            
             self.managedObjectModel.addResourceIDAttribute(resourceIDAttributeName)
             
             // setup managed object contexts
@@ -98,8 +97,9 @@ public class Store {
     
     // MARK: - Requests
     
-    /// Performs a search request on the server. The supplied fetch request's predicate must be a NSComparisonPredicate or NSCompoundPredicate instance.
+    /// Performs a search request on the server.
     ///
+    /// - precondition: The supplied fetch request's predicate must be a ```NSComparisonPredicate``` or ```NSCompoundPredicate``` instance.
     ///
     final public func performSearch<T: NSManagedObject>(fetchRequest: NSFetchRequest, URLSession: NSURLSession? = nil, completionBlock: ((ErrorValue<[T]>) -> Void)) -> NSURLSessionDataTask {
         
@@ -128,9 +128,7 @@ public class Store {
             
             do {
                 
-                let jsonResponse = try self.validateSearchResponse((data, response, taskError))
-                
-                searchResponse = try self.cacheSearchResponse(jsonResponse)
+                searchResponse = try self.cacheSearchResponse((data, response, taskError))
             }
             catch {
                 
@@ -158,10 +156,39 @@ public class Store {
         })
     }
     
-    public func fetchEntity(name: String, resourceID: UInt, URLSession: NSURLSession? = nil, completionBlock: ((error: ErrorType?, managedObject: NSManagedObject?) -> Void)) -> NSURLSessionDataTask {
+    public func fetchEntity<T: NSManagedObject>(name: String, resourceID: UInt, URLSession: NSURLSession? = nil, completionBlock: ((ErrorValue<T>) -> Void)) -> NSURLSessionDataTask {
         
         let entity = self.managedObjectModel.entitiesByName[name]! as NSEntityDescription
         
+        let request = self.requestForFetchEntity(name, resourceID: resourceID)
+        
+        let session = URLSession ?? self.defaultURLSession
+        
+        let dataTask = session.dataTaskWithRequest(request, completionHandler: {[weak self] (data: NSData?, response: NSURLResponse?, taskError: NSError?) -> Void in
+            
+            if self == nil {
+                
+                return
+            }
+            
+            do {
+                
+                try self!.validateFetchResponse((data, response, taskError), forEntity: entity)
+            }
+            catch  {
+                
+                
+            }
+            
+        })!
+        
+        dataTask.resume()
+        
+        return dataTask
+        
+    }
+    func hey() {
+    
         return self.getResource(entity, withID: resourceID, URLSession: URLSession ?? self.defaultURLSession, completionBlock: { (error, jsonObject) -> Void in
             
             // error
@@ -516,9 +543,9 @@ public class Store {
         
         let request = NSMutableURLRequest(URL: resourceURL)
         
-        request.HTTPMethod = "PUT"
+        request.HTTPMethod = RequestType.Edit.HTTPMethod.rawValue
         
-        request.HTTPBody = try! NSJSONSerialization.dataWithJSONObject(changes, options: self.jsonWritingOption())
+        request.HTTPBody = NSData(JSON: changes, prettyPrintJSON: self.prettyPrintJSON)
         
         return request
     }
@@ -529,7 +556,7 @@ public class Store {
         
         let request = NSMutableURLRequest(URL: resourceURL)
         
-        request.HTTPMethod = "DELETE"
+        request.HTTPMethod = RequestType.Delete.HTTPMethod.rawValue
         
         return request
     }
@@ -540,7 +567,7 @@ public class Store {
         
         let request = NSMutableURLRequest(URL: resourceURL)
         
-        request.HTTPMethod = "POST"
+        request.HTTPMethod = RequestType.Function.HTTPMethod.rawValue
         
         // add HTTP body
         if JSONObject != nil {
@@ -603,7 +630,24 @@ public class Store {
             }
         }
         
-        return  jsonResponse
+        return jsonResponse
+    }
+    
+    private func validateFetchResponse(response: DataTaskResponse, forEntity entity: NSEntityDescription) throws -> [String: AnyObject] {
+        
+        try self.validateServerResponse(response)
+        
+        // parse response...
+        guard let jsonData = response.0, let jsonObject = jsonData.toJSON() as? [String: AnyObject] else {
+            
+            throw StoreError.InvalidServerResponse
+        }
+        
+        // validate JSON
+        guard self.validateJSONRepresentation(jsonObject, forEntity: entity) else {
+            
+            throw StoreError.InvalidServerResponse
+        }
     }
     
     private func createResource(entity: NSEntityDescription, withInitialValues initialValues: [String: AnyObject]?, URLSession: NSURLSession, completionBlock: ((error: ErrorType?, resourceID: UInt?) -> Void)) -> NSURLSessionDataTask {
@@ -695,85 +739,6 @@ public class Store {
         return dataTask
     }
     
-    private func getResource(entity: NSEntityDescription, withID resourceID: UInt, URLSession: NSURLSession, completionBlock: ((error: ErrorType?, resource: [String: AnyObject]?) -> Void)) -> NSURLSessionDataTask {
-        
-        // build URL
-        
-        let request = self.requestForFetchEntity(entity.name!, resourceID: resourceID)
-        
-        let dataTask = URLSession.dataTaskWithRequest(request, completionHandler: { (data, response, error) -> Void in
-            
-            if error != nil {
-                
-                completionBlock(error: error, resource: nil)
-                
-                return
-            }
-            
-            let httpResponse = response as! NSHTTPURLResponse
-            
-            // error codes
-            
-            if httpResponse.statusCode != ServerStatusCode.OK.rawValue {
-                
-                let errorCode = ErrorCode(rawValue: httpResponse.statusCode)
-                
-                if errorCode != nil {
-                    
-                    if errorCode == ErrorCode.ServerStatusCodeForbidden {
-                        
-                        let frameworkBundle = NSBundle(identifier: "com.colemancda.NetworkObjects")
-                        let tableName = "Error"
-                        let comment = "Description for ErrorCode.\(errorCode!.rawValue) for GET Request"
-                        let key = "ErrorCode.\(errorCode!.rawValue).LocalizedDescription.GET"
-                        let value = "Access to resource is denied"
-                        
-                        let customError = ErrorType(domain: NetworkObjectsErrorDomain, code: errorCode!.rawValue, userInfo: [NSLocalizedDescriptionKey: NSLocalizedString(key, tableName: tableName, bundle: frameworkBundle!, value: value, comment: comment)])
-                        
-                        completionBlock(error: customError, resource: nil)
-                        
-                        return
-                    }
-                    
-                    completionBlock(error: errorCode!.toError(), resource: nil)
-                    
-                    return
-                }
-                
-                // no recognizeable error code
-                completionBlock(error: ErrorCode.InvalidServerResponse.toError(), resource: nil)
-                
-                return
-            }
-            
-            // parse response...
-            
-            let jsonObject = NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions()) as? [String: AnyObject]
-            
-            // invalid JSON response
-            if jsonObject == nil {
-                
-                completionBlock(error: ErrorCode.InvalidServerResponse.toError(), resource: nil)
-                
-                return
-            }
-            
-            // validate JSON
-            if !self.validateJSONRepresentation(jsonObject!, forEntity: entity) {
-                
-                completionBlock(error: ErrorCode.InvalidServerResponse.toError(), resource: nil)
-                
-                return
-            }
-            
-            // success
-            completionBlock(error: nil, resource: jsonObject)
-        })
-        
-        dataTask.resume()
-        
-        return dataTask
-    }
     
     private func editResource(entity: NSEntityDescription, withID resourceID: UInt, changes: [String: AnyObject], URLSession: NSURLSession, completionBlock: ((error: ErrorType?) -> Void)) -> NSURLSessionDataTask {
         
@@ -937,7 +902,9 @@ public class Store {
     
     // MARK: - Cache Response
     
-    private func cacheSearchResponse<T: NSManagedObject>(response: [[String: UInt]]) throws -> [T] {
+    private func cacheSearchResponse<T: NSManagedObject>(response: DataTaskResponse) throws -> [T] {
+        
+        let jsonResponse = try self.validateSearchResponse(response)
         
         // get results as cached resources...
         
@@ -945,7 +912,7 @@ public class Store {
         
         try self.privateQueueManagedObjectContext.performErrorBlock({ () -> Void in
             
-            for resourceIDByResourcePath in response {
+            for resourceIDByResourcePath in jsonResponse {
                 
                 let resourcePath = resourceIDByResourcePath.keys.first!
                 
@@ -980,6 +947,27 @@ public class Store {
                 mainContextResults.append(mainContextManagedObject)
             }
         })
+    }
+    
+    private func cacheFetchResponse<T: NSManagedObject>(response: DataTaskResponse, forEntity entity: NSEntityDescription, resourceID: UInt) throws -> T {
+        
+        let jsonObject: [String: AnyObject]
+        
+        do {
+            
+            jsonObject = try validateFetchResponse(response, forEntity: entity)
+        }
+        catch StoreError.ErrorStatusCode(ErrorStatusCode.NotFound) {
+            
+            
+        }
+        catch {
+            
+            throws error
+        }
+        
+        
+        
     }
     
     // MARK: Cache
