@@ -1,14 +1,13 @@
 //
-//  ServerErrorCode.swift
+//  ServerErrorStatusCode.swift
 //  NetworkObjects
 //
 //  Created by Alsey Coleman Miller on 6/24/15.
 //  Copyright © 2015 ColemanCDA. All rights reserved.
 //
 
-
-/** HTTP error codes returned from the server. */
-public enum ServerErrorCode: Int {
+/** HTTP error code returned from the server. */
+public enum ServerErrorStatusCode: Int {
     
     /** Bad request status code. */
     case BadRequest = 400
@@ -33,4 +32,14 @@ public enum ServerErrorCode: Int {
     
     /** Internal Server Error status code. e.g. Used when a JSON cannot be converted to NSData for a HTTP response. */
     case InternalServerError = 500
+    
+    public init?(serverStatusCode: ServerStatusCode) {
+        
+        guard let errorCode = ServerErrorStatusCode(rawValue: serverStatusCode.rawValue) else {
+            
+            return nil
+        }
+        
+        self = errorCode
+    }
 }

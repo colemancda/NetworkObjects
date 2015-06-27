@@ -6,7 +6,7 @@
 //  Copyright © 2015 ColemanCDA. All rights reserved.
 //
 
-/** These are HTTP status codes returned from NetworkObjects servers. */
+/** These HTTP status code returned from NetworkObjects servers. */
 public enum ServerStatusCode: Int {
     
     /** OK status code. */
@@ -35,4 +35,8 @@ public enum ServerStatusCode: Int {
     /** Internal Server Error status code. e.g. Used when a JSON cannot be converted to NSData for a HTTP response. */
     case InternalServerError = 500
     
+    func toErrorStatusCode() -> ServerErrorStatusCode? {
+        
+        return ServerErrorStatusCode(rawValue: self.rawValue)
+    }
 }

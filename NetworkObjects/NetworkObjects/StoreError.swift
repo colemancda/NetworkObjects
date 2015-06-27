@@ -10,7 +10,7 @@
 public enum StoreError: ErrorType {
     
     /** The server returned a status code indicating an error. */
-    case ErrorStatusCode(ServerErrorCode)
+    case ErrorStatusCode(ServerErrorStatusCode)
     
     /** The server returned an invalid status code. */
     case UnknownServerStatusCode(Int)

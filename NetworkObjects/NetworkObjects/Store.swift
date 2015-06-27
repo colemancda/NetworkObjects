@@ -98,14 +98,12 @@ public class Store {
     
     // MARK: - Requests
     
-    /// Performs a search request on the server. The supplied fetch request's predicate must be a NSComparisonPredicate  or NSCompoundPredicate instance.
+    /// Performs a search request on the server. The supplied fetch request's predicate must be a NSComparisonPredicate or NSCompoundPredicate instance.
     ///
     ///
-    public func performSearch(fetchRequest: NSFetchRequest, URLSession: NSURLSession? = nil, completionBlock: ((error: ErrorType?, results: [NSManagedObject]?) -> Void)) -> NSURLSessionDataTask {
+    final public func performSearch<T: NSManagedObject>(fetchRequest: NSFetchRequest, URLSession: NSURLSession? = nil, completionBlock: ((ErrorValue<[T]>) -> Void)) -> NSURLSessionDataTask {
         
         assert(self.searchPath != nil, "Cannot perform searches when searchPath is nil")
-        
-        let searchParameters = fetchRequest.toJSON(self.managedObjectContext, resourceIDAttributeName: self.resourceIDAttributeName)
         
         let entity: NSEntityDescription
         
@@ -117,6 +115,28 @@ public class Store {
             
             entity = fetchRequest.entity!
         }
+        
+        let searchParameters = fetchRequest.toJSON(self.managedObjectContext, resourceIDAttributeName: self.resourceIDAttributeName)
+        
+        let request = self.requestForSearchEntity(entityName, withParameters: searchParameters)
+        
+        let session = URLSession ?? self.defaultURLSession
+        
+        return session.dataTaskWithRequest(request, completionHandler: { (data: NSData?, response: NSURLResponse?, taskError: NSError?) -> Void in
+            
+            do {
+                
+                try self.validateSearchResponse((data, response, taskError))
+            }
+            catch {
+                
+                completionBlock(ErrorValue.Error(error))
+                return
+            }
+            
+            
+            
+        })
         
         // call API method
         
@@ -594,21 +614,6 @@ public class Store {
         return request
     }
     
-    // MARK: - Private Methods
-    
-    private func jsonWritingOption() -> NSJSONWritingOptions {
-        
-        if self.prettyPrintJSON {
-            
-            return NSJSONWritingOptions.PrettyPrinted
-        }
-            
-        else {
-            
-            return NSJSONWritingOptions()
-        }
-    }
-    
     // MARK: Notifications
     
     @objc private func mergeChangesFromContextDidSaveNotification(notification: NSNotification) {
@@ -619,91 +624,60 @@ public class Store {
         }
     }
     
-    // MARK: HTTP API
+    // MARK: Response Validation
     
     // The API private methods separate the JSON validation and HTTP requests from Core Data caching.
     
-    /** Makes the actual search request to the server based on JSON input. */
-    private func searchForResource(entity: NSEntityDescription, withParameters parameters:[String: AnyObject], URLSession: NSURLSession, completionBlock: ((error: ErrorType?, results: [[String: UInt]]?) -> Void)) -> NSURLSessionDataTask {
+    /** Validates the HTTP response from the server. */
+    private func validateServerResponse(response: DataTaskResponse) throws {
         
-        // build URL
+        let (_, urlResponse, error) = response
         
-        let urlRequest = self.requestForSearchEntity(entity.name!, withParameters: parameters)
-        
-        let dataTask = URLSession.dataTaskWithRequest(urlRequest, completionHandler: { (data, response, error) -> Void in
+        guard error == nil else {
             
-            if error != nil {
+            throw error!
+        }
+        
+        // error codes
+        
+        guard let httpResponse = urlResponse as? NSHTTPURLResponse else {
+            
+            throw StoreError.InvalidServerResponse
+        }
+        
+        guard let statusCode = ServerStatusCode(rawValue: httpResponse.statusCode) else {
+            
+            throw StoreError.UnknownServerStatusCode(httpResponse.statusCode)
+        }
+        
+        guard (statusCode.toErrorStatusCode() == nil) else {
+            
+            throw StoreError.ErrorStatusCode(statusCode.toErrorStatusCode()!)
+        }
+    }
+    
+    private func validateSearchResponse(response: DataTaskResponse) throws {
+        
+        try self.validateSearchResponse(response)
+        
+        let jsonData = response.0
+        
+        // no error status code...
+        
+        guard let jsonResponse = jsonData.toJSON() as? [[String: UInt]] else {
+            
+            throw StoreError.InvalidServerResponse
+        }
+        
+        // dictionaries must have one key-value pair
+        for resultResourceIDByEntityName in jsonResponse {
+            
+            guard resultResourceIDByEntityName.count == 1 else {
                 
-                completionBlock(error: error, results: nil)
-                
-                return
+                throw StoreError.InvalidServerResponse
             }
-            
-            let httpResponse = response as! NSHTTPURLResponse
-            
-            // error codes
-            
-            if httpResponse.statusCode != ServerStatusCode.OK.rawValue {
-                
-                let errorCode = ErrorCode(rawValue: httpResponse.statusCode)
-                
-                if errorCode != nil {
-                    
-                    if errorCode == ErrorCode.ServerStatusCodeForbidden {
-                        
-                        let frameworkBundle = NSBundle(identifier: "com.colemancda.NetworkObjects")
-                        let tableName = "Error"
-                        let comment = "Description for ErrorCode.\(errorCode!.rawValue) for Search Request"
-                        let key = "ErrorCode.\(errorCode!.rawValue).LocalizedDescription.Search"
-                        
-                        let customError = ErrorType(domain: NetworkObjectsErrorDomain, code: errorCode!.rawValue, userInfo: [NSLocalizedDescriptionKey: NSLocalizedString(key, tableName: tableName, bundle: frameworkBundle!, value: "Permission to perform search is denied", comment: comment)])
-                        
-                        completionBlock(error: customError, results: nil)
-                        
-                        return
-                    }
-                    
-                    completionBlock(error: errorCode!.toError(), results: nil)
-                    
-                    return
-                }
-                
-                // no recognizeable error code
-                completionBlock(error: ErrorCode.InvalidServerResponse.toError(), results: nil)
-                
-                return
-            }
-            
-            // no error status code...
-            
-            let jsonResponse = NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.AllowFragments) as? [[String: UInt]]
-            
-            // invalid JSON response
-            if jsonResponse == nil {
-                
-                completionBlock(error: ErrorCode.InvalidServerResponse.toError(), results: nil)
-                
-                return
-            }
-            
-            // dictionaries must have one key-value pair
-            for resultResourceIDByEntityName in jsonResponse! {
-                
-                if resultResourceIDByEntityName.count != 1 {
-                    
-                    completionBlock(error: ErrorCode.InvalidServerResponse.toError(), results: nil)
-                    
-                    return
-                }
-            }
-            
-            // JSON has been validated
-            completionBlock(error: nil, results: jsonResponse)
-        })
+        }
         
-        dataTask.resume()
-        
-        return dataTask
     }
     
     private func createResource(entity: NSEntityDescription, withInitialValues initialValues: [String: AnyObject]?, URLSession: NSURLSession, completionBlock: ((error: ErrorType?, resourceID: UInt?) -> Void)) -> NSURLSessionDataTask {
@@ -1533,3 +1507,4 @@ private extension NSManagedObject {
     }
 }
 
+private typealias DataTaskResponse = (NSData, NSURLResponse, ErrorType?)
