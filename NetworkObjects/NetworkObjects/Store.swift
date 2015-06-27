@@ -144,18 +144,21 @@ public class Store {
         return dataTask
     }
     
-    public func fetchResource<T: NSManagedObject>(resource: T, URLSession: NSURLSession? = nil, completionBlock: ((error: ErrorType?) -> Void)) -> NSURLSessionDataTask {
+    /** Convenience method for fetching the values of a cached entity. */
+    public func fetchResource<T: NSManagedObject>(resource: T, URLSession: NSURLSession? = nil, completionBlock: ((ErrorValue<T>) -> Void)) -> NSURLSessionDataTask {
         
         let entityName = resource.entity.name!
         
-        let resourceID = resource.valueForKey(self.resourceIDAttributeName) as! UInt
+        let resourceID = (resource as NSManagedObject).valueForKey(self.resourceIDAttributeName) as! UInt
         
-        return self.fetchEntity(entityName, resourceID: resourceID, URLSession: URLSession, completionBlock: { (error, managedObject) -> Void in
+        return self.fetchEntity(entityName, resourceID: resourceID, URLSession: URLSession, completionBlock: { (errorValue: ErrorValue<T>) -> Void in
             
-            completionBlock(error: error)
+            // forward
+            completionBlock(errorValue)
         })
     }
     
+    /** Fetches the entity from the server using the specified ```entityName``` and ```resourceID```. */
     public func fetchEntity<T: NSManagedObject>(name: String, resourceID: UInt, URLSession: NSURLSession? = nil, completionBlock: ((ErrorValue<T>) -> Void)) -> NSURLSessionDataTask {
         
         let entity = self.managedObjectModel.entitiesByName[name]! as NSEntityDescription
@@ -171,135 +174,25 @@ public class Store {
                 return
             }
             
+            let managedObject: T
+            
             do {
                 
-                try self!.validateFetchResponse((data, response, taskError), forEntity: entity)
+                managedObject = try self!.cacheFetchResponse((data, response, taskError), forEntity: entity, resourceID: resourceID)
             }
-            catch  {
+            catch {
                 
-                
+                completionBlock(ErrorValue.Error(error))
+                return
             }
             
+            completionBlock(ErrorValue.Value(managedObject))
         })!
         
         dataTask.resume()
         
         return dataTask
         
-    }
-    func hey() {
-    
-        return self.getResource(entity, withID: resourceID, URLSession: URLSession ?? self.defaultURLSession, completionBlock: { (error, jsonObject) -> Void in
-            
-            // error
-            if error != nil {
-                
-                // not found, delete object from cache
-                if let error = StoreError.ErrorStatusCode(ServerErrorCode.NotFound) {
-                    
-                    // delete object on private thread
-                    
-                    do {
-                    
-                    try self.privateQueueManagedObjectContext.performErrorBlock({ () -> Void in
-                        
-                        let (objectID, cacheError) = self.findEntity(entity, withResourceID: resourceID, context: self.privateQueueManagedObjectContext)
-                        
-                        if cacheError != nil {
-                            
-                            deleteError = cacheError
-                            
-                            return
-                        }
-                        
-                        if objectID != nil {
-                            
-                            self.privateQueueManagedObjectContext.deleteObject(self.privateQueueManagedObjectContext.objectWithID(objectID!))
-                        }
-                        
-                        // save
-                        
-                        try self.privateQueueManagedObjectContext.save()
-                    })
-                    }
-                    catch {
-                        
-                        completionBlock(error: deleteError, managedObject: nil)
-                        
-                        return
-                    }
-                }
-                
-                completionBlock(error: error, managedObject: nil)
-                
-                return
-            }
-            
-            var managedObject: NSManagedObject?
-            
-            var contextError: ErrorType?
-            
-            self.privateQueueManagedObjectContext.performBlockAndWait({ () -> Void in
-                
-                // get cached resource
-                let (resource, cacheError) = self.findOrCreateEntity(entity, withResourceID: resourceID, context: self.privateQueueManagedObjectContext)
-                
-                managedObject = resource
-                
-                if cacheError != nil {
-                    
-                    contextError = cacheError
-                    
-                    return
-                }
-                
-                // set values
-                let setJSONError = self.setJSONObject(jsonObject!, forManagedObject: managedObject!, context: self.privateQueueManagedObjectContext)
-                
-                if setJSONError != nil {
-                    
-                    contextError = setJSONError
-                    
-                    return
-                }
-                
-                // set date cached
-                self.didCacheManagedObject(resource!)
-                
-                // save
-                var saveError: ErrorType?
-                
-                do {
-                    try self.privateQueueManagedObjectContext.save()
-                } catch var error as ErrorType {
-                    saveError = error
-                    
-                    contextError = saveError
-                    
-                    return
-                } catch {
-                    fatalError()
-                }
-            })
-            
-            // error occurred
-            if contextError != nil {
-                
-                completionBlock(error: contextError, managedObject: nil)
-                
-                return
-            }
-            
-            // get the corresponding managed object that belongs to the main queue context
-            var mainContextManagedObject: NSManagedObject?
-            
-            self.managedObjectContext.performBlockAndWait({ () -> Void in
-                
-                mainContextManagedObject = self.managedObjectContext.objectWithID(managedObject!.objectID)
-            })
-            
-            completionBlock(error: nil, managedObject: mainContextManagedObject)
-        })
     }
     
     public func createEntity(name: String, withInitialValues initialValues: [String: AnyObject]?, URLSession: NSURLSession? = nil, completionBlock: ((error: ErrorType?, managedObject: NSManagedObject?) -> Void)) -> NSURLSessionDataTask {
@@ -578,7 +471,7 @@ public class Store {
         return request
     }
     
-    // MARK: - Response Parsing
+    // MARK: - Response Validation
     
     // The API private methods separate the JSON validation and HTTP requests from Core Data caching.
     
@@ -959,18 +852,50 @@ public class Store {
         }
         catch StoreError.ErrorStatusCode(ErrorStatusCode.NotFound) {
             
+            try self.privateQueueManagedObjectContext.performErrorBlock({ () -> Void in
+                
+                let objectID = try self.findEntity(entity, withResourceID: resourceID, context: self.privateQueueManagedObjectContext)
+                
+                if objectID != nil {
+                    
+                    self.privateQueueManagedObjectContext.deleteObject(self.privateQueueManagedObjectContext.objectWithID(objectID!))
+                    
+                    try self.privateQueueManagedObjectContext.save()
+                }
+            })
             
+            throw StoreError.ErrorStatusCode(ErrorStatusCode.NotFound)
         }
-        catch {
+        
+        // cache recieved object...
+        var managedObject: NSManagedObject!
+        
+        try self.privateQueueManagedObjectContext.performErrorBlock({ () -> Void in
             
-            throws error
-        }
+            // get cached resource
+            managedObject = try self.findOrCreateEntity(entity, withResourceID: resourceID, context: self.privateQueueManagedObjectContext)
+            
+            // set values
+            try self.setJSONObject(jsonObject, forManagedObject: managedObject!, context: self.privateQueueManagedObjectContext)
+            
+            // set date cached
+            self.didCacheManagedObject(managedObject)
+            
+            try self.privateQueueManagedObjectContext.save()
+        })
         
+        // get the corresponding managed object that belongs to the main queue context
+        var mainContextManagedObject: NSManagedObject!
         
+        self.managedObjectContext.performBlockAndWait({ () -> Void in
+            
+            mainContextManagedObject = self.managedObjectContext.objectWithID(managedObject!.objectID)
+        })
         
+        return mainContextManagedObject as! T
     }
     
-    // MARK: Cache
+    // MARK: - Cache
     
     private func didCacheManagedObject(managedObject: NSManagedObject) {
         
@@ -1044,7 +969,7 @@ public class Store {
         return resource!
     }
     
-    private func setJSONObject(JSONObject: [String: AnyObject], forManagedObject managedObject: NSManagedObject, context: NSManagedObjectContext) -> ErrorType? {
+    private func setJSONObject(JSONObject: [String: AnyObject], forManagedObject managedObject: NSManagedObject, context: NSManagedObjectContext) throws {
         
         // set values...
         
@@ -1052,13 +977,13 @@ public class Store {
         
         for (key, jsonValue) in JSONObject {
             
-            let attribute = entity.attributesByName[key] as? NSAttributeDescription
+            let attribute = entity.attributesByName[key]
             
             if attribute != nil {
                 
                 let (newValue: AnyObject, valid) = managedObject.entity.attributeValueForJSONCompatibleValue(jsonValue, forAttribute: key)
                 
-                let currentValue: AnyObject? = managedObject.valueForKey(key)
+                let currentValue = managedObject.valueForKey(key)
                 
                 // set value if not current value
                 if (newValue as? NSObject) != (currentValue as? NSObject) {
@@ -1067,7 +992,7 @@ public class Store {
                 }
             }
             
-            let relationship = entity.relationshipsByName[key] as? NSRelationshipDescription
+            let relationship = entity.relationshipsByName[key]
             
             if relationship != nil {
                 
@@ -1182,7 +1107,7 @@ public class Store {
         return nil
     }
     
-    // MARK: Validation
+    // MARK: - Validation
     
     /** Validates the JSON responses returned in GET requests. */
     private func validateJSONRepresentation(JSONObject: [String: AnyObject], forEntity entity: NSEntityDescription) -> Bool {
@@ -1259,10 +1184,8 @@ public class Store {
         
         let entityName = JSONValue.keys.first!
         
-        let resourceID = JSONValue.values.first!
-        
         // verify entity is same kind as destination entity
-        let entity = self.managedObjectModel.entitiesByName[entityName] as? NSEntityDescription
+        let entity = self.managedObjectModel.entitiesByName[entityName]
         
         if entity == nil {
             
