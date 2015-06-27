@@ -146,75 +146,6 @@ public class Store {
         return dataTask
     }
     
-    
-    {
-        // call API method
-        
-        return self.searchForResource(entity, withParameters: searchParameters, URLSession: URLSession ?? self.defaultURLSession, completionBlock: { (httpError, results) -> Void in
-            
-            if httpError != nil {
-                
-                completionBlock(error: httpError, results: nil)
-                
-                return
-            }
-            
-            // get results as cached resources...
-            
-            var cachedResults = [NSManagedObject]()
-            
-            do {
-            
-            try self.privateQueueManagedObjectContext.performErrorBlock({ () -> Void in
-                
-                for resourceIDByResourcePath in results! {
-                    
-                    let resourcePath = resourceIDByResourcePath.keys.first!
-                    
-                    let resourceID = resourceIDByResourcePath.values.first!
-                    
-                    // get the entity
-                    
-                    let entities = self.managedObjectModel.entitiesByName as [String: NSEntityDescription]
-                    
-                    let entity = entities[resourcePath]
-                    
-                    let resource: NSManagedObject = try self.findOrCreateEntity(entity!, withResourceID: resourceID, context: self.privateQueueManagedObjectContext)
-                    
-                    cachedResults.append(resource)
-                    
-                    // save
-                    
-                    try self.privateQueueManagedObjectContext.save()
-                }
-            })
-                
-            }
-            catch {
-                
-                completionBlock(error: error, results: nil)
-                
-                return
-            }
-            
-            // get the corresponding managed objects that belong to the main queue context
-            
-            var mainContextResults = [NSManagedObject]()
-            
-            self.managedObjectContext.performBlockAndWait({ () -> Void in
-                
-                for managedObject in cachedResults {
-                    
-                    let mainContextManagedObject = self.managedObjectContext.objectWithID(managedObject.objectID)
-                    
-                    mainContextResults.append(mainContextManagedObject)
-                }
-            })
-            
-            completionBlock(error: nil, results: mainContextResults)
-        })
-    }
-    
     public func fetchResource<T: NSManagedObject>(resource: T, URLSession: NSURLSession? = nil, completionBlock: ((error: ErrorType?) -> Void)) -> NSURLSessionDataTask {
         
         let entityName = resource.entity.name!
@@ -1008,7 +939,47 @@ public class Store {
     
     private func cacheSearchResponse<T: NSManagedObject>(response: [[String: UInt]]) throws -> [T] {
         
+        // get results as cached resources...
         
+        var cachedResults = [NSManagedObject]()
+        
+        try self.privateQueueManagedObjectContext.performErrorBlock({ () -> Void in
+            
+            for resourceIDByResourcePath in response {
+                
+                let resourcePath = resourceIDByResourcePath.keys.first!
+                
+                let resourceID = resourceIDByResourcePath.values.first!
+                
+                // get the entity
+                
+                let entities = self.managedObjectModel.entitiesByName as [String: NSEntityDescription]
+                
+                let entity = entities[resourcePath]
+                
+                let resource: NSManagedObject = try self.findOrCreateEntity(entity!, withResourceID: resourceID, context: self.privateQueueManagedObjectContext)
+                
+                cachedResults.append(resource)
+                
+                // save
+                
+                try self.privateQueueManagedObjectContext.save()
+            }
+        })
+        
+        // get the corresponding managed objects that belong to the main queue context
+        
+        var mainContextResults = [NSManagedObject]()
+        
+        self.managedObjectContext.performBlockAndWait({ () -> Void in
+            
+            for managedObject in cachedResults {
+                
+                let mainContextManagedObject = self.managedObjectContext.objectWithID(managedObject.objectID)
+                
+                mainContextResults.append(mainContextManagedObject)
+            }
+        })
     }
     
     // MARK: Cache
