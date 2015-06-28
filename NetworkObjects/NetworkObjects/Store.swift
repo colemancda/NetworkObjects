@@ -95,15 +95,18 @@ public class Store {
             NSNotificationCenter.defaultCenter().addObserver(self, selector: "mergeChangesFromContextDidSaveNotification:", name: NSManagedObjectContextDidSaveNotification, object: self.privateQueueManagedObjectContext)
     }
     
-    // MARK: - Requests
+    // MARK: - Actions
     
     /// Performs a search request on the server.
     ///
     /// - precondition: The supplied fetch request's predicate must be a ```NSComparisonPredicate``` or ```NSCompoundPredicate``` instance.
     ///
-    final public func performSearch<T: NSManagedObject>(fetchRequest: NSFetchRequest, URLSession: NSURLSession? = nil, completionBlock: ((ErrorValue<[T]>) -> Void)) -> NSURLSessionDataTask {
+    final public func search<T: NSManagedObject>(fetchRequest: NSFetchRequest, URLSession: NSURLSession? = nil, completionBlock: ((ErrorValue<[T]>) -> Void)) -> NSURLSessionDataTask {
         
-        assert(self.searchPath != nil, "Cannot perform searches when searchPath is nil")
+        guard self.searchPath != nil else {
+            
+            fatalError("Cannot perform searches when searchPath is nil")
+        }
         
         let entity: NSEntityDescription
         
@@ -122,13 +125,15 @@ public class Store {
         
         let session = URLSession ?? self.defaultURLSession
         
-        let dataTask = session.dataTaskWithRequest(request, completionHandler: { (data: NSData?, response: NSURLResponse?, taskError: NSError?) -> Void in
+        let dataTask = session.dataTaskWithRequest(request, completionHandler: {[weak self] (data: NSData?, response: NSURLResponse?, taskError: NSError?) -> Void in
+            
+            if self == nil { return }
             
             let searchResponse: [T]
             
             do {
                 
-                searchResponse = try self.cacheSearchResponse((data, response, taskError))
+                searchResponse = try self!.cacheSearchResponse((data, response, taskError))
             }
             catch {
                 
@@ -145,13 +150,13 @@ public class Store {
     }
     
     /** Convenience method for fetching the values of a cached entity. */
-    public func fetchResource<T: NSManagedObject>(resource: T, URLSession: NSURLSession? = nil, completionBlock: ((ErrorValue<T>) -> Void)) -> NSURLSessionDataTask {
+    public func fetch<T: NSManagedObject>(managedObject: T, URLSession: NSURLSession? = nil, completionBlock: ((ErrorValue<T>) -> Void)) -> NSURLSessionDataTask {
         
-        let entityName = resource.entity.name!
+        let entityName = managedObject.entity.name!
         
-        let resourceID = (resource as NSManagedObject).valueForKey(self.resourceIDAttributeName) as! UInt
+        let resourceID = (managedObject as NSManagedObject).valueForKey(self.resourceIDAttributeName) as! UInt
         
-        return self.fetchEntity(entityName, resourceID: resourceID, URLSession: URLSession, completionBlock: { (errorValue: ErrorValue<T>) -> Void in
+        return self.fetch(entityName, resourceID: resourceID, URLSession: URLSession, completionBlock: { (errorValue: ErrorValue<T>) -> Void in
             
             // forward
             completionBlock(errorValue)
@@ -159,7 +164,7 @@ public class Store {
     }
     
     /** Fetches the entity from the server using the specified ```entityName``` and ```resourceID```. */
-    public func fetchEntity<T: NSManagedObject>(name: String, resourceID: UInt, URLSession: NSURLSession? = nil, completionBlock: ((ErrorValue<T>) -> Void)) -> NSURLSessionDataTask {
+    public func fetch<T: NSManagedObject>(name: String, resourceID: UInt, URLSession: NSURLSession? = nil, completionBlock: ((ErrorValue<T>) -> Void)) -> NSURLSessionDataTask {
         
         let entity = self.managedObjectModel.entitiesByName[name]! as NSEntityDescription
         
@@ -169,10 +174,7 @@ public class Store {
         
         let dataTask = session.dataTaskWithRequest(request, completionHandler: {[weak self] (data: NSData?, response: NSURLResponse?, taskError: NSError?) -> Void in
             
-            if self == nil {
-                
-                return
-            }
+            if self == nil { return }
             
             let managedObject: T
             
@@ -195,11 +197,11 @@ public class Store {
         
     }
     
-    public func createEntity(name: String, withInitialValues initialValues: [String: AnyObject]?, URLSession: NSURLSession? = nil, completionBlock: ((error: ErrorType?, managedObject: NSManagedObject?) -> Void)) -> NSURLSessionDataTask {
+    public func create<T: NSManagedObject>(entityName: String, initialValues: [String: AnyObject]?, URLSession: NSURLSession? = nil, completionBlock: ((ErrorValue<T>) -> Void)) -> NSURLSessionDataTask {
         
-        let entity = self.managedObjectModel.entitiesByName[name]! as NSEntityDescription
+        let entity = self.managedObjectModel.entitiesByName[entityName]! as NSEntityDescription
         
-        var jsonValues: [String: AnyObject]?
+        let jsonValues: [String: AnyObject]?
         
         // convert initial values to JSON
         if initialValues != nil {
@@ -207,166 +209,96 @@ public class Store {
             jsonValues = entity.JSONObjectFromCoreDataValues(initialValues!, usingResourceIDAttributeName: self.resourceIDAttributeName)
         }
         
-        return self.createResource(entity, withInitialValues: jsonValues, URLSession: URLSession ?? self.defaultURLSession, completionBlock: { (httpError, resourceID) -> Void in
+        let request = self.requestForCreateEntity(entity.name!, initialValues: jsonValues)
+        
+        let session = URLSession ?? self.defaultURLSession
+        
+        let dataTask = session.dataTaskWithRequest(request, completionHandler: {[weak self] (data: NSData?, response: NSURLResponse?, taskError: NSError?) -> Void in
             
-            if httpError != nil {
+            if self == nil { return }
+            
+            let managedObject: T
+            
+            do {
                 
-                completionBlock(error: httpError, managedObject: nil)
+                managedObject = try self!.cacheCreateResponse((data, response, taskError), forEntity: entity, initialValues: initialValues)
+            }
+            catch {
                 
+                completionBlock(ErrorValue.Error(error))
                 return
             }
             
-            var managedObject: NSManagedObject?
-            
-            var error: ErrorType?
-            
-            self.privateQueueManagedObjectContext.performBlockAndWait({ () -> Void in
-                
-                // create new entity
-                managedObject = NSEntityDescription.insertNewObjectForEntityForName(name, inManagedObjectContext: self.privateQueueManagedObjectContext) as? NSManagedObject
-                
-                // set resourceID
-                managedObject!.setValue(resourceID, forKey: self.resourceIDAttributeName)
-                
-                // set values
-                if initialValues != nil {
-                    
-                    managedObject!.setValuesForKeysWithDictionary(initialValues!, withManagedObjectContext: self.privateQueueManagedObjectContext)
-                }
-                
-                // set date cached
-                self.didCacheManagedObject(managedObject!)
-                
-                // save
-                var saveError: ErrorType?
-                
-                do {
-                    try self.privateQueueManagedObjectContext.save()
-                } catch var error1 as ErrorType {
-                    saveError = error1
-                    
-                    error = saveError
-                    
-                    return
-                } catch {
-                    fatalError()
-                }
-            })
-            
-            // error occurred
-            if error != nil {
-                
-                completionBlock(error: error, managedObject: nil)
-                
-                return
-            }
-            
-            // get the corresponding managed object that belongs to the main queue context
-            var mainContextManagedObject: NSManagedObject?
-            
-            self.managedObjectContext.performBlockAndWait({ () -> Void in
-                
-                mainContextManagedObject = self.managedObjectContext.objectWithID(managedObject!.objectID)
-            })
-            
-            completionBlock(error: nil, managedObject: mainContextManagedObject)
-        })
+            completionBlock(ErrorValue.Value(managedObject))
+            })!
+        
+        dataTask.resume()
+        
+        return dataTask
     }
     
-    public func editManagedObject(managedObject: NSManagedObject, changes: [String: AnyObject], URLSession: NSURLSession? = nil, completionBlock: ((error: ErrorType?) -> Void)) -> NSURLSessionDataTask {
+    public func edit<T: NSManagedObject>(managedObject: T, changes: [String: AnyObject], URLSession: NSURLSession? = nil, completionBlock: ((ErrorType?) -> Void)) -> NSURLSessionDataTask {
         
         // convert new values to JSON
         let jsonValues = managedObject.entity.JSONObjectFromCoreDataValues(changes, usingResourceIDAttributeName: self.resourceIDAttributeName)
         
         // get resourceID
-        let resourceID = managedObject.valueForKey(self.resourceIDAttributeName) as! UInt
+        let resourceID = (managedObject as NSManagedObject).valueForKey(self.resourceIDAttributeName) as! UInt
         
-        return self.editResource(managedObject.entity, withID: resourceID, changes: jsonValues, URLSession: URLSession ?? self.defaultURLSession, completionBlock: { (httpError) -> Void in
+        let request = self.requestForEditEntity(managedObject.entity.name!, resourceID: resourceID, changes: jsonValues)
+        
+        let session = URLSession ?? self.defaultURLSession
+        
+        let dataTask = session.dataTaskWithRequest(request, completionHandler: {[weak self] (data: NSData?, response: NSURLResponse?, taskError: NSError?) -> Void in
             
-            if httpError != nil {
+            if self == nil { return }
+            
+            do {
                 
-                completionBlock(error: httpError)
+                try self!.cacheEditResponse((data, response, taskError), managedObject: managedObject, changes: changes)
+            }
+            catch {
                 
+                completionBlock(error)
                 return
             }
             
-            var error: ErrorType?
-            
-            self.privateQueueManagedObjectContext.performBlockAndWait({ () -> Void in
-                
-                // get object on this context
-                let contextResource = self.privateQueueManagedObjectContext.objectWithID(managedObject.objectID)
-                
-                // set values
-                contextResource.setValuesForKeysWithDictionary(changes, withManagedObjectContext: self.privateQueueManagedObjectContext)
-                
-                // set date cached
-                self.didCacheManagedObject(contextResource)
-                
-                // save
-                var saveError: ErrorType?
-                
-                do {
-                    try self.privateQueueManagedObjectContext.save()
-                } catch var error1 as ErrorType {
-                    saveError = error1
-                    
-                    error = saveError
-                    
-                    return
-                } catch {
-                    fatalError()
-                }
-            })
-            
-            // hopefully an error did not occur
-            completionBlock(error: error)
-        })
+            completionBlock(nil)
+        })!
+        
+        dataTask.resume()
+        
+        return dataTask
     }
     
-    public func deleteManagedObject(managedObject: NSManagedObject, URLSession: NSURLSession? = nil, completionBlock: ((error: ErrorType?) -> Void)) -> NSURLSessionDataTask {
+    public func delete<T: NSManagedObject>(managedObject: T, URLSession: NSURLSession? = nil, completionBlock: ((ErrorType?) -> Void)) -> NSURLSessionDataTask {
         
-        // get resourceID
-        let resourceID = managedObject.valueForKey(self.resourceIDAttributeName) as! UInt
+        let resourceID = (managedObject as NSManagedObject).valueForKey(self.resourceIDAttributeName) as! UInt
         
-        return self.deleteResource(managedObject.entity, withID: resourceID, URLSession: URLSession ?? self.defaultURLSession, completionBlock: { (httpError) -> Void in
+        let request = self.requestForDeleteEntity(managedObject.entity.name!, resourceID: resourceID)
+        
+        let session = URLSession ?? self.defaultURLSession
+        
+        let dataTask = session.dataTaskWithRequest(request, completionHandler: {[weak self] (data: NSData?, response: NSURLResponse?, taskError: NSError?) -> Void in
             
-            if httpError != nil {
+            if self == nil { return }
+            
+            do {
                 
-                completionBlock(error: httpError)
+                try self!.cacheDeleteResponse((data, response, taskError), managedObject: managedObject)
+            }
+            catch {
                 
+                completionBlock(error)
                 return
             }
             
-            var error: ErrorType?
-            
-            self.privateQueueManagedObjectContext.performBlockAndWait({ () -> Void in
-                
-                // get object on this context
-                let contextResource = self.privateQueueManagedObjectContext.objectWithID(managedObject.objectID)
-                
-                // delete
-                self.privateQueueManagedObjectContext.deleteObject(contextResource)
-                
-                // save
-                var saveError: ErrorType?
-                
-                do {
-                    try self.privateQueueManagedObjectContext.save()
-                } catch var error1 as ErrorType {
-                    saveError = error1
-                    
-                    error = saveError
-                    
-                    return
-                } catch {
-                    fatalError()
-                }
-            })
-            
-            // hopefully an error did not occur
-            completionBlock(error: error)
-        })
+            completionBlock(nil)
+            })!
+        
+        dataTask.resume()
+        
+        return dataTask
     }
     
     public func performFunction(function functionName: String, forManagedObject managedObject: NSManagedObject, withJSONObject JSONObject: [String: AnyObject]?, URLSession: NSURLSession? = nil, completionBlock: ((error: ErrorType?, functionCode: ServerFunctionCode?, JSONResponse: [String: AnyObject]?) -> Void)) -> NSURLSessionDataTask {
@@ -407,7 +339,7 @@ public class Store {
         return urlRequest
     }
     
-    public func requestForCreateEntity(name: String, withInitialValues initialValues: [String: AnyObject]?) -> NSURLRequest {
+    public func requestForCreateEntity(name: String, initialValues: [String: AnyObject]?) -> NSURLRequest {
         
         // build URL
         
@@ -509,7 +441,8 @@ public class Store {
         
         try self.validateServerResponse(response)
         
-        guard let jsonData = response.0, let jsonResponse = jsonData.toJSON() as? [[String: UInt]] else {
+        guard let jsonData = response.0,
+            let jsonResponse = jsonData.toJSON() as? [[String: UInt]] else {
             
             throw StoreError.InvalidServerResponse
         }
@@ -531,228 +464,41 @@ public class Store {
         try self.validateServerResponse(response)
         
         // parse response...
-        guard let jsonData = response.0, let jsonObject = jsonData.toJSON() as? [String: AnyObject] else {
+        guard let jsonData = response.0,
+            let jsonObject = jsonData.toJSON() as? [String: AnyObject]
+            where self.validateJSONRepresentation(jsonObject, forEntity: entity) else {
             
             throw StoreError.InvalidServerResponse
         }
         
-        // validate JSON
-        guard self.validateJSONRepresentation(jsonObject, forEntity: entity) else {
+        return jsonObject
+    }
+    
+    private func validateCreateResponse(response: DataTaskResponse) throws -> UInt {
+        
+        try self.validateServerResponse(response)
+        
+        guard let jsonData = response.0,
+            let jsonObject = jsonData.toJSON() as? [String: UInt]
+            where jsonObject.count == 1,
+            let resourceIDAttributeName = jsonObject.keys.first
+            where resourceIDAttributeName == self.resourceIDAttributeName,
+            let resourceID = jsonObject.values.first else {
             
             throw StoreError.InvalidServerResponse
         }
+        
+        return resourceID
     }
     
-    private func createResource(entity: NSEntityDescription, withInitialValues initialValues: [String: AnyObject]?, URLSession: NSURLSession, completionBlock: ((error: ErrorType?, resourceID: UInt?) -> Void)) -> NSURLSessionDataTask {
+    private func validateEditResponse(response: DataTaskResponse) throws {
         
-        // build URL
-        
-        let request = self.requestForCreateEntity(entity.name!, withInitialValues: initialValues)
-        
-        let dataTask = URLSession.dataTaskWithRequest(request, completionHandler: { (data, response, error) -> Void in
-            
-            // NSURLSession errors
-            if error != nil {
-                
-                completionBlock(error: error, resourceID: nil)
-                
-                return
-            }
-            
-            // error status codes
-            
-            let httpResponse = response as! NSHTTPURLResponse
-            
-            // error codes
-            
-            if httpResponse.statusCode != ServerStatusCode.OK.rawValue {
-                
-                let errorCode = ErrorCode(rawValue: httpResponse.statusCode)
-                
-                if errorCode != nil {
-                    
-                    // custom error description
-                    if errorCode == ErrorCode.ServerStatusCodeForbidden {
-                        
-                        let method = "POST"
-                        let value = "Permission to create new resource is denied"
-                        let frameworkBundle = NSBundle(identifier: "com.colemancda.NetworkObjects")
-                        let tableName = "Error"
-                        let comment = "Description for ErrorCode.\(errorCode!.rawValue) for \(method) Request"
-                        let key = "ErrorCode.\(errorCode!.rawValue).LocalizedDescription.\(method)"
-                        
-                        let customError = ErrorType(domain: NetworkObjectsErrorDomain, code: errorCode!.rawValue, userInfo: [NSLocalizedDescriptionKey: NSLocalizedString(key, tableName: tableName, bundle: frameworkBundle!, value: value, comment: comment)])
-                        
-                        completionBlock(error: customError, resourceID: nil)
-                        
-                        return
-                    }
-                    
-                    completionBlock(error: errorCode!.toError(), resourceID: nil)
-                    
-                    return
-                }
-                
-                // no recognizeable error code
-                completionBlock(error: ErrorCode.InvalidServerResponse.toError(), resourceID: nil)
-                
-                return
-            }
-            
-            // parse response...
-            
-            let jsonObject = NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments) as? [String: AnyObject]
-            
-            if jsonObject == nil {
-                
-                completionBlock(error: ErrorCode.InvalidServerResponse.toError(), resourceID: nil)
-                
-                return
-            }
-            
-            // get the new resource ID
-            let resourceIDObject: AnyObject? = jsonObject![self.resourceIDAttributeName]
-            
-            let resourceID = resourceIDObject as? UInt
-            
-            if resourceID == nil {
-                
-                completionBlock(error: ErrorCode.InvalidServerResponse.toError(), resourceID: nil)
-                
-                return
-            }
-            
-            // success
-            completionBlock(error: nil, resourceID: resourceID)
-            
-        })
-        
-        dataTask.resume()
-        
-        return dataTask
+        try self.validateServerResponse(response)
     }
     
-    
-    private func editResource(entity: NSEntityDescription, withID resourceID: UInt, changes: [String: AnyObject], URLSession: NSURLSession, completionBlock: ((error: ErrorType?) -> Void)) -> NSURLSessionDataTask {
+    private func validateDeleteResponse(response: DataTaskResponse) throws {
         
-        // build URL
-        
-        let request = self.requestForEditEntity(entity.name!, resourceID: resourceID, changes: changes)
-        
-        let dataTask = URLSession.dataTaskWithRequest(request, completionHandler: { (data, response, error) -> Void in
-            
-            if error != nil {
-                
-                completionBlock(error: error)
-                
-                return
-            }
-            
-            let httpResponse = response as! NSHTTPURLResponse
-            
-            // error codes
-            
-            if httpResponse.statusCode != ServerStatusCode.OK.rawValue {
-                
-                let errorCode = ErrorCode(rawValue: httpResponse.statusCode)
-                
-                if errorCode != nil {
-                    
-                    if errorCode == ErrorCode.ServerStatusCodeForbidden {
-                        
-                        let method = "PUT"
-                        let value = "Permission to edit resource is denied"
-                        let frameworkBundle = NSBundle(identifier: "com.colemancda.NetworkObjects")
-                        let tableName = "Error"
-                        let comment = "Description for ErrorCode.\(errorCode!.rawValue) for \(method) Request"
-                        let key = "ErrorCode.\(errorCode!.rawValue).LocalizedDescription.\(method)"
-                        
-                        let customError = ErrorType(domain: NetworkObjectsErrorDomain, code: errorCode!.rawValue, userInfo: [NSLocalizedDescriptionKey: NSLocalizedString(key, tableName: tableName, bundle: frameworkBundle!, value: value, comment: comment)])
-                        
-                        completionBlock(error: customError)
-                        
-                        return
-                    }
-                    
-                    completionBlock(error: errorCode!.toError())
-                    
-                    return
-                }
-                
-                // no recognizeable error code
-                completionBlock(error: ErrorCode.InvalidServerResponse.toError())
-                
-                return
-            }
-            
-            // success
-            completionBlock(error: nil)
-        })
-        
-        dataTask.resume()
-        
-        return dataTask
-    }
-    
-    private func deleteResource(entity: NSEntityDescription, withID resourceID: UInt, URLSession: NSURLSession, completionBlock: ((error: ErrorType?) -> Void)) -> NSURLSessionDataTask {
-        
-        // build URL
-        
-        let request = self.requestForDeleteEntity(entity.name!, resourceID: resourceID)
-        
-        let dataTask = URLSession.dataTaskWithRequest(request, completionHandler: { (data, response, error) -> Void in
-            
-            if error != nil {
-                
-                completionBlock(error: error)
-                
-                return
-            }
-            
-            let httpResponse = response as! NSHTTPURLResponse
-            
-            // error codes
-            
-            if httpResponse.statusCode != ServerStatusCode.OK.rawValue {
-                
-                let errorCode = ErrorCode(rawValue: httpResponse.statusCode)
-                
-                if errorCode != nil {
-                    
-                    if errorCode == ErrorCode.ServerStatusCodeForbidden {
-                        
-                        let method = "DELETE"
-                        let value = "Permission to delete resource is denied"
-                        let frameworkBundle = NSBundle(identifier: "com.colemancda.NetworkObjects")
-                        let tableName = "Error"
-                        let comment = "Description for ErrorCode.\(errorCode!.rawValue) for \(method) Request"
-                        let key = "ErrorCode.\(errorCode!.rawValue).LocalizedDescription.\(method)"
-                        
-                        let customError = ErrorType(domain: NetworkObjectsErrorDomain, code: errorCode!.rawValue, userInfo: [NSLocalizedDescriptionKey: NSLocalizedString(key, tableName: tableName, bundle: frameworkBundle!, value: value, comment: comment)])
-                        
-                        completionBlock(error: customError)
-                        
-                        return
-                    }
-                    
-                    completionBlock(error: errorCode!.toError())
-                    
-                    return
-                }
-                
-                // no recognizeable error code
-                completionBlock(error: ErrorCode.InvalidServerResponse.toError())
-                
-                return
-            }
-            
-            // success
-            completionBlock(error: nil)
-        })
-        
-        dataTask.resume()
-        
-        return dataTask
+        try self.validateServerResponse(response)
     }
     
     private func performFunction(functionName: String, onResource entity: NSEntityDescription, withID resourceID: UInt, withJSONObject JSONObject: [String: AnyObject]?, URLSession: NSURLSession, completionBlock: ((error: ErrorType?, functionCode: ServerFunctionCode?, JSONResponse: [String: AnyObject]?) -> Void)) -> NSURLSessionDataTask {
@@ -893,6 +639,80 @@ public class Store {
         })
         
         return mainContextManagedObject as! T
+    }
+    
+    private func cacheCreateResponse<T: NSManagedObject>(response: DataTaskResponse, forEntity entity: NSEntityDescription, initialValues: [String: AnyObject]?) throws -> T {
+        
+        let resourceID = try self.validateCreateResponse(response)
+        
+        var managedObject: NSManagedObject
+        
+        try self.privateQueueManagedObjectContext.performErrorBlock({ () -> Void in
+            
+            // create new entity
+            managedObject = NSEntityDescription.insertNewObjectForEntityForName(entity.name!, inManagedObjectContext: self.privateQueueManagedObjectContext)
+            
+            // set resourceID
+            managedObject.setValue(resourceID, forKey: self.resourceIDAttributeName)
+            
+            // set values
+            if initialValues != nil {
+                
+                managedObject.setValuesForKeysWithDictionary(initialValues!, withManagedObjectContext: self.privateQueueManagedObjectContext)
+            }
+            
+            // set date cached
+            self.didCacheManagedObject(managedObject)
+            
+            // save
+            try self.privateQueueManagedObjectContext.save()
+        })
+        
+        // get the corresponding managed object that belongs to the main queue context
+        var mainContextManagedObject: NSManagedObject
+        
+        self.managedObjectContext.performBlockAndWait({ () -> Void in
+            
+            mainContextManagedObject = self.managedObjectContext.objectWithID(managedObject.objectID)
+        })
+        
+        return mainContextManagedObject as! T
+    }
+    
+    private func cacheEditResponse<T: NSManagedObject>(response: DataTaskResponse, managedObject: T, changes: [String: AnyObject]) throws {
+        
+        try self.validateEditResponse(response)
+        
+        try self.privateQueueManagedObjectContext.performErrorBlock({ () -> Void in
+            
+            // get object on this context
+            let contextResource = self.privateQueueManagedObjectContext.objectWithID(managedObject.objectID)
+            
+            // set values
+            contextResource.setValuesForKeysWithDictionary(changes, withManagedObjectContext: self.privateQueueManagedObjectContext)
+            
+            // set date cached
+            self.didCacheManagedObject(contextResource)
+            
+            try self.privateQueueManagedObjectContext.save()
+        })
+    }
+    
+    private func cacheDeleteResponse<T: NSManagedObject>(response: DataTaskResponse, managedObject: T) throws {
+        
+        try validateDeleteResponse(response)
+        
+        try self.privateQueueManagedObjectContext.performErrorBlock({ () -> Void in
+            
+            // get object on this context
+            let contextResource = self.privateQueueManagedObjectContext.objectWithID(managedObject.objectID)
+            
+            // delete
+            self.privateQueueManagedObjectContext.deleteObject(contextResource)
+            
+            // save
+            try self.privateQueueManagedObjectContext.save()
+        })
     }
     
     // MARK: - Cache
