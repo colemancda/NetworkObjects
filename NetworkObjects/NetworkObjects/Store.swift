@@ -242,7 +242,6 @@ public class Store {
         // convert new values to JSON
         let jsonValues = managedObject.entity.JSONObjectFromCoreDataValues(changes, usingResourceIDAttributeName: self.resourceIDAttributeName)
         
-        // get resourceID
         let resourceID = (managedObject as NSManagedObject).valueForKey(self.resourceIDAttributeName) as! UInt
         
         let request = self.requestForEditEntity(managedObject.entity.name!, resourceID: resourceID, changes: jsonValues)
@@ -301,15 +300,36 @@ public class Store {
         return dataTask
     }
     
-    public func performFunction(function functionName: String, forManagedObject managedObject: NSManagedObject, withJSONObject JSONObject: [String: AnyObject]?, URLSession: NSURLSession? = nil, completionBlock: ((error: ErrorType?, functionCode: ServerFunctionCode?, JSONResponse: [String: AnyObject]?) -> Void)) -> NSURLSessionDataTask {
+    public func performFunction<T: NSManagedObject>(function functionName: String, managedObject: T, JSONObject: [String: AnyObject]?, URLSession: NSURLSession? = nil, completionBlock: ((ErrorValue<[String: AnyObject]?>) -> Void)) -> NSURLSessionDataTask {
         
-        // get resourceID
-        let resourceID = managedObject.valueForKey(self.resourceIDAttributeName) as! UInt
+        let resourceID = (managedObject as NSManagedObject).valueForKey(self.resourceIDAttributeName) as! UInt
         
-        return self.performFunction(functionName, onResource: managedObject.entity, withID: resourceID, withJSONObject: JSONObject, URLSession: URLSession ?? self.defaultURLSession, completionBlock: { (error, functionCode, JSONResponse) -> Void in
+        let request = self.requestForPerformFunction(functionName, entityName: managedObject.entity.name!, resourceID: resourceID, JSONObject: JSONObject)
+        
+        let session = URLSession ?? self.defaultURLSession
+        
+        let dataTask = session.dataTaskWithRequest(request, completionHandler: {[weak self] (data: NSData?, response: NSURLResponse?, taskError: NSError?) -> Void in
             
-            completionBlock(error: error, functionCode: functionCode, JSONResponse: JSONResponse)
-        })
+            if self == nil { return }
+            
+            let functionResponse: [String: AnyObject]?
+            
+            do {
+                
+                functionResponse = try self!.validateFunctionResponse((data, response, taskError))
+            }
+            catch {
+                
+                completionBlock(ErrorValue.Error(error))
+                return
+            }
+            
+            completionBlock(ErrorValue.Value(functionResponse))
+        })!
+        
+        dataTask.resume()
+        
+        return dataTask
     }
     
     // MARK: - Build URL Requests
@@ -501,42 +521,16 @@ public class Store {
         try self.validateServerResponse(response)
     }
     
-    private func performFunction(functionName: String, onResource entity: NSEntityDescription, withID resourceID: UInt, withJSONObject JSONObject: [String: AnyObject]?, URLSession: NSURLSession, completionBlock: ((error: ErrorType?, functionCode: ServerFunctionCode?, JSONResponse: [String: AnyObject]?) -> Void)) -> NSURLSessionDataTask {
+    private func validateFunctionResponse(response: DataTaskResponse) throws -> [String: AnyObject]? {
         
-        // build URL
+        try self.validateServerResponse(response)
         
-        let request = self.requestForPerformFunction(functionName, entityName: entity.name!, resourceID: resourceID, JSONObject: JSONObject)
+        guard let jsonData = response.0, let jsonObject = jsonData.toJSON() as? [String: UInt] else {
+            
+            throw StoreError.InvalidServerResponse
+        }
         
-        let dataTask = URLSession.dataTaskWithRequest(request, completionHandler: { (data, response, error) -> Void in
-            
-            if error != nil {
-                
-                completionBlock(error: error, functionCode: nil, JSONResponse: nil)
-                
-                return
-            }
-            
-            let httpResponse = response as! NSHTTPURLResponse
-            
-            let functionCode = ServerFunctionCode(rawValue: httpResponse.statusCode)
-            
-            // invalid status code
-            if functionCode == nil {
-                
-                completionBlock(error: ErrorCode.InvalidServerResponse.toError(), functionCode: nil, JSONResponse: nil)
-                
-                return
-            }
-            
-            // get response body
-            let jsonResponse = NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions()) as? [String: AnyObject]
-            
-            completionBlock(error: nil, functionCode: functionCode, JSONResponse: jsonResponse)
-        })
-        
-        dataTask.resume()
-        
-        return dataTask
+        return jsonObject
     }
     
     // MARK: - Cache Response
