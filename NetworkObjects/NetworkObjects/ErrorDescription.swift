@@ -33,7 +33,7 @@ public extension StoreError {
         case .InvalidServerResponse:
             return NSLocalizedString(key, tableName: tableName, bundle: NetworkObjectsFrameworkBundle, value: "Invalid server response.", comment: comment)
             
-        case .UnknownServerStatusCode(let statusCode):
+        case .UnknownStatusCode(let statusCode):
             return NSLocalizedString(key, tableName: tableName, bundle: NetworkObjectsFrameworkBundle, value: "Server responded with unknown status code. ", comment: comment) + "(\(statusCode))"
         }
     }

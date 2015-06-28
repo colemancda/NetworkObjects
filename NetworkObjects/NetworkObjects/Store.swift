@@ -352,7 +352,7 @@ public class Store {
         
         let urlRequest = NSMutableURLRequest(URL: searchURL)
         
-        urlRequest.HTTPMethod = RequestType.Search.HTTPMethod
+        urlRequest.HTTPMethod = RequestType.Search.HTTPMethod.rawValue
         
         urlRequest.HTTPBody = NSData(JSON: parameters, prettyPrintJSON: self.prettyPrintJSON)
         
@@ -367,16 +367,12 @@ public class Store {
         
         let request = NSMutableURLRequest(URL: createResourceURL)
         
-        request.HTTPMethod = RequestType.Create.HTTPMethod
+        request.HTTPMethod = RequestType.Create.HTTPMethod.rawValue
         
         // add initial values to request
         if initialValues != nil {
             
-            do {
-                request.HTTPBody = try NSJSONSerialization.dataWithJSONObject(initialValues!, options: self.jsonWritingOption())
-            } catch _ {
-                request.HTTPBody = nil
-            }
+            request.HTTPBody = NSData(JSON: initialValues!, prettyPrintJSON: self.prettyPrintJSON)!
         }
         
         return request
@@ -417,7 +413,7 @@ public class Store {
         // add HTTP body
         if JSONObject != nil {
             
-            request.HTTPBody = try! NSJSONSerialization.dataWithJSONObject(JSONObject!, options: NSJSONWritingOptions(prettyPrint: self.prettyPrintJSON)
+            request.HTTPBody = NSData(JSON: JSONObject!, prettyPrintJSON: prettyPrintJSON)
         }
         
         return request
@@ -795,12 +791,12 @@ public class Store {
             
             if attribute != nil {
                 
-                let (newValue: AnyObject, valid) = managedObject.entity.attributeValueForJSONCompatibleValue(jsonValue, forAttribute: key)
+                let (newValue, valid) = managedObject.entity.attributeValueForJSONCompatibleValue(jsonValue, forAttribute: key)
                 
                 let currentValue = managedObject.valueForKey(key)
                 
                 // set value if not current value
-                if (newValue as? NSObject) != (currentValue as? NSObject) {
+                if newValue != currentValue {
                     
                     managedObject.setValue(newValue, forKey: key)
                 }
@@ -824,7 +820,7 @@ public class Store {
                     
                     let destinationResourceID = destinationResourceDictionary.values.first!
                     
-                    let destinationEntity = self.managedObjectModel.entitiesByName[destinationResourceEntityName] as! NSEntityDescription
+                    let destinationEntity = self.managedObjectModel.entitiesByName[destinationResourceEntityName]
                     
                     // fetch
                     let (destinationResource, error) = self.findOrCreateEntity(destinationEntity, withResourceID: destinationResourceID, context: context)

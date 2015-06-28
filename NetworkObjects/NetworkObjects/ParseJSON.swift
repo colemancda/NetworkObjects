@@ -27,7 +27,7 @@ public extension NSData {
             
             data = try NSJSONSerialization.dataWithJSONObject(JSON, options: NSJSONWritingOptions())
         }
-        catch _ {}
+        catch _ { return nil }
         
         self.init(data: data!)
     }
@@ -41,7 +41,7 @@ public extension NSData {
             
             json = try NSJSONSerialization.JSONObjectWithData(self, options: NSJSONReadingOptions())
         }
-        catch _ {}
+        catch _ { return nil }
         
         return json
     }

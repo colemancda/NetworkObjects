@@ -11,20 +11,10 @@ import CoreData
 
 // MARK: - Conversion Options
 
-/** Static options for CoreData <-> JSON conversion. */
+/** Static options for ```CoreData <-> JSON``` attribute conversion. */
 internal class CoreDataAttributeJSONCompatibilityOptions {
     
-    class var defaultOptions : CoreDataAttributeJSONCompatibilityOptions {
-        struct Static {
-            static var onceToken : dispatch_once_t = 0
-            static var instance : CoreDataAttributeJSONCompatibilityOptions? = nil
-        }
-        
-        dispatch_once(&Static.onceToken) {
-            Static.instance = CoreDataAttributeJSONCompatibilityOptions()
-        }
-        return Static.instance!
-    }
+    static let defaultOptions = CoreDataAttributeJSONCompatibilityOptions()
     
     var base64EncodingOptions = NSDataBase64EncodingOptions()
     var base64DecodingOptions = NSDataBase64DecodingOptions()

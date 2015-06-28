@@ -170,13 +170,7 @@ public class Server {
                 
                 // get initial values
                 
-                let jsonObject: [String: AnyObject]
-                
-                do {
-                    
-                    jsonObject = try NSJSONSerialization.JSONObjectWithData(request.body(), options: NSJSONReadingOptions()) as! [String: AnyObject]
-                }
-                catch { }
+                let jsonObject: [String: AnyObject]? = request.body().toJSON() as? [String: AnyObject]
                 
                 // convert to server request
                 let serverRequest = ServerRequest(requestType: RequestType.Create,

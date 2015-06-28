@@ -20,30 +20,17 @@ internal extension NSPredicate {
     /// - returns: A concrete subclass of NSPredicate or nil if the provided JSON was incorrect
     class func predicateWithJSON(JSONObject: [String: AnyObject], entity: NSEntityDescription, managedObjectContext: NSManagedObjectContext, resourceIDAttributeName: String) throws -> NSPredicate? {
         
-        // invalid JSON
-        if JSONObject.count != 1 {
-            
-            return nil
-        }
-        
-        // get predicate type
-        let predicateType = SearchPredicateType(rawValue: JSONObject.keys.first!)
-        
-        // get predicate value
-        let predicateJSONObject = JSONObject.values.first as? [String: AnyObject]
-        
-        // invalid JSON
-        if predicateJSONObject == nil || predicateType == nil {
-            
-            return nil
-        }
+        guard JSONObject.count == 1,
+            let predicateType = SearchPredicateType(rawValue: JSONObject.keys.first!),
+            let predicateJSONObject = JSONObject.values.first as? [String: AnyObject]
+            else { return nil }
         
         // create concrete subclass from values
-        switch predicateType! {
+        switch predicateType {
             
-        case .Comparison: return try NSComparisonPredicate(JSONObject: predicateJSONObject!, entity: entity, managedObjectContext: managedObjectContext, resourceIDAttributeName: resourceIDAttributeName)
+        case .Comparison: return try NSComparisonPredicate(JSONObject: predicateJSONObject, entity: entity, managedObjectContext: managedObjectContext, resourceIDAttributeName: resourceIDAttributeName)
             
-        case .Compound: return try NSCompoundPredicate(JSONObject: predicateJSONObject!, entity: entity, managedObjectContext: managedObjectContext, resourceIDAttributeName: resourceIDAttributeName)
+        case .Compound: return try NSCompoundPredicate(JSONObject: predicateJSONObject, entity: entity, managedObjectContext: managedObjectContext, resourceIDAttributeName: resourceIDAttributeName)
         }
     }
     
@@ -59,74 +46,73 @@ internal extension NSComparisonPredicate {
     
     convenience init?(JSONObject: [String: AnyObject], entity: NSEntityDescription, managedObjectContext: NSManagedObjectContext, resourceIDAttributeName: String) throws {
         
-        // set predicate operator type
-        
-        guard let predicateOperatorString = JSONObject[SearchComparisonPredicateParameter.Operator.rawValue] as? String, let predicateOperatorType =  SearchComparisonPredicateOperator(rawValue: predicateOperatorString)?.toPredicateOperatorType() else {
+        guard let predicateOperatorString = JSONObject[SearchComparisonPredicateParameter.Operator.rawValue] as? String,
+            let predicateOperatorType =  SearchComparisonPredicateOperator(rawValue: predicateOperatorString)?.toPredicateOperatorType() else {
             
             return nil
         }
         
-        // set modifier
-        guard let modifierString = JSONObject[SearchComparisonPredicateParameter.Modifier.rawValue] as? String, let modifier = SearchComparisonPredicateModifier(rawValue: modifierString)?.toComparisonPredicateModifier() else {
+        guard let modifier: NSComparisonPredicateModifier? = {
             
-            return nil
-        }
-        
-        // set options
-        guard let optionsObject: AnyObject? = JSONObject[SearchComparisonPredicateParameter.Options.rawValue],
-        let options: NSComparisonPredicateOptions? = {
-            
-            let optionsObject: AnyObject? = JSONObject[SearchComparisonPredicateParameter.Options.rawValue]
-            
-            if optionsObject == nil {
+            guard let modifierString = JSONObject[SearchComparisonPredicateParameter.Modifier.rawValue] as? String else {
                 
-                return NSComparisonPredicateOptions()
+                // default
+                return NSComparisonPredicateModifier.DirectPredicateModifier
             }
             
-            let optionsArray = optionsObject as? [String]
-            
-            if optionsArray == nil {
+            guard let modifier = SearchComparisonPredicateModifier(rawValue: modifierString)?.toComparisonPredicateModifier() else {
                 
                 return nil
             }
             
-            let searchComparisonOptions = RawRepresentables(SearchComparisonPredicateOption.self, rawValues: optionsArray!)
+            return modifier
+        }()
+        else { return nil }
+        
+        guard let options: NSComparisonPredicateOptions? = {
             
-            if searchComparisonOptions == nil {
+            guard let optionsObject = JSONObject[SearchComparisonPredicateParameter.Options.rawValue] else {
                 
+                // default
+                return NSComparisonPredicateOptions()
+            }
+            
+            guard let optionsArray = optionsObject as? [String],
+                let searchComparisonOptions = RawRepresentables(SearchComparisonPredicateOption.self, rawValues: optionsArray) else {
+                    
                 return nil
             }
             
             // Compiler error in Xcode 6.3
             //return NSComparisonPredicateOptions(searchComparisonPredicateOptions: searchComparisonOptions!)
             
-            return SearchComparisonPredicateOptionsToNSComparisonPredicateOptions(searchComparisonOptions!)
+            return SearchComparisonPredicateOptionsToNSComparisonPredicateOptions(searchComparisonOptions)
         }()
+        else { return nil }
         
         // set left expression
-        let leftExpression: NSExpression? = {
-           
-            let keyString = JSONObject[SearchComparisonPredicateParameter.Key.rawValue] as? String
+        guard let leftExpression: NSExpression? = {
             
-            if keyString == nil {
+            guard let key = JSONObject[SearchComparisonPredicateParameter.Key.rawValue] as? String else {
                 
                 return nil
             }
             
-            let attribute = entity.attributesByName[keyString!]
+            let attribute = entity.attributesByName[key]
             
-            let relationship = entity.relationshipsByName[keyString!]
+            let relationship = entity.relationshipsByName[key]
             
             if attribute == nil && relationship == nil {
                 
                 return nil
             }
             
-            return NSExpression(forKeyPath: keyString!)
-        }()
+            return NSExpression(forKeyPath: key)
+            }()
+        else { return nil }
         
         // set right expression
-        let rightExpression: NSExpression? = {
+        guard let rightExpression: NSExpression? = try {
             
             let jsonPredicateValue: AnyObject? = JSONObject[SearchComparisonPredicateParameter.Value.rawValue]
             
@@ -141,7 +127,7 @@ internal extension NSComparisonPredicate {
             }
             
             // convert
-            let convertedValue: AnyObject? = {
+            let convertedValue: AnyObject? = try {
                 
                 let key = leftExpression!.keyPath
                 
@@ -157,7 +143,7 @@ internal extension NSComparisonPredicate {
                 // attribute
                 if attribute != nil {
                     
-                    let (newValue: AnyObject, valid) = entity.attributeValueForJSONCompatibleValue(jsonPredicateValue!, forAttribute: key)
+                    let (newValue, _) = entity.attributeValueForJSONCompatibleValue(jsonPredicateValue!, forAttribute: key)
                     
                     return newValue
                 }
@@ -181,7 +167,7 @@ internal extension NSComparisonPredicate {
                     
                     let resourceEntityName = resourceDictionary!.keys.first!
                     
-                    let resourceEntity = model.entitiesByName[resourceEntityName] as? NSEntityDescription
+                    let resourceEntity = model.entitiesByName[resourceEntityName]
                     
                     // verify
                     if resourceEntity == nil || !(resourceEntity?.isKindOfEntity(relationship!.destinationEntity!) ?? true) {
@@ -189,15 +175,7 @@ internal extension NSComparisonPredicate {
                         return nil
                     }
                     
-                    let (fetchedResource, fetchError) = FetchEntity(resourceEntity!, withResourceID: resourceID, usingContext: managedObjectContext, resourceIDAttributeName: resourceIDAttributeName, shouldPrefetch: false)
-                    
-                    // error fetching
-                    if fetchError != nil {
-                        
-                        error.memory = fetchError!
-                        
-                        return nil
-                    }
+                    let fetchedResource = try FetchEntity(resourceEntity!, withResourceID: resourceID, usingContext: managedObjectContext, resourceIDAttributeName: resourceIDAttributeName, shouldPrefetch: false)
                     
                     // not found
                     if fetchedResource == nil {
@@ -234,7 +212,7 @@ internal extension NSComparisonPredicate {
                         
                         let resourceEntityName = resourceDictionary.keys.first!
                         
-                        let resourceEntity = model.entitiesByName[resourceEntityName] as? NSEntityDescription
+                        let resourceEntity = model.entitiesByName[resourceEntityName]
                         
                         // verify
                         if resourceEntity == nil || !(resourceEntity?.isKindOfEntity(relationship!.destinationEntity!) ?? true)  {
@@ -242,15 +220,7 @@ internal extension NSComparisonPredicate {
                             return nil
                         }
                         
-                        let (fetchedResource, fetchError) = FetchEntity(resourceEntity!, withResourceID: resourceID, usingContext: managedObjectContext, resourceIDAttributeName: resourceIDAttributeName, shouldPrefetch: false)
-                        
-                        // error fetching
-                        if fetchError != nil {
-                            
-                            error.memory = fetchError!
-                            
-                            return nil
-                        }
+                        let fetchedResource = try FetchEntity(resourceEntity!, withResourceID: resourceID, usingContext: managedObjectContext, resourceIDAttributeName: resourceIDAttributeName, shouldPrefetch: false)
                         
                         // not found
                         if fetchedResource == nil {
@@ -275,14 +245,10 @@ internal extension NSComparisonPredicate {
             return NSExpression(forConstantValue: convertedValue!)
         }()
         
-        if rightExpression == nil {
-            
-            self.init()
-            throw error
-        }
+        else { return nil }
         
         // initialize with values
-        self.init(leftExpression: leftExpression!, rightExpression: rightExpression!, modifier: modifier!, type: predicateOperatorType!, options: options!)
+        self.init(leftExpression: leftExpression!, rightExpression: rightExpression!, modifier: modifier!, type: predicateOperatorType, options: options!)
     }
     
     override func toJSON(entity entity: NSEntityDescription, managedObjectContext: NSManagedObjectContext, resourceIDAttributeName: String) -> [String: AnyObject] {
@@ -318,11 +284,10 @@ internal extension NSComparisonPredicate {
 
 internal extension NSCompoundPredicate {
     
-    convenience init(JSONObject: [String: AnyObject], entity: NSEntityDescription, managedObjectContext: NSManagedObjectContext, resourceIDAttributeName: String) throws {
-        var error: NSError! = NSError(domain: "Migrator", code: 0, userInfo: nil)
+    convenience init?(JSONObject: [String: AnyObject], entity: NSEntityDescription, managedObjectContext: NSManagedObjectContext, resourceIDAttributeName: String) throws {
         
         // get the type
-        let compoundPredicateType: NSCompoundPredicateType? = {
+        guard let compoundPredicateType: NSCompoundPredicateType? = {
            
             let predicateTypeString = JSONObject[SearchCompoundPredicateParameter.PredicateType.rawValue] as? String
             
@@ -334,10 +299,10 @@ internal extension NSCompoundPredicate {
             let predicateType = SearchCompoundPredicateType(rawValue: predicateTypeString!)
             
             return predicateType?.toCompoundPredicateType()
-        }()
+        }() else { return nil }
         
         // get the subpredicates
-        let subpredicates: [NSPredicate]? = {
+        guard let subpredicates: [NSPredicate]? = try {
             
             let subpredicatesJSONArray = JSONObject[SearchCompoundPredicateParameter.Subpredicates.rawValue] as? [[String: AnyObject]]
             
@@ -350,17 +315,7 @@ internal extension NSCompoundPredicate {
             
             for predicateJSONObject in subpredicatesJSONArray! {
                 
-                let predicate: NSPredicate?
-                do {
-                    predicate = try NSPredicate.predicateWithJSON(predicateJSONObject, entity: entity, managedObjectContext: managedObjectContext, resourceIDAttributeName: resourceIDAttributeName)
-                } catch var error1 as NSError {
-                    error.memory = error1
-                    predicate = nil
-                } catch {
-                    fatalError()
-                }
-                
-                if predicate == nil {
+                guard let predicate: NSPredicate? = try NSPredicate.predicateWithJSON(predicateJSONObject, entity: entity, managedObjectContext: managedObjectContext, resourceIDAttributeName: resourceIDAttributeName) else {
                     
                     return nil
                 }
@@ -369,13 +324,7 @@ internal extension NSCompoundPredicate {
             }
             
             return predicates
-        }()
-        
-        if subpredicates == nil || compoundPredicateType == nil {
-            
-            self.init()
-            throw error
-        }
+        }() else { return nil }
         
         self.init(type: compoundPredicateType!, subpredicates: subpredicates!)
     }
