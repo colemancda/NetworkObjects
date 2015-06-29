@@ -225,14 +225,7 @@ public class Server {
                 
                 // get json body
                 
-                let jsonObject: [String: AnyObject]?
-                
-                do {
-                    
-                    try NSJSONSerialization.JSONObjectWithData(request.body(), options: NSJSONReadingOptions()) as! [String: AnyObject]
-                }
-                catch { }
-                
+                let jsonObject: [String: AnyObject]? = request.body().toJSON() as? [String: AnyObject]
                 
                 let method = HTTPMethod(rawValue: request.method())!
                 
@@ -367,6 +360,8 @@ public class Server {
                     
                     // tell the delegate
                     self.delegate?.server(self, didPerformRequest: serverRequest, withResponse: serverResponse, userInfo: userInfo)
+                    
+                default: abort()
                 }
             }
             
@@ -401,11 +396,7 @@ public class Server {
                     
                     // get json body
                     
-                    let jsonObject: [String: AnyObject]?
-                    
-                    do {
-                        jsonObject = try NSJSONSerialization.JSONObjectWithData(request.body(), options: NSJSONReadingOptions()) as? [String: AnyObject]
-                    } catch _ { }
+                    let jsonObject: [String: AnyObject]? = request.body().toJSON() as? [String: AnyObject]
                     
                     // convert to server request
                     let serverRequest = ServerRequest(requestType: RequestType.Function,

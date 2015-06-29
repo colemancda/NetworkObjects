@@ -86,8 +86,7 @@ public class Store {
             self.privateQueueManagedObjectContext.persistentStoreCoordinator = self.managedObjectContext.persistentStoreCoordinator
             
             // set private context name
-            if self.privateQueueManagedObjectContext.respondsToSelector("setName:") {
-                
+            if #available(OSX 10.10, *) {
                 self.privateQueueManagedObjectContext.name = "NetworkObjects.Store Private Managed Object Context"
             }
             
@@ -207,6 +206,10 @@ public class Store {
         if initialValues != nil {
             
             jsonValues = entity.JSONObjectFromCoreDataValues(initialValues!, usingResourceIDAttributeName: self.resourceIDAttributeName)
+        }
+        else {
+            
+            jsonValues = nil
         }
         
         let request = self.requestForCreateEntity(entity.name!, initialValues: jsonValues)
@@ -576,6 +579,8 @@ public class Store {
                 mainContextResults.append(mainContextManagedObject)
             }
         })
+        
+        return mainContextResults as! [T]
     }
     
     private func cacheFetchResponse<T: NSManagedObject>(response: DataTaskResponse, forEntity entity: NSEntityDescription, resourceID: UInt) throws -> T {
@@ -635,7 +640,7 @@ public class Store {
         
         let resourceID = try self.validateCreateResponse(response)
         
-        var managedObject: NSManagedObject
+        var managedObject: NSManagedObject!
         
         try self.privateQueueManagedObjectContext.performErrorBlock({ () -> Void in
             
@@ -659,7 +664,7 @@ public class Store {
         })
         
         // get the corresponding managed object that belongs to the main queue context
-        var mainContextManagedObject: NSManagedObject
+        var mainContextManagedObject: NSManagedObject!
         
         self.managedObjectContext.performBlockAndWait({ () -> Void in
             
@@ -791,12 +796,12 @@ public class Store {
             
             if attribute != nil {
                 
-                let (newValue, valid) = managedObject.entity.attributeValueForJSONCompatibleValue(jsonValue, forAttribute: key)
+                let (newValue, _) = managedObject.entity.attributeValueForJSONCompatibleValue(jsonValue, forAttribute: key)
                 
                 let currentValue = managedObject.valueForKey(key)
                 
                 // set value if not current value
-                if newValue != currentValue {
+                if  (newValue as? NSObject) != (currentValue as? NSObject) {
                     
                     managedObject.setValue(newValue, forKey: key)
                 }
@@ -805,8 +810,6 @@ public class Store {
             let relationship = entity.relationshipsByName[key]
             
             if relationship != nil {
-                
-                let destinationEntity = relationship!.destinationEntity!
                 
                 // to-one relationship
                 if !relationship!.toMany {
@@ -820,16 +823,10 @@ public class Store {
                     
                     let destinationResourceID = destinationResourceDictionary.values.first!
                     
-                    let destinationEntity = self.managedObjectModel.entitiesByName[destinationResourceEntityName]
+                    let destinationEntity = self.managedObjectModel.entitiesByName[destinationResourceEntityName]!
                     
                     // fetch
-                    let (destinationResource, error) = self.findOrCreateEntity(destinationEntity, withResourceID: destinationResourceID, context: context)
-                    
-                    // halt execution if error
-                    if error != nil {
-                        
-                        return error
-                    }
+                    let destinationResource = try self.findOrCreateEntity(destinationEntity, withResourceID: destinationResourceID, context: context)
                     
                     // set value if not current value
                     if destinationResource !== managedObject.valueForKey(key) {
@@ -857,22 +854,16 @@ public class Store {
                         
                         let destinationResourceID = destinationResourceDictionary.values.first!
                         
-                        let destinationEntity = self.managedObjectModel.entitiesByName[destinationResourceEntityName] as! NSEntityDescription
+                        let destinationEntity = self.managedObjectModel.entitiesByName[destinationResourceEntityName]!
                         
-                        let (destinationResource, error) = self.findOrCreateEntity(destinationEntity, withResourceID: destinationResourceID, context: context)
+                        let destinationResource = try self.findOrCreateEntity(destinationEntity, withResourceID: destinationResourceID, context: context)
                         
-                        // halt execution if error
-                        if error != nil {
-                            
-                            return error
-                        }
-                        
-                        newDestinationResources.append(destinationResource!)
+                        newDestinationResources.append(destinationResource)
                     }
                     
                     // convert back to NSSet or NSOrderedSet
                     
-                    var newValue: AnyObject = {
+                    let newValue: AnyObject = {
                         
                         if relationship!.ordered {
                             
@@ -913,8 +904,6 @@ public class Store {
                 }
             }
         }
-        
-        return nil
     }
     
     // MARK: - Validation
@@ -925,8 +914,8 @@ public class Store {
         for (key, value) in JSONObject {
             
             // validate key
-            let attribute = entity.attributesByName[key] as? NSAttributeDescription
-            let relationship = entity.relationshipsByName[key] as? NSRelationshipDescription
+            let attribute = entity.attributesByName[key]
+            let relationship = entity.relationshipsByName[key]
             
             if attribute == nil && relationship == nil {
                 
@@ -936,7 +925,7 @@ public class Store {
             // validate value
             if attribute != nil {
                 
-                let (newValue: AnyObject, valid) = entity.attributeValueForJSONCompatibleValue(value, forAttribute: key)
+                let (_, valid) = entity.attributeValueForJSONCompatibleValue(value, forAttribute: key)
                 
                 if !valid {
                     
@@ -1020,14 +1009,14 @@ internal extension NSEntityDescription {
         
         for (key, value) in values {
             
-            let attribute = self.attributesByName[key] as? NSAttributeDescription
+            let attribute = self.attributesByName[key]
             
             if attribute != nil {
                 
                 jsonObject[key] = self.JSONCompatibleValueForAttributeValue(value, forAttribute: key)
             }
             
-            let relationship = self.relationshipsByName[key] as? NSRelationshipDescription
+            let relationship = self.relationshipsByName[key]
             
             if relationship != nil {
                 
@@ -1087,7 +1076,7 @@ private extension NSManagedObjectModel {
     func addDateCachedAttribute(dateCachedAttributeName: String) {
         
         // add a date attribute to managed object model
-        for (entityName, entity) in self.entitiesByName as [String: NSEntityDescription] {
+        for (_, entity) in self.entitiesByName as [String: NSEntityDescription] {
             
             if entity.superentity == nil {
                 
@@ -1105,9 +1094,9 @@ private extension NSManagedObjectModel {
     func markAllPropertiesAsOptional() {
         
         // add a date attribute to managed object model
-        for (entityName, entity) in self.entitiesByName as [String: NSEntityDescription] {
+        for (_, entity) in self.entitiesByName as [String: NSEntityDescription] {
             
-            for (propertyName, property) in entity.propertiesByName as [String: NSPropertyDescription] {
+            for (_, property) in entity.propertiesByName as [String: NSPropertyDescription] {
                 
                 property.optional = true
             }
@@ -1130,7 +1119,7 @@ private extension NSManagedObject {
         
         for (key, value) in keyedValues {
             
-            if let relationship = self.entity.relationshipsByName[key] as? NSRelationshipDescription {
+            if let relationship = self.entity.relationshipsByName[key] {
                 
                 // to-one relationships
                 if !relationship.toMany {
@@ -1145,29 +1134,31 @@ private extension NSManagedObject {
                     
                     var newRelationshipValues = [NSManagedObject]()
                     
-                    var arrayValue: [NSManagedObject] = {
+                    guard let arrayValue: [NSManagedObject] = {
                        
                         // set NSSet or NSOrderedSet (which unforunately is not a subclass), also accept NSArray as a convenience
                         
                         if value is [NSManagedObject] {
                             
-                            return value as! [NSManagedObject]
+                            return value as? [NSManagedObject]
                         }
                         
                         if let set = value as? NSSet {
                             
-                            return set.allObjects as! [NSManagedObject]
+                            return set.allObjects as? [NSManagedObject]
                         }
                         
                         if let orderedSet = value as? NSOrderedSet {
                             
-                            return orderedSet.array as! [NSManagedObject]
+                            return orderedSet.array as? [NSManagedObject]
                         }
                         
-                        NSException(name: NSInternalInconsistencyException, reason: "Provided value \(value) for Core Data to-many relationship is not an accepted collection type", userInfo: nil)
+                        return nil
                         
-                        return []
-                    }()
+                    }() else {
+                        
+                        fatalError("Provided value \(value) for Core Data to-many relationship is not an accepted collection type")
+                    }
                     
                     // get values belonging to managed object context
                     
