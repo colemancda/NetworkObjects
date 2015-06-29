@@ -906,7 +906,6 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)",
 					"$(inherited)",
-					"$(inherited)",
 					$SRCROOT/../Carthage/Build/Mac,
 				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -928,7 +927,6 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)",
-					"$(inherited)",
 					"$(inherited)",
 					$SRCROOT/../Carthage/Build/Mac,
 				);
