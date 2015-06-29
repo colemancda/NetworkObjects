@@ -6,18 +6,10 @@
 //  Copyright (c) 2014 ColemanCDA. All rights reserved.
 //
 
-#if os(iOS)
-import UIKit
-#endif
-#if os(OSX)
-import AppKit
-#endif
-
 import Foundation
 import XCTest
 import CoreData
 import NetworkObjects
-import ExSwift
 
 class NetworkObjectsTests: XCTestCase {
     
@@ -32,25 +24,23 @@ class NetworkObjectsTests: XCTestCase {
     }
     
     func testFrameworkVersion() {
+                
+        let shortFrameworkVersion = NetworkObjectsFrameworkBundle.infoDictionary!["CFBundleShortVersionString"] as! String
         
-        let frameworkBundle = NSBundle(identifier: "com.colemancda.NetworkObjects")!
-        
-        let shortFrameworkVersion = frameworkBundle.infoDictionary!["CFBundleShortVersionString"] as! String
-        
-        let frameworkVersion = frameworkBundle.infoDictionary![kCFBundleVersionKey as String]! as! String
+        let frameworkVersion = NetworkObjectsFrameworkBundle.infoDictionary![kCFBundleVersionKey as String]! as! String
         
         if frameworkVersion == "TRAVISCI" {
             
-            println("Skipping framework version assertion, running from Travis CI")
+            print("Skipping framework version assertion, running from Travis CI")
             
             return
         }
         
-        println("Testing NetworkObjects \(shortFrameworkVersion) Build \(frameworkVersion)")
+        print("Testing NetworkObjects \(shortFrameworkVersion) Build \(frameworkVersion)")
         
         XCTAssert(shortFrameworkVersion != "1", "Short framework version (\(shortFrameworkVersion)) should not equal 1")
         
-        XCTAssert(frameworkVersion.toUInt()! > 1, "Framework version (\(frameworkVersion)) should be greater than 1")
+        XCTAssert(UInt(frameworkVersion) > 1, "Framework version (\(frameworkVersion)) should be greater than 1")
     }
     
     func testStoreInit() {
@@ -60,16 +50,4 @@ class NetworkObjectsTests: XCTestCase {
         
         XCTAssert(store.dynamicType === Store.self, "Store should have been initialized")
     }
-    
-    func testServerInit() {
-        // This is an example of a functional test case.
-        
-        
-        
-        XCTAssert(true, "Pass")
-    }
 }
-
-// MARK: - Constants
-
-let ServerTestingPort: UInt = 8089

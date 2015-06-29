@@ -15,10 +15,10 @@ internal extension NSManagedObject {
     func arrayValueForToManyRelationship(relationship key: String) -> [NSManagedObject]? {
         
         // assert relationship exists
-        assert(self.entity.relationshipsByName[key] as? NSRelationshipDescription != nil, "Relationship \(key) doesnt exist on \(self.entity.name)")
+        assert(self.entity.relationshipsByName[key] != nil, "Relationship \(key) doesnt exist on \(self.entity.name)")
         
         // get relationship
-        let relationship = self.entity.relationshipsByName[key] as! NSRelationshipDescription
+        let relationship = self.entity.relationshipsByName[key]!
         
         // assert that relationship is to-many
         assert(relationship.toMany, "Relationship \(key) on \(self.entity.name) is not to-many")

@@ -11,23 +11,13 @@ import CoreData
 
 // MARK: - Conversion Options
 
-/** Static options for CoreData <-> JSON conversion. */
+/** Static options for ```CoreData <-> JSON``` attribute conversion. */
 internal class CoreDataAttributeJSONCompatibilityOptions {
     
-    class var defaultOptions : CoreDataAttributeJSONCompatibilityOptions {
-        struct Static {
-            static var onceToken : dispatch_once_t = 0
-            static var instance : CoreDataAttributeJSONCompatibilityOptions? = nil
-        }
-        
-        dispatch_once(&Static.onceToken) {
-            Static.instance = CoreDataAttributeJSONCompatibilityOptions()
-        }
-        return Static.instance!
-    }
+    static let defaultOptions = CoreDataAttributeJSONCompatibilityOptions()
     
-    var base64EncodingOptions = NSDataBase64EncodingOptions.allZeros
-    var base64DecodingOptions = NSDataBase64DecodingOptions.allZeros
+    var base64EncodingOptions = NSDataBase64EncodingOptions()
+    var base64DecodingOptions = NSDataBase64DecodingOptions()
     var dateFormatter: NSDateFormatter = {
         let dateFormatter = NSDateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZ"
@@ -43,14 +33,14 @@ internal extension NSEntityDescription {
     
     /// Converts a Core Data attribute value to a JSON-compatible value.
     /// 
-    /// :param: attributeValue The Core Data compatible value that will be converted to JSON. Accepts NSNull as a convenience is case this is called using the values of a dictionary, which cannot hold nil. 
-    /// :param: attributeName The name the of attribute that will be used to convert the value. Must be a valid attribute.
-    /// :returns: The converted JSON value.
+    /// - parameter attributeValue: The Core Data compatible value that will be converted to JSON. Accepts NSNull as a convenience is case this is called using the values of a dictionary, which cannot hold nil. 
+    /// - parameter attributeName: The name the of attribute that will be used to convert the value. Must be a valid attribute.
+    /// - returns: The converted JSON value.
     func JSONCompatibleValueForAttributeValue(attributeValue: AnyObject?, forAttribute attributeName: String, options: CoreDataAttributeJSONCompatibilityOptions = CoreDataAttributeJSONCompatibilityOptions.defaultOptions) -> AnyObject {
         
-        let attributeDescription = self.attributesByName[attributeName] as? NSAttributeDescription
+        assert(self.attributesByName[attributeName] != nil, "Attribute named \(attributeName) not found on entity \(self)")
         
-        assert(attributeDescription != nil, "Attribute named \(attributeName) not found on entity \(self)")
+        let attributeDescription = self.attributesByName[attributeName]!
         
         // give value based on attribute type...
         
@@ -62,7 +52,7 @@ internal extension NSEntityDescription {
             return NSNull()
         }
         
-        switch attributeDescription!.attributeType {
+        switch attributeDescription.attributeType {
             
         // invalid types
         case .UndefinedAttributeType, .ObjectIDAttributeType:
@@ -92,7 +82,7 @@ internal extension NSEntityDescription {
         case .TransformableAttributeType:
             
             // get transformer
-            let valueTransformerName = attributeDescription?.valueTransformerName
+            let valueTransformerName = attributeDescription.valueTransformerName
             
             // default transformer: NSKeyedUnarchiveFromDataTransformerName in reverse
             if valueTransformerName == nil {
@@ -119,14 +109,14 @@ internal extension NSEntityDescription {
     
     /// Converts a JSON-compatible value to a Core Data attribute value.
     /// 
-    /// :param: jsonValue The JSON value that will be converted.
-    /// :param: attributeName The name the of attribute that will be used to convert the value. Must be a valid attribute.
-    /// :returns: A tuple with a Core Data compatible attribute value and a boolean indicating that the conversion was successful.
+    /// - parameter jsonValue: The JSON value that will be converted.
+    /// - parameter attributeName: The name the of attribute that will be used to convert the value. Must be a valid attribute.
+    /// - returns: A tuple with a Core Data compatible attribute value and a boolean indicating that the conversion was successful.
     func attributeValueForJSONCompatibleValue(jsonValue: AnyObject, forAttribute attributeName: String, options: CoreDataAttributeJSONCompatibilityOptions = CoreDataAttributeJSONCompatibilityOptions.defaultOptions) -> (AnyObject?, Bool) {
         
-        let attributeDescription = self.attributesByName[attributeName] as? NSAttributeDescription
+        assert(self.attributesByName[attributeName] != nil, "Attribute named \(attributeName) not found on entity \(self)")
         
-        assert(attributeDescription != nil, "Attribute named \(attributeName) not found on entity \(self)")
+        let attributeDescription = self.attributesByName[attributeName]!
         
         // if value is NSNull
         if jsonValue as? NSNull != nil {
@@ -134,7 +124,7 @@ internal extension NSEntityDescription {
             return (nil, true)
         }
         
-        switch attributeDescription!.attributeType {
+        switch attributeDescription.attributeType {
             
         case .UndefinedAttributeType, .ObjectIDAttributeType:
             return (nil, false)
@@ -187,7 +177,7 @@ internal extension NSEntityDescription {
             }
             
             // get transformer
-            let valueTransformerName = attributeDescription!.valueTransformerName
+            let valueTransformerName = attributeDescription.valueTransformerName
             
             // default transformer: NSKeyedUnarchiveFromDataTransformerName in reverse (unarchive data)
             if valueTransformerName == nil {
