@@ -1,4 +1,3 @@
 github "ColemanCDA/CocoaAsyncSocket" "9f0352f6ece952be9612a3e0b5370a49eb1a168c"
-github "ColemanCDA/ExSwift" "3bfb5caf70efd97046d9813a4e12eebe6b93b82b"
 github "ColemanCDA/CocoaHTTPServer" "ec47e3a0d3c025c40a3b9d34aa5e1be0c624aa19"
 github "ColemanCDA/RoutingHTTPServer" "50fee265cd86227048eda7a82d1136c0b00a00a0"
