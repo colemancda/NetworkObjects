@@ -9,7 +9,6 @@
 import Foundation
 import XCTest
 import CoreData
-import ExSwift
 @testable import NetworkObjects
 
 class CoreDataAttributeJSONCompatibilityTests: XCTestCase {

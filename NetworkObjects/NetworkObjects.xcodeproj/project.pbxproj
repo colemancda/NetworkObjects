@@ -25,11 +25,9 @@
 		6E1798871B323FA6005D2844 /* NetworkObjects.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E1798711B323A61005D2844 /* NetworkObjects.framework */; };
 		6E17988B1B323FC9005D2844 /* CocoaAsyncSocket.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 6E1798561B323995005D2844 /* CocoaAsyncSocket.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		6E17988C1B323FC9005D2844 /* CocoaHTTPServer.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 6E1798571B323995005D2844 /* CocoaHTTPServer.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		6E17988D1B323FC9005D2844 /* ExSwift.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 6E1798581B323995005D2844 /* ExSwift.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		6E17988E1B323FC9005D2844 /* RoutingHTTPServer.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 6E1798591B323995005D2844 /* RoutingHTTPServer.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		6E1798901B324217005D2844 /* CocoaAsyncSocket.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 6E17985B1B323995005D2844 /* CocoaAsyncSocket.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		6E1798911B324217005D2844 /* CocoaHTTPServer.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 6E17985C1B323995005D2844 /* CocoaHTTPServer.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		6E1798921B324217005D2844 /* ExSwift.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 6E17985D1B323995005D2844 /* ExSwift.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		6E1798931B324217005D2844 /* RoutingHTTPServer.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 6E17985E1B323995005D2844 /* RoutingHTTPServer.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		6E18477E1B3CDFC400D82C41 /* CoreDataError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E18477D1B3CDFC400D82C41 /* CoreDataError.swift */; };
 		6E18477F1B3CDFC400D82C41 /* CoreDataError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E18477D1B3CDFC400D82C41 /* CoreDataError.swift */; };
@@ -39,6 +37,8 @@
 		6E1847851B3EF8EE00D82C41 /* ParseJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E1847831B3EF8EE00D82C41 /* ParseJSON.swift */; };
 		6E1847891B3F1DCA00D82C41 /* HTTPMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E1847861B3F14FE00D82C41 /* HTTPMethod.swift */; };
 		6E18478A1B3F1DCB00D82C41 /* HTTPMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E1847861B3F14FE00D82C41 /* HTTPMethod.swift */; };
+		6E18478C1B40D29E00D82C41 /* RawRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E18478B1B40D29E00D82C41 /* RawRepresentable.swift */; };
+		6E18478D1B40D29E00D82C41 /* RawRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E18478B1B40D29E00D82C41 /* RawRepresentable.swift */; };
 		6E5929A419C54FA700F391F3 /* CoreDataAttributeJSONCompatibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E5929A319C54FA700F391F3 /* CoreDataAttributeJSONCompatibility.swift */; };
 		6E66A46A1A833AD900B92742 /* CoreDataConvenienceExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E66A4691A833AD900B92742 /* CoreDataConvenienceExtensions.swift */; };
 		6E6F441A1A7FF6D800DEE699 /* CoreDataPredicateJSONCompatibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E6F44191A7FF6D800DEE699 /* CoreDataPredicateJSONCompatibility.swift */; };
@@ -108,7 +108,6 @@
 			files = (
 				6E17988B1B323FC9005D2844 /* CocoaAsyncSocket.framework in Copy Frameworks */,
 				6E17988C1B323FC9005D2844 /* CocoaHTTPServer.framework in Copy Frameworks */,
-				6E17988D1B323FC9005D2844 /* ExSwift.framework in Copy Frameworks */,
 				6E17988E1B323FC9005D2844 /* RoutingHTTPServer.framework in Copy Frameworks */,
 			);
 			name = "Copy Frameworks";
@@ -122,7 +121,6 @@
 			files = (
 				6E1798901B324217005D2844 /* CocoaAsyncSocket.framework in Copy Frameworks */,
 				6E1798911B324217005D2844 /* CocoaHTTPServer.framework in Copy Frameworks */,
-				6E1798921B324217005D2844 /* ExSwift.framework in Copy Frameworks */,
 				6E1798931B324217005D2844 /* RoutingHTTPServer.framework in Copy Frameworks */,
 			);
 			name = "Copy Frameworks";
@@ -142,11 +140,9 @@
 /* Begin PBXFileReference section */
 		6E1798561B323995005D2844 /* CocoaAsyncSocket.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = CocoaAsyncSocket.framework; sourceTree = "<group>"; };
 		6E1798571B323995005D2844 /* CocoaHTTPServer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = CocoaHTTPServer.framework; sourceTree = "<group>"; };
-		6E1798581B323995005D2844 /* ExSwift.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = ExSwift.framework; sourceTree = "<group>"; };
 		6E1798591B323995005D2844 /* RoutingHTTPServer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = RoutingHTTPServer.framework; sourceTree = "<group>"; };
 		6E17985B1B323995005D2844 /* CocoaAsyncSocket.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = CocoaAsyncSocket.framework; sourceTree = "<group>"; };
 		6E17985C1B323995005D2844 /* CocoaHTTPServer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = CocoaHTTPServer.framework; sourceTree = "<group>"; };
-		6E17985D1B323995005D2844 /* ExSwift.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = ExSwift.framework; sourceTree = "<group>"; };
 		6E17985E1B323995005D2844 /* RoutingHTTPServer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = RoutingHTTPServer.framework; sourceTree = "<group>"; };
 		6E1798711B323A61005D2844 /* NetworkObjects.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = NetworkObjects.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6E1798851B323A91005D2844 /* NetworkObjectsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NetworkObjectsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -154,6 +150,7 @@
 		6E1847801B3CE93C00D82C41 /* ErrorValue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ErrorValue.swift; sourceTree = "<group>"; };
 		6E1847831B3EF8EE00D82C41 /* ParseJSON.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ParseJSON.swift; sourceTree = "<group>"; };
 		6E1847861B3F14FE00D82C41 /* HTTPMethod.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTTPMethod.swift; sourceTree = "<group>"; };
+		6E18478B1B40D29E00D82C41 /* RawRepresentable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RawRepresentable.swift; sourceTree = "<group>"; };
 		6E5929A319C54FA700F391F3 /* CoreDataAttributeJSONCompatibility.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataAttributeJSONCompatibility.swift; sourceTree = "<group>"; };
 		6E66A4691A833AD900B92742 /* CoreDataConvenienceExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataConvenienceExtensions.swift; sourceTree = "<group>"; };
 		6E6F44191A7FF6D800DEE699 /* CoreDataPredicateJSONCompatibility.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataPredicateJSONCompatibility.swift; sourceTree = "<group>"; };
@@ -222,7 +219,6 @@
 			children = (
 				6E1798561B323995005D2844 /* CocoaAsyncSocket.framework */,
 				6E1798571B323995005D2844 /* CocoaHTTPServer.framework */,
-				6E1798581B323995005D2844 /* ExSwift.framework */,
 				6E1798591B323995005D2844 /* RoutingHTTPServer.framework */,
 			);
 			name = iOS;
@@ -234,11 +230,18 @@
 			children = (
 				6E17985B1B323995005D2844 /* CocoaAsyncSocket.framework */,
 				6E17985C1B323995005D2844 /* CocoaHTTPServer.framework */,
-				6E17985D1B323995005D2844 /* ExSwift.framework */,
 				6E17985E1B323995005D2844 /* RoutingHTTPServer.framework */,
 			);
 			name = Mac;
 			path = ../Carthage/Build/Mac;
+			sourceTree = "<group>";
+		};
+		6E18478E1B40D84900D82C41 /* Swift Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				6E18478B1B40D29E00D82C41 /* RawRepresentable.swift */,
+			);
+			name = "Swift Extensions";
 			sourceTree = "<group>";
 		};
 		6E5D51501B29F070006593B3 /* Frameworks */ = {
@@ -302,6 +305,7 @@
 				6E1847801B3CE93C00D82C41 /* ErrorValue.swift */,
 				6EC750F219C3F5DD009F0E00 /* ErrorDescription.swift */,
 				6E1847831B3EF8EE00D82C41 /* ParseJSON.swift */,
+				6E18478E1B40D84900D82C41 /* Swift Extensions */,
 				6EAF656C1B3B866400884605 /* Enums */,
 				6E66A46C1A833B7F00B92742 /* Core Data Extensions */,
 				6EAD584919C3B58300DC080A /* Supporting Files */,
@@ -565,6 +569,7 @@
 				6EAF65841B3B8B1E00884605 /* StoreError.swift in Sources */,
 				6E1798631B323A61005D2844 /* ErrorDescription.swift in Sources */,
 				6E1798641B323A61005D2844 /* CoreDataAttributeJSONCompatibility.swift in Sources */,
+				6E18478D1B40D29E00D82C41 /* RawRepresentable.swift in Sources */,
 				6E18477F1B3CDFC400D82C41 /* CoreDataError.swift in Sources */,
 				6EAF657B1B3B88B100884605 /* AccessControl.swift in Sources */,
 				6EAF656F1B3B868900884605 /* RequestType.swift in Sources */,
@@ -605,6 +610,7 @@
 				6EAF65831B3B8B1E00884605 /* StoreError.swift in Sources */,
 				6EC750F319C3F5DD009F0E00 /* ErrorDescription.swift in Sources */,
 				6E5929A419C54FA700F391F3 /* CoreDataAttributeJSONCompatibility.swift in Sources */,
+				6E18478C1B40D29E00D82C41 /* RawRepresentable.swift in Sources */,
 				6E18477E1B3CDFC400D82C41 /* CoreDataError.swift in Sources */,
 				6EAF657A1B3B88B100884605 /* AccessControl.swift in Sources */,
 				6EAF656E1B3B868900884605 /* RequestType.swift in Sources */,

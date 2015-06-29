@@ -8,7 +8,6 @@
 
 import Foundation
 import CoreData
-import ExSwift
 
 // MARK: - Internal Extensions
 
@@ -78,7 +77,7 @@ internal extension NSComparisonPredicate {
             }
             
             guard let optionsArray = optionsObject as? [String],
-                let searchComparisonOptions = RawRepresentables(SearchComparisonPredicateOption.self, rawValues: optionsArray) else {
+                let searchComparisonOptions = optionsArray.toRawRepresentable(SearchComparisonPredicateOption) else {
                     
                 return nil
             }
@@ -267,7 +266,7 @@ internal extension NSComparisonPredicate {
         // array of options or nil
         if let predicateOptions = options.toSearchComparisonPredicateOptions() {
             
-            jsonObject[SearchComparisonPredicateParameter.Options.rawValue] = RawValues(predicateOptions)
+            jsonObject[SearchComparisonPredicateParameter.Options.rawValue] = predicateOptions.rawValues
         }
         
         // set key

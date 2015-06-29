@@ -9,7 +9,6 @@
 import Foundation
 import XCTest
 import CoreData
-import ExSwift
 import NetworkObjects
 
 class DeleteTests: XCTestCase {
