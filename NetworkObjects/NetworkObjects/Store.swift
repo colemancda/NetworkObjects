@@ -196,7 +196,7 @@ public class Store {
         
     }
     
-    public func create<T: NSManagedObject>(entityName: String, initialValues: [String: AnyObject]?, URLSession: NSURLSession? = nil, completionBlock: ((ErrorValue<T>) -> Void)) -> NSURLSessionDataTask {
+    public func create<T: NSManagedObject>(entityName: String, initialValues: [String: AnyObject]? = nil, URLSession: NSURLSession? = nil, completionBlock: ((ErrorValue<T>) -> Void)) -> NSURLSessionDataTask {
         
         let entity = self.managedObjectModel.entitiesByName[entityName]! as NSEntityDescription
         
@@ -303,7 +303,7 @@ public class Store {
         return dataTask
     }
     
-    public func performFunction<T: NSManagedObject>(function functionName: String, managedObject: T, JSONObject: [String: AnyObject]?, URLSession: NSURLSession? = nil, completionBlock: ((ErrorValue<[String: AnyObject]?>) -> Void)) -> NSURLSessionDataTask {
+    public func performFunction<T: NSManagedObject>(function functionName: String, managedObject: T, JSONObject: [String: AnyObject]? = nil, URLSession: NSURLSession? = nil, completionBlock: ((ErrorValue<[String: AnyObject]?>) -> Void)) -> NSURLSessionDataTask {
         
         let resourceID = (managedObject as NSManagedObject).valueForKey(self.resourceIDAttributeName) as! UInt
         

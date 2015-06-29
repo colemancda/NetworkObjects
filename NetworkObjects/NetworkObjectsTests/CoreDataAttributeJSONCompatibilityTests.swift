@@ -10,6 +10,7 @@ import Foundation
 import XCTest
 import CoreData
 import ExSwift
+@testable import NetworkObjects
 
 class CoreDataAttributeJSONCompatibilityTests: XCTestCase {
     
@@ -28,7 +29,7 @@ class CoreDataAttributeJSONCompatibilityTests: XCTestCase {
         // create model
         self.testModel = NSManagedObjectModel.mergedModelFromBundles([NSBundle(identifier: "com.ColemanCDA.NetworkObjectsTests")!])!
         
-        self.testAttributesEntity = self.testModel.entitiesByName["TestAttributes"] as! NSEntityDescription
+        self.testAttributesEntity = self.testModel.entitiesByName["TestAttributes"]!
         
     }
     
@@ -42,12 +43,10 @@ class CoreDataAttributeJSONCompatibilityTests: XCTestCase {
     
     func testConvertJSONNullToCoreDataNil() {
         
-        let null = NSNull()
-        
         // set nil to all the attributes
-        for (attributeName, attribute) in self.testAttributesEntity.attributesByName as [String: NSAttributeDescription] {
+        for (attributeName, _) in self.testAttributesEntity.attributesByName as [String: NSAttributeDescription] {
             
-            let (convertedValue: AnyObject, valid) = testAttributesEntity.attributeValueForJSONCompatibleValue(null, forAttribute: attributeName)
+            let (convertedValue, valid) = testAttributesEntity.attributeValueForJSONCompatibleValue(NSNull(), forAttribute: attributeName)
             
             XCTAssert(valid, "Conversion should be valid")
             
@@ -59,7 +58,7 @@ class CoreDataAttributeJSONCompatibilityTests: XCTestCase {
         
         let sampleString = "sampleString"
         
-        let (convertedValue: AnyObject, valid) = testAttributesEntity.attributeValueForJSONCompatibleValue(sampleString, forAttribute: "stringAttribute")
+        let (convertedValue, valid) = testAttributesEntity.attributeValueForJSONCompatibleValue(sampleString, forAttribute: "stringAttribute")
         
         XCTAssert(valid, "Conversion should be valid")
         
@@ -70,7 +69,7 @@ class CoreDataAttributeJSONCompatibilityTests: XCTestCase {
         
         let jsonValue = true as NSNumber
         
-        let (convertedValue: AnyObject, valid) = testAttributesEntity.attributeValueForJSONCompatibleValue(jsonValue, forAttribute: "boolAttribute")
+        let (convertedValue, valid) = testAttributesEntity.attributeValueForJSONCompatibleValue(jsonValue, forAttribute: "boolAttribute")
         
         XCTAssert(valid, "Conversion should be valid")
         
@@ -85,7 +84,7 @@ class CoreDataAttributeJSONCompatibilityTests: XCTestCase {
         
         for attributeName in integerAttributes {
             
-            let (convertedValue: AnyObject, valid) = testAttributesEntity.attributeValueForJSONCompatibleValue(jsonValue, forAttribute: attributeName)
+            let (convertedValue, valid) = testAttributesEntity.attributeValueForJSONCompatibleValue(jsonValue, forAttribute: attributeName)
             
             XCTAssert(valid, "Conversion should be valid")
             
@@ -97,7 +96,7 @@ class CoreDataAttributeJSONCompatibilityTests: XCTestCase {
         
         let jsonValue = Float(1.11) as NSNumber
         
-        let (convertedValue: AnyObject, valid) = testAttributesEntity.attributeValueForJSONCompatibleValue(jsonValue, forAttribute: "floatAttribute")
+        let (convertedValue, valid) = testAttributesEntity.attributeValueForJSONCompatibleValue(jsonValue, forAttribute: "floatAttribute")
         
         XCTAssert(valid, "Conversion should be valid")
         
@@ -110,7 +109,7 @@ class CoreDataAttributeJSONCompatibilityTests: XCTestCase {
         
         let jsonDateString = CoreDataAttributeJSONCompatibilityOptions.defaultOptions.dateFormatter.stringFromDate(date)
         
-        let (convertedValue: AnyObject, valid) = testAttributesEntity.attributeValueForJSONCompatibleValue(jsonDateString, forAttribute: "dateAttribute")
+        let (convertedValue, valid) = testAttributesEntity.attributeValueForJSONCompatibleValue(jsonDateString, forAttribute: "dateAttribute")
         
         XCTAssert(valid, "Conversion should be valid")
         
@@ -129,7 +128,7 @@ class CoreDataAttributeJSONCompatibilityTests: XCTestCase {
         
         let base64String = data.base64EncodedStringWithOptions(CoreDataAttributeJSONCompatibilityOptions.defaultOptions.base64EncodingOptions)
         
-        let (convertedValue: AnyObject, valid) = testAttributesEntity.attributeValueForJSONCompatibleValue(base64String, forAttribute: "dataAttribute")
+        let (convertedValue, valid) = testAttributesEntity.attributeValueForJSONCompatibleValue(base64String, forAttribute: "dataAttribute")
         
         XCTAssert(valid, "Conversion should be valid")
         
@@ -144,7 +143,7 @@ class CoreDataAttributeJSONCompatibilityTests: XCTestCase {
         
         let base64String = data.base64EncodedStringWithOptions(CoreDataAttributeJSONCompatibilityOptions.defaultOptions.base64EncodingOptions)
         
-        let (convertedValue: AnyObject, valid) = testAttributesEntity.attributeValueForJSONCompatibleValue(base64String, forAttribute: "defaultTransformer")
+        let (convertedValue, valid) = testAttributesEntity.attributeValueForJSONCompatibleValue(base64String, forAttribute: "defaultTransformer")
         
         XCTAssert(valid, "Conversion should be valid")
         
@@ -157,7 +156,7 @@ class CoreDataAttributeJSONCompatibilityTests: XCTestCase {
         
         let data = "GarbageData".dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: true)!
         
-        let (convertedValue: AnyObject, valid) = testAttributesEntity.attributeValueForJSONCompatibleValue(data, forAttribute: "defaultTransformer")
+        let (convertedValue, valid) = testAttributesEntity.attributeValueForJSONCompatibleValue(data, forAttribute: "defaultTransformer")
         
         XCTAssert(!valid, "Conversion should be invalid")
         

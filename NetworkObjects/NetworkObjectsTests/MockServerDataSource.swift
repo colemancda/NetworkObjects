@@ -97,11 +97,11 @@ class MockServerDataSource: ServerDataSource {
         return self.mockFunctionHandlers[entity.name!]?.keys.array ?? []
     }
     
-    func server(server: Server, performFunction functionName: String, forManagedObject managedObject: NSManagedObject, context: NSManagedObjectContext, recievedJsonObject: [String : AnyObject]?, request: ServerRequest, inout userInfo: [String: AnyObject]) -> (ServerFunctionCode, [String : AnyObject]?) {
+    func server(server: Server, performFunction functionName: String, forManagedObject managedObject: NSManagedObject, context: NSManagedObjectContext, recievedJsonObject: [String : AnyObject]?, request: ServerRequest, inout userInfo: [String: AnyObject]) -> (FunctionCode, [String : AnyObject]?) {
         
         let completionHandler = self.mockFunctionHandlers[managedObject.entity.name!]![functionName]!
         
-        var response: (ServerFunctionCode, [String : AnyObject]?)!
+        var response: (FunctionCode, [String : AnyObject]?)!
         
         context.performBlockAndWait({ () -> Void in
             
@@ -114,4 +114,4 @@ class MockServerDataSource: ServerDataSource {
 }
 
 /** Block for mocking functions. */
-typealias MockFunctionHandler = (managedObject: NSManagedObject, context: NSManagedObjectContext, recievedJsonObject: [String : AnyObject]?, request: ServerRequest) -> (ServerFunctionCode, [String : AnyObject]?)
+typealias MockFunctionHandler = (managedObject: NSManagedObject, context: NSManagedObjectContext, recievedJsonObject: [String : AnyObject]?, request: ServerRequest) -> (FunctionCode, [String : AnyObject]?)
