@@ -2,7 +2,6 @@ NetworkObjects
 ==============
 
 [![Join the chat at https://gitter.im/colemancda/NetworkObjects](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/colemancda/NetworkObjects?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
-[![Build Status](https://travis-ci.org/colemancda/NetworkObjects.svg?branch=develop)](https://travis-ci.org/colemancda/NetworkObjects)
 
 NetworkObjects is a distributed object graph inspired by Apple's WebObjects. This framework compiles for OS X and iOS and serves as the foundation for building powerful Swift servers as well as serving as a cross-platform alternative to Cocoa's Distributed Objects. Powered by Core Data and Grand Central Dispatch, the framework comes with server and client classes which abstract away advanced networking code so the developer can focus on distributing Core Data entities over a network.
 
@@ -62,7 +61,7 @@ The *Store* class is what clients will use to communicate with the server. A ```
 
 # Deployment
 
-The NetworkObjects framework is built as a dynamically linked framework for both OS X and iOS. It requires Xcode 6.3 and a minimum operating system of iOS 8 or OS X 10.10.
+The NetworkObjects framework is built as dynamically linked frameworks **OS X** and **iOS**. It requires Xcode 7 and a minimum operating system of iOS 8 or OS X 10.9.
 
 # Example
 
