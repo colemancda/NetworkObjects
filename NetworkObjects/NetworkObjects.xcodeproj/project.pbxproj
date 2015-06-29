@@ -22,12 +22,6 @@
 		6E17987B1B323A91005D2844 /* NetworkObjectsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EAD585519C3B58300DC080A /* NetworkObjectsTests.swift */; };
 		6E17987D1B323A91005D2844 /* TestModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 6EDE12D61A8853E500FDF672 /* TestModel.xcdatamodeld */; };
 		6E1798871B323FA6005D2844 /* NetworkObjects.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E1798711B323A61005D2844 /* NetworkObjects.framework */; };
-		6E17988B1B323FC9005D2844 /* CocoaAsyncSocket.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 6E1798561B323995005D2844 /* CocoaAsyncSocket.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		6E17988C1B323FC9005D2844 /* CocoaHTTPServer.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 6E1798571B323995005D2844 /* CocoaHTTPServer.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		6E17988E1B323FC9005D2844 /* RoutingHTTPServer.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 6E1798591B323995005D2844 /* RoutingHTTPServer.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		6E1798901B324217005D2844 /* CocoaAsyncSocket.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 6E17985B1B323995005D2844 /* CocoaAsyncSocket.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		6E1798911B324217005D2844 /* CocoaHTTPServer.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 6E17985C1B323995005D2844 /* CocoaHTTPServer.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		6E1798931B324217005D2844 /* RoutingHTTPServer.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 6E17985E1B323995005D2844 /* RoutingHTTPServer.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		6E18477E1B3CDFC400D82C41 /* CoreDataError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E18477D1B3CDFC400D82C41 /* CoreDataError.swift */; };
 		6E18477F1B3CDFC400D82C41 /* CoreDataError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E18477D1B3CDFC400D82C41 /* CoreDataError.swift */; };
 		6E1847811B3CE93C00D82C41 /* ErrorValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E1847801B3CE93C00D82C41 /* ErrorValue.swift */; };
@@ -106,9 +100,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				6E17988B1B323FC9005D2844 /* CocoaAsyncSocket.framework in Copy Frameworks */,
-				6E17988C1B323FC9005D2844 /* CocoaHTTPServer.framework in Copy Frameworks */,
-				6E17988E1B323FC9005D2844 /* RoutingHTTPServer.framework in Copy Frameworks */,
 			);
 			name = "Copy Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -119,9 +110,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				6E1798901B324217005D2844 /* CocoaAsyncSocket.framework in Copy Frameworks */,
-				6E1798911B324217005D2844 /* CocoaHTTPServer.framework in Copy Frameworks */,
-				6E1798931B324217005D2844 /* RoutingHTTPServer.framework in Copy Frameworks */,
 			);
 			name = "Copy Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -138,12 +126,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		6E1798561B323995005D2844 /* CocoaAsyncSocket.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = CocoaAsyncSocket.framework; sourceTree = "<group>"; };
-		6E1798571B323995005D2844 /* CocoaHTTPServer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = CocoaHTTPServer.framework; sourceTree = "<group>"; };
-		6E1798591B323995005D2844 /* RoutingHTTPServer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = RoutingHTTPServer.framework; sourceTree = "<group>"; };
-		6E17985B1B323995005D2844 /* CocoaAsyncSocket.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = CocoaAsyncSocket.framework; sourceTree = "<group>"; };
-		6E17985C1B323995005D2844 /* CocoaHTTPServer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = CocoaHTTPServer.framework; sourceTree = "<group>"; };
-		6E17985E1B323995005D2844 /* RoutingHTTPServer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = RoutingHTTPServer.framework; sourceTree = "<group>"; };
 		6E1798711B323A61005D2844 /* NetworkObjects.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = NetworkObjects.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6E1798851B323A91005D2844 /* NetworkObjectsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NetworkObjectsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		6E18477D1B3CDFC400D82C41 /* CoreDataError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataError.swift; sourceTree = "<group>"; };
@@ -214,43 +196,12 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		6E1798551B323995005D2844 /* iOS */ = {
-			isa = PBXGroup;
-			children = (
-				6E1798561B323995005D2844 /* CocoaAsyncSocket.framework */,
-				6E1798571B323995005D2844 /* CocoaHTTPServer.framework */,
-				6E1798591B323995005D2844 /* RoutingHTTPServer.framework */,
-			);
-			name = iOS;
-			path = ../Carthage/Build/iOS;
-			sourceTree = "<group>";
-		};
-		6E17985A1B323995005D2844 /* Mac */ = {
-			isa = PBXGroup;
-			children = (
-				6E17985B1B323995005D2844 /* CocoaAsyncSocket.framework */,
-				6E17985C1B323995005D2844 /* CocoaHTTPServer.framework */,
-				6E17985E1B323995005D2844 /* RoutingHTTPServer.framework */,
-			);
-			name = Mac;
-			path = ../Carthage/Build/Mac;
-			sourceTree = "<group>";
-		};
 		6E18478E1B40D84900D82C41 /* Swift Extensions */ = {
 			isa = PBXGroup;
 			children = (
 				6E18478B1B40D29E00D82C41 /* RawRepresentable.swift */,
 			);
 			name = "Swift Extensions";
-			sourceTree = "<group>";
-		};
-		6E5D51501B29F070006593B3 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				6E17985A1B323995005D2844 /* Mac */,
-				6E1798551B323995005D2844 /* iOS */,
-			);
-			name = Frameworks;
 			sourceTree = "<group>";
 		};
 		6E66A46C1A833B7F00B92742 /* Core Data Extensions */ = {
@@ -277,7 +228,6 @@
 		6EAD583C19C3B58300DC080A = {
 			isa = PBXGroup;
 			children = (
-				6E5D51501B29F070006593B3 /* Frameworks */,
 				6EAD584819C3B58300DC080A /* NetworkObjects */,
 				6EAD585219C3B58300DC080A /* NetworkObjectsTests */,
 				6EAD584719C3B58300DC080A /* Products */,
