@@ -25,10 +25,7 @@ class CoreDataAttributeJSONCompatibilityTests: XCTestCase {
         super.setUp()
         // Put setup code here. This method is called before the invocation of each test method in the class.
         
-        // create model
-        self.testModel = NSManagedObjectModel.mergedModelFromBundles([NSBundle(identifier: "com.ColemanCDA.NetworkObjectsTests")!])!
-        
-        self.testAttributesEntity = self.testModel.entitiesByName["TestAttributes"]!
+        self.testAttributesEntity = TestModel.entitiesByName["TestAttributes"]!
         
     }
     

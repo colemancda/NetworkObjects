@@ -50,16 +50,4 @@ class NetworkObjectsTests: XCTestCase {
         
         XCTAssert(store.dynamicType === Store.self, "Store should have been initialized")
     }
-    
-    func testServerInit() {
-        // This is an example of a functional test case.
-        
-        
-        
-        XCTAssert(true, "Pass")
-    }
 }
-
-// MARK: - Constants
-
-let ServerTestingPort: UInt = 8089

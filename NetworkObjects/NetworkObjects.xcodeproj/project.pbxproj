@@ -20,7 +20,6 @@
 		6E1798781B323A91005D2844 /* CoreDataAttributeJSONCompatibilityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EDE12D41A88530100FDF672 /* CoreDataAttributeJSONCompatibilityTests.swift */; };
 		6E17987A1B323A91005D2844 /* DeleteTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E7EF35E1A8B178800F6FECC /* DeleteTests.swift */; };
 		6E17987B1B323A91005D2844 /* NetworkObjectsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EAD585519C3B58300DC080A /* NetworkObjectsTests.swift */; };
-		6E17987C1B323A91005D2844 /* FetchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E7EF35C1A8B170400F6FECC /* FetchTests.swift */; };
 		6E17987D1B323A91005D2844 /* TestModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 6EDE12D61A8853E500FDF672 /* TestModel.xcdatamodeld */; };
 		6E1798871B323FA6005D2844 /* NetworkObjects.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E1798711B323A61005D2844 /* NetworkObjects.framework */; };
 		6E17988B1B323FC9005D2844 /* CocoaAsyncSocket.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 6E1798561B323995005D2844 /* CocoaAsyncSocket.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -42,7 +41,6 @@
 		6E5929A419C54FA700F391F3 /* CoreDataAttributeJSONCompatibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E5929A319C54FA700F391F3 /* CoreDataAttributeJSONCompatibility.swift */; };
 		6E66A46A1A833AD900B92742 /* CoreDataConvenienceExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E66A4691A833AD900B92742 /* CoreDataConvenienceExtensions.swift */; };
 		6E6F441A1A7FF6D800DEE699 /* CoreDataPredicateJSONCompatibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E6F44191A7FF6D800DEE699 /* CoreDataPredicateJSONCompatibility.swift */; };
-		6E7EF35D1A8B170400F6FECC /* FetchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E7EF35C1A8B170400F6FECC /* FetchTests.swift */; };
 		6E7EF35F1A8B178800F6FECC /* DeleteTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E7EF35E1A8B178800F6FECC /* DeleteTests.swift */; };
 		6E7EF3611A8B18A200F6FECC /* MockServerDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E7EF3601A8B18A200F6FECC /* MockServerDataSource.swift */; };
 		6E8BF71C1A85E75B00E39E72 /* NetworkObjects.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6EAD584619C3B58300DC080A /* NetworkObjects.framework */; };
@@ -67,6 +65,8 @@
 		6EAF65841B3B8B1E00884605 /* StoreError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EAF65821B3B8B1E00884605 /* StoreError.swift */; };
 		6EAF65861B3B8D2600884605 /* Define.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EAF65851B3B8D2600884605 /* Define.swift */; };
 		6EAF65871B3B8D2600884605 /* Define.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EAF65851B3B8D2600884605 /* Define.swift */; };
+		6EBC35471B40E490004C37C0 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E18478F1B40DF3D00D82C41 /* Constants.swift */; };
+		6EBC35481B40E491004C37C0 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E18478F1B40DF3D00D82C41 /* Constants.swift */; };
 		6EC6042C1A8123620013AD59 /* CoreDataFetchRequestJSONCompatibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EC6042B1A8123620013AD59 /* CoreDataFetchRequestJSONCompatibility.swift */; };
 		6EC750F319C3F5DD009F0E00 /* ErrorDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EC750F219C3F5DD009F0E00 /* ErrorDescription.swift */; };
 		6EDE12D51A88530100FDF672 /* CoreDataAttributeJSONCompatibilityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EDE12D41A88530100FDF672 /* CoreDataAttributeJSONCompatibilityTests.swift */; };
@@ -151,10 +151,10 @@
 		6E1847831B3EF8EE00D82C41 /* ParseJSON.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ParseJSON.swift; sourceTree = "<group>"; };
 		6E1847861B3F14FE00D82C41 /* HTTPMethod.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTTPMethod.swift; sourceTree = "<group>"; };
 		6E18478B1B40D29E00D82C41 /* RawRepresentable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RawRepresentable.swift; sourceTree = "<group>"; };
+		6E18478F1B40DF3D00D82C41 /* Constants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		6E5929A319C54FA700F391F3 /* CoreDataAttributeJSONCompatibility.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataAttributeJSONCompatibility.swift; sourceTree = "<group>"; };
 		6E66A4691A833AD900B92742 /* CoreDataConvenienceExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataConvenienceExtensions.swift; sourceTree = "<group>"; };
 		6E6F44191A7FF6D800DEE699 /* CoreDataPredicateJSONCompatibility.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataPredicateJSONCompatibility.swift; sourceTree = "<group>"; };
-		6E7EF35C1A8B170400F6FECC /* FetchTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FetchTests.swift; sourceTree = "<group>"; };
 		6E7EF35E1A8B178800F6FECC /* DeleteTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeleteTests.swift; sourceTree = "<group>"; };
 		6E7EF3601A8B18A200F6FECC /* MockServerDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MockServerDataSource.swift; sourceTree = "<group>"; };
 		6EAD584619C3B58300DC080A /* NetworkObjects.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = NetworkObjects.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -305,8 +305,8 @@
 				6E1847801B3CE93C00D82C41 /* ErrorValue.swift */,
 				6EC750F219C3F5DD009F0E00 /* ErrorDescription.swift */,
 				6E1847831B3EF8EE00D82C41 /* ParseJSON.swift */,
-				6E18478E1B40D84900D82C41 /* Swift Extensions */,
 				6EAF656C1B3B866400884605 /* Enums */,
+				6E18478E1B40D84900D82C41 /* Swift Extensions */,
 				6E66A46C1A833B7F00B92742 /* Core Data Extensions */,
 				6EAD584919C3B58300DC080A /* Supporting Files */,
 			);
@@ -325,8 +325,8 @@
 			isa = PBXGroup;
 			children = (
 				6EAD585519C3B58300DC080A /* NetworkObjectsTests.swift */,
+				6E18478F1B40DF3D00D82C41 /* Constants.swift */,
 				6EDE12D41A88530100FDF672 /* CoreDataAttributeJSONCompatibilityTests.swift */,
-				6E7EF35C1A8B170400F6FECC /* FetchTests.swift */,
 				6E7EF35E1A8B178800F6FECC /* DeleteTests.swift */,
 				6E7EF3621A8B18F900F6FECC /* Mock */,
 				6EAD585319C3B58300DC080A /* Supporting Files */,
@@ -595,8 +595,8 @@
 				6E1798781B323A91005D2844 /* CoreDataAttributeJSONCompatibilityTests.swift in Sources */,
 				6E17987A1B323A91005D2844 /* DeleteTests.swift in Sources */,
 				6E17987B1B323A91005D2844 /* NetworkObjectsTests.swift in Sources */,
-				6E17987C1B323A91005D2844 /* FetchTests.swift in Sources */,
 				6E17987D1B323A91005D2844 /* TestModel.xcdatamodeld in Sources */,
+				6EBC35481B40E491004C37C0 /* Constants.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -636,8 +636,8 @@
 				6EDE12D51A88530100FDF672 /* CoreDataAttributeJSONCompatibilityTests.swift in Sources */,
 				6E7EF35F1A8B178800F6FECC /* DeleteTests.swift in Sources */,
 				6E0F4B801A71DFFD00220888 /* NetworkObjectsTests.swift in Sources */,
-				6E7EF35D1A8B170400F6FECC /* FetchTests.swift in Sources */,
 				6EDE12D81A8853E500FDF672 /* TestModel.xcdatamodeld in Sources */,
+				6EBC35471B40E490004C37C0 /* Constants.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

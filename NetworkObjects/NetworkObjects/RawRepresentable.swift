@@ -9,7 +9,6 @@
 public extension RawRepresentable {
     
     /// Creates a collection of ```RawRepresentable``` from a collection of raw values. Returns ```nil``` if an element in the array had an invalid raw value.
-    
     static func fromRawValues(rawValues: [RawValue]) -> [Self]? {
         
         var representables = [Self]()
