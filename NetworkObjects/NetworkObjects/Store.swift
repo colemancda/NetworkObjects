@@ -995,6 +995,16 @@ public class Store {
         
         return validEntity
     }
+    
+    // MARK: Notifications
+    
+    @objc private func mergeChangesFromContextDidSaveNotification(notification: NSNotification) {
+        
+        self.managedObjectContext.performBlock { () -> Void in
+            
+            self.managedObjectContext.mergeChangesFromContextDidSaveNotification(notification)
+        }
+    }
 }
 
 // MARK: - Internal Extensions

@@ -17,7 +17,7 @@ public extension NSManagedObjectContext {
         
         var blockError: ErrorType?
         
-        self.performBlock { () -> Void in
+        self.performBlockAndWait { () -> Void in
             
             do {
                 try block()
