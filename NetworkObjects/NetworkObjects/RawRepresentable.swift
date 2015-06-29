@@ -6,18 +6,17 @@
 //  Copyright (c) 2015 ColemanCDA. All rights reserved.
 //
 
-public extension CollectionType {
+public extension RawRepresentable {
     
-    /// Creates a collection of ```RawRepresentable``` from a collection of raw values. Returns nil if an element in the array had an invalid raw value.
-    func toRawRepresentable<T: RawRepresentable where T.RawValue == Self.Generator.Element>(rawRepresentable: T.Type) -> [T]? {
+    /// Creates a collection of ```RawRepresentable``` from a collection of raw values. Returns ```nil``` if an element in the array had an invalid raw value.
+    
+    static func fromRawValues(rawValues: [RawValue]) -> [Self]? {
         
-        var representables = [T]()
+        var representables = [Self]()
         
-        for element in self {
+        for element in rawValues {
             
-            let rawValue = element as! T.RawValue
-            
-            guard let rawRepresentable = T(rawValue: rawValue) else {
+            guard let rawRepresentable = self.init(rawValue: element) else {
                 
                 return nil
             }

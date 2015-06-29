@@ -77,7 +77,7 @@ internal extension NSComparisonPredicate {
             }
             
             guard let optionsArray = optionsObject as? [String],
-                let searchComparisonOptions = optionsArray.toRawRepresentable(SearchComparisonPredicateOption) else {
+                let searchComparisonOptions = SearchComparisonPredicateOption.fromRawValues(optionsArray) else {
                     
                 return nil
             }
