@@ -7,14 +7,14 @@
 	<key>IDESourceControlProjectIdentifier</key>
 	<string>DD896F23-5CBD-4171-8007-747FC74868B8</string>
 	<key>IDESourceControlProjectName</key>
-	<string>project</string>
+	<string>NetworkObjects</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
 		<key>A5260C930E0CFC29BE4E638F3BCB24458F4E5121</key>
 		<string>https://github.com/colemancda/NetworkObjects.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
-	<string>NetworkObjects/NetworkObjects.xcodeproj/project.xcworkspace</string>
+	<string>NetworkObjects/NetworkObjects.xcodeproj</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
 		<key>A5260C930E0CFC29BE4E638F3BCB24458F4E5121</key>
