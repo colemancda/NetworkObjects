@@ -8,8 +8,9 @@
 
 import SwiftFoundation
 import CoreModel
+import libwebsockets
 
-/// Connects to the **NetworkObjects** server and caches data.
+/// Connects to the **NetworkObjects** server and caches the response.
 public final class Store {
     
     // MARK: - Properties
@@ -20,7 +21,7 @@ public final class Store {
     /// The **CoreModel** store what will be used to cache the returned data from the server.
     public let cacheStore: CoreModel.Store
     
-    /// The name of a date attribute that will be used to indicate when an entity was fetched from the server. */
+    /// The name of a date attribute that will be used to indicate when an entity was fetched from the server.
     public let dateCachedAttributeName: String?
     
     // MARK: - Initialization
@@ -32,6 +33,44 @@ public final class Store {
     }
     
     // MARK: - Methods
+    
+    /// Queries the server for resources that match the fetch request.
+    public func search(fetchRequest: FetchRequest) throws -> [Resource] {
+        
+        
+    }
+    
+    /// Creates an entity on the server with the specified initial values. 
+    public func create(entityName: String, initialValues: ValuesObject? = nil) throws {
+        
+        
+    }
+    
+    /// Fetches the resource from the server.
+    public func get(resource: Resource) throws -> ValuesObject {
+        
+        
+    }
+    
+    /// Edits the specified entity.
+    public func edit(resource: Resource, changes: ValuesObject) throws {
+        
+        
+    }
+    
+    /// Deletes the specified entity.
+    public func delete(resource: Resource) throws {
+        
+        
+    }
+    
+    /// Perform the specified function on a resource.
+    public func performFunction(resource: Resource, functionName: String, parameters: JSONObject?) throws -> JSONObject? {
+        
+        
+    }
+    
+    // MARK: - Private Methods
     
     
 }

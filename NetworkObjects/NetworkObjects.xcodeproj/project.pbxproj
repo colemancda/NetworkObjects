@@ -13,6 +13,8 @@
 		1A5D4C3E1B96279000DE99E9 /* RequestType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A5D4C3D1B96279000DE99E9 /* RequestType.swift */; settings = {ASSET_TAGS = (); }; };
 		1A5D4C401B962FC100DE99E9 /* Store.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A5D4C3F1B962FC100DE99E9 /* Store.swift */; settings = {ASSET_TAGS = (); }; };
 		1A5D4C431B963B0500DE99E9 /* Server.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A5D4C421B963B0500DE99E9 /* Server.swift */; settings = {ASSET_TAGS = (); }; };
+		1A5D4C451B9644A800DE99E9 /* ServerResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A5D4C441B9644A800DE99E9 /* ServerResponse.swift */; settings = {ASSET_TAGS = (); }; };
+		1A5D4C471B96477900DE99E9 /* ServerRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A5D4C461B96477900DE99E9 /* ServerRequest.swift */; settings = {ASSET_TAGS = (); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -35,6 +37,8 @@
 		1A5D4C3D1B96279000DE99E9 /* RequestType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RequestType.swift; sourceTree = "<group>"; };
 		1A5D4C3F1B962FC100DE99E9 /* Store.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Store.swift; sourceTree = "<group>"; };
 		1A5D4C421B963B0500DE99E9 /* Server.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Server.swift; sourceTree = "<group>"; };
+		1A5D4C441B9644A800DE99E9 /* ServerResponse.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ServerResponse.swift; sourceTree = "<group>"; };
+		1A5D4C461B96477900DE99E9 /* ServerRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ServerRequest.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -101,6 +105,8 @@
 				1A5D4C421B963B0500DE99E9 /* Server.swift */,
 				1A5D4C3F1B962FC100DE99E9 /* Store.swift */,
 				1A5D4C3D1B96279000DE99E9 /* RequestType.swift */,
+				1A5D4C461B96477900DE99E9 /* ServerRequest.swift */,
+				1A5D4C441B9644A800DE99E9 /* ServerResponse.swift */,
 			);
 			name = Source;
 			path = ../Source;
@@ -222,6 +228,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				1A5D4C3E1B96279000DE99E9 /* RequestType.swift in Sources */,
+				1A5D4C451B9644A800DE99E9 /* ServerResponse.swift in Sources */,
+				1A5D4C471B96477900DE99E9 /* ServerRequest.swift in Sources */,
 				1A5D4C431B963B0500DE99E9 /* Server.swift in Sources */,
 				1A5D4C401B962FC100DE99E9 /* Store.swift in Sources */,
 			);

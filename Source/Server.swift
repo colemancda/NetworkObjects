@@ -6,8 +6,8 @@
 //  Copyright © 2015 ColemanCDA. All rights reserved.
 //
 
-import SwiftFoundation
-import CoreModel
+//import SwiftFoundation
+//import CoreModel
 
 public class Server {
     
