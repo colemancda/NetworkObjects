@@ -1,3 +1,1 @@
 github "PureSwift/CoreModel" "develop"
-github "PureSwift/SwiftFoundation" "develop"
-github "PureSwift/libwebsockets" "master"

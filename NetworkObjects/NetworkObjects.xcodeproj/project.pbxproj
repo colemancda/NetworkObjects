@@ -46,7 +46,6 @@
 		1A5D4C441B9644A800DE99E9 /* ServerResponse.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ServerResponse.swift; sourceTree = "<group>"; };
 		1A5D4C461B96477900DE99E9 /* ServerRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ServerRequest.swift; sourceTree = "<group>"; };
 		1AE790341B96B96600CDEF17 /* NetworkObjects.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = NetworkObjects.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		1AE790351B96B96700CDEF17 /* NetworkObjects copy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "NetworkObjects copy-Info.plist"; path = "/Users/alseycolemanmiller/Developer/NetworkObjects/NetworkObjects/NetworkObjects copy-Info.plist"; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -83,7 +82,6 @@
 				1A5D4C241B9622F900DE99E9 /* Darwin Support */,
 				1A5D4C301B9622F900DE99E9 /* NetworkObjectsTests */,
 				1A5D4C231B9622F900DE99E9 /* Products */,
-				1AE790351B96B96700CDEF17 /* NetworkObjects copy-Info.plist */,
 			);
 			sourceTree = "<group>";
 		};

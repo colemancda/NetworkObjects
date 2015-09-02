@@ -21,12 +21,13 @@ public final class Store {
     /// The **CoreModel** store what will be used to cache the returned data from the server.
     public let cacheStore: CoreModel.Store
     
-    /// The name of a date attribute that will be used to indicate when an entity was fetched from the server.
-    public let dateCachedAttributeName: String?
+    // MARK: - Private Properties
+    
+    private let queue = dispatch_queue_create("NetworkObjects.Store Queue", nil)
     
     // MARK: - Initialization
     
-    public init(serverURL: String, cacheStore: CoreModel.Store, dateCachedAttributeName: String? = nil) {
+    public init(serverURL: String, cacheStore: CoreModel.Store) {
         
         self.serverURL = serverURL
         self.cacheStore = cacheStore

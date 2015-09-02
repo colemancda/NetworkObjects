@@ -1,6 +1,4 @@
-github "PureSwift/OpenSSL" "764075cd1a7fce13e62b36513758d639ddbe2d1d"
 github "PureSwift/json-c" "61be6bcda2f936bc7f3055faa49b5cce7dbfb756"
 github "PureSwift/libb64" "cfc03126056cf446603ce01a76e5b501bbe5d62a"
-github "PureSwift/CoreModel" "5f0e8baa7998c812f8974156930d793e527df8c2"
-github "PureSwift/libwebsockets" "f32d802b72358ee4723fa7c46dde698cbc8dcb19"
 github "PureSwift/SwiftFoundation" "b4cde87317f4fdf1f17e152b862ff5c305c6ffe6"
+github "PureSwift/CoreModel" "5f0e8baa7998c812f8974156930d793e527df8c2"

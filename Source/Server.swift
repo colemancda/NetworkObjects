@@ -9,7 +9,7 @@
 //import SwiftFoundation
 //import CoreModel
 
-public class Server {
+public final class Server {
     
     
 }
