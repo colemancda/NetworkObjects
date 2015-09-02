@@ -8,7 +8,6 @@
 
 import SwiftFoundation
 import CoreModel
-import libwebsockets
 
 /// Connects to the **NetworkObjects** server and caches the response.
 public final class Store {
@@ -21,13 +20,15 @@ public final class Store {
     /// The **CoreModel** store what will be used to cache the returned data from the server.
     public let cacheStore: CoreModel.Store
     
-    // MARK: - Private Properties
+    /// The HTTP client that will communicate with the server.
+    public let client: HTTP.Client
     
-    private let queue = dispatch_queue_create("NetworkObjects.Store Queue", nil)
+    /// The ```Store```'s delegate.
+    public var delegate: StoreDelegate?
     
     // MARK: - Initialization
     
-    public init(serverURL: String, cacheStore: CoreModel.Store) {
+    public init(serverURL: String, cacheStore: CoreModel.Store, client: HTTP.Client = HTTP.Client()) {
         
         self.serverURL = serverURL
         self.cacheStore = cacheStore
@@ -38,7 +39,11 @@ public final class Store {
     /// Queries the server for resources that match the fetch request.
     public func search(fetchRequest: FetchRequest) throws -> [Resource] {
         
+        let url = self.serverURL + "/" + "search" + "/" + fetchRequest.entityName
         
+        var request = HTTP.Request(URL: url)
+        
+        request.method = .GET
     }
     
     /// Creates an entity on the server with the specified initial values. 
@@ -50,7 +55,11 @@ public final class Store {
     /// Fetches the resource from the server.
     public func get(resource: Resource) throws -> ValuesObject {
         
+        let url = self.serverURL + "/" + resource.entityName + "/" + resource.resourceID
         
+        var request = HTTP.Request(URL: url)
+        
+        request.method = .GET
     }
     
     /// Edits the specified entity.
@@ -75,3 +84,12 @@ public final class Store {
     
     
 }
+
+
+public protocol StoreDelegate {
+    
+    func store(NetworkObjects.Store, headersForRequest request: Request) -> [String: String]
+    
+    func store(NetworkObjects.Store, didCacheResource resource: Resource)
+}
+
