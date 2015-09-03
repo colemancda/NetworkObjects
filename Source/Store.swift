@@ -43,7 +43,7 @@ public final class Store {
         
         var request = HTTP.Request(URL: url)
         
-        request.method = .GET
+        request.method = .POST
     }
     
     /// Creates an entity on the server with the specified initial values. 

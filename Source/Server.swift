@@ -12,6 +12,27 @@ import CoreModel
 /// This class will broadcast a managed object context over the network.
 public final class Server {
     
+    // MARK: - Properties
+    
+    public var dataSource: ServerDataSource
+    
+    public var delegate: ServerDelegate?
+    
+    public var permissionsEnabled: Bool
+    
+    // MARK: - Initialization
+    
+    public init(dataSource: ServerDataSource,
+        delegate: ServerDelegate? = nil,
+        permissionsEnabled: Bool = false) {
+        
+        self.dataSource = dataSource
+        self.delegate = delegate
+        self.permissionsEnabled = permissionsEnabled
+    }
+    
+    // MARK: - Methods
+    
     
 }
 
@@ -27,7 +48,11 @@ public extension Server {
         
         public var userInfo = [String: AnyObject]()
         
-        public init(store: CoreModel.Store, request: Request) {  }
+        public init(store: CoreModel.Store, request: Request) {
+            
+            self.store = store
+            self.request = request
+        }
     }
 }
 

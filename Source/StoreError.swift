@@ -6,12 +6,16 @@
 //  Copyright © 2015 ColemanCDA. All rights reserved.
 //
 
-/** Errors returned with NetworkObjects Store class. */
-public enum StoreError: ErrorType {
+public extension Store {
     
-    /** The server returned a status code other than 200 indicating an error. */
-    case ErrorStatusCode(Int)
-    
-    /** The server returned an invalid response. */
-    case InvalidServerResponse
+    /// Errors returned with NetworkObjects Store class.
+    public enum Error: ErrorType {
+        
+        /** The server returned a status code other than 200 indicating an error. */
+        case ErrorStatusCode(Int)
+        
+        /** The server returned an invalid response. */
+        case InvalidServerResponse
+    }
 }
+
