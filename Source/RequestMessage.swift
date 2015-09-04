@@ -40,6 +40,10 @@ private extension RequestMessage {
 
 public extension RequestMessage {
     
+    /// Initializes a request message from JSON.
+    ///
+    /// The specified model will be used for value conversion. 
+    /// Created request message is assumed to be valid according to the ```model``` provided.
     public init?(JSONValue: JSON.Value, model: [Entity]) {
         
         guard let jsonObject = JSONValue.rawValue as? JSONObject,
@@ -85,9 +89,79 @@ public extension RequestMessage {
                     else { return nil }
                 
                 return Request.Edit(resource, values)
+                
+            case .Delete:
+                
+                guard let entityName = jsonObject[JSONKey.Entity.rawValue]?.rawValue as? String,
+                    let resourceID = jsonObject[JSONKey.ResourceID.rawValue]?.rawValue as? String
+                    else { return nil }
+                
+                let resource = Resource(entity: entityName, resourceID: resourceID)
+                
+                guard let _: Entity = {
+                    for entity in model { if entity.name == entityName { return entity } }
+                    }() else { return nil }
+                
+                return Request.Delete(resource)
+                
+            case .Create:
+                
+                guard let entityName = jsonObject[JSONKey.Entity.rawValue]?.rawValue as? String
+                    else { return nil }
+                
+                guard let entity: Entity = {
+                    for entity in model { if entity.name == entityName { return entity } }
+                    }() else { return nil }
+                
+                var values: ValuesObject?
+                
+                if let valuesJSON = jsonObject[JSONKey.Values.rawValue] {
+                    
+                    guard let valuesJSONObject = valuesJSON.rawValue as? JSONObject,
+                        let convertedValues = entity.convert(valuesJSONObject)
+                        else { return nil }
+                    
+                    values = convertedValues
+                }
+                
+                return Request.Create(entityName, values)
+                
+            case .Search:
+                
+                guard let fetchRequestJSON = jsonObject[JSONKey.FetchRequest.rawValue],
+                    let fetchRequest = FetchRequest(JSONValue: fetchRequestJSON)
+                    else { return nil }
+                
+                return Request.Search(fetchRequest)
+        
+            case .Function:
+                
+                guard let entityName = jsonObject[JSONKey.Entity.rawValue]?.rawValue as? String,
+                    let resourceID = jsonObject[JSONKey.ResourceID.rawValue]?.rawValue as? String
+                    else { return nil }
+                
+                let resource = Resource(entity: entityName, resourceID: resourceID)
+                
+                guard let _: Entity = {
+                    for entity in model { if entity.name == entityName { return entity } }
+                    }() else { return nil }
+                
+                guard let functionName = jsonObject[JSONKey.FunctionName.rawValue]?.rawValue as? String
+                    else { return nil }
+                
+                var functionParameters: JSONObject?
+                
+                if let functionParametersJSON = jsonObject[JSONKey.FunctionParameters.rawValue] {
+                    
+                    guard let functionParametersJSONObject = functionParametersJSON.rawValue as? JSONObject else { return nil }
+                    
+                    functionParameters = functionParametersJSONObject
+                }
+                
+                return Request.Function(resource, functionName, functionParameters)
             }
             
-            }() else { return nil }
+            }() as Request? else { return nil }
         
         self.request = request
     }
@@ -97,7 +171,7 @@ public extension RequestMessage {
         var jsonObject = JSONObject()
         
         jsonObject[JSONKey.Metadata.rawValue] = JSON.Value.Object(self.metadata)
-        jsonObject[JSONKey.RequestType.rawValue] = JSON.Value.String(self.request.type)
+        jsonObject[JSONKey.RequestType.rawValue] = JSON.Value.String(self.request.type.rawValue)
         
         switch self.request {
             
