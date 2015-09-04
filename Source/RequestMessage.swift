@@ -65,7 +65,7 @@ public extension RequestMessage {
                     let resourceID = jsonObject[JSONKey.ResourceID.rawValue]?.rawValue as? String
                     else { return nil }
                 
-                let resource = Resource(entity: entityName, resourceID: resourceID)
+                let resource = Resource(entityName, resourceID: resourceID)
                 
                 guard let _: Entity = {
                     for entity in model { if entity.name == entityName { return entity } }
@@ -79,7 +79,7 @@ public extension RequestMessage {
                     let resourceID = jsonObject[JSONKey.ResourceID.rawValue]?.rawValue as? String
                     else { return nil }
                 
-                let resource = Resource(entity: entityName, resourceID: resourceID)
+                let resource = Resource(entityName, resourceID: resourceID)
                 
                 guard let entity: Entity = {
                     for entity in model { if entity.name == entityName { return entity } }
@@ -97,7 +97,7 @@ public extension RequestMessage {
                     let resourceID = jsonObject[JSONKey.ResourceID.rawValue]?.rawValue as? String
                     else { return nil }
                 
-                let resource = Resource(entity: entityName, resourceID: resourceID)
+                let resource = Resource(entityName, resourceID: resourceID)
                 
                 guard let _: Entity = {
                     for entity in model { if entity.name == entityName { return entity } }
@@ -141,7 +141,7 @@ public extension RequestMessage {
                     let resourceID = jsonObject[JSONKey.ResourceID.rawValue]?.rawValue as? String
                     else { return nil }
                 
-                let resource = Resource(entity: entityName, resourceID: resourceID)
+                let resource = Resource(entityName, resourceID: resourceID)
                 
                 guard let _: Entity = {
                     for entity in model { if entity.name == entityName { return entity } }

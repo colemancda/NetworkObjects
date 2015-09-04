@@ -94,20 +94,28 @@ public final class Client {
     /// Queries the server for resources that match the fetch request.
     public func search(fetchRequest: FetchRequest) throws -> [Resource] {
         
+        let request = Request.Search(fetchRequest)
         
+        let response = try send(request)
+        
+        switch response {
+        case let .Search(resourceIDs): return resourceIDs.map({ (element) -> Resource in
+            
+            return Resource(fetchRequest.entityName, resourceID: element)
+        })
+        default: fatalError()
+        }
     }
     
     /// Creates an entity on the server with the specified initial values. 
     public func create(entityName: String, initialValues: ValuesObject? = nil) throws -> (Resource, ValuesObject) {
-        
-        // send request
         
         let request = Request.Create(entityName, initialValues)
         
         let response = try send(request)
         
         switch response {
-            case .Create(resource, values): return (resource, values)
+            case let .Create(resource, values): return (resource, values)
             default: fatalError()
         }
     }
@@ -115,25 +123,53 @@ public final class Client {
     /// Fetches the resource from the server.
     public func get(resource: Resource) throws -> ValuesObject {
         
+        let request = Request.Get(resource)
         
+        let response = try send(request)
+        
+        switch response {
+        case let .Get(values): return values
+        default: fatalError()
+        }
     }
     
     /// Edits the specified entity.
     public func edit(resource: Resource, changes: ValuesObject) throws -> ValuesObject {
         
+        let request = Request.Edit(resource, changes)
         
+        let response = try send(request)
+        
+        switch response {
+        case let .Edit(values): return values
+        default: fatalError()
+        }
     }
     
     /// Deletes the specified entity.
     public func delete(resource: Resource) throws {
         
+        let request = Request.Delete(resource)
         
+        let response = try send(request)
+        
+        switch response {
+        case .Delete: return
+        default: fatalError()
+        }
     }
     
     /// Perform the specified function on a resource.
     public func performFunction(resource: Resource, functionName: String, parameters: JSONObject? = nil) throws -> JSONObject? {
         
+        let request = Request.Function(resource, functionName, parameters)
         
+        let response = try send(request)
+        
+        switch response {
+        case let .Function(jsonObject): return jsonObject
+        default: fatalError()
+        }
     }
     
     /// Sends the request and parses the response.
@@ -226,12 +262,3 @@ public final class Client {
         dispatch_sync(operationQueue) { () -> Void in block() }
     }
 }
-
-
-public protocol ClientDelegate {
-    
-    func client(client: Client, metadataForRequest request: Request) -> [String: String]
-    
-    func client(client: Client, didCacheResource resource: Resource, values: ValuesObject)
-}
-
