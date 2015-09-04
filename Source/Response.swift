@@ -22,7 +22,7 @@ public enum Response {
     case Delete
     
     /// POST (create new) response
-    case Create(ValuesObject?)
+    case Create(ValuesObject)
     
     /// Search response. Array of resource IDs.
     case Search([String])

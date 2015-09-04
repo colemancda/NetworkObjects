@@ -13,11 +13,12 @@ public struct RequestMessage: JSONEncodable {
     
     public var request: Request
     
-    public var metadata = JSONObject()
+    public var metadata: [String: String]
     
-    public init(request: Request) {
+    public init(_ request: Request, metadata: [String: String] = [:]) {
         
         self.request = request
+        self.metadata = metadata
     }
 }
 
@@ -46,10 +47,10 @@ public extension RequestMessage {
     /// Created request message is assumed to be valid according to the ```model``` provided.
     public init?(JSONValue: JSON.Value, model: [Entity]) {
         
-        guard let jsonObject = JSONValue.rawValue as? JSONObject,
+        guard let jsonObject = JSONValue.objectValue,
             let requestTypeString = jsonObject[JSONKey.RequestType.rawValue]?.rawValue as? String,
             let requestType = RequestType(rawValue: requestTypeString),
-            let metadata = jsonObject[JSONKey.Metadata.rawValue]?.rawValue as? JSONObject
+            let metadata = jsonObject[JSONKey.Metadata.rawValue]?.rawValue as? [String: String]
             else { return nil }
         
         self.metadata = metadata
@@ -84,7 +85,7 @@ public extension RequestMessage {
                     for entity in model { if entity.name == entityName { return entity } }
                     }() else { return nil }
                 
-                guard let valuesJSON = jsonObject[JSONKey.Values.rawValue]?.rawValue as? JSONObject,
+                guard let valuesJSON = jsonObject[JSONKey.Values.rawValue]?.objectValue,
                     let values = entity.convert(valuesJSON)
                     else { return nil }
                 
@@ -117,7 +118,7 @@ public extension RequestMessage {
                 
                 if let valuesJSON = jsonObject[JSONKey.Values.rawValue] {
                     
-                    guard let valuesJSONObject = valuesJSON.rawValue as? JSONObject,
+                    guard let valuesJSONObject = valuesJSON.objectValue,
                         let convertedValues = entity.convert(valuesJSONObject)
                         else { return nil }
                     
@@ -153,7 +154,7 @@ public extension RequestMessage {
                 
                 if let functionParametersJSON = jsonObject[JSONKey.FunctionParameters.rawValue] {
                     
-                    guard let functionParametersJSONObject = functionParametersJSON.rawValue as? JSONObject else { return nil }
+                    guard let functionParametersJSONObject = functionParametersJSON.objectValue else { return nil }
                     
                     functionParameters = functionParametersJSONObject
                 }
@@ -170,7 +171,19 @@ public extension RequestMessage {
         
         var jsonObject = JSONObject()
         
-        jsonObject[JSONKey.Metadata.rawValue] = JSON.Value.Object(self.metadata)
+        let metaDataJSONObject: JSONObject = {
+           
+            var jsonObject = JSONObject()
+            
+            for (key, value) in self.metadata {
+                
+                jsonObject[key] = JSON.Value.String(value)
+            }
+            
+            return jsonObject
+        }()
+        
+        jsonObject[JSONKey.Metadata.rawValue] = JSON.Value.Object(metaDataJSONObject)
         jsonObject[JSONKey.RequestType.rawValue] = JSON.Value.String(self.request.type.rawValue)
         
         switch self.request {
@@ -209,9 +222,7 @@ public extension RequestMessage {
             
             let fetchRequestJSON = fetchRequest.toJSON()
             
-            let fetchRequestJSONObject = fetchRequestJSON.rawValue as! JSONObject
-            
-            jsonObject[JSONKey.FetchRequest.rawValue] = JSON.Value.Object(fetchRequestJSON)
+            jsonObject[JSONKey.FetchRequest.rawValue] = fetchRequestJSON
             
         case let .Function(resource, functionName, functionParametersJSON):
             

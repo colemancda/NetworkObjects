@@ -97,36 +97,37 @@ public final class Client {
     /// Creates an entity on the server with the specified initial values. 
     public func create(entityName: String, initialValues: ValuesObject? = nil) throws -> (Resource, ValuesObject) {
         
-        sync { () -> Void in
-            
-            let request = Request.Create(entityName, initialValues)
-            
-            let json = request.toJSON()
-            
-            self.websocket.send(json)
-        }
+        // send request
+        
+        let request = Request.Create(entityName, initialValues)
+        
+        let response = try send(request)
+        
+        // validate response
+        
+        var createResponse: (Resource, ValuesObject)!
     }
     
     /// Fetches the resource from the server.
-    public func get(resource: Resource) throws -> (Resource, ValuesObject) {
+    public func get(resource: Resource) throws -> ValuesObject {
         
         
     }
     
     /// Edits the specified entity.
-    public func edit(resource: Resource, changes: ValuesObject) {
+    public func edit(resource: Resource, changes: ValuesObject) throws -> ValuesObject {
         
         
     }
     
     /// Deletes the specified entity.
-    public func delete(resource: Resource) {
+    public func delete(resource: Resource) throws {
         
         
     }
     
     /// Perform the specified function on a resource.
-    public func performFunction(resource: Resource, functionName: String, parameters: JSONObject? = nil) {
+    public func performFunction(resource: Resource, functionName: String, parameters: JSONObject? = nil) throws -> JSONObject? {
         
         
     }
@@ -151,6 +152,61 @@ public final class Client {
     private func sync(block: () -> Void) {
         
         dispatch_sync(operationQueue) { () -> Void in block() }
+    }
+    
+    /// Send the request on the internal serial queue, and parses the response.
+    ///
+    /// - Note: Response is not validated, only parsed. 
+    private func send(request: Request) throws -> Response {
+        
+        try sync { () throws -> Void in
+            
+            var metadata = [String: String]()
+            
+            if let metadataHandler = self.metadata {
+                
+                metadata = metadataHandler(request: request)
+            }
+            
+            let requestMessage = RequestMessage(request, metadata: metadata)
+            
+            let json = requestMessage.toJSON()
+            
+            guard let jsonString = json.toString()
+                else { fatalError("Could not generate JSON for \(json)") }
+            
+            self.websocket.send(jsonString)
+            
+            // wait for response
+            
+            let semaphore = dispatch_semaphore_create(0)
+            
+            var error: ErrorType?
+            
+            var message: String!
+            
+            self.websocket.event.error = { (websocketError: ErrorType) in
+                
+                error = websocketError
+                
+                dispatch_semaphore_signal(semaphore)
+            }
+            
+            self.websocket.event.message = { (data: Any) in
+                
+                message = data as! String
+                
+                dispatch_semaphore_signal(semaphore)
+            }
+            
+            dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER)
+            
+            guard error == nil else { throw error! }
+            
+            // parse response
+            
+            
+        }
     }
 }
 
