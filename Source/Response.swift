@@ -22,7 +22,7 @@ public enum Response {
     case Delete
     
     /// POST (create new) response
-    case Create(ValuesObject)
+    case Create(ValuesObject?)
     
     /// Search response. Array of resource IDs.
     case Search([String])
@@ -30,21 +30,21 @@ public enum Response {
     /// Function response
     case Function(JSONObject?)
     
-    public var type: String {
+    public var type: RequestType {
         
         switch self {
             
-        case Get(_): return "Get"
+        case Get(_): return .Get
             
-        case Edit(_): return "Edit"
+        case Edit(_): return .Edit
             
-        case Delete(_): return "Delete"
+        case Delete(_): return .Delete
             
-        case Create(_): return "Create"
+        case Create(_): return .Create
             
-        case Search(_): return "Search"
+        case Search(_): return .Search
             
-        case Function(_): return "Function"
+        case Function(_): return .Function
         }
     }
 }

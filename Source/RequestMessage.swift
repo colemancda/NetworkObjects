@@ -7,8 +7,9 @@
 //
 
 import SwiftFoundation
+import CoreModel
 
-public struct RequestMessage: JSONEncodable, JSONDecodable {
+public struct RequestMessage: JSONEncodable {
     
     public var request: Request
     
@@ -39,9 +40,56 @@ private extension RequestMessage {
 
 public extension RequestMessage {
     
-    public init?(JSONValue: JSON.Value) {
+    public init?(JSONValue: JSON.Value, model: [Entity]) {
         
+        guard let jsonObject = JSONValue.rawValue as? JSONObject,
+            let requestTypeString = jsonObject[JSONKey.RequestType.rawValue]?.rawValue as? String,
+            let requestType = RequestType(rawValue: requestTypeString),
+            let metadata = jsonObject[JSONKey.Metadata.rawValue]?.rawValue as? JSONObject
+            else { return nil }
         
+        self.metadata = metadata
+        
+        guard let request: Request = {
+           
+            switch requestType {
+                
+            case .Get:
+                
+                guard let entityName = jsonObject[JSONKey.Entity.rawValue]?.rawValue as? String,
+                    let resourceID = jsonObject[JSONKey.ResourceID.rawValue]?.rawValue as? String
+                    else { return nil }
+                
+                let resource = Resource(entity: entityName, resourceID: resourceID)
+                
+                guard let _: Entity = {
+                    for entity in model { if entity.name == entityName { return entity } }
+                    }() else { return nil }
+        
+                return Request.Get(resource)
+                
+            case .Edit:
+                
+                guard let entityName = jsonObject[JSONKey.Entity.rawValue]?.rawValue as? String,
+                    let resourceID = jsonObject[JSONKey.ResourceID.rawValue]?.rawValue as? String
+                    else { return nil }
+                
+                let resource = Resource(entity: entityName, resourceID: resourceID)
+                
+                guard let entity: Entity = {
+                    for entity in model { if entity.name == entityName { return entity } }
+                    }() else { return nil }
+                
+                guard let valuesJSON = jsonObject[JSONKey.Values.rawValue]?.rawValue as? JSONObject,
+                    let values = entity.convert(valuesJSON)
+                    else { return nil }
+                
+                return Request.Edit(resource, values)
+            }
+            
+            }() else { return nil }
+        
+        self.request = request
     }
     
     public func toJSON() -> JSON.Value {

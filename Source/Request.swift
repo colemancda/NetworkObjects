@@ -30,21 +30,42 @@ public enum Request {
     /// Function request
     case Function(Resource, String, JSONObject?)
     
-    public var type: String {
+    public var type: RequestType {
         
         switch self {
             
-        case Get(_): return "Get"
+        case Get(_): return .Get
             
-        case Edit(_): return "Edit"
+        case Edit(_): return .Edit
             
-        case Delete(_): return "Delete"
+        case Delete(_): return .Delete
             
-        case Create(_,_): return "Create"
+        case Create(_,_): return .Create
             
-        case Search(_): return "Search"
+        case Search(_): return .Search
             
-        case Function(_,_,_): return "Function"
+        case Function(_,_,_): return .Function
         }
     }
+}
+
+public enum RequestType: String {
+    
+    /// GET request
+    case Get
+    
+    /// PUT (edit) request
+    case Edit
+    
+    /// DELETE request
+    case Delete
+    
+    /// POST (create new) request
+    case Create
+    
+    /// Search request
+    case Search
+    
+    /// Function request
+    case Function
 }
