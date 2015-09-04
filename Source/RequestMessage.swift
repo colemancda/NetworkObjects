@@ -13,6 +13,11 @@ public struct RequestMessage {
     public var request: Request
     
     public var metadata = JSONObject()
+    
+    public init(request: Request) {
+        
+        self.request = request
+    }
 }
 
 private extension RequestMessage {
@@ -23,4 +28,9 @@ private extension RequestMessage {
         
         case Metadata
     }
+}
+
+public extension RequestMessage {
+    
+    
 }

@@ -26,6 +26,6 @@ private extension RequestMessage {
         
         case Metadata
         
-        case Values
+        case Response
     }
 }
