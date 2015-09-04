@@ -10,7 +10,7 @@ import SwiftFoundation
 import CoreModel
 
 /// Request
-public enum Request: JSONEncodable, JSONDecodable {
+public enum Request {
     
     /// GET request
     case Get(Resource)
@@ -28,7 +28,7 @@ public enum Request: JSONEncodable, JSONDecodable {
     case Search(FetchRequest)
     
     /// Function request
-    case Function(String, JSONObject?)
+    case Function(Resource, String, JSONObject?)
     
     public var type: String {
         
@@ -44,32 +44,7 @@ public enum Request: JSONEncodable, JSONDecodable {
             
         case Search(_): return "Search"
             
-        case Function(_): return "Function"
-        }
-    }
-}
-
-// MARK: - JSON
-
-public extension Request {
-    
-    public func toJSON() -> JSON.Value {
-        
-        switch self {
-            
-        case Get(resource):
-            
-            return JSON.Value.Object(<#T##JSONObject#>)
-            
-        case Edit(resource, values):
-            
-        case Delete(resource)
-            
-        case Create(entityName, values)
-            
-        case Search(fetchRequest)
-            
-        case Function(functionName, jsonObject)
+        case Function(_,_,_): return "Function"
         }
     }
 }
