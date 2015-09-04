@@ -21,10 +21,10 @@ public final class Server {
     public var permissionsDelegate: ServerPermissionsDelegate?
     
     /// Function for logging purposes
-    public var logFunction: ((String) -> ())?
+    public var log: ((String) -> ())?
     
     /// Function for sending the WebSocket response
-    public var sendMessageFunction: String -> () = {
+    public var sendMessage: String -> () = {
         
         // for websocketd
         print($0)
@@ -44,7 +44,11 @@ public final class Server {
     
     // MARK: - Methods
     
-    
+    /// Process string as input.
+    public func input(input: String) {
+        
+        
+    }
 }
 
 // MARK: - Supporting Classes

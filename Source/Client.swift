@@ -38,7 +38,7 @@ public final class Client {
         
         self.websocket = WebSocket(self.serverURL)
         
-        self.websocket.ope
+        self.websocket?.event
     }
     
     /// Closes the WebSocket connection to the server.

@@ -29,17 +29,5 @@ public enum Request {
     
     /// Function request
     case Function(String, JSONObject?)
-    
-    public var HTTPMethod: HTTP.Method {
-        
-        switch self {
-        case .Get: return .GET
-        case .Edit: return .PUT
-        case .Delete: return .DELETE
-        case .Create: return .POST
-        case .Search: return .POST
-        case .Function: return .POST
-        }
-    }
 }
 
