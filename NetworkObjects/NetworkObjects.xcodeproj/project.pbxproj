@@ -10,10 +10,10 @@
 		1A5D4C261B9622F900DE99E9 /* NetworkObjects.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A5D4C251B9622F900DE99E9 /* NetworkObjects.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1A5D4C2D1B9622F900DE99E9 /* NetworkObjects.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A5D4C221B9622F900DE99E9 /* NetworkObjects.framework */; settings = {ASSET_TAGS = (); }; };
 		1A5D4C321B9622F900DE99E9 /* NetworkObjectsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A5D4C311B9622F900DE99E9 /* NetworkObjectsTests.swift */; };
-		1A5D4C401B962FC100DE99E9 /* Store.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A5D4C3F1B962FC100DE99E9 /* Store.swift */; settings = {ASSET_TAGS = (); }; };
+		1A5D4C401B962FC100DE99E9 /* Client.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A5D4C3F1B962FC100DE99E9 /* Client.swift */; settings = {ASSET_TAGS = (); }; };
 		1A5D4C431B963B0500DE99E9 /* Server.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A5D4C421B963B0500DE99E9 /* Server.swift */; settings = {ASSET_TAGS = (); }; };
-		1AD2FE191B96CB700054F4CB /* StoreError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD2FE181B96CB700054F4CB /* StoreError.swift */; settings = {ASSET_TAGS = (); }; };
-		1AD2FE1A1B96CB700054F4CB /* StoreError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD2FE181B96CB700054F4CB /* StoreError.swift */; settings = {ASSET_TAGS = (); }; };
+		1AD2FE191B96CB700054F4CB /* ClientError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD2FE181B96CB700054F4CB /* ClientError.swift */; settings = {ASSET_TAGS = (); }; };
+		1AD2FE1A1B96CB700054F4CB /* ClientError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD2FE181B96CB700054F4CB /* ClientError.swift */; settings = {ASSET_TAGS = (); }; };
 		1AD2FE1D1B96CB8F0054F4CB /* AccessControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD2FE1C1B96CB8F0054F4CB /* AccessControl.swift */; settings = {ASSET_TAGS = (); }; };
 		1AD2FE1E1B96CB8F0054F4CB /* AccessControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD2FE1C1B96CB8F0054F4CB /* AccessControl.swift */; settings = {ASSET_TAGS = (); }; };
 		1AD2FE271B96D98C0054F4CB /* Request.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD2FE261B96D98C0054F4CB /* Request.swift */; settings = {ASSET_TAGS = (); }; };
@@ -21,7 +21,7 @@
 		1AD2FE2A1B96DE260054F4CB /* Response.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD2FE291B96DE260054F4CB /* Response.swift */; settings = {ASSET_TAGS = (); }; };
 		1AD2FE2B1B96DE260054F4CB /* Response.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD2FE291B96DE260054F4CB /* Response.swift */; settings = {ASSET_TAGS = (); }; };
 		1AE7902B1B96B96600CDEF17 /* Server.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A5D4C421B963B0500DE99E9 /* Server.swift */; settings = {ASSET_TAGS = (); }; };
-		1AE7902C1B96B96600CDEF17 /* Store.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A5D4C3F1B962FC100DE99E9 /* Store.swift */; settings = {ASSET_TAGS = (); }; };
+		1AE7902C1B96B96600CDEF17 /* Client.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A5D4C3F1B962FC100DE99E9 /* Client.swift */; settings = {ASSET_TAGS = (); }; };
 		1AE7902F1B96B96600CDEF17 /* NetworkObjects.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A5D4C251B9622F900DE99E9 /* NetworkObjects.h */; settings = {ATTRIBUTES = (Public, ); }; };
 /* End PBXBuildFile section */
 
@@ -42,9 +42,9 @@
 		1A5D4C2C1B9622F900DE99E9 /* NetworkObjectsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NetworkObjectsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1A5D4C311B9622F900DE99E9 /* NetworkObjectsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkObjectsTests.swift; sourceTree = "<group>"; };
 		1A5D4C331B9622F900DE99E9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		1A5D4C3F1B962FC100DE99E9 /* Store.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Store.swift; sourceTree = "<group>"; };
+		1A5D4C3F1B962FC100DE99E9 /* Client.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Client.swift; sourceTree = "<group>"; };
 		1A5D4C421B963B0500DE99E9 /* Server.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Server.swift; sourceTree = "<group>"; };
-		1AD2FE181B96CB700054F4CB /* StoreError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StoreError.swift; sourceTree = "<group>"; };
+		1AD2FE181B96CB700054F4CB /* ClientError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ClientError.swift; sourceTree = "<group>"; };
 		1AD2FE1C1B96CB8F0054F4CB /* AccessControl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccessControl.swift; sourceTree = "<group>"; };
 		1AD2FE261B96D98C0054F4CB /* Request.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Request.swift; sourceTree = "<group>"; };
 		1AD2FE291B96DE260054F4CB /* Response.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Response.swift; sourceTree = "<group>"; };
@@ -121,8 +121,8 @@
 			isa = PBXGroup;
 			children = (
 				1A5D4C421B963B0500DE99E9 /* Server.swift */,
-				1A5D4C3F1B962FC100DE99E9 /* Store.swift */,
-				1AD2FE181B96CB700054F4CB /* StoreError.swift */,
+				1A5D4C3F1B962FC100DE99E9 /* Client.swift */,
+				1AD2FE181B96CB700054F4CB /* ClientError.swift */,
 				1AD2FE261B96D98C0054F4CB /* Request.swift */,
 				1AD2FE291B96DE260054F4CB /* Response.swift */,
 				1AD2FE1C1B96CB8F0054F4CB /* AccessControl.swift */,
@@ -283,9 +283,9 @@
 				1AD2FE271B96D98C0054F4CB /* Request.swift in Sources */,
 				1A5D4C431B963B0500DE99E9 /* Server.swift in Sources */,
 				1AD2FE1D1B96CB8F0054F4CB /* AccessControl.swift in Sources */,
-				1AD2FE191B96CB700054F4CB /* StoreError.swift in Sources */,
+				1AD2FE191B96CB700054F4CB /* ClientError.swift in Sources */,
 				1AD2FE2A1B96DE260054F4CB /* Response.swift in Sources */,
-				1A5D4C401B962FC100DE99E9 /* Store.swift in Sources */,
+				1A5D4C401B962FC100DE99E9 /* Client.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -304,9 +304,9 @@
 				1AD2FE281B96D98C0054F4CB /* Request.swift in Sources */,
 				1AE7902B1B96B96600CDEF17 /* Server.swift in Sources */,
 				1AD2FE1E1B96CB8F0054F4CB /* AccessControl.swift in Sources */,
-				1AD2FE1A1B96CB700054F4CB /* StoreError.swift in Sources */,
+				1AD2FE1A1B96CB700054F4CB /* ClientError.swift in Sources */,
 				1AD2FE2B1B96DE260054F4CB /* Response.swift in Sources */,
-				1AE7902C1B96B96600CDEF17 /* Store.swift in Sources */,
+				1AE7902C1B96B96600CDEF17 /* Client.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -358,7 +358,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = $PROJECT_NAME;
@@ -401,7 +401,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_NAME = $PROJECT_NAME;
 				SDKROOT = macosx;
@@ -425,7 +425,6 @@
 				INFOPLIST_FILE = NetworkObjects/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				PRODUCT_BUNDLE_IDENTIFIER = com.colemancda.NetworkObjects;
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -446,7 +445,6 @@
 				INFOPLIST_FILE = NetworkObjects/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				PRODUCT_BUNDLE_IDENTIFIER = com.colemancda.NetworkObjects;
 				SKIP_INSTALL = YES;
 			};

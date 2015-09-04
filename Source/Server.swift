@@ -18,17 +18,28 @@ public final class Server {
     
     public var delegate: ServerDelegate?
     
-    public var permissionsEnabled: Bool
+    public var permissionsDelegate: ServerPermissionsDelegate?
+    
+    /// Function for logging purposes
+    public var logFunction: ((String) -> ())?
+    
+    /// Function for sending the WebSocket response
+    public var sendMessageFunction: String -> () = {
+        
+        // for websocketd
+        print($0)
+        fflush(__stdoutp)
+    }
     
     // MARK: - Initialization
     
     public init(dataSource: ServerDataSource,
         delegate: ServerDelegate? = nil,
-        permissionsEnabled: Bool = false) {
+        permissionsDelegate: ServerPermissionsDelegate?) {
         
         self.dataSource = dataSource
         self.delegate = delegate
-        self.permissionsEnabled = permissionsEnabled
+        self.permissionsDelegate = permissionsDelegate
     }
     
     // MARK: - Methods
@@ -104,10 +115,6 @@ public protocol ServerDelegate {
     /// This can be used to implement authentication or access control.
     func server(server: Server, statusCodeForRequest context: Server.RequestContext) -> Int
     
-    /// Asks the delegate for access control for a request. 
-    /// Server must have its permissions enabled for this method to be called. */
-    func server(server: Server, permissionForRequest context: Server.RequestContext, key: String?) -> AccessControl
-    
     /// Notifies the delegate that a new resource was created. Values are prevalidated. 
     ///
     /// This is a good time to set initial values that cannot be set in -awakeFromInsert: or -awakeFromFetch:.
@@ -120,26 +127,12 @@ public protocol ServerDelegate {
     func server(server: Server, didEncounterInternalError error: ErrorType, context: Server.RequestContext)
 }
 
-public extension ServerDelegate {
+/// Server Delegate Protocol
+public protocol ServerPermissionsDelegate {
     
-    func server(server: Server, statusCodeForRequest context: Server.RequestContext) -> Int {
-        
-        return HTTP.StatusCode.OK.rawValue
-    }
-    
-    func server(server: Server, permissionForRequest context: Server.RequestContext, key: String?) -> AccessControl {
-        
-        return .ReadWrite
-    }
-    
-    func server(server: Server, didPerformRequest context: Server.RequestContext, withResponse response: (Int, JSONValue?)) {
-        
-    }
-    
-    /// Notifies the delegate that an internal error ocurred (e.g. could not serialize a JSON object).
-    func server(server: Server, didEncounterInternalError error: ErrorType, context: Server.RequestContext) {
-        
-        print("Internal Server Error: \(error) \nContext: \(context)")
-    }
+    /// Asks the delegate for access control for a request.
+    /// Server must have its permissions enabled for this method to be called. */
+    func server(server: Server, permissionForRequest context: Server.RequestContext, key: String?) -> AccessControl
 }
+
 

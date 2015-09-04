@@ -1,1 +1,2 @@
 github "PureSwift/CoreModel" "develop"
+github "ColemanCDA/SwiftWebSocket" "master"

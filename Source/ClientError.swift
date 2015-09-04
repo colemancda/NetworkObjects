@@ -1,12 +1,12 @@
 //
-//  StoreError.swift
+//  ClientError.swift
 //  NetworkObjects
 //
 //  Created by Alsey Coleman Miller on 6/24/15.
 //  Copyright © 2015 ColemanCDA. All rights reserved.
 //
 
-public extension Store {
+public extension Client {
     
     /// Errors returned with NetworkObjects Store class.
     public enum Error: ErrorType {
