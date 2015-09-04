@@ -9,13 +9,15 @@
 import SwiftFoundation
 import CoreModel
 
-public struct ResponseMessage {
+public struct ResponseMessage: JSONEncodable {
     
-    public var status: Bool
+    public var statusCode: Int = HTTP.StatusCode.OK.rawValue
     
     public var metadata = JSONObject()
     
-    public var response: Response
+    public var response: Response?
+    
+    public init() { }
 }
 
 private extension RequestMessage {
@@ -27,5 +29,19 @@ private extension RequestMessage {
         case Metadata
         
         case Response
+    }
+}
+
+public extension ResponseMessage {
+    
+    /// Decode from JSON.
+    public init?(JSONValue: JSON.Value, type: RequestType, model: [Entity]) {
+        
+        
+    }
+    
+    public func toJSON() -> JSON.Value {
+        
+        
     }
 }

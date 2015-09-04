@@ -18,6 +18,8 @@ public final class Client {
     /// The URL of the **NetworkObjects** server that this client will connect to.
     public let serverURL: String
     
+    public let model: [Entity]
+    
     /// Function for logging purposes.
     public var log: ((message: String) -> ())?
     
@@ -38,9 +40,10 @@ public final class Client {
     
     // MARK: - Initialization
     
-    public init(serverURL: String) {
+    public init(serverURL: String, model: [Entity]) {
         
         self.serverURL = serverURL
+        self.model = model
     }
     
     // MARK: - Methods
@@ -103,9 +106,10 @@ public final class Client {
         
         let response = try send(request)
         
-        // validate response
-        
-        var createResponse: (Resource, ValuesObject)!
+        switch response {
+            case .Create(resource, values): return (resource, values)
+            default: fatalError()
+        }
     }
     
     /// Fetches the resource from the server.
@@ -132,32 +136,10 @@ public final class Client {
         
     }
     
-    // MARK: - Private Methods
-    
-    /// Perform an action in a thread safe manner
-    private func sync(block: () throws -> Void) throws {
+    /// Sends the request and parses the response.
+    public func send(request: Request) throws -> Response {
         
-        var thrownError: ErrorType?
-        
-        dispatch_sync(operationQueue) { () -> Void in
-            
-            do { try block() }
-            catch { thrownError = error }
-        }
-        
-        guard thrownError == nil else { throw thrownError! }
-    }
-    
-    /// Perform an action in a thread safe manner
-    private func sync(block: () -> Void) {
-        
-        dispatch_sync(operationQueue) { () -> Void in block() }
-    }
-    
-    /// Send the request on the internal serial queue, and parses the response.
-    ///
-    /// - Note: Response is not validated, only parsed. 
-    private func send(request: Request) throws -> Response {
+        var response: Response!
         
         try sync { () throws -> Void in
             
@@ -174,8 +156,6 @@ public final class Client {
             
             guard let jsonString = json.toString()
                 else { fatalError("Could not generate JSON for \(json)") }
-            
-            self.websocket.send(jsonString)
             
             // wait for response
             
@@ -199,14 +179,51 @@ public final class Client {
                 dispatch_semaphore_signal(semaphore)
             }
             
+            // send response and wait
+            self.websocket.send(jsonString)
+            
             dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER)
             
             guard error == nil else { throw error! }
             
             // parse response
             
+            guard let responseJSON = JSON.Value(string: message),
+                let responseMessage = ResponseMessage(JSONValue: responseJSON, type: request.type, model: self.model)
+                else { throw Error.InvalidServerResponse }
             
+            guard responseMessage.statusCode == HTTP.StatusCode.OK.rawValue
+                else { throw Error.ErrorStatusCode(responseMessage.statusCode) }
+            
+            guard let responseValue = responseMessage.response
+                else { throw Error.InvalidServerResponse }
+            
+            response = responseValue
         }
+        
+        return response
+    }
+    
+    // MARK: - Private Methods
+    
+    /// Perform an action in a thread safe manner
+    private func sync(block: () throws -> Void) throws {
+        
+        var thrownError: ErrorType?
+        
+        dispatch_sync(operationQueue) { () -> Void in
+            
+            do { try block() }
+            catch { thrownError = error }
+        }
+        
+        guard thrownError == nil else { throw thrownError! }
+    }
+    
+    /// Perform an action in a thread safe manner
+    private func sync(block: () -> Void) {
+        
+        dispatch_sync(operationQueue) { () -> Void in block() }
     }
 }
 
