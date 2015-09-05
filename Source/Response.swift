@@ -33,3 +33,68 @@ public enum Response {
     /// Error Response
     case Error(Int)
 }
+
+// MARK: - JSON
+
+private extension Response {
+    
+    /// JSON keys for Create responses
+    private enum CreateJSONKey: String {
+        
+        case ResourceID
+        case Values
+    }
+}
+
+public extension Response {
+    
+    /// Creates a ```Response``` from JSON. Will never initialize a ```Response.Error``` case.
+    init?(JSONValue: JSON.Value?, type: RequestType, entity: Entity) {
+        
+        switch type {
+            
+        case .Get:
+            
+            // parse response
+            guard let responseJSON = JSONValue,
+                let valuesJSONObect = responseJSON.objectValue,
+                let values = entity.convert(valuesJSONObect)
+                else { return nil }
+            
+            self = Response.Get(values)
+            
+        case .Edit:
+            
+            // parse response
+            guard let responseJSON = JSONValue,
+                let valuesJSONObect = responseJSON.objectValue,
+                let values = entity.convert(valuesJSONObect)
+                else { return nil }
+            
+            self = Response.Edit(values)
+            
+        case .Delete:
+            
+            // must not have response
+            guard JSONValue == nil else { return nil }
+            
+            self = Response.Delete
+            
+        case .Create:
+            
+            // parse response
+            guard let responseJSON = JSONValue,
+                let responseJSONObject = responseJSON.objectValue,
+                let resourceID = responseJSONObject[CreateJSONKey.ResourceID.rawValue]?.rawValue as? String,
+                let valuesJSONObect = responseJSONObject[CreateJSONKey.ResourceID.rawValue]?.objectValue,
+                let values = entity.convert(valuesJSONObect)
+                else { return nil }
+            
+            let resource = Resource(entity.name, resourceID)
+            
+            self = Response.Create(resource, values)
+        }
+    }
+}
+
+

@@ -8,13 +8,13 @@
 
 public extension Client {
     
-    /// Errors returned with NetworkObjects Store class.
+    /// Errors returned with **NetworkObjects**' ```Client```.
     public enum Error: ErrorType {
         
-        /** The server returned a status code other than 200 indicating an error. */
+        /// The server returned a status code indicating an error.
         case ErrorStatusCode(Int)
         
-        /** The server returned an invalid response. */
+        /// The server returned an invalid response.
         case InvalidServerResponse
     }
 }

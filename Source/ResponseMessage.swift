@@ -11,9 +11,6 @@ import CoreModel
 
 public struct ResponseMessage: JSONEncodable {
     
-    /// The status code for non-error responses. All other status codes represent an error.
-    public static var validStatusCode: Int = HTTP.StatusCode.OK.rawValue
-    
     public var metadata: [String: String]
     
     public var response: Response
@@ -40,7 +37,7 @@ private extension ResponseMessage {
 public extension ResponseMessage {
     
     /// Decode from JSON.
-    public init?(JSONValue: JSON.Value, type: RequestType, entity: Entity, model: [Entity]) {
+    public init?(JSONValue: JSON.Value, type: RequestType, entity: Entity) {
         
         guard let jsonObject = JSONValue.objectValue,
             let metadata = jsonObject[JSONKey.Metadata.rawValue]?.rawValue as? [String: String]
@@ -58,34 +55,7 @@ public extension ResponseMessage {
             return
         }
         
-        let response: Response
-        
-        switch type {
-            
-        case .Get:
-            
-            // parse response
-            guard let responseJSON = jsonObject[JSONKey.Response.rawValue],
-                let valuesJSONObect = responseJSON.objectValue,
-                let values = entity.convert(valuesJSONObect)
-                else { return nil }
-            
-            response = Response.Get(values)
-            
-        case .Edit:
-            
-            // parse response
-            guard let responseJSON = jsonObject[JSONKey.Response.rawValue],
-                let valuesJSONObect = responseJSON.objectValue,
-                let values = entity.convert(valuesJSONObect)
-                else { return nil }
-            
-            response = Response.Edit(values)
-            
-        case .Delete:
-            
-            guard let response = jsonObject[JSONKey.Response.rawValue] == nil { return nil }
-        }
+        guard let response = Response(JSONValue: jsonObject[JSONKey.Response.rawValue], type: type, entity: entity) else { return nil }
         
         self.response = response
     }
