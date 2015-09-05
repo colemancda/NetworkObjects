@@ -30,21 +30,6 @@ public enum Response {
     /// Function response
     case Function(JSONObject?)
     
-    public var type: RequestType {
-        
-        switch self {
-            
-        case Get(_): return .Get
-            
-        case Edit(_): return .Edit
-            
-        case Delete(_): return .Delete
-            
-        case Create(_, _): return .Create
-            
-        case Search(_): return .Search
-            
-        case Function(_): return .Function
-        }
-    }
+    /// Error Response
+    case Error(Int)
 }
