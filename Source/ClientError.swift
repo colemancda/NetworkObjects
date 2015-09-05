@@ -15,7 +15,12 @@ public extension Client {
         case ErrorStatusCode(Int)
         
         /// The server returned an invalid response.
-        case InvalidServerResponse
+        case InvalidResponse
+        
+        /// The request cannot be processed by the client. 
+        ///
+        /// e.g. Invalid entity name specified by the request.
+        case InvalidRequest
     }
 }
 

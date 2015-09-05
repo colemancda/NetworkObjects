@@ -92,87 +92,27 @@ public extension Client {
             }
         }
         
-        public func search(fetchRequest: FetchRequest) throws -> [Resource] {
-            
-            let request = Request.Search(fetchRequest)
-            
-            let response = try send(request)
-            
-            switch response {
-            case let .Search(resourceIDs): return resourceIDs.map({ (element) -> Resource in
-                
-                return Resource(fetchRequest.entityName, element)
-            })
-            default: fatalError()
-            }
-        }
-        
-        public func create(entityName: String, initialValues: ValuesObject? = nil) throws -> (Resource, ValuesObject) {
-            
-            let request = Request.Create(entityName, initialValues)
-            
-            let response = try send(request)
-            
-            switch response {
-            case let .Create(resource, values): return (resource, values)
-            default: fatalError()
-            }
-        }
-        
-        public func get(resource: Resource) throws -> ValuesObject {
-            
-            let request = Request.Get(resource)
-            
-            let response = try send(request)
-            
-            switch response {
-            case let .Get(values): return values
-            default: fatalError()
-            }
-        }
-        
-        public func edit(resource: Resource, changes: ValuesObject) throws -> ValuesObject {
-            
-            let request = Request.Edit(resource, changes)
-            
-            let response = try send(request)
-            
-            switch response {
-            case let .Edit(values): return values
-            default: fatalError()
-            }
-        }
-        
-        public func delete(resource: Resource) throws {
-            
-            let request = Request.Delete(resource)
-            
-            let response = try send(request)
-            
-            switch response {
-            case .Delete: return
-            default: fatalError()
-            }
-        }
-        
-        public func performFunction(resource: Resource, functionName: String, parameters: JSONObject? = nil) throws -> JSONObject? {
-            
-            let request = Request.Function(resource, functionName, parameters)
-            
-            let response = try send(request)
-            
-            switch response {
-            case let .Function(jsonObject): return jsonObject
-            default: fatalError()
-            }
-        }
-        
         /// Sends the request and parses the response.
         public func send(request: Request) throws -> Response {
             
             var response: Response!
             
             try sync { () throws -> Void in
+                
+                // check that requested entity belongs to model
+                guard let entity: Entity = {
+                    
+                    for entity in self.model {
+                        
+                        if entity.name == request.entityName {
+                            
+                            return entity
+                        }
+                    }
+                    
+                    return nil
+                    
+                }() as Entity? else { throw Error.InvalidRequest }
                 
                 var metadata = [String: String]()
                 
@@ -220,16 +160,10 @@ public extension Client {
                 // parse response
                 
                 guard let responseJSON = JSON.Value(string: message),
-                    let responseMessage = ResponseMessage(JSONValue: responseJSON, type: request.type, model: self.model)
-                    else { throw Error.InvalidServerResponse }
+                    let responseMessage = ResponseMessage(JSONValue: responseJSON, type: request.type, entity: entity)
+                    else { throw Error.InvalidResponse }
                 
-                guard responseMessage.statusCode == HTTP.StatusCode.OK.rawValue
-                    else { throw Error.ErrorStatusCode(responseMessage.statusCode) }
-                
-                guard let responseValue = responseMessage.response
-                    else { throw Error.InvalidServerResponse }
-                
-                response = responseValue
+                response = responseMessage.response
             }
             
             return response

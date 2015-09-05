@@ -40,11 +40,29 @@ public enum Request {
             
         case Delete(_): return .Delete
             
-        case Create(_,_): return .Create
+        case Create(_): return .Create
             
         case Search(_): return .Search
             
-        case Function(_,_,_): return .Function
+        case Function(_): return .Function
+        }
+    }
+    
+    public var entityName: String {
+        
+        switch self {
+            
+        case let Get(resource): return resource.entityName
+            
+        case let Edit(resource, _): return resource.entityName
+            
+        case let Delete(resource): return resource.entityName
+            
+        case let Create(entityName,_): return entityName
+            
+        case let Search(fetchRequest): return fetchRequest.entityName
+            
+        case let Function(resource,_,_): return resource.entityName
         }
     }
 }
