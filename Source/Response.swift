@@ -93,6 +93,32 @@ public extension Response {
             let resource = Resource(entity.name, resourceID)
             
             self = Response.Create(resource, values)
+            
+        case .Search:
+            
+            guard let responseJSON = JSONValue,
+                let resourceIDs = responseJSON.rawValue as? [String]
+                else { return nil }
+            
+            self = Response.Search(resourceIDs)
+            
+        case .Function:
+            
+            guard let responseJSON = JSONValue
+                else { return nil }
+            
+            let functionJSON: JSONObject?
+            
+            switch responseJSON {
+                
+            case .Null: functionJSON = nil
+                
+            case let .Object(value): functionJSON = value
+                
+            default: return nil
+            }
+            
+            self = Response.Function(functionJSON)
         }
     }
 }

@@ -101,7 +101,7 @@ public extension Client {
             switch response {
             case let .Search(resourceIDs): return resourceIDs.map({ (element) -> Resource in
                 
-                return Resource(fetchRequest.entityName, resourceID: element)
+                return Resource(fetchRequest.entityName, element)
             })
             default: fatalError()
             }
