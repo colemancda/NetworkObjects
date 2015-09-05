@@ -9,7 +9,7 @@
 import SwiftFoundation
 import CoreModel
 
-public struct ResponseMessage: JSONEncodable {
+public struct ResponseMessage: JSONEncodable, JSONParametrizedDecodable {
     
     public var metadata: [String: String]
     
@@ -37,7 +37,11 @@ private extension ResponseMessage {
 public extension ResponseMessage {
     
     /// Decode from JSON.
-    public init?(JSONValue: JSON.Value, type: RequestType, entity: Entity) {
+    public init?(JSONValue: JSON.Value, parameters: (type: RequestType, entity: Entity)) {
+        
+        let type = parameters.type
+        
+        let entity = parameters.entity
         
         guard let jsonObject = JSONValue.objectValue,
             let metadata = jsonObject[JSONKey.Metadata.rawValue]?.rawValue as? [String: String]

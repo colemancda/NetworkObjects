@@ -10,7 +10,7 @@ import SwiftFoundation
 import CoreModel
 
 /// Response
-public enum Response {
+public enum Response: JSONEncodable {
     
     /// GET response
     case Get(ValuesObject)

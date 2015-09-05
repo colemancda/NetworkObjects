@@ -9,7 +9,7 @@
 import SwiftFoundation
 import CoreModel
 
-public struct RequestMessage: JSONEncodable {
+public struct RequestMessage: JSONEncodable, JSONParametrizedDecodable {
     
     public var request: Request
     
@@ -45,7 +45,9 @@ public extension RequestMessage {
     ///
     /// The specified model will be used for value conversion. 
     /// Created request message is assumed to be valid according to the ```model``` provided.
-    public init?(JSONValue: JSON.Value, model: [Entity]) {
+    public init?(JSONValue: JSON.Value, parameters: [Entity]) {
+        
+        let model = parameters
         
         guard let jsonObject = JSONValue.objectValue,
             let requestTypeString = jsonObject[JSONKey.RequestType.rawValue]?.rawValue as? String,
