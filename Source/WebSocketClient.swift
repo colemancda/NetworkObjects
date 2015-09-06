@@ -101,15 +101,7 @@ public extension Client {
                 
                 // check that requested entity belongs to model
                 guard let entity: Entity = {
-                    
-                    for entity in self.model {
-                        
-                        if entity.name == request.entityName {
-                            
-                            return entity
-                        }
-                    }
-                    
+                    for entity in self.model { if entity.name == request.entityName { return entity } }
                     return nil
                     
                 }() as Entity? else { throw Error.InvalidRequest }

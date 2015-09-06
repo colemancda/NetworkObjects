@@ -11,6 +11,9 @@ import CoreModel
 
 public extension Server {
     
+    /// WebSocket-backed **NetworkObjects** server. 
+    ///
+    /// Recommended to use [websocketd](https://github.com/joewalnes/websocketd)
     public final class WebSocket: ServerType {
         
         // MARK: - Properties
@@ -22,13 +25,12 @@ public extension Server {
         public var permissionsDelegate: ServerPermissionsDelegate?
         
         /// Function for logging purposes
-        public var log: ((String) -> ())?
+        public var log: (String -> ())?
         
-        /// Function for sending the WebSocket response
-        public var sendMessage: String -> () = {
+        public var respond: String -> () = { (output: String ) -> Void in
             
             // for websocketd
-            print($0)
+            print(output)
             fflush(__stdoutp)
         }
         

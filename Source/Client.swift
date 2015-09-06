@@ -19,6 +19,8 @@ public protocol ClientType: class {
     
     var model: [Entity] { get }
     
+    var metadata: ((request: Request) -> [String: String])? { get }
+    
     /// Sends the request and parses the response.
     func send(request: Request, timeout: TimeInterval) throws -> Response
 }
@@ -55,8 +57,14 @@ public extension ClientType {
         let response = try self.send(request, timeout: timeout)
         
         switch response {
-        case let .Create(resource, values): return (resource, values)
+        case let .Create(resourceID, values):
+            
+            let resource = Resource(entityName, resourceID)
+            
+            return (resource, values)
+            
         case let .Error(errorCode): throw Client.Error.ErrorStatusCode(errorCode)
+            
         default: fatalError()
         }
     }

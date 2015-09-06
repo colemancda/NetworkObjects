@@ -14,7 +14,18 @@ public struct Server { }
 /// This class will broadcast a managed object context over the network.
 public protocol ServerType: class {
     
+    typealias Input
+    typealias Output
+    
     //var settings: Server.Settings
+    
+    var log: (String -> ())? { get }
+    
+    /// Process input.
+    func input(input: Input)
+    
+    /// Process output
+    var respond: Output -> () { get }
 }
 
 // MARK: - Implementation
