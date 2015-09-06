@@ -24,20 +24,17 @@ public extension Server {
         
         public var delegate: ServerDelegate?
         
-        public var permissionsDelegate: ServerPermissionsDelegate?
-        
         public var settings = Server.Settings()
         
         // MARK: - Initialization
         
-        public init(model: [Entity], dataSource: ServerDataSource,
-            delegate: ServerDelegate? = nil,
-            permissionsDelegate: ServerPermissionsDelegate? = nil) {
+        public init(model: [Entity],
+            dataSource: ServerDataSource,
+            delegate: ServerDelegate? = nil) {
                 
                 self.model = model
                 self.dataSource = dataSource
                 self.delegate = delegate
-                self.permissionsDelegate = permissionsDelegate
         }
         
         // MARK: - Methods

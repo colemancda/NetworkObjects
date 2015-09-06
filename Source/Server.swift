@@ -23,8 +23,6 @@ public protocol ServerType: class {
     
     var delegate: ServerDelegate? { get }
     
-    var permissionsDelegate: ServerPermissionsDelegate? { get }
-    
     var settings: Server.Settings { get }
     
     /// Process input and return output.
@@ -58,6 +56,7 @@ public extension ServerType {
         let responseMetadata: [String: String]
         
         // ask delegate for status code
+        
         if let delegate = self.delegate {
             
             let statusCode = delegate.server(self, statusCodeForRequest: context)
@@ -70,7 +69,11 @@ public extension ServerType {
                 
                 let responseMessage = ResponseMessage(response, metadata: responseMetadata)
                 
-                self.delegate?.server(self, didPerformRequest: context, withResponse: responseMessage)
+                if let delegate = self.delegate {
+                    
+                    return delegate.server(self, willPerformRequest: context, withResponse: responseMessage)
+
+                }
                 
                 return responseMessage
             }
@@ -88,42 +91,13 @@ public extension ServerType {
                 
             case let .Get(resource):
                 
-                var values = try store.values(resource)
-                
-                if let permissionsDelegate = self.permissionsDelegate {
-                    
-                    guard let visibleProperties = permissionsDelegate.server(self, visiblePropertiesForResource: resource, context: context) else {
-                        
-                        response = Response.Error(StatusCode.NotFound.rawValue)
-                        
-                        break
-                    }
-                    
-                    for key in values.keys {
-                        
-                        let isVisible = false
-                        
-                        for visibleProperty in visibleProperties {
-                            
-                            if key == visibleProperty { isVisible }
-                        }
-                        
-                        
-                    }
-                }
-                
-                guard visible else {
-                    
-                    response = Response.Error(StatusCode.Forbidden.rawValue)
-                    
-                    break
-                }
+                let values = try store.values(resource)
                 
                 response = Response.Get(values)
                 
             case let .Edit(resource, values):
                 
-                // validate values
+                // validate edit values
                 
                 do { try context.store.validate(values, forEntity: entity) }
                 
@@ -136,20 +110,9 @@ public extension ServerType {
                 
                 catch { throw error }
                 
-                // check for edit permissions
-                
                 try store.edit(resource, changes: values)
                 
-                var values = try store.values(resource)
-                
-                let visible = filterValues(&values, resource: resource, entity: entity, context: context)
-                
-                guard visible else {
-                    
-                    response = Response.Error(StatusCode.Forbidden.rawValue)
-                    
-                    break
-                }
+                let values = try store.values(resource)
                 
                 response = Response.Edit(values)
                 
@@ -185,28 +148,15 @@ public extension ServerType {
                 
                 try store.create(resource, initialValues: initialValues)
                 
-                self.delegate?.server(self, didCreateResource: resource, context: context)
+                self.delegate?.server(self, didCreateResource: resource, initialValues: initialValues, context: context)
                 
-                var values = try store.values(resource)
-                
-                let visible = filterValues(&values, resource: resource, entity: entity, context: context)
-                
-                guard visible else {
-                    
-                    response = Response.Error(StatusCode.Forbidden.rawValue)
-                    
-                    break
-                }
+                let values = try store.values(resource)
                 
                 response = Response.Create(resourceID, values)
                 
             case let .Search(fetchRequest):
                 
                 let results = try store.fetch(fetchRequest)
-                
-                // filter results
-                
-                
                 
                 let resourceIDs = results.map({ (resource) -> String in resource.resourceID })
                 
@@ -241,7 +191,11 @@ public extension ServerType {
         
         let responseMessage = ResponseMessage(response, metadata: responseMetadata)
         
-        self.delegate?.server(self, didPerformRequest: context, withResponse: responseMessage)
+        if let delegate = self.delegate {
+            
+            return delegate.server(self, willPerformRequest: context, withResponse: responseMessage)
+            
+        }
         
         return responseMessage
     }
@@ -334,30 +288,12 @@ public protocol ServerDelegate {
     /// Notifies the delegate that a new resource was created. Values are prevalidated. 
     ///
     /// This is a good time to set initial values that cannot be set in -awakeFromInsert: or -awakeFromFetch:.
-    func server<T: ServerType>(server: T, didCreateResource resource: Resource, context: Server.RequestContext)
+    func server<T: ServerType>(server: T, didCreateResource resource: Resource, initialValues: ValuesObject?, context: Server.RequestContext)
     
-    /// Notifies the delegate that a request was processed.
-    func server<T: ServerType>(server: T, didPerformRequest context: Server.RequestContext, withResponse response: ResponseMessage)
+    /// Notifies the delegate that a request was processed. Delegate can change final response.
+    func server<T: ServerType>(server: T, willPerformRequest context: Server.RequestContext, withResponse response: ResponseMessage) -> ResponseMessage
     
     /// Notifies the delegate that an internal error ocurred (e.g. could not serialize a JSON object).
     func server<T: ServerType>(server: T, didEncounterInternalError error: ErrorType, context: Server.RequestContext)
 }
-
-/// Server Delegate Protocol
-public protocol ServerPermissionsDelegate {
-    
-    /// Asks the delegate which properties are visible for a specific request context. 
-    ///
-    /// - Return: The properties that are visible or ```nil``` for the entire resource to be invisible.
-    func server<T: ServerType>(server: T, visiblePropertiesForResource resource: Resource, context: Server.RequestContext) -> [String]?
-    
-    func server<T: ServerType>(server: T, canEditResource resource: Resource, values: ValuesObject, context: Server.RequestContext) -> Bool
-    
-    func server<T: ServerType>(server: T, canCreateEntity entity: Entity, initialValues: ValuesObject, context: Server.RequestContext) -> Bool
-    
-    func server<T: ServerType>(server: T, canDeleteEntity entity: Entity, context: Server.RequestContext) -> Bool
-    
-    func server<T: ServerType>(server: T, canExecuteSearch fetchRequest: FetchRequest, context: Server.RequestContext) -> Bool
-}
-
 

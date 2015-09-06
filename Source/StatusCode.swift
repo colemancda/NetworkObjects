@@ -17,11 +17,6 @@ public enum StatusCode: Int {
     /// Bad request status code.
     case BadRequest = 400
     
-    /// Forbidden status code.
-    /// 
-    /// e.g. Used when permission is denied.
-    case Forbidden = 403
-    
     /// Not Found status code. 
     /// 
     /// e.g. Used when a Resource instance cannot be found.
