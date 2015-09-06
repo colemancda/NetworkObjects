@@ -26,8 +26,6 @@
 		1AD2C2DE1B9C022E00F54453 /* StatusCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD2C2DC1B9C022E00F54453 /* StatusCode.swift */; settings = {ASSET_TAGS = (); }; };
 		1AD2FE191B96CB700054F4CB /* ClientError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD2FE181B96CB700054F4CB /* ClientError.swift */; settings = {ASSET_TAGS = (); }; };
 		1AD2FE1A1B96CB700054F4CB /* ClientError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD2FE181B96CB700054F4CB /* ClientError.swift */; settings = {ASSET_TAGS = (); }; };
-		1AD2FE1D1B96CB8F0054F4CB /* AccessControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD2FE1C1B96CB8F0054F4CB /* AccessControl.swift */; settings = {ASSET_TAGS = (); }; };
-		1AD2FE1E1B96CB8F0054F4CB /* AccessControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD2FE1C1B96CB8F0054F4CB /* AccessControl.swift */; settings = {ASSET_TAGS = (); }; };
 		1AD2FE271B96D98C0054F4CB /* Request.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD2FE261B96D98C0054F4CB /* Request.swift */; settings = {ASSET_TAGS = (); }; };
 		1AD2FE281B96D98C0054F4CB /* Request.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD2FE261B96D98C0054F4CB /* Request.swift */; settings = {ASSET_TAGS = (); }; };
 		1AD2FE2A1B96DE260054F4CB /* ResponseMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD2FE291B96DE260054F4CB /* ResponseMessage.swift */; settings = {ASSET_TAGS = (); }; };
@@ -67,7 +65,6 @@
 		1AD2C2D91B9BF5B900F54453 /* HTTPServer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTTPServer.swift; sourceTree = "<group>"; };
 		1AD2C2DC1B9C022E00F54453 /* StatusCode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StatusCode.swift; sourceTree = "<group>"; };
 		1AD2FE181B96CB700054F4CB /* ClientError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ClientError.swift; sourceTree = "<group>"; };
-		1AD2FE1C1B96CB8F0054F4CB /* AccessControl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccessControl.swift; sourceTree = "<group>"; };
 		1AD2FE261B96D98C0054F4CB /* Request.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Request.swift; sourceTree = "<group>"; };
 		1AD2FE291B96DE260054F4CB /* ResponseMessage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ResponseMessage.swift; sourceTree = "<group>"; };
 		1AE790341B96B96600CDEF17 /* NetworkObjects.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = NetworkObjects.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -154,7 +151,6 @@
 				1AFB89FA1B99299900BA7856 /* RequestMessage.swift */,
 				1AFB89FD1B992C8700BA7856 /* Response.swift */,
 				1AD2FE291B96DE260054F4CB /* ResponseMessage.swift */,
-				1AD2FE1C1B96CB8F0054F4CB /* AccessControl.swift */,
 				1AD2C2DC1B9C022E00F54453 /* StatusCode.swift */,
 			);
 			name = Source;
@@ -335,7 +331,6 @@
 				1A5D4C431B963B0500DE99E9 /* Server.swift in Sources */,
 				1AD2C2D11B9BD93600F54453 /* WebSocket.swift in Sources */,
 				1AD2C2DA1B9BF5B900F54453 /* HTTPServer.swift in Sources */,
-				1AD2FE1D1B96CB8F0054F4CB /* AccessControl.swift in Sources */,
 				1AD2C2C61B9B7C2300F54453 /* WebSocketServer.swift in Sources */,
 				1AFB89FB1B99299900BA7856 /* RequestMessage.swift in Sources */,
 				1AD2C2C31B9B7C1300F54453 /* WebSocketClient.swift in Sources */,
@@ -364,7 +359,6 @@
 				1AE7902B1B96B96600CDEF17 /* Server.swift in Sources */,
 				1AD2C2D21B9BD93600F54453 /* WebSocket.swift in Sources */,
 				1AD2C2DB1B9BF5B900F54453 /* HTTPServer.swift in Sources */,
-				1AD2FE1E1B96CB8F0054F4CB /* AccessControl.swift in Sources */,
 				1AD2C2C71B9B7C2300F54453 /* WebSocketServer.swift in Sources */,
 				1AFB89FC1B99299900BA7856 /* RequestMessage.swift in Sources */,
 				1AD2C2C41B9B7C1300F54453 /* WebSocketClient.swift in Sources */,

@@ -59,7 +59,6 @@ public extension ServerType {
                 if let delegate = self.delegate {
                     
                     return delegate.server(self, willPerformRequest: context, withResponse: responseMessage)
-
                 }
                 
                 return responseMessage
@@ -101,8 +100,6 @@ public extension ServerType {
                 let resourceID = self.dataSource.server(self, newResourceIDForEntity: entityName)
                 
                 let resource = Resource(entityName, resourceID)
-                
-                // check for edit permissions
                 
                 try store.create(resource, initialValues: initialValues)
                 
