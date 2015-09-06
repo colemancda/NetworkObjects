@@ -127,6 +127,11 @@ public extension ServerType {
                 response = Response.Function(functionJSONResponse)
             }
         }
+            
+        catch CoreModel.StoreError.NotFound {
+            
+            response = Response.Error(StatusCode.NotFound.rawValue)
+        }
         
         catch {
             
