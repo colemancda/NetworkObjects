@@ -25,9 +25,7 @@ public protocol ServerType: class {
     
     var permissionsDelegate: ServerPermissionsDelegate? { get }
     
-    //var settings: Server.Settings
-    
-    var log: (String -> ())? { get }
+    var settings: Server.Settings { get }
     
     /// Process input and return output.
     func input(input: Input) -> Output
@@ -39,6 +37,19 @@ public extension ServerType {
     
     /// Processes the request and returns a response.
     func process(requestMessage: RequestMessage) -> ResponseMessage {
+        
+        // check that requested entity belongs to model
+        guard let entity: Entity = {
+            for entity in self.model { if entity.name == requestMessage.request.entityName { return entity } }
+            return nil
+        }() as Entity? else {
+                
+            let response = Response.Error(StatusCode.BadRequest.rawValue)
+            
+            let responseMessage = ResponseMessage(response, metadata: [:])
+            
+            return responseMessage
+        }
         
         let store = self.dataSource.server(self, storeForRequest: requestMessage)
         
@@ -57,7 +68,11 @@ public extension ServerType {
                 
                 let response = Response.Error(statusCode)
                 
-                return ResponseMessage(response, metadata: responseMetadata)
+                let responseMessage = ResponseMessage(response, metadata: responseMetadata)
+                
+                self.delegate?.server(self, didPerformRequest: context, withResponse: responseMessage)
+                
+                return responseMessage
             }
         }
         else {
@@ -73,7 +88,16 @@ public extension ServerType {
                 
             case let .Get(resource):
                 
-                let values = try store.values(resource)
+                var values = try store.values(resource)
+                
+                let visible = filterValues(&values, resource: resource, entity: entity, context: context)
+                
+                guard visible else {
+                    
+                    response = Response.Error(StatusCode.Forbidden.rawValue)
+                    
+                    break
+                }
                 
                 response = Response.Get(values)
                 
@@ -81,7 +105,16 @@ public extension ServerType {
                 
                 try store.edit(resource, changes: values)
                 
-                let values = try store.values(resource)
+                var values = try store.values(resource)
+                
+                let visible = filterValues(&values, resource: resource, entity: entity, context: context)
+                
+                guard visible else {
+                    
+                    response = Response.Error(StatusCode.Forbidden.rawValue)
+                    
+                    break
+                }
                 
                 response = Response.Edit(values)
                 
@@ -101,7 +134,16 @@ public extension ServerType {
                 
                 self.delegate?.server(self, didCreateResource: resource, context: context)
                 
-                let values = try store.values(resource)
+                var values = try store.values(resource)
+                
+                let visible = filterValues(&values, resource: resource, entity: entity, context: context)
+                
+                guard visible else {
+                    
+                    response = Response.Error(StatusCode.Forbidden.rawValue)
+                    
+                    break
+                }
                 
                 response = Response.Create(resourceID, values)
                 
@@ -145,6 +187,91 @@ public extension ServerType {
         self.delegate?.server(self, didPerformRequest: context, withResponse: responseMessage)
         
         return responseMessage
+    }
+}
+
+private extension ServerType {
+    
+    func filterValues(inout values: ValuesObject, resource: Resource, entity: Entity, context: Server.RequestContext) -> Bool {
+        
+        // check read permissions
+        if let permissionsDelegate = self.permissionsDelegate {
+            
+            let resourceVisible = permissionsDelegate.server(self, permissionForRequest: context, resource: resource, key: nil).rawValue >= AccessControl.ReadOnly.rawValue
+            
+            guard resourceVisible else { return false }
+            
+            for (key, value) in values {
+                
+                let propertyVisible = permissionsDelegate.server(self, permissionForRequest: context, resource: resource, key: key).rawValue >= AccessControl.ReadOnly.rawValue
+                
+                guard propertyVisible else {
+                    
+                    values[key] = Value.Null
+                    
+                    continue
+                }
+                
+                // check permissions for destination resources
+                
+                switch value {
+                    
+                case let .Relationship(relationshipValue):
+                    
+                    let relationship = entity.relationships.filter({ (element) -> Bool in
+                        
+                        element.name == key
+                        
+                    }).first!
+                    
+                    switch relationshipValue {
+                        
+                    case let .ToOne(destinationResourceID):
+                        
+                        let destinationResource = Resource(relationship.destinationEntityName, destinationResourceID)
+                        
+                        let resourceVisible = permissionsDelegate.server(self, permissionForRequest: context, resource: destinationResource, key: nil).rawValue >= AccessControl.ReadOnly.rawValue
+                        
+                        guard resourceVisible else {
+                            
+                            values[key] = Value.Null
+                            
+                            continue
+                        }
+                        
+                    case let .ToMany(destinationResourceIDs):
+                        
+                        var filteredDestinationResourceIDs = [String]()
+                        
+                        for destinationResourceID in destinationResourceIDs {
+                            
+                            let destinationResource = Resource(relationship.destinationEntityName, destinationResourceID)
+                            
+                            let resourceVisible = permissionsDelegate.server(self, permissionForRequest: context, resource: destinationResource, key: nil).rawValue >= AccessControl.ReadOnly.rawValue
+                            
+                            guard resourceVisible else { continue }
+                            
+                            filteredDestinationResourceIDs.append(destinationResourceID)
+                        }
+                        
+                        values[key] = Value.Relationship(RelationshipValue.ToMany(filteredDestinationResourceIDs))
+                    }
+                    
+                default: continue
+                }
+            }
+        }
+        
+        return true
+    }
+}
+
+public extension ServerType {
+    
+    var JSONWritingOptions: [JSON.Serialization.WritingOption] {
+        
+        if settings.prettyJSON { return [.Pretty] }
+        else { return [] }
     }
 }
 
@@ -240,7 +367,7 @@ public protocol ServerPermissionsDelegate {
     
     /// Asks the delegate for access control for a request.
     /// Server must have its permissions enabled for this method to be called. */
-    func server<T: ServerType>(server: T, permissionForRequest context: Server.RequestContext, key: String?) -> AccessControl
+    func server<T: ServerType>(server: T, permissionForRequest context: Server.RequestContext, resource: Resource, key: String?) -> AccessControl
 }
 
 

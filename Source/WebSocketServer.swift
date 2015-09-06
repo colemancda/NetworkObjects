@@ -26,14 +26,13 @@ public extension Server {
         
         public var permissionsDelegate: ServerPermissionsDelegate?
         
-        /// Function for logging purposes
-        public var log: (String -> ())?
+        public var settings = Server.Settings()
         
         // MARK: - Initialization
         
         public init(model: [Entity], dataSource: ServerDataSource,
             delegate: ServerDelegate? = nil,
-            permissionsDelegate: ServerPermissionsDelegate?) {
+            permissionsDelegate: ServerPermissionsDelegate? = nil) {
                 
                 self.model = model
                 self.dataSource = dataSource
@@ -57,7 +56,7 @@ public extension Server {
                 
                 let responseJSON = responseMessage.toJSON()
                 
-                return responseJSON.toString()!
+                return responseJSON.toString(JSONWritingOptions)!
             }
             
             /// Process method will handle the protocol independent parsing
@@ -65,7 +64,7 @@ public extension Server {
             
             let responseJSON = responseMessage.toJSON()
             
-            return responseJSON.toString()!
+            return responseJSON.toString(JSONWritingOptions)!
         }
     }
 }
