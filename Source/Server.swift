@@ -176,15 +176,15 @@ public extension Server {
         public var searchEnabled = true
     }
     
-    public final class RequestContext {
+    public final class RequestContext<Store: CoreModel.Store> {
         
-        public let store: CoreModel.Store
+        public let store: Store
         
         public let request: RequestMessage
         
         public var userInfo = [String: AnyObject]()
         
-        public init(store: CoreModel.Store, request: RequestMessage) {
+        public init(store: Store, request: RequestMessage) {
             
             self.store = store
             self.request = request
