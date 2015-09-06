@@ -13,7 +13,7 @@ public extension Server {
     
     /// WebSocket-backed **NetworkObjects** server. 
     ///
-    /// Recommended to use [websocketd](https://github.com/joewalnes/websocketd)
+    /// Recommended to use with [websocketd](https://github.com/joewalnes/websocketd)
     public final class WebSocket: ServerType {
         
         // MARK: - Properties
@@ -59,7 +59,7 @@ public extension Server {
                 return responseJSON.toString(JSONWritingOptions)!
             }
             
-            /// Process method will handle the protocol independent parsing
+            /// Process method will handle the protocol-independent parsing
             let responseMessage = self.process(respuestMessage)
             
             let responseJSON = responseMessage.toJSON()

@@ -12,6 +12,7 @@ import SwiftWebSocket
 
 public extension Client {
     
+    @available(OSX 10.10, iOS 8.0, *)
     public final class WebSocket: ClientType {
         
         // MARK: - Properties

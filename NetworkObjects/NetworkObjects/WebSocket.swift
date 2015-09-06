@@ -11,6 +11,7 @@ import SwiftWebSocket
 
 internal typealias InternalWebSocket = SwiftWebSocket.WebSocket
 
+@available(OSX 10.10, *)
 internal extension InternalWebSocket {
     
     /// Sends a message asyncronously

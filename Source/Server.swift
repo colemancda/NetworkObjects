@@ -103,6 +103,21 @@ public extension ServerType {
                 
             case let .Edit(resource, values):
                 
+                // validate values
+                
+                do { try context.store.validate(values, forEntity: entity) }
+                
+                catch CoreModel.StoreError.InvalidValues {
+                    
+                    response = Response.Error(StatusCode.BadRequest.rawValue)
+                    
+                    break
+                }
+                
+                catch { throw error }
+                
+                // check for edit permissions
+                
                 try store.edit(resource, changes: values)
                 
                 var values = try store.values(resource)
@@ -126,9 +141,27 @@ public extension ServerType {
                 
             case let .Create(entityName, initialValues):
                 
+                // validate values
+                
+                if let values = initialValues {
+                    
+                    do { try context.store.validate(values, forEntity: entity) }
+                        
+                    catch CoreModel.StoreError.InvalidValues {
+                        
+                        response = Response.Error(StatusCode.BadRequest.rawValue)
+                        
+                        break
+                    }
+                        
+                    catch { throw error }
+                }
+                
                 let resourceID = self.dataSource.server(self, newResourceIDForEntity: entityName)
                 
                 let resource = Resource(entityName, resourceID)
+                
+                // check for edit permissions
                 
                 try store.create(resource, initialValues: initialValues)
                 
@@ -150,6 +183,10 @@ public extension ServerType {
             case let .Search(fetchRequest):
                 
                 let results = try store.fetch(fetchRequest)
+                
+                // filter results
+                
+                
                 
                 let resourceIDs = results.map({ (resource) -> String in resource.resourceID })
                 
@@ -260,6 +297,21 @@ private extension ServerType {
                 default: continue
                 }
             }
+        }
+        
+        return true
+    }
+    
+    /// check for write permissions and validates changes
+    func editPermission(values: ValuesObject, entity: Entity, resource: Resource?, context: Server.RequestContext) -> Bool {
+        
+        // validate values
+        let validValues = context.store.validate(values, forEntity: entity)
+        
+        // check edit permissions
+        if let permissionsDelegate = self.permissionsDelegate {
+            
+            
         }
         
         return true
