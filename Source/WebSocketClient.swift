@@ -164,8 +164,4 @@ public extension Client {
             dispatch_sync(operationQueue) { () -> Void in block() }
         }
     }
-    
-    // MARK: - Typealiases
-    
-    private typealias InternalWebSocket = SwiftWebSocket.WebSocket
 }
