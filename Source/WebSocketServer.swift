@@ -18,6 +18,8 @@ public extension Server {
         
         // MARK: - Properties
         
+        public let model: [Entity]
+        
         public var dataSource: ServerDataSource
         
         public var delegate: ServerDelegate?
@@ -27,19 +29,13 @@ public extension Server {
         /// Function for logging purposes
         public var log: (String -> ())?
         
-        public var respond: String -> () = { (output: String ) -> Void in
-            
-            // for websocketd
-            print(output)
-            fflush(__stdoutp)
-        }
-        
         // MARK: - Initialization
         
-        public init(dataSource: ServerDataSource,
+        public init(model: [Entity], dataSource: ServerDataSource,
             delegate: ServerDelegate? = nil,
             permissionsDelegate: ServerPermissionsDelegate?) {
                 
+                self.model = model
                 self.dataSource = dataSource
                 self.delegate = delegate
                 self.permissionsDelegate = permissionsDelegate
@@ -48,9 +44,28 @@ public extension Server {
         // MARK: - Methods
         
         /// Process string as input.
-        public func input(input: String) {
+        public func input(input: String) -> String {
             
+            guard let requestJSON = JSON.Value(string: input),
+                let respuestMessage = RequestMessage(JSONValue: requestJSON, parameters: self.model)
+                
+                else {
+                
+                let response = Response.Error(StatusCode.BadRequest.rawValue)
+                
+                let responseMessage = ResponseMessage(response)
+                
+                let responseJSON = responseMessage.toJSON()
+                
+                return responseJSON.toString()!
+            }
             
+            /// Process method will handle the protocol independent parsing
+            let responseMessage = self.process(respuestMessage)
+            
+            let responseJSON = responseMessage.toJSON()
+            
+            return responseJSON.toString()!
         }
     }
 }

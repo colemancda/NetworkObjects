@@ -9,6 +9,7 @@
 import SwiftFoundation
 import CoreModel
 
+/*
 public extension Server {
     
     public typealias HTTP = HTTPServer
@@ -26,12 +27,6 @@ public final class HTTPServer: ServerType {
     
     public var log: (String -> ())?
     
-    public var respond: HTTP.Response -> () = { (output: HTTP.Response ) -> Void in
-        
-        //
-        print(respondingoutput)
-    }
-    
     // MARK: - Initialization
     
     public init(dataSource: ServerDataSource,
@@ -45,8 +40,9 @@ public final class HTTPServer: ServerType {
     
     // MARK: - Methods
     
-    public func input(input: HTTP.Request) {
+    public func input(input: HTTP.Request) -> HTTP.Response {
         
-        
+        fatalError()
     }
 }
+*/

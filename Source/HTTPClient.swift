@@ -9,6 +9,7 @@
 import SwiftFoundation
 import CoreModel
 
+/*
 public extension Client {
     
     public final class HTTP: ClientType {
@@ -65,6 +66,7 @@ public extension Client {
             guard let jsonString = json.toString()
                 else { fatalError("Could not generate JSON for \(json)") }
             
+            /*
             let responseString = try self.websocket.sendRequest(jsonString, timeout: timeout)
             
             // parse response
@@ -72,8 +74,10 @@ public extension Client {
             guard let responseJSON = JSON.Value(string: responseString),
                 let responseMessage = ResponseMessage(JSONValue: responseJSON, parameters:(request.type, entity))
                 else { throw Error.InvalidResponse }
+            */
             
             return response
         }
     }
 }
+*/
