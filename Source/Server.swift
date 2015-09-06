@@ -244,7 +244,7 @@ private extension ServerType {
                 
                 guard propertyVisible else {
                     
-                    values[key] = Value.Null
+                    values[key] = nil
                     
                     continue
                 }
@@ -303,15 +303,37 @@ private extension ServerType {
     }
     
     /// check for write permissions and validates changes
-    func editPermission(values: ValuesObject, entity: Entity, resource: Resource?, context: Server.RequestContext) -> Bool {
-        
-        // validate values
-        let validValues = context.store.validate(values, forEntity: entity)
+    func editPermission(values: ValuesObject, entity: Entity, model: [Entity], resource: Resource?, context: Server.RequestContext) -> Bool {
         
         // check edit permissions
         if let permissionsDelegate = self.permissionsDelegate {
             
-            
+            for (key, value) in values {
+                
+                // check property permission
+                
+                let propertyEditable = permissionsDelegate.server(self, permissionForRequest: context, resource: resource, key: key).rawValue == AccessControl.ReadWrite.rawValue
+                
+                guard propertyEditable else { return false }
+                
+                if let relationship = entity.relationships.filter({ (element) -> Bool in element.name == key }).first {
+                    
+                    let destinationEntity = model.filter({ (entity) -> Bool in
+                        entity.name == relationship.destinationEntityName
+                    }).first!
+                    
+                    switch value {
+                        
+                    case let .Relationship(.ToOne(resourceID)):
+                    
+                    
+                        
+                    case let .Relationship(.ToMany(resourceIDs)):
+                        
+                        
+                    }
+                }
+            }
         }
         
         return true
@@ -419,7 +441,7 @@ public protocol ServerPermissionsDelegate {
     
     /// Asks the delegate for access control for a request.
     /// Server must have its permissions enabled for this method to be called. */
-    func server<T: ServerType>(server: T, permissionForRequest context: Server.RequestContext, resource: Resource, key: String?) -> AccessControl
+    func server<T: ServerType>(server: T, permissionForRequest context: Server.RequestContext, resource: Resource?, key: String?) -> AccessControl
 }
 
 
