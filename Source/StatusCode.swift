@@ -18,12 +18,8 @@ public enum StatusCode: Int {
     case BadRequest = 400
     
     /// Not Found status code. 
-    /// 
-    /// e.g. Used when a Resource instance cannot be found.
     case NotFound = 404
     
-    /// Internal Server Error status code. 
-    ///
-    /// e.g. Used when a JSON cannot be converted to NSData for a HTTP response.
+    /// Internal Server Error status code.
     case InternalServerError = 500
 }

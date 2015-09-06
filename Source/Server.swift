@@ -36,19 +36,6 @@ public extension ServerType {
     /// Processes the request and returns a response.
     func process(requestMessage: RequestMessage) -> ResponseMessage {
         
-        // check that requested entity belongs to model
-        guard let entity: Entity = {
-            for entity in self.model { if entity.name == requestMessage.request.entityName { return entity } }
-            return nil
-        }() as Entity? else {
-                
-            let response = Response.Error(StatusCode.BadRequest.rawValue)
-            
-            let responseMessage = ResponseMessage(response, metadata: [:])
-            
-            return responseMessage
-        }
-        
         let store = self.dataSource.server(self, storeForRequest: requestMessage)
         
         let context = Server.RequestContext(store: store, request: requestMessage)
@@ -96,20 +83,7 @@ public extension ServerType {
                 response = Response.Get(values)
                 
             case let .Edit(resource, values):
-                
-                // validate edit values
-                
-                do { try context.store.validate(values, forEntity: entity) }
-                
-                catch CoreModel.StoreError.InvalidValues {
-                    
-                    response = Response.Error(StatusCode.BadRequest.rawValue)
-                    
-                    break
-                }
-                
-                catch { throw error }
-                
+                                
                 try store.edit(resource, changes: values)
                 
                 let values = try store.values(resource)
@@ -123,22 +97,6 @@ public extension ServerType {
                 response = Response.Delete
                 
             case let .Create(entityName, initialValues):
-                
-                // validate values
-                
-                if let values = initialValues {
-                    
-                    do { try context.store.validate(values, forEntity: entity) }
-                        
-                    catch CoreModel.StoreError.InvalidValues {
-                        
-                        response = Response.Error(StatusCode.BadRequest.rawValue)
-                        
-                        break
-                    }
-                        
-                    catch { throw error }
-                }
                 
                 let resourceID = self.dataSource.server(self, newResourceIDForEntity: entityName)
                 
