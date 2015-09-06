@@ -48,7 +48,9 @@ private extension Response {
 
 public extension Response {
     
-    /// Creates a ```Response``` from JSON. Will never initialize a ```Response.Error``` case.
+    /// Creates a ```Response``` from JSON. 
+    ///
+    /// - Note: Will never initialize a ```Response.Error``` case.
     init?(JSONValue: JSON.Value?, type: RequestType, entity: Entity) {
         
         switch type {
@@ -120,6 +122,13 @@ public extension Response {
             
             self = Response.Function(functionJSON)
         }
+    }
+    
+    func toJSON() -> JSON.Value {
+        
+        var jsonObject = JSON.Object()
+        
+        return JSON.Value.Object(jsonObject)
     }
 }
 

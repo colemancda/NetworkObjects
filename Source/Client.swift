@@ -20,17 +20,17 @@ public protocol ClientType: class {
     var model: [Entity] { get }
     
     /// Sends the request and parses the response.
-    func send(request: Request) throws -> Response
+    func send(request: Request, timeout: TimeInterval) throws -> Response
 }
 
 public extension ClientType {
     
     /// Queries the server for resources that match the fetch request.
-    func search(fetchRequest: FetchRequest) throws -> [Resource] {
+    func search(fetchRequest: FetchRequest, timeout: TimeInterval = 30) throws -> [Resource] {
         
         let request = Request.Search(fetchRequest)
         
-        let response = try send(request)
+        let response = try self.send(request, timeout: timeout)
         
         switch response {
             
@@ -48,11 +48,11 @@ public extension ClientType {
     }
     
     /// Creates an entity on the server with the specified initial values.
-    func create(entityName: String, initialValues: ValuesObject? = nil) throws -> (Resource, ValuesObject) {
+    func create(entityName: String, initialValues: ValuesObject? = nil, timeout: TimeInterval = 30) throws -> (Resource, ValuesObject) {
         
         let request = Request.Create(entityName, initialValues)
         
-        let response = try send(request)
+        let response = try self.send(request, timeout: timeout)
         
         switch response {
         case let .Create(resource, values): return (resource, values)
@@ -62,11 +62,11 @@ public extension ClientType {
     }
     
     /// Fetches the values specified resource. 
-    func get(resource: Resource) throws -> ValuesObject {
+    func get(resource: Resource, timeout: TimeInterval = 30) throws -> ValuesObject {
         
         let request = Request.Get(resource)
         
-        let response = try send(request)
+        let response = try self.send(request, timeout: timeout)
         
         switch response {
         case let .Get(values): return values
@@ -76,11 +76,11 @@ public extension ClientType {
     }
     
     /// Edits the specified entity.
-    func edit(resource: Resource, changes: ValuesObject) throws -> ValuesObject {
+    func edit(resource: Resource, changes: ValuesObject, timeout: TimeInterval = 30) throws -> ValuesObject {
         
         let request = Request.Edit(resource, changes)
         
-        let response = try send(request)
+        let response = try self.send(request, timeout: timeout)
         
         switch response {
         case let .Edit(values): return values
@@ -90,11 +90,11 @@ public extension ClientType {
     }
     
     /// Deletes the specified entity.
-    func delete(resource: Resource) throws {
+    func delete(resource: Resource, timeout: TimeInterval = 30) throws {
         
         let request = Request.Delete(resource)
         
-        let response = try send(request)
+        let response = try self.send(request, timeout: timeout)
         
         switch response {
         case .Delete: return
@@ -104,11 +104,11 @@ public extension ClientType {
     }
     
     /// Performs the specified function on a resource.
-    func performFunction(resource: Resource, functionName: String, parameters: JSONObject? = nil) throws -> JSONObject? {
+    func performFunction(resource: Resource, functionName: String, parameters: JSONObject? = nil, timeout: TimeInterval = 30) throws -> JSONObject? {
         
         let request = Request.Function(resource, functionName, parameters)
         
-        let response = try send(request)
+        let response = try self.send(request, timeout: timeout)
         
         switch response {
         case let .Function(jsonObject): return jsonObject

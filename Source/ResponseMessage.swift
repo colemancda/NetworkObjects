@@ -66,6 +66,8 @@ public extension ResponseMessage {
     
     public func toJSON() -> JSON.Value {
         
+        var jsonObject = JSON.Object()
         
+        return JSON.Value.Object(jsonObject)
     }
 }

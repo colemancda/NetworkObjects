@@ -14,12 +14,30 @@ public struct Server { }
 /// This class will broadcast a managed object context over the network.
 public protocol ServerType: class {
     
+    //var settings: Server.Settings
+}
+
+// MARK: - Implementation
+
+public extension ServerType {
     
+    /// Processes the request and returns a response.
+    func process(request: RequestMessage) -> ResponseMessage {
+        
+        fatalError("not implemented")
+    }
 }
 
 // MARK: - Supporting Classes
 
 public extension Server {
+    
+    public struct Settings {
+        
+        public var prettyJSON = true
+        
+        public var searchEnabled = true
+    }
     
     public final class RequestContext {
         

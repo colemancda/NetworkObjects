@@ -71,6 +71,7 @@ public extension RequestMessage {
                 
                 guard let _: Entity = {
                     for entity in model { if entity.name == entityName { return entity } }
+                    return nil
                     }() else { return nil }
         
                 return Request.Get(resource)
@@ -85,6 +86,7 @@ public extension RequestMessage {
                 
                 guard let entity: Entity = {
                     for entity in model { if entity.name == entityName { return entity } }
+                    return nil
                     }() else { return nil }
                 
                 guard let valuesJSON = jsonObject[JSONKey.Values.rawValue]?.objectValue,
@@ -103,6 +105,7 @@ public extension RequestMessage {
                 
                 guard let _: Entity = {
                     for entity in model { if entity.name == entityName { return entity } }
+                    return nil
                     }() else { return nil }
                 
                 return Request.Delete(resource)
@@ -114,6 +117,7 @@ public extension RequestMessage {
                 
                 guard let entity: Entity = {
                     for entity in model { if entity.name == entityName { return entity } }
+                    return nil
                     }() else { return nil }
                 
                 var values: ValuesObject?
@@ -132,7 +136,7 @@ public extension RequestMessage {
             case .Search:
                 
                 guard let fetchRequestJSON = jsonObject[JSONKey.FetchRequest.rawValue],
-                    let fetchRequest = FetchRequest(JSONValue: fetchRequestJSON)
+                    let fetchRequest = FetchRequest(JSONValue: fetchRequestJSON, parameters: model)
                     else { return nil }
                 
                 return Request.Search(fetchRequest)
@@ -147,7 +151,8 @@ public extension RequestMessage {
                 
                 guard let _: Entity = {
                     for entity in model { if entity.name == entityName { return entity } }
-                    }() else { return nil }
+                    return nil
+                    }() as Entity? else { return nil }
                 
                 guard let functionName = jsonObject[JSONKey.FunctionName.rawValue]?.rawValue as? String
                     else { return nil }

@@ -16,6 +16,8 @@
 		1AD2C2C41B9B7C1300F54453 /* WebSocketClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD2C2C21B9B7C1300F54453 /* WebSocketClient.swift */; settings = {ASSET_TAGS = (); }; };
 		1AD2C2C61B9B7C2300F54453 /* WebSocketServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD2C2C51B9B7C2300F54453 /* WebSocketServer.swift */; settings = {ASSET_TAGS = (); }; };
 		1AD2C2C71B9B7C2300F54453 /* WebSocketServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD2C2C51B9B7C2300F54453 /* WebSocketServer.swift */; settings = {ASSET_TAGS = (); }; };
+		1AD2C2D11B9BD93600F54453 /* WebSocket.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD2C2D01B9BD93600F54453 /* WebSocket.swift */; settings = {ASSET_TAGS = (); }; };
+		1AD2C2D21B9BD93600F54453 /* WebSocket.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD2C2D01B9BD93600F54453 /* WebSocket.swift */; settings = {ASSET_TAGS = (); }; };
 		1AD2FE191B96CB700054F4CB /* ClientError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD2FE181B96CB700054F4CB /* ClientError.swift */; settings = {ASSET_TAGS = (); }; };
 		1AD2FE1A1B96CB700054F4CB /* ClientError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD2FE181B96CB700054F4CB /* ClientError.swift */; settings = {ASSET_TAGS = (); }; };
 		1AD2FE1D1B96CB8F0054F4CB /* AccessControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD2FE1C1B96CB8F0054F4CB /* AccessControl.swift */; settings = {ASSET_TAGS = (); }; };
@@ -54,6 +56,7 @@
 		1A5D4C421B963B0500DE99E9 /* Server.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Server.swift; sourceTree = "<group>"; };
 		1AD2C2C21B9B7C1300F54453 /* WebSocketClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WebSocketClient.swift; sourceTree = "<group>"; };
 		1AD2C2C51B9B7C2300F54453 /* WebSocketServer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WebSocketServer.swift; sourceTree = "<group>"; };
+		1AD2C2D01B9BD93600F54453 /* WebSocket.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WebSocket.swift; sourceTree = "<group>"; };
 		1AD2FE181B96CB700054F4CB /* ClientError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ClientError.swift; sourceTree = "<group>"; };
 		1AD2FE1C1B96CB8F0054F4CB /* AccessControl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccessControl.swift; sourceTree = "<group>"; };
 		1AD2FE261B96D98C0054F4CB /* Request.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Request.swift; sourceTree = "<group>"; };
@@ -115,6 +118,7 @@
 			children = (
 				1A5D4C251B9622F900DE99E9 /* NetworkObjects.h */,
 				1A5D4C271B9622F900DE99E9 /* Info.plist */,
+				1AD2C2D01B9BD93600F54453 /* WebSocket.swift */,
 			);
 			name = "Darwin Support";
 			path = NetworkObjects;
@@ -315,6 +319,7 @@
 				1AFB89FE1B992C8700BA7856 /* Response.swift in Sources */,
 				1AD2FE271B96D98C0054F4CB /* Request.swift in Sources */,
 				1A5D4C431B963B0500DE99E9 /* Server.swift in Sources */,
+				1AD2C2D11B9BD93600F54453 /* WebSocket.swift in Sources */,
 				1AD2FE1D1B96CB8F0054F4CB /* AccessControl.swift in Sources */,
 				1AD2C2C61B9B7C2300F54453 /* WebSocketServer.swift in Sources */,
 				1AFB89FB1B99299900BA7856 /* RequestMessage.swift in Sources */,
@@ -340,6 +345,7 @@
 				1AFB89FF1B992C8700BA7856 /* Response.swift in Sources */,
 				1AD2FE281B96D98C0054F4CB /* Request.swift in Sources */,
 				1AE7902B1B96B96600CDEF17 /* Server.swift in Sources */,
+				1AD2C2D21B9BD93600F54453 /* WebSocket.swift in Sources */,
 				1AD2FE1E1B96CB8F0054F4CB /* AccessControl.swift in Sources */,
 				1AD2C2C71B9B7C2300F54453 /* WebSocketServer.swift in Sources */,
 				1AFB89FC1B99299900BA7856 /* RequestMessage.swift in Sources */,

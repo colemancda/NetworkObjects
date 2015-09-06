@@ -91,9 +91,9 @@ public extension Client {
                 self.websocket?.close()
             }
         }
-        
+                
         /// Sends the request and parses the response.
-        public func send(request: Request) throws -> Response {
+        public func send(request: Request, timeout: TimeInterval = 30) throws -> Response {
             
             var response: Response!
             
@@ -128,39 +128,12 @@ public extension Client {
                 guard let jsonString = json.toString()
                     else { fatalError("Could not generate JSON for \(json)") }
                 
-                // wait for response
-                
-                let semaphore = dispatch_semaphore_create(0)
-                
-                var error: ErrorType?
-                
-                var message: String!
-                
-                self.websocket.event.error = { (websocketError: ErrorType) in
-                    
-                    error = websocketError
-                    
-                    dispatch_semaphore_signal(semaphore)
-                }
-                
-                self.websocket.event.message = { (data: Any) in
-                    
-                    message = data as! String
-                    
-                    dispatch_semaphore_signal(semaphore)
-                }
-                
-                // send response and wait
-                self.websocket.send(jsonString)
-                
-                dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER)
-                
-                guard error == nil else { throw error! }
+                let responseString = try self.websocket.sendRequest(jsonString, timeout: timeout)
                 
                 // parse response
                 
-                guard let responseJSON = JSON.Value(string: message),
-                    let responseMessage = ResponseMessage(JSONValue: responseJSON, type: request.type, entity: entity)
+                guard let responseJSON = JSON.Value(string: responseString),
+                    let responseMessage = ResponseMessage(JSONValue: responseJSON, parameters:(request.type, entity))
                     else { throw Error.InvalidResponse }
                 
                 response = responseMessage.response
