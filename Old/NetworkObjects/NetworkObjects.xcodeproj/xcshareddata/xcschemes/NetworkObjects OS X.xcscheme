@@ -14,9 +14,23 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "1AE790261B96B96600CDEF17"
+               BlueprintIdentifier = "6EAD584519C3B58300DC080A"
                BuildableName = "NetworkObjects.framework"
-               BlueprintName = "NetworkObjects iOS"
+               BlueprintName = "NetworkObjects OS X"
+               ReferencedContainer = "container:NetworkObjects.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "6EAD585019C3B58300DC080A"
+               BuildableName = "NetworkObjectsTests.xctest"
+               BlueprintName = "NetworkObjectsTests OS X"
                ReferencedContainer = "container:NetworkObjects.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -28,7 +42,26 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "6EAD585019C3B58300DC080A"
+               BuildableName = "NetworkObjectsTests.xctest"
+               BlueprintName = "NetworkObjectsTests OS X"
+               ReferencedContainer = "container:NetworkObjects.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "6EAD584519C3B58300DC080A"
+            BuildableName = "NetworkObjects.framework"
+            BlueprintName = "NetworkObjects OS X"
+            ReferencedContainer = "container:NetworkObjects.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
       <AdditionalOptions>
       </AdditionalOptions>
    </TestAction>
@@ -45,9 +78,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "1AE790261B96B96600CDEF17"
+            BlueprintIdentifier = "6EAD584519C3B58300DC080A"
             BuildableName = "NetworkObjects.framework"
-            BlueprintName = "NetworkObjects iOS"
+            BlueprintName = "NetworkObjects OS X"
             ReferencedContainer = "container:NetworkObjects.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -63,9 +96,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "1AE790261B96B96600CDEF17"
+            BlueprintIdentifier = "6EAD584519C3B58300DC080A"
             BuildableName = "NetworkObjects.framework"
-            BlueprintName = "NetworkObjects iOS"
+            BlueprintName = "NetworkObjects OS X"
             ReferencedContainer = "container:NetworkObjects.xcodeproj">
          </BuildableReference>
       </MacroExpansion>

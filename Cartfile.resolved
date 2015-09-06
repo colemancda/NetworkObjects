@@ -1,3 +1,5 @@
-github "ColemanCDA/CocoaAsyncSocket" "9f0352f6ece952be9612a3e0b5370a49eb1a168c"
-github "ColemanCDA/CocoaHTTPServer" "ec47e3a0d3c025c40a3b9d34aa5e1be0c624aa19"
-github "ColemanCDA/RoutingHTTPServer" "50fee265cd86227048eda7a82d1136c0b00a00a0"
+github "ColemanCDA/SwiftWebSocket" "c29a56ec03dc7574d484295dfe83a69f74e61f90"
+github "PureSwift/json-c" "61be6bcda2f936bc7f3055faa49b5cce7dbfb756"
+github "PureSwift/libb64" "cfc03126056cf446603ce01a76e5b501bbe5d62a"
+github "PureSwift/SwiftFoundation" "6a2522aeb72b176ae3ab1ffa34dffadbf01f00dc"
+github "PureSwift/CoreModel" "950fcfbc25b7adb6266ca79cc60a7cbc2a133e95"

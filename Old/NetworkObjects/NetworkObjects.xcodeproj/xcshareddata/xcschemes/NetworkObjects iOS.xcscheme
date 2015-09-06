@@ -14,7 +14,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "1AE790261B96B96600CDEF17"
+               BlueprintIdentifier = "6E17985F1B323A61005D2844"
                BuildableName = "NetworkObjects.framework"
                BlueprintName = "NetworkObjects iOS"
                ReferencedContainer = "container:NetworkObjects.xcodeproj">
@@ -28,7 +28,26 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "6E1798731B323A91005D2844"
+               BuildableName = "NetworkObjectsTests.xctest"
+               BlueprintName = "NetworkObjectsTests iOS"
+               ReferencedContainer = "container:NetworkObjects.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "6E17985F1B323A61005D2844"
+            BuildableName = "NetworkObjects.framework"
+            BlueprintName = "NetworkObjects iOS"
+            ReferencedContainer = "container:NetworkObjects.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
       <AdditionalOptions>
       </AdditionalOptions>
    </TestAction>
@@ -45,7 +64,7 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "1AE790261B96B96600CDEF17"
+            BlueprintIdentifier = "6E17985F1B323A61005D2844"
             BuildableName = "NetworkObjects.framework"
             BlueprintName = "NetworkObjects iOS"
             ReferencedContainer = "container:NetworkObjects.xcodeproj">
@@ -63,7 +82,7 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "1AE790261B96B96600CDEF17"
+            BlueprintIdentifier = "6E17985F1B323A61005D2844"
             BuildableName = "NetworkObjects.framework"
             BlueprintName = "NetworkObjects iOS"
             ReferencedContainer = "container:NetworkObjects.xcodeproj">
