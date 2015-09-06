@@ -90,7 +90,27 @@ public extension ServerType {
                 
                 var values = try store.values(resource)
                 
-                let visible = filterValues(&values, resource: resource, entity: entity, context: context)
+                if let permissionsDelegate = self.permissionsDelegate {
+                    
+                    guard let visibleProperties = permissionsDelegate.server(self, visiblePropertiesForResource: resource, context: context) else {
+                        
+                        response = Response.Error(StatusCode.NotFound.rawValue)
+                        
+                        break
+                    }
+                    
+                    for key in values.keys {
+                        
+                        let isVisible = false
+                        
+                        for visibleProperty in visibleProperties {
+                            
+                            if key == visibleProperty { isVisible }
+                        }
+                        
+                        
+                    }
+                }
                 
                 guard visible else {
                     
@@ -227,119 +247,6 @@ public extension ServerType {
     }
 }
 
-private extension ServerType {
-    
-    func filterValues(inout values: ValuesObject, resource: Resource, entity: Entity, context: Server.RequestContext) -> Bool {
-        
-        // check read permissions
-        if let permissionsDelegate = self.permissionsDelegate {
-            
-            let resourceVisible = permissionsDelegate.server(self, permissionForRequest: context, resource: resource, key: nil).rawValue >= AccessControl.ReadOnly.rawValue
-            
-            guard resourceVisible else { return false }
-            
-            for (key, value) in values {
-                
-                let propertyVisible = permissionsDelegate.server(self, permissionForRequest: context, resource: resource, key: key).rawValue >= AccessControl.ReadOnly.rawValue
-                
-                guard propertyVisible else {
-                    
-                    values[key] = nil
-                    
-                    continue
-                }
-                
-                // check permissions for destination resources
-                
-                switch value {
-                    
-                case let .Relationship(relationshipValue):
-                    
-                    let relationship = entity.relationships.filter({ (element) -> Bool in
-                        
-                        element.name == key
-                        
-                    }).first!
-                    
-                    switch relationshipValue {
-                        
-                    case let .ToOne(destinationResourceID):
-                        
-                        let destinationResource = Resource(relationship.destinationEntityName, destinationResourceID)
-                        
-                        let resourceVisible = permissionsDelegate.server(self, permissionForRequest: context, resource: destinationResource, key: nil).rawValue >= AccessControl.ReadOnly.rawValue
-                        
-                        guard resourceVisible else {
-                            
-                            values[key] = Value.Null
-                            
-                            continue
-                        }
-                        
-                    case let .ToMany(destinationResourceIDs):
-                        
-                        var filteredDestinationResourceIDs = [String]()
-                        
-                        for destinationResourceID in destinationResourceIDs {
-                            
-                            let destinationResource = Resource(relationship.destinationEntityName, destinationResourceID)
-                            
-                            let resourceVisible = permissionsDelegate.server(self, permissionForRequest: context, resource: destinationResource, key: nil).rawValue >= AccessControl.ReadOnly.rawValue
-                            
-                            guard resourceVisible else { continue }
-                            
-                            filteredDestinationResourceIDs.append(destinationResourceID)
-                        }
-                        
-                        values[key] = Value.Relationship(RelationshipValue.ToMany(filteredDestinationResourceIDs))
-                    }
-                    
-                default: continue
-                }
-            }
-        }
-        
-        return true
-    }
-    
-    /// check for write permissions and validates changes
-    func editPermission(values: ValuesObject, entity: Entity, model: [Entity], resource: Resource?, context: Server.RequestContext) -> Bool {
-        
-        // check edit permissions
-        if let permissionsDelegate = self.permissionsDelegate {
-            
-            for (key, value) in values {
-                
-                // check property permission
-                
-                let propertyEditable = permissionsDelegate.server(self, permissionForRequest: context, resource: resource, key: key).rawValue == AccessControl.ReadWrite.rawValue
-                
-                guard propertyEditable else { return false }
-                
-                if let relationship = entity.relationships.filter({ (element) -> Bool in element.name == key }).first {
-                    
-                    let destinationEntity = model.filter({ (entity) -> Bool in
-                        entity.name == relationship.destinationEntityName
-                    }).first!
-                    
-                    switch value {
-                        
-                    case let .Relationship(.ToOne(resourceID)):
-                    
-                    
-                        
-                    case let .Relationship(.ToMany(resourceIDs)):
-                        
-                        
-                    }
-                }
-            }
-        }
-        
-        return true
-    }
-}
-
 public extension ServerType {
     
     var JSONWritingOptions: [JSON.Serialization.WritingOption] {
@@ -439,9 +346,18 @@ public protocol ServerDelegate {
 /// Server Delegate Protocol
 public protocol ServerPermissionsDelegate {
     
-    /// Asks the delegate for access control for a request.
-    /// Server must have its permissions enabled for this method to be called. */
-    func server<T: ServerType>(server: T, permissionForRequest context: Server.RequestContext, resource: Resource?, key: String?) -> AccessControl
+    /// Asks the delegate which properties are visible for a specific request context. 
+    ///
+    /// - Return: The properties that are visible or ```nil``` for the entire resource to be invisible.
+    func server<T: ServerType>(server: T, visiblePropertiesForResource resource: Resource, context: Server.RequestContext) -> [String]?
+    
+    func server<T: ServerType>(server: T, canEditResource resource: Resource, values: ValuesObject, context: Server.RequestContext) -> Bool
+    
+    func server<T: ServerType>(server: T, canCreateEntity entity: Entity, initialValues: ValuesObject, context: Server.RequestContext) -> Bool
+    
+    func server<T: ServerType>(server: T, canDeleteEntity entity: Entity, context: Server.RequestContext) -> Bool
+    
+    func server<T: ServerType>(server: T, canExecuteSearch fetchRequest: FetchRequest, context: Server.RequestContext) -> Bool
 }
 
 
