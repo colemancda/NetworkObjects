@@ -176,9 +176,9 @@ public extension Server {
         public var searchEnabled = true
     }
     
-    public final class RequestContext<Store: CoreModel.Store> {
+    public final class RequestContext {
         
-        public let store: Store
+        public let store: CoreModel.Store
         
         public let request: RequestMessage
         
