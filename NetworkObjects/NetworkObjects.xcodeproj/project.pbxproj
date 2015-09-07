@@ -12,6 +12,8 @@
 		1A5D4C321B9622F900DE99E9 /* NetworkObjectsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A5D4C311B9622F900DE99E9 /* NetworkObjectsTests.swift */; };
 		1A5D4C401B962FC100DE99E9 /* Client.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A5D4C3F1B962FC100DE99E9 /* Client.swift */; settings = {ASSET_TAGS = (); }; };
 		1A5D4C431B963B0500DE99E9 /* Server.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A5D4C421B963B0500DE99E9 /* Server.swift */; settings = {ASSET_TAGS = (); }; };
+		1A78E0A81B9D469F00704D24 /* HTTPRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A78E0A71B9D469F00704D24 /* HTTPRequest.swift */; settings = {ASSET_TAGS = (); }; };
+		1A78E0A91B9D469F00704D24 /* HTTPRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A78E0A71B9D469F00704D24 /* HTTPRequest.swift */; settings = {ASSET_TAGS = (); }; };
 		1AD2C2C31B9B7C1300F54453 /* WebSocketClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD2C2C21B9B7C1300F54453 /* WebSocketClient.swift */; settings = {ASSET_TAGS = (); }; };
 		1AD2C2C41B9B7C1300F54453 /* WebSocketClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD2C2C21B9B7C1300F54453 /* WebSocketClient.swift */; settings = {ASSET_TAGS = (); }; };
 		1AD2C2C61B9B7C2300F54453 /* WebSocketServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD2C2C51B9B7C2300F54453 /* WebSocketServer.swift */; settings = {ASSET_TAGS = (); }; };
@@ -58,6 +60,7 @@
 		1A5D4C331B9622F900DE99E9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1A5D4C3F1B962FC100DE99E9 /* Client.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Client.swift; sourceTree = "<group>"; };
 		1A5D4C421B963B0500DE99E9 /* Server.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Server.swift; sourceTree = "<group>"; };
+		1A78E0A71B9D469F00704D24 /* HTTPRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTTPRequest.swift; sourceTree = "<group>"; };
 		1AD2C2C21B9B7C1300F54453 /* WebSocketClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WebSocketClient.swift; sourceTree = "<group>"; };
 		1AD2C2C51B9B7C2300F54453 /* WebSocketServer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WebSocketServer.swift; sourceTree = "<group>"; };
 		1AD2C2D01B9BD93600F54453 /* WebSocket.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WebSocket.swift; sourceTree = "<group>"; };
@@ -178,6 +181,7 @@
 			children = (
 				1AD2C2D91B9BF5B900F54453 /* HTTPServer.swift */,
 				1AD2C2D31B9BEF8000F54453 /* HTTPClient.swift */,
+				1A78E0A71B9D469F00704D24 /* HTTPRequest.swift */,
 			);
 			name = HTTP;
 			sourceTree = "<group>";
@@ -335,6 +339,7 @@
 				1AFB89FB1B99299900BA7856 /* RequestMessage.swift in Sources */,
 				1AD2C2C31B9B7C1300F54453 /* WebSocketClient.swift in Sources */,
 				1AD2FE191B96CB700054F4CB /* ClientError.swift in Sources */,
+				1A78E0A81B9D469F00704D24 /* HTTPRequest.swift in Sources */,
 				1AD2FE2A1B96DE260054F4CB /* ResponseMessage.swift in Sources */,
 				1A5D4C401B962FC100DE99E9 /* Client.swift in Sources */,
 			);
@@ -363,6 +368,7 @@
 				1AFB89FC1B99299900BA7856 /* RequestMessage.swift in Sources */,
 				1AD2C2C41B9B7C1300F54453 /* WebSocketClient.swift in Sources */,
 				1AD2FE1A1B96CB700054F4CB /* ClientError.swift in Sources */,
+				1A78E0A91B9D469F00704D24 /* HTTPRequest.swift in Sources */,
 				1AD2FE2B1B96DE260054F4CB /* ResponseMessage.swift in Sources */,
 				1AE7902C1B96B96600CDEF17 /* Client.swift in Sources */,
 			);

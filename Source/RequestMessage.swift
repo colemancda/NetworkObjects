@@ -50,128 +50,98 @@ public extension RequestMessage {
         let model = parameters
         
         guard let jsonObject = JSONValue.objectValue,
+            let entityName = jsonObject[JSONKey.Entity.rawValue]?.rawValue as? String,
             let requestTypeString = jsonObject[JSONKey.RequestType.rawValue]?.rawValue as? String,
             let requestType = RequestType(rawValue: requestTypeString),
             let metadata = jsonObject[JSONKey.Metadata.rawValue]?.rawValue as? [String: String]
             else { return nil }
         
+        guard let entity: Entity = {
+            for entity in model { if entity.name == entityName { return entity } }
+            return nil
+            }() else { return nil }
+        
         self.metadata = metadata
         
-        guard let request: Request = {
-           
-            switch requestType {
+        switch requestType {
+            
+        case .Get:
+            
+            guard let resourceID = jsonObject[JSONKey.ResourceID.rawValue]?.rawValue as? String
+                else { return nil }
+            
+            let resource = Resource(entityName, resourceID)
+            
+            self.request = Request.Get(resource)
+            
+        case .Edit:
+            
+            guard let resourceID = jsonObject[JSONKey.ResourceID.rawValue]?.rawValue as? String
+                else { return nil }
+            
+            let resource = Resource(entityName, resourceID)
+            
+            guard let valuesJSON = jsonObject[JSONKey.Values.rawValue]?.objectValue,
+                let values = entity.convert(valuesJSON)
+                else { return nil }
+            
+            self.request = Request.Edit(resource, values)
+            
+        case .Delete:
+            
+            guard  let resourceID = jsonObject[JSONKey.ResourceID.rawValue]?.rawValue as? String
+                else { return nil }
+            
+            let resource = Resource(entityName, resourceID)
+            
+            self.request = Request.Delete(resource)
+            
+        case .Create:
+            
+            var values: ValuesObject?
+            
+            if let valuesJSON = jsonObject[JSONKey.Values.rawValue] {
                 
-            case .Get:
-                
-                guard let entityName = jsonObject[JSONKey.Entity.rawValue]?.rawValue as? String,
-                    let resourceID = jsonObject[JSONKey.ResourceID.rawValue]?.rawValue as? String
+                guard let valuesJSONObject = valuesJSON.objectValue,
+                    let convertedValues = entity.convert(valuesJSONObject)
                     else { return nil }
                 
-                let resource = Resource(entityName, resourceID)
-                
-                guard let _: Entity = {
-                    for entity in model { if entity.name == entityName { return entity } }
-                    return nil
-                    }() else { return nil }
-        
-                return Request.Get(resource)
-                
-            case .Edit:
-                
-                guard let entityName = jsonObject[JSONKey.Entity.rawValue]?.rawValue as? String,
-                    let resourceID = jsonObject[JSONKey.ResourceID.rawValue]?.rawValue as? String
-                    else { return nil }
-                
-                let resource = Resource(entityName, resourceID)
-                
-                guard let entity: Entity = {
-                    for entity in model { if entity.name == entityName { return entity } }
-                    return nil
-                    }() else { return nil }
-                
-                guard let valuesJSON = jsonObject[JSONKey.Values.rawValue]?.objectValue,
-                    let values = entity.convert(valuesJSON)
-                    else { return nil }
-                
-                return Request.Edit(resource, values)
-                
-            case .Delete:
-                
-                guard let entityName = jsonObject[JSONKey.Entity.rawValue]?.rawValue as? String,
-                    let resourceID = jsonObject[JSONKey.ResourceID.rawValue]?.rawValue as? String
-                    else { return nil }
-                
-                let resource = Resource(entityName, resourceID)
-                
-                guard let _: Entity = {
-                    for entity in model { if entity.name == entityName { return entity } }
-                    return nil
-                    }() else { return nil }
-                
-                return Request.Delete(resource)
-                
-            case .Create:
-                
-                guard let entityName = jsonObject[JSONKey.Entity.rawValue]?.rawValue as? String
-                    else { return nil }
-                
-                guard let entity: Entity = {
-                    for entity in model { if entity.name == entityName { return entity } }
-                    return nil
-                    }() else { return nil }
-                
-                var values: ValuesObject?
-                
-                if let valuesJSON = jsonObject[JSONKey.Values.rawValue] {
-                    
-                    guard let valuesJSONObject = valuesJSON.objectValue,
-                        let convertedValues = entity.convert(valuesJSONObject)
-                        else { return nil }
-                    
-                    values = convertedValues
-                }
-                
-                return Request.Create(entityName, values)
-                
-            case .Search:
-                
-                guard let fetchRequestJSON = jsonObject[JSONKey.FetchRequest.rawValue],
-                    let fetchRequest = FetchRequest(JSONValue: fetchRequestJSON, parameters: model)
-                    else { return nil }
-                
-                return Request.Search(fetchRequest)
-        
-            case .Function:
-                
-                guard let entityName = jsonObject[JSONKey.Entity.rawValue]?.rawValue as? String,
-                    let resourceID = jsonObject[JSONKey.ResourceID.rawValue]?.rawValue as? String
-                    else { return nil }
-                
-                let resource = Resource(entityName, resourceID)
-                
-                guard let _: Entity = {
-                    for entity in model { if entity.name == entityName { return entity } }
-                    return nil
-                    }() as Entity? else { return nil }
-                
-                guard let functionName = jsonObject[JSONKey.FunctionName.rawValue]?.rawValue as? String
-                    else { return nil }
-                
-                var functionParameters: JSONObject?
-                
-                if let functionParametersJSON = jsonObject[JSONKey.FunctionParameters.rawValue] {
-                    
-                    guard let functionParametersJSONObject = functionParametersJSON.objectValue else { return nil }
-                    
-                    functionParameters = functionParametersJSONObject
-                }
-                
-                return Request.Function(resource, functionName, functionParameters)
+                values = convertedValues
             }
             
-            }() as Request? else { return nil }
-        
-        self.request = request
+            self.request = Request.Create(entityName, values)
+            
+        case .Search:
+            
+            guard let fetchRequestJSON = jsonObject[JSONKey.FetchRequest.rawValue],
+                let fetchRequest = FetchRequest(JSONValue: fetchRequestJSON, parameters: model)
+                else { return nil }
+            
+            self.request = Request.Search(fetchRequest)
+            
+        case .Function:
+            
+            guard let resourceID = jsonObject[JSONKey.ResourceID.rawValue]?.rawValue as? String
+                else { return nil }
+            
+            let resource = Resource(entityName, resourceID)
+            
+            guard let functionName = jsonObject[JSONKey.FunctionName.rawValue]?.rawValue as? String
+                else { return nil }
+            
+            let functionParameters: JSONObject?
+            
+            if let functionParametersJSON = jsonObject[JSONKey.FunctionParameters.rawValue] {
+                
+                guard let functionParametersJSONObject = functionParametersJSON.objectValue else { return nil }
+                
+                functionParameters = functionParametersJSONObject
+            }
+                
+            else { functionParameters = nil }
+            
+            self.request = Request.Function(resource, functionName, functionParameters)
+        }
     }
     
     public func toJSON() -> JSON.Value {
@@ -229,6 +199,7 @@ public extension RequestMessage {
             
             let fetchRequestJSON = fetchRequest.toJSON()
             
+            jsonObject[JSONKey.Entity.rawValue] = JSON.Value.String(fetchRequest.entityName)
             jsonObject[JSONKey.FetchRequest.rawValue] = fetchRequestJSON
             
         case let .Function(resource, functionName, functionParametersJSON):
