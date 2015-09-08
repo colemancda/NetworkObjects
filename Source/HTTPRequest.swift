@@ -11,12 +11,21 @@ import CoreModel
 
 public extension RequestMessage {
     
+    /*
     init?(HTTPRequest: HTTP.Request, parameters: [Entity]) {
         
         let model = parameters
         
-        
+        switch HTTPRequest.method {
+            
+        case .GET:
+            
+            //let pathExpression = RegularExpression("/([a-z]+)/([.+])", options: [.CaseInsensitive, .ExtendedSyntax])
+            
+            //pathExpression.mat
+        }
     }
+    */
     
     func toHTTPRequest(serverURL: String, timeout: TimeInterval, options: [JSON.Serialization.WritingOption]) -> HTTP.Request {
         
