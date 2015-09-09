@@ -205,7 +205,6 @@ public extension RequestMessage {
     }
 }
 
-
 // MARK: - Private Functions
 
 private let SearchPath = "search"

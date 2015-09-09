@@ -39,7 +39,22 @@ public extension Server {
         
         public func input(input: Server.HTTP.Request) -> SwiftFoundation.HTTP.Response {
             
-            fatalError()
+            guard let request = RequestMessage(HTTPRequest: input, parameters: self.model) else {
+                
+                let response = Response.Error(StatusCode.BadRequest.rawValue)
+                
+                let responseMessage = ResponseMessage(response)
+                
+                let httpResponse = response.toHTTPResponse()
+                
+                return httpResponse
+            }
+            
+            let response = self.process(request)
+            
+            let httpResponse = response.toHTTPResponse()
+            
+            return httpResponse
         }
     }
 }
