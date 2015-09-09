@@ -9,40 +9,37 @@
 import SwiftFoundation
 import CoreModel
 
-/*
+
 public extension Server {
     
-    public typealias HTTP = HTTPServer
-}
-
-public final class HTTPServer: ServerType {
-    
-    // MARK: - Properties
-    
-    public var dataSource: ServerDataSource
-    
-    public var delegate: ServerDelegate?
-    
-    public var permissionsDelegate: ServerPermissionsDelegate?
-    
-    public var log: (String -> ())?
-    
-    // MARK: - Initialization
-    
-    public init(dataSource: ServerDataSource,
-        delegate: ServerDelegate? = nil,
-        permissionsDelegate: ServerPermissionsDelegate?) {
-            
-            self.dataSource = dataSource
-            self.delegate = delegate
-            self.permissionsDelegate = permissionsDelegate
-    }
-    
-    // MARK: - Methods
-    
-    public func input(input: HTTP.Request) -> HTTP.Response {
+    public final class HTTP: ServerType {
         
-        fatalError()
+        // MARK: - Properties
+        
+        public let model: [Entity]
+        
+        public var dataSource: ServerDataSource
+        
+        public var delegate: ServerDelegate?
+        
+        public var settings = Server.Settings()
+        
+        // MARK: - Initialization
+        
+        public init(model: [Entity],
+            dataSource: ServerDataSource,
+            delegate: ServerDelegate? = nil) {
+                
+                self.model = model
+                self.dataSource = dataSource
+                self.delegate = delegate
+        }
+        
+        // MARK: - Methods
+        
+        public func input(input: Server.HTTP.Request) -> SwiftFoundation.HTTP.Response {
+            
+            fatalError()
+        }
     }
 }
-*/

@@ -114,7 +114,7 @@ public extension RequestMessage {
         case .Search:
             
             guard let fetchRequestJSON = jsonObject[JSONKey.FetchRequest.rawValue],
-                let fetchRequest = FetchRequest(JSONValue: fetchRequestJSON, parameters: model)
+                let fetchRequest = FetchRequest(JSONValue: fetchRequestJSON, parameters: entity)
                 else { return nil }
             
             self.request = Request.Search(fetchRequest)
