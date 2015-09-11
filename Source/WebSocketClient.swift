@@ -22,16 +22,19 @@ public extension Client {
         
         public let model: [Entity]
         
-        /// Function for logging purposes.
-        public var log: ((message: String) -> ())?
+        public var JSONOptions: [JSON.Serialization.WritingOption] = [.Pretty]
         
-        public var metadata: ((request: Request) -> [String: String])?
-        
-        public var didFetch: ((resource: Resource, values: ValuesObject) -> Void)?
+        // MARK: Callbacks
         
         public var didOpen: (() -> ())?
         
         public var didClose: (() -> ())?
+        
+        public var metadataForRequest: ((request: Request) -> [String: String])?
+        
+        public var didReceiveMetadata: ((metadata: [String: String]) -> Void)?
+        
+        public var didFetch: ((resource: Resource, values: ValuesObject) -> Void)?
         
         // MARK: - Private Properties
         
@@ -107,18 +110,13 @@ public extension Client {
                     
                 }() as Entity? else { throw Error.InvalidRequest }
                 
-                var metadata = [String: String]()
-                
-                if let metadataHandler = self.metadata {
-                    
-                    metadata = metadataHandler(request: request)
-                }
+                let metadata = self.metadataForRequest?(request: request) ?? [String: String]()
                 
                 let requestMessage = RequestMessage(request, metadata: metadata)
                 
                 let json = requestMessage.toJSON()
                 
-                guard let jsonString = json.toString()
+                guard let jsonString = json.toString(self.JSONOptions)
                     else { fatalError("Could not generate JSON for \(json)") }
                 
                 let responseString = try self.websocket.sendRequest(jsonString, timeout: timeout)
@@ -128,6 +126,8 @@ public extension Client {
                 guard let responseJSON = JSON.Value(string: responseString),
                     let responseMessage = ResponseMessage(JSONValue: responseJSON, parameters:(request.type, entity))
                     else { throw Error.InvalidResponse }
+                
+                self.didReceiveMetadata?(metadata: responseMessage.metadata)
                 
                 response = responseMessage.response
             }

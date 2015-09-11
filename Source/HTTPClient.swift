@@ -9,7 +9,6 @@
 import SwiftFoundation
 import CoreModel
 
-/*
 public extension Client {
     
     public final class HTTP: ClientType {
@@ -23,10 +22,13 @@ public extension Client {
         
         public let HTTPClient: SwiftFoundation.HTTP.Client
         
-        /// Function for logging purposes.
-        public var log: ((message: String) -> ())?
+        public var JSONOptions: [JSON.Serialization.WritingOption] = [.Pretty]
         
-        public var metadata: ((request: Request) -> [String: String])?
+        // MARK: Callbacks
+        
+        public var metadataForRequest: ((request: Request) -> [String: String])?
+        
+        public var didReceiveMetadata: ((metadata: [String: String]) -> Void)?
         
         public var didFetch: ((resource: Resource, values: ValuesObject) -> Void)?
         
@@ -50,34 +52,24 @@ public extension Client {
                 return nil
             }() as Entity? else { throw Error.InvalidRequest }
             
-            var metadata = [String: String]()
-            
-            if let metadataHandler = self.metadata {
-                
-                metadata = metadataHandler(request: request)
-            }
-            
-            var response: Response!
+            let metadata = self.metadataForRequest?(request: request) ?? [String: String]()
             
             let requestMessage = RequestMessage(request, metadata: metadata)
             
-            let json = requestMessage.toJSON()
+            let httpRequest = requestMessage.toHTTPRequest(self.serverURL, timeout: timeout, options: self.JSONOptions)
             
-            guard let jsonString = json.toString()
-                else { fatalError("Could not generate JSON for \(json)") }
+            let httpResponse: SwiftFoundation.HTTP.Response = try self.HTTPClient.sendRequest(httpRequest)
             
-            /*
-            let responseString = try self.websocket.sendRequest(jsonString, timeout: timeout)
+            // try to parse response
             
-            // parse response
+            guard let responseMessage = ResponseMessage(HTTPResponse: httpResponse, parameters: (request.type, entity)) else { throw Error.InvalidResponse }
             
-            guard let responseJSON = JSON.Value(string: responseString),
-                let responseMessage = ResponseMessage(JSONValue: responseJSON, parameters:(request.type, entity))
-                else { throw Error.InvalidResponse }
-            */
+            self.didReceiveMetadata?(metadata: responseMessage.metadata)
             
-            return response
+            //self.didFetch(resource: Resource, values: ValuesObject)
+            
+            return responseMessage.response
         }
     }
 }
-*/
+

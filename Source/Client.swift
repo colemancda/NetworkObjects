@@ -19,7 +19,7 @@ public protocol ClientType: class {
     
     var model: [Entity] { get }
     
-    var metadata: ((request: Request) -> [String: String])? { get }
+    var JSONOptions: [JSON.Serialization.WritingOption] { get }
     
     /// Sends the request and parses the response.
     func send(request: Request, timeout: TimeInterval) throws -> Response
