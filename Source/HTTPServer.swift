@@ -45,14 +45,14 @@ public extension Server {
                 
                 let responseMessage = ResponseMessage(response)
                 
-                let httpResponse = response.toHTTPResponse()
+                let httpResponse = responseMessage.toHTTPResponse()
                 
                 return httpResponse
             }
             
-            let response = self.process(request)
+            let responseMessage = self.process(request)
             
-            let httpResponse = response.toHTTPResponse()
+            let httpResponse = responseMessage.toHTTPResponse()
             
             return httpResponse
         }

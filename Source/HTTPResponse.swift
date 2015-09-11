@@ -117,6 +117,75 @@ public extension ResponseMessage {
             self.response = Response.Function(jsonObject)
         }
     }
+    
+    func toHTTPResponse() -> HTTP.Response {
+        
+        var response = HTTP.Response()
+        
+        response.headers = self.metadata
+        
+        switch self.response {
+            
+        case let .Error(errorCode):
+            
+            response.statusCode = errorCode
+            
+        case let .Get(values):
+            
+            let jsonObject = JSON.fromValues(values)
+            
+            let jsonString = JSON.Value.Object(jsonObject).toString()!
+            
+            let bytes = jsonString.utf8.map({ (codeUnit) -> Byte in codeUnit })
+            
+            response.body = bytes
+            
+        case .Delete: break
+            
+        case let .Edit(values):
+            
+            let jsonObject = JSON.fromValues(values)
+            
+            let jsonString = JSON.Value.Object(jsonObject).toString()!
+            
+            let bytes = jsonString.utf8.map({ (codeUnit) -> Byte in codeUnit })
+            
+            response.body = bytes
+            
+        case let .Create(resourceID, values):
+            
+            let jsonObject = [resourceID: JSON.Value.Object(JSON.fromValues(values))]
+            
+            let jsonString = JSON.Value.Object(jsonObject).toString()!
+            
+            let bytes = jsonString.utf8.map({ (codeUnit) -> Byte in codeUnit })
+            
+            response.body = bytes
+            
+        case let .Search(resourceIDs):
+            
+            let jsonArray = resourceIDs.map({ (resourceID) -> JSON.Value in JSON.Value.String(resourceID) })
+            
+            let jsonString = JSON.Value.Array(jsonArray).toString()!
+            
+            let bytes = jsonString.utf8.map({ (codeUnit) -> Byte in codeUnit })
+            
+            response.body = bytes
+            
+        case let .Function(jsonObject):
+            
+            if let jsonObject = jsonObject {
+                
+                let jsonString = JSON.Value.Object(jsonObject).toString()!
+                
+                let bytes = jsonString.utf8.map({ (codeUnit) -> Byte in codeUnit })
+                
+                response.body = bytes
+            }
+        }
+        
+        return response
+    }
 }
 
 
