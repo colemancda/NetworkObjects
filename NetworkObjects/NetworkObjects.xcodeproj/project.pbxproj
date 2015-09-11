@@ -107,7 +107,6 @@
 		1A5D4C181B9622F900DE99E9 = {
 			isa = PBXGroup;
 			children = (
-				1A5D4C411B96309800DE99E9 /* Dependencies */,
 				1A5D4C3C1B96230F00DE99E9 /* Source */,
 				1A5D4C241B9622F900DE99E9 /* Darwin Support */,
 				1A5D4C301B9622F900DE99E9 /* NetworkObjectsTests */,
@@ -161,13 +160,6 @@
 			);
 			name = Source;
 			path = ../Source;
-			sourceTree = "<group>";
-		};
-		1A5D4C411B96309800DE99E9 /* Dependencies */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Dependencies;
 			sourceTree = "<group>";
 		};
 		1AD2C2C81B9B7C2A00F54453 /* WebSocket */ = {
