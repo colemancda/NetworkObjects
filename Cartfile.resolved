@@ -1,5 +1,5 @@
 github "ColemanCDA/SwiftWebSocket" "c29a56ec03dc7574d484295dfe83a69f74e61f90"
-github "PureSwift/json-c" "61be6bcda2f936bc7f3055faa49b5cce7dbfb756"
-github "PureSwift/libb64" "cfc03126056cf446603ce01a76e5b501bbe5d62a"
-github "PureSwift/SwiftFoundation" "ffb4cb2e87b60a95a69f95b2d2842878f0ed73ca"
+github "PureSwift/json-c" "8a9d5ea3a504928017abad54ff5a4187d204ef43"
+github "PureSwift/libb64" "b089b5919940a48c66b9b5b2726e4a8f331b3089"
+github "PureSwift/SwiftFoundation" "4e5a1506aab5ce5f7fbbe3affcba7f41a05d2125"
 github "PureSwift/CoreModel" "0880aacd022143757d43301c55b7ca4665b5d3c8"
