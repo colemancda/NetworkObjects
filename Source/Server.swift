@@ -9,6 +9,10 @@
 import SwiftFoundation
 import CoreModel
 
+/// Namespace struct for **NetworkObjects** server classes:
+///
+///  - NetworkObjects.Server.HTTP
+///  - NetworkObjects.Server.WebSocket
 public struct Server { }
 
 /// This class will broadcast a managed object context over the network.
@@ -19,9 +23,9 @@ public protocol ServerType: class {
     
     var model: [Entity] { get }
     
-    var dataSource: ServerDataSource { get }
+    weak var dataSource: ServerDataSource! { get }
     
-    var delegate: ServerDelegate? { get }
+    weak var delegate: ServerDelegate? { get }
     
     var settings: Server.Settings { get }
     
@@ -195,7 +199,7 @@ public extension Server {
 // MARK: - Protocols
 
 /// Server Data Source Protocol
-public protocol ServerDataSource {
+public protocol ServerDataSource: class {
     
     /// Asks the data source for a store to retrieve data.
     func server<T: ServerType>(server: T, storeForRequest request: RequestMessage) -> CoreModel.Store
@@ -228,7 +232,7 @@ public extension ServerDataSource {
 }
 
 /// Server Delegate Protocol
-public protocol ServerDelegate {
+public protocol ServerDelegate: class {
     
     /// Response metadata (headers) for a request.
     func server<T: ServerType>(server: T, metadataForRequest context: Server.RequestContext) -> [String: String]

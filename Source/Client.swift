@@ -9,6 +9,10 @@
 import SwiftFoundation
 import CoreModel
 
+/// Namespace struct for **NetworkObjects** client classes:
+///
+///  - NetworkObjects.Client.HTTP
+///  - NetworkObjects.Client.WebSocket
 public struct Client { }
 
 /// Connects to the **NetworkObjects** server.
@@ -19,7 +23,14 @@ public protocol ClientType: class {
     
     var model: [Entity] { get }
     
-    var JSONOptions: [JSON.Serialization.WritingOption] { get }
+    var JSONOptions: [JSON.Serialization.WritingOption] { get set }
+    
+    var metadataForRequest: ((request: Request) -> [String: String])? { get set }
+    
+    var didReceiveMetadata: ((metadata: [String: String]) -> Void)? { get set }
+    
+    /// The **CoreModel** Stores that will be used to cache the recieved data.
+    var cacheStores: [Store] { get set }
     
     /// Sends the request and parses the response.
     func send(request: Request, timeout: TimeInterval) throws -> Response
@@ -125,3 +136,133 @@ public extension ClientType {
         }
     }
 }
+
+public extension CoreModel.Store {
+    
+    /// Caches the values of a response.
+    ///
+    /// - Note: Request and Response must be of the same type or this method will do nothing.
+    func cacheResponse(response: Response, forRequest request: Request) throws {
+        
+        switch (request, response) {
+            
+        // 404 responses
+            
+        case let (.Get(resource), .Error(errorStatusCode)):
+            
+            // delete object from cache if not found response
+            
+            if errorStatusCode == StatusCode.NotFound.rawValue {
+                
+                if try self.exists(resource) {
+                    
+                    try self.delete(resource)
+                }
+            }
+            
+        case let (.Edit(resource, _), .Error(errorStatusCode)):
+            
+            // delete object from cache if not found response
+            
+            if errorStatusCode == StatusCode.NotFound.rawValue {
+                
+                if try self.exists(resource) {
+                    
+                    try self.delete(resource)
+                }
+            }
+            
+        case let (.Delete(resource), .Error(errorStatusCode)):
+            
+            // delete object from cache if now found response
+            
+            if errorStatusCode == StatusCode.NotFound.rawValue {
+                
+                if try self.exists(resource) {
+                    
+                    try self.delete(resource)
+                }
+            }
+            
+        // standard responses
+            
+        case let (.Get(resource), .Get(values)):
+            
+            // update values
+            if try self.exists(resource) {
+                
+                try self.edit(resource, changes: values)
+            }
+            
+            // create resource and set values
+            else {
+                
+                try self.create(resource, initialValues: values)
+            }
+            
+        case let (.Edit(resource, _), .Edit(values)):
+            
+            // update values
+            if try self.exists(resource) {
+                
+                try self.edit(resource, changes: values)
+            }
+                
+            // create resource and set values
+            else {
+                
+                try self.create(resource, initialValues: values)
+            }
+            
+        case let (.Create(entityName, _), .Create(resourceID, values)):
+            
+            let resource = Resource(entityName, resourceID)
+            
+            try self.create(resource, initialValues: values)
+            
+        case let (.Delete(resource), .Delete):
+            
+            if try self.exists(resource) {
+                
+                try self.delete(resource)
+            }
+            
+        case let (.Search(fetchRequest), .Search(resourceIDs)):
+            
+            let results = resourceIDs.map({ (resourceID) -> Resource in
+                
+                return Resource(fetchRequest.entityName, resourceID)
+            })
+            
+            for resource in results {
+                
+                if try self.exists(resource) == false {
+                    
+                    try self.create(resource, initialValues: nil)
+                }
+            }
+            
+        default: break
+        }
+    }
+}
+
+private extension CoreModel.Store {
+    
+    /// Resolves relationsthips in the values and creates placeholder resources.
+    private func createCachePlaceholders(values: ValuesObject) throws {
+        
+        for value in values {
+            
+            switch value {
+                
+            case 
+                
+            default: break
+            }
+        }
+    }
+}
+
+
+

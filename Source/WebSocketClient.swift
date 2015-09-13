@@ -34,7 +34,7 @@ public extension Client {
         
         public var didReceiveMetadata: ((metadata: [String: String]) -> Void)?
         
-        public var didFetch: ((resource: Resource, values: ValuesObject) -> Void)?
+        public var cacheStores = [Store]()
         
         // MARK: - Private Properties
         
