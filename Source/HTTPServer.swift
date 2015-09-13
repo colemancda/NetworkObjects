@@ -18,9 +18,9 @@ public extension Server {
         
         public let model: [Entity]
         
-        public var dataSource: ServerDataSource
+        public weak var dataSource: ServerDataSource!
         
-        public var delegate: ServerDelegate?
+        public weak var delegate: ServerDelegate?
         
         public var settings = Server.Settings()
         
