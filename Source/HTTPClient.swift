@@ -66,8 +66,6 @@ public extension Client {
             
             self.didReceiveMetadata?(metadata: responseMessage.metadata)
             
-            //self.didFetch(resource: Resource, values: ValuesObject)
-            
             return responseMessage.response
         }
     }

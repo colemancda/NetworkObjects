@@ -140,6 +140,11 @@ public extension ServerType {
             
             response = Response.Error(StatusCode.NotFound.rawValue)
         }
+            
+        catch CoreModel.StoreError.InvalidValues {
+            
+            response = Response.Error(StatusCode.BadRequest.rawValue)
+        }
         
         catch {
             

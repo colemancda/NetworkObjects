@@ -29,9 +29,6 @@ public protocol ClientType: class {
     
     var didReceiveMetadata: ((metadata: [String: String]) -> Void)? { get set }
     
-    /// The **CoreModel** Stores that will be used to cache the recieved data.
-    var cacheStores: [Store] { get set }
-    
     /// Sends the request and parses the response.
     func send(request: Request, timeout: TimeInterval) throws -> Response
 }
@@ -188,6 +185,8 @@ public extension CoreModel.Store {
             
         case let (.Get(resource), .Get(values)):
             
+            try self.createCachePlaceholders(values, entityName: resource.entityName)
+            
             // update values
             if try self.exists(resource) {
                 
@@ -201,6 +200,8 @@ public extension CoreModel.Store {
             }
             
         case let (.Edit(resource, _), .Edit(values)):
+            
+            try self.createCachePlaceholders(values, entityName: resource.entityName)
             
             // update values
             if try self.exists(resource) {
@@ -216,6 +217,8 @@ public extension CoreModel.Store {
             
         case let (.Create(entityName, _), .Create(resourceID, values)):
             
+            try self.createCachePlaceholders(values, entityName: entityName)
+            
             let resource = Resource(entityName, resourceID)
             
             try self.create(resource, initialValues: values)
@@ -229,13 +232,11 @@ public extension CoreModel.Store {
             
         case let (.Search(fetchRequest), .Search(resourceIDs)):
             
-            let results = resourceIDs.map({ (resourceID) -> Resource in
+            for resourceID in resourceIDs {
                 
-                return Resource(fetchRequest.entityName, resourceID)
-            })
-            
-            for resource in results {
+                let resource = Resource(fetchRequest.entityName, resourceID)
                 
+                // create placeholder resources for results
                 if try self.exists(resource) == false {
                     
                     try self.create(resource, initialValues: nil)
@@ -249,14 +250,48 @@ public extension CoreModel.Store {
 
 private extension CoreModel.Store {
     
-    /// Resolves relationsthips in the values and creates placeholder resources.
-    private func createCachePlaceholders(values: ValuesObject) throws {
+    /// Resolves relationships in the values and creates placeholder resources.
+    private func createCachePlaceholders(values: ValuesObject, entityName: String) throws {
         
-        for value in values {
+        guard let entity: Entity = {
+            for entity in model { if entity.name == entityName { return entity } }
+            return nil
+            }()
+            else { throw StoreError.InvalidEntity }
+        
+        for (key, value) in values {
             
             switch value {
                 
-            case 
+            case let .Relationship(relationshipValue):
+                
+                guard let relationship = entity.relationships.filter({ (element) -> Bool in
+                    element.name == key
+                }).first else { throw StoreError.InvalidValues }
+                
+                switch relationshipValue {
+                    
+                case let .ToOne(resourceID):
+                    
+                    let resource = Resource(relationship.destinationEntityName, resourceID)
+                    
+                    if try self.exists(resource) == false {
+                        
+                        try self.create(resource, initialValues: nil)
+                    }
+                    
+                case let .ToMany(resourceIDs):
+                    
+                    for resourceID in resourceIDs {
+                        
+                        let resource = Resource(relationship.destinationEntityName, resourceID)
+                        
+                        if try self.exists(resource) == false {
+                            
+                            try self.create(resource, initialValues: nil)
+                        }
+                    }
+                }
                 
             default: break
             }
