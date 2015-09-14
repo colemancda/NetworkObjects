@@ -24,14 +24,14 @@ public extension Client {
         
         public var JSONOptions: [JSON.Serialization.WritingOption] = [.Pretty]
         
+        public var requestTimeout: TimeInterval = 30
+        
         // MARK: Callbacks
         
         public var metadataForRequest: ((request: Request) -> [String: String])?
         
         public var didReceiveMetadata: ((metadata: [String: String]) -> Void)?
-        
-        public var cacheStores = [Store]()
-        
+                
         // MARK: - Initialization
         
         public init(serverURL: String, model: [Entity], HTTPClient: SwiftFoundation.HTTP.Client) {
@@ -44,7 +44,7 @@ public extension Client {
         // MARK: - Methods
         
         /// Sends the request and parses the response.
-        public func send(request: Request, timeout: TimeInterval = 30) throws -> Response {
+        public func send(request: Request) throws -> Response {
             
             // check that requested entity belongs to model
             guard let entity: Entity = {
@@ -56,7 +56,7 @@ public extension Client {
             
             let requestMessage = RequestMessage(request, metadata: metadata)
             
-            let httpRequest = requestMessage.toHTTPRequest(self.serverURL, timeout: timeout, options: self.JSONOptions)
+            let httpRequest = requestMessage.toHTTPRequest(self.serverURL, timeout: self.requestTimeout, options: self.JSONOptions)
             
             let httpResponse: SwiftFoundation.HTTP.Response = try self.HTTPClient.sendRequest(httpRequest)
             
@@ -65,11 +65,6 @@ public extension Client {
             guard let responseMessage = ResponseMessage(HTTPResponse: httpResponse, parameters: (request.type, entity)) else { throw Error.InvalidResponse }
             
             self.didReceiveMetadata?(metadata: responseMessage.metadata)
-            
-            for store in cacheStores {
-                
-                try store.cacheResponse(responseMessage.response, forRequest: request)
-            }
             
             return responseMessage.response
         }

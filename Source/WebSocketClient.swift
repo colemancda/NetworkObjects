@@ -24,6 +24,8 @@ public extension Client {
         
         public var JSONOptions: [JSON.Serialization.WritingOption] = [.Pretty]
         
+        public var requestTimeout: TimeInterval = 30
+        
         // MARK: Callbacks
         
         public var didOpen: (() -> ())?
@@ -33,15 +35,13 @@ public extension Client {
         public var metadataForRequest: ((request: Request) -> [String: String])?
         
         public var didReceiveMetadata: ((metadata: [String: String]) -> Void)?
-        
-        public var cacheStores = [Store]()
-        
+                
         // MARK: - Private Properties
         
         private var websocket: InternalWebSocket!
         
         /// Serial queue for thread safety
-        private var operationQueue = dispatch_queue_create("NetworkObjects.Client Queue", nil)
+        private var operationQueue = dispatch_queue_create("NetworkObjects.Client.WebSocket Queue", nil)
         
         // MARK: - Initialization
         
@@ -97,7 +97,7 @@ public extension Client {
         }
                 
         /// Sends the request and parses the response.
-        public func send(request: Request, timeout: TimeInterval = 30) throws -> Response {
+        public func send(request: Request) throws -> Response {
             
             var response: Response!
             
@@ -119,7 +119,7 @@ public extension Client {
                 guard let jsonString = json.toString(self.JSONOptions)
                     else { fatalError("Could not generate JSON for \(json)") }
                 
-                let responseString = try self.websocket.sendRequest(jsonString, timeout: timeout)
+                let responseString = try self.websocket.sendRequest(jsonString, timeout: self.requestTimeout)
                 
                 // parse response
                 
@@ -130,11 +130,6 @@ public extension Client {
                 self.didReceiveMetadata?(metadata: responseMessage.metadata)
                 
                 response = responseMessage.response
-            }
-            
-            for store in cacheStores {
-                
-                try store.cacheResponse(response, forRequest: request)
             }
             
             return response
