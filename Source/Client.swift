@@ -29,6 +29,8 @@ public protocol ClientType: class {
     
     var didReceiveMetadata: ((metadata: [String: String]) -> Void)? { get set }
     
+    var cacheStores: [Store] { get set }
+    
     /// Sends the request and parses the response.
     func send(request: Request, timeout: TimeInterval) throws -> Response
 }

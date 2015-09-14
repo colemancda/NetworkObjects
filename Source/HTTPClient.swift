@@ -66,6 +66,11 @@ public extension Client {
             
             self.didReceiveMetadata?(metadata: responseMessage.metadata)
             
+            for store in cacheStores {
+                
+                try store.cacheResponse(responseMessage.response, forRequest: request)
+            }
+            
             return responseMessage.response
         }
     }

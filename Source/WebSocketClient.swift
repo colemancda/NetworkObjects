@@ -132,6 +132,11 @@ public extension Client {
                 response = responseMessage.response
             }
             
+            for store in cacheStores {
+                
+                try store.cacheResponse(response, forRequest: request)
+            }
+            
             return response
         }
         
