@@ -261,3 +261,25 @@ public protocol ServerDelegate: class {
     func server<T: ServerType>(server: T, didEncounterInternalError error: ErrorType, context: Server.RequestContext)
 }
 
+public extension ServerDelegate {
+    
+    func server<T: ServerType>(server: T, metadataForRequest context: Server.RequestContext) -> [String: String] {
+        
+        return [:]
+    }
+    
+    func server<T: ServerType>(server: T, statusCodeForRequest context: Server.RequestContext) -> Int {
+        
+        return StatusCode.OK.rawValue
+    }
+    
+    func server<T: ServerType>(server: T, didCreateResource resource: Resource, initialValues: ValuesObject?, context: Server.RequestContext) { }
+    
+    func server<T: ServerType>(server: T, willPerformRequest context: Server.RequestContext, withResponse response: ResponseMessage) -> ResponseMessage {
+        
+        return response
+    }
+    
+    func server<T: ServerType>(server: T, didEncounterInternalError error: ErrorType, context: Server.RequestContext) { }
+}
+
