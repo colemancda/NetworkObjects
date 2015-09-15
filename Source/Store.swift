@@ -34,7 +34,7 @@ public final class Store<Client: ClientType, CacheStore: CoreModel.Store> {
     // MARK: - Methods
     
     /// Queries the server for resources that match the fetch request.
-    func search(fetchRequest: FetchRequest) throws -> [Resource] {
+    public func search(fetchRequest: FetchRequest) throws -> [Resource] {
         
         let request = Request.Search(fetchRequest)
         
@@ -56,7 +56,7 @@ public final class Store<Client: ClientType, CacheStore: CoreModel.Store> {
     }
     
     /// Creates an entity on the server with the specified initial values.
-    func create(entityName: String, initialValues: ValuesObject? = nil) throws -> (Resource, ValuesObject) {
+    public func create(entityName: String, initialValues: ValuesObject? = nil) throws -> (Resource, ValuesObject) {
         
         let request = Request.Create(entityName, initialValues)
         
@@ -76,7 +76,7 @@ public final class Store<Client: ClientType, CacheStore: CoreModel.Store> {
     }
     
     /// Fetches the values specified resource.
-    func get(resource: Resource) throws -> ValuesObject {
+    public func get(resource: Resource) throws -> ValuesObject {
         
         let request = Request.Get(resource)
         
@@ -90,7 +90,7 @@ public final class Store<Client: ClientType, CacheStore: CoreModel.Store> {
     }
     
     /// Edits the specified entity.
-    func edit(resource: Resource, changes: ValuesObject) throws -> ValuesObject {
+    public func edit(resource: Resource, changes: ValuesObject) throws -> ValuesObject {
         
         let request = Request.Edit(resource, changes)
         
@@ -104,7 +104,7 @@ public final class Store<Client: ClientType, CacheStore: CoreModel.Store> {
     }
     
     /// Deletes the specified entity.
-    func delete(resource: Resource) throws {
+    public func delete(resource: Resource) throws {
         
         let request = Request.Delete(resource)
         
@@ -118,7 +118,7 @@ public final class Store<Client: ClientType, CacheStore: CoreModel.Store> {
     }
     
     /// Performs the specified function on a resource.
-    func performFunction(resource: Resource, functionName: String, parameters: JSONObject? = nil) throws -> JSONObject? {
+    public func performFunction(resource: Resource, functionName: String, parameters: JSONObject? = nil) throws -> JSONObject? {
         
         let request = Request.Function(resource, functionName, parameters)
         
