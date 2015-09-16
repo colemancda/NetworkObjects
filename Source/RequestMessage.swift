@@ -98,7 +98,7 @@ public extension RequestMessage {
             
         case .Create:
             
-            var values: ValuesObject?
+            let values: ValuesObject?
             
             if let valuesJSON = jsonObject[JSONKey.Values.rawValue] {
                 
@@ -108,6 +108,7 @@ public extension RequestMessage {
                 
                 values = convertedValues
             }
+            else { values = nil }
             
             self.request = Request.Create(entityName, values)
             

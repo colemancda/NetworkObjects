@@ -56,7 +56,7 @@ public final class Store<Client: ClientType, CacheStore: CoreModel.Store> {
     }
     
     /// Creates an entity on the server with the specified initial values.
-    public func create(entityName: String, initialValues: ValuesObject? = nil) throws -> (Resource, ValuesObject) {
+    public func create(entityName: String, initialValues: ValuesObject) throws -> (Resource, ValuesObject) {
         
         let request = Request.Create(entityName, initialValues)
         
@@ -248,7 +248,7 @@ public extension CoreModel.Store {
                 // create placeholder resources for results
                 if try self.exists(resource) == false {
                     
-                    try self.create(resource, initialValues: nil)
+                    try self.create(resource, initialValues: ValuesObject())
                 }
             }
             
@@ -286,7 +286,7 @@ private extension CoreModel.Store {
                     
                     if try self.exists(resource) == false {
                         
-                        try self.create(resource, initialValues: nil)
+                        try self.create(resource, initialValues: ValuesObject())
                     }
                     
                 case let .ToMany(resourceIDs):
@@ -297,7 +297,7 @@ private extension CoreModel.Store {
                         
                         if try self.exists(resource) == false {
                             
-                            try self.create(resource, initialValues: nil)
+                            try self.create(resource, initialValues: ValuesObject())
                         }
                     }
                 }

@@ -105,11 +105,9 @@ public extension ServerType {
                 
                 let resource = Resource(entityName, resourceID)
                 
-                try store.create(resource, initialValues: initialValues)
+                let values = ((self.delegate?.server(self, willCreateResource: resource, initialValues: initialValues, context: context) ?? initialValues) ?? ValuesObject())
                 
-                self.delegate?.server(self, didCreateResource: resource, initialValues: initialValues, context: context)
-                
-                let values = try store.values(resource)
+                try store.create(resource, initialValues: values)
                 
                 response = Response.Create(resourceID, values)
                 
@@ -252,7 +250,7 @@ public protocol ServerDelegate: class {
     /// Notifies the delegate that a new resource was created. Values are prevalidated. 
     ///
     /// This is a good time to set initial values that cannot be set in -awakeFromInsert: or -awakeFromFetch:.
-    func server<T: ServerType>(server: T, didCreateResource resource: Resource, initialValues: ValuesObject?, context: Server.RequestContext)
+    func server<T: ServerType>(server: T, didCreateResource resource: Resource, initialValues: ValuesObject?, context: Server.RequestContext) -> ValuesObject
     
     /// Notifies the delegate that a request was processed. Delegate can change final response.
     func server<T: ServerType>(server: T, willPerformRequest context: Server.RequestContext, withResponse response: ResponseMessage) -> ResponseMessage
@@ -273,7 +271,10 @@ public extension ServerDelegate {
         return StatusCode.OK.rawValue
     }
     
-    func server<T: ServerType>(server: T, didCreateResource resource: Resource, initialValues: ValuesObject?, context: Server.RequestContext) { }
+    func server<T: ServerType>(server: T, willCreateResource resource: Resource, initialValues: ValuesObject?, context: Server.RequestContext) -> ValuesObject {
+        
+        return initialValues ?? ValuesObject()
+    }
     
     func server<T: ServerType>(server: T, willPerformRequest context: Server.RequestContext, withResponse response: ResponseMessage) -> ResponseMessage {
         
