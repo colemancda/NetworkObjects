@@ -247,10 +247,10 @@ public protocol ServerDelegate: class {
     /// This can be used to implement authentication or access control.
     func server<T: ServerType>(server: T, statusCodeForRequest context: Server.RequestContext) -> Int
     
-    /// Notifies the delegate that a new resource was created. Values are prevalidated. 
+    /// Notifies the delegate that a new resource will be created. Values are prevalidated. 
     ///
     /// This is a good time to set initial values that cannot be set in -awakeFromInsert: or -awakeFromFetch:.
-    func server<T: ServerType>(server: T, didCreateResource resource: Resource, initialValues: ValuesObject?, context: Server.RequestContext) -> ValuesObject
+    func server<T: ServerType>(server: T, willCreateResource resource: Resource, initialValues: ValuesObject?, context: Server.RequestContext) -> ValuesObject
     
     /// Notifies the delegate that a request was processed. Delegate can change final response.
     func server<T: ServerType>(server: T, willPerformRequest context: Server.RequestContext, withResponse response: ResponseMessage) -> ResponseMessage
