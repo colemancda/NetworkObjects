@@ -86,7 +86,7 @@ public extension ServerType {
                 response = Response.Get(values)
                 
             case let .Edit(resource, values):
-                                
+                
                 try store.edit(resource, changes: values)
                 
                 let values = try store.values(resource)
@@ -105,7 +105,14 @@ public extension ServerType {
                 
                 let resource = Resource(entityName, resourceID)
                 
-                let values = ((self.delegate?.server(self, willCreateResource: resource, initialValues: initialValues, context: context) ?? initialValues) ?? ValuesObject())
+                let values: ValuesObject
+                
+                if let delegate = self.delegate {
+                    
+                    values = delegate.server(self, willCreateResource: resource, initialValues: initialValues ?? ValuesObject(), context: context)
+                }
+                    
+                else { values = initialValues ?? ValuesObject() }
                 
                 try store.create(resource, initialValues: values)
                 
@@ -143,7 +150,7 @@ public extension ServerType {
             
             response = Response.Error(StatusCode.BadRequest.rawValue)
         }
-        
+            
         catch {
             
             self.delegate?.server(self, didEncounterInternalError: error, context: context)
@@ -210,7 +217,7 @@ public protocol ServerDataSource: class {
     /// Asks the data source for a unique identifier for a newly created object.
     func server<T: ServerType>(server: T, newResourceIDForEntity entity: String) -> String
     
-    /// Asks the data source to perform a function on a resource. 
+    /// Asks the data source to perform a function on a resource.
     ///
     /// - returns: Return a tuple containing the status code and an optional JSON response.
     func server<T: ServerType>(server: T, performFunction functionName: String, forResource resource: Resource, recievedJSON: JSONObject?, context: Server.RequestContext) -> (Int, JSONObject?)
@@ -247,10 +254,10 @@ public protocol ServerDelegate: class {
     /// This can be used to implement authentication or access control.
     func server<T: ServerType>(server: T, statusCodeForRequest context: Server.RequestContext) -> Int
     
-    /// Notifies the delegate that a new resource will be created. Values are prevalidated. 
+    /// Notifies the delegate that a new resource was created. Values are prevalidated.
     ///
     /// This is a good time to set initial values that cannot be set in -awakeFromInsert: or -awakeFromFetch:.
-    func server<T: ServerType>(server: T, willCreateResource resource: Resource, initialValues: ValuesObject?, context: Server.RequestContext) -> ValuesObject
+    func server<T: ServerType>(server: T, willCreateResource resource: Resource, initialValues: ValuesObject, context: Server.RequestContext) -> ValuesObject
     
     /// Notifies the delegate that a request was processed. Delegate can change final response.
     func server<T: ServerType>(server: T, willPerformRequest context: Server.RequestContext, withResponse response: ResponseMessage) -> ResponseMessage
@@ -271,9 +278,9 @@ public extension ServerDelegate {
         return StatusCode.OK.rawValue
     }
     
-    func server<T: ServerType>(server: T, willCreateResource resource: Resource, initialValues: ValuesObject?, context: Server.RequestContext) -> ValuesObject {
+    func server<T: ServerType>(server: T, willCreateResource resource: Resource, initialValues: ValuesObject, context: Server.RequestContext) -> ValuesObject {
         
-        return initialValues ?? ValuesObject()
+        return initialValues
     }
     
     func server<T: ServerType>(server: T, willPerformRequest context: Server.RequestContext, withResponse response: ResponseMessage) -> ResponseMessage {
