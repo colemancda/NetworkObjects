@@ -97,11 +97,11 @@ public extension RequestMessage {
                 
                 self.request = Request.Search(fetchRequest)
             }
-            
-            // create
+                
+                // create
             else {
                 
-                let entityName = HTTPRequest.URI
+                guard let entityName = parseCreateURI(HTTPRequest.URI) else { return nil }
                 
                 guard let entity: Entity = {
                     for entity in model { if entity.name == entityName { return entity } }
@@ -147,7 +147,7 @@ public extension RequestMessage {
             url = serverURL + "/" + resource.entityName + "/" + "\(resource.resourceID)"
             
             method = .DELETE
-        
+            
         case let .Edit(resource, values):
             
             url = serverURL + "/" + resource.entityName + "/" + "\(resource.resourceID)"
@@ -267,6 +267,39 @@ private func parseResourceURI(URI: String) -> (entityName: String, resourceID: S
 private func parseSearchURI(URI: String) -> String? {
     
     let pathExpression = try! RegularExpression("/\(SearchPath)/([a-z]+)", options: [.CaseInsensitive, .ExtendedSyntax])
+    
+    guard let match = pathExpression.match(URI)
+        where match.range.startIndex == 0 && match.range.endIndex == URI.utf8.count
+        else { return nil }
+    
+    let entityName: String
+    
+    do {
+        
+        let range = match.subexpressionRanges[0]
+        
+        switch range {
+            
+        case let .Found(subexpressionRange):
+            
+            let start = URI.startIndex.advancedBy(subexpressionRange.startIndex)
+            
+            let end = URI.startIndex.advancedBy(subexpressionRange.endIndex)
+            
+            let stringRange = Range<String.Index>(start: start, end: end)
+            
+            entityName = URI[stringRange]
+            
+        default: fatalError()
+        }
+    }
+    
+    return entityName
+}
+
+private func parseCreateURI(URI: String) -> String? {
+    
+    let pathExpression = try! RegularExpression("/([a-z]+)", options: [.CaseInsensitive, .ExtendedSyntax])
     
     guard let match = pathExpression.match(URI)
         where match.range.startIndex == 0 && match.range.endIndex == URI.utf8.count

@@ -96,7 +96,7 @@ public extension ResponseMessage {
             
         case .Search:
             
-            guard let resourceIDs = jsonResponse?.rawValue as? [String]
+            guard let resourceIDs = ((jsonResponse?.rawValue as? [Any]) as? [AnyObject]) as? [String]
                 else { return nil }
             
             self.response = Response.Search(resourceIDs)
