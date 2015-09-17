@@ -137,7 +137,7 @@ public final class Store<Client: ClientType, CacheStore: CoreModel.Store> {
         
         let response = try self.client.send(request)
         
-        try self.cacheStore.cacheResponse(response, forRequest: request)
+        try self.cacheStore.cacheResponse(response, forRequest: request, dateCachedAttributeName: dateCachedAttributeName)
         
         return response
     }
@@ -148,7 +148,7 @@ public extension CoreModel.Store {
     /// Caches the values of a response.
     ///
     /// - Note: Request and Response must be of the same type or this method will do nothing.
-    func cacheResponse(response: Response, forRequest request: Request) throws {
+    func cacheResponse(response: Response, forRequest request: Request, dateCachedAttributeName: String?) throws {
         
         switch (request, response) {
             
@@ -192,9 +192,15 @@ public extension CoreModel.Store {
             
             // standard responses
             
-        case let (.Get(resource), .Get(values)):
+        case (.Get(let resource), .Get(var values)):
             
             try self.createCachePlaceholders(values, entityName: resource.entityName)
+            
+            // set cache date
+            if let dateCachedAttributeName = dateCachedAttributeName {
+                
+                values[dateCachedAttributeName] = Value.Attribute(.Date(Date()))
+            }
             
             // update values
             if try self.exists(resource) {
@@ -202,15 +208,21 @@ public extension CoreModel.Store {
                 try self.edit(resource, changes: values)
             }
                 
-                // create resource and set values
+            // create resource and set values
             else {
                 
                 try self.create(resource, initialValues: values)
             }
             
-        case let (.Edit(resource, _), .Edit(values)):
+        case (let .Edit(resource, _), .Edit(var values)):
             
             try self.createCachePlaceholders(values, entityName: resource.entityName)
+            
+            // set cache date
+            if let dateCachedAttributeName = dateCachedAttributeName {
+                
+                values[dateCachedAttributeName] = Value.Attribute(.Date(Date()))
+            }
             
             // update values
             if try self.exists(resource) {
@@ -218,15 +230,21 @@ public extension CoreModel.Store {
                 try self.edit(resource, changes: values)
             }
                 
-                // create resource and set values
+            // create resource and set values
             else {
                 
                 try self.create(resource, initialValues: values)
             }
             
-        case let (.Create(entityName, _), .Create(resourceID, values)):
+        case (let .Create(entityName, _), .Create(let resourceID, var values)):
             
             try self.createCachePlaceholders(values, entityName: entityName)
+            
+            // set cache date
+            if let dateCachedAttributeName = dateCachedAttributeName {
+                
+                values[dateCachedAttributeName] = Value.Attribute(.Date(Date()))
+            }
             
             let resource = Resource(entityName, resourceID)
             
