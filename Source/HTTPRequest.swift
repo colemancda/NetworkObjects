@@ -211,7 +211,7 @@ private let SearchPath = "search"
 
 private func parseResourceURI(URI: String) -> (entityName: String, resourceID: String)? {
     
-    let pathExpression = try! RegularExpression("/([a-z]+)/([.+])", options: [.CaseInsensitive, .ExtendedSyntax])
+    let pathExpression = try! RegularExpression("/([a-z]+)/(.+)", options: [.CaseInsensitive, .ExtendedSyntax])
     
     guard let match = pathExpression.match(URI)
         where match.range.startIndex == 0 && match.range.endIndex == URI.utf8.count
