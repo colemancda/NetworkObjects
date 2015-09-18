@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "6E933E941BACCE5200454193"
-               BuildableName = "NetworkObjects WatchOS.framework"
+               BuildableName = "NetworkObjects.framework"
                BlueprintName = "NetworkObjects WatchOS"
                ReferencedContainer = "container:NetworkObjects.xcodeproj">
             </BuildableReference>
@@ -46,7 +46,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "6E933E941BACCE5200454193"
-            BuildableName = "NetworkObjects WatchOS.framework"
+            BuildableName = "NetworkObjects.framework"
             BlueprintName = "NetworkObjects WatchOS"
             ReferencedContainer = "container:NetworkObjects.xcodeproj">
          </BuildableReference>
@@ -64,7 +64,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "6E933E941BACCE5200454193"
-            BuildableName = "NetworkObjects WatchOS.framework"
+            BuildableName = "NetworkObjects.framework"
             BlueprintName = "NetworkObjects WatchOS"
             ReferencedContainer = "container:NetworkObjects.xcodeproj">
          </BuildableReference>
