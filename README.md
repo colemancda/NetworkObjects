@@ -8,6 +8,7 @@ NetworkObjects is a **#PureSwift** backend. This framework compiles for OS X, iO
 # Example
 
 - [NetworkObjectsDemo](https://github.com/colemancda/NetworkObjectsDemo) - Demo App / Server for NetworkObjects
+- [NetworkObjectsUI](https://github.com/colemancda/NetworkObjectsUI) - iOS framework that provides view and controller classes for easily integrating NetworkObjects into your iOS app.
 
 # Support and Documentation
 
