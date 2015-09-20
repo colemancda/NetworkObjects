@@ -16,7 +16,7 @@ public extension Server {
         
         // MARK: - Properties
         
-        public let model: [Entity]
+        public let model: Model
         
         public weak var dataSource: ServerDataSource!
         
@@ -26,7 +26,7 @@ public extension Server {
         
         // MARK: - Initialization
         
-        public init(model: [Entity],
+        public init(model: Model,
             dataSource: ServerDataSource,
             delegate: ServerDelegate? = nil) {
                 

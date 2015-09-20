@@ -21,7 +21,7 @@ public protocol ServerType: class {
     typealias Input
     typealias Output
     
-    var model: [Entity] { get }
+    var model: Model { get }
     
     weak var dataSource: ServerDataSource! { get }
     

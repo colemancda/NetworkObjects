@@ -20,7 +20,7 @@ public extension Client {
         /// The URL of the **NetworkObjects** server that this client will connect to.
         public let serverURL: String
         
-        public let model: [Entity]
+        public let model: Model
         
         public var JSONOptions: [JSON.Serialization.WritingOption] = [.Pretty]
         
@@ -45,7 +45,7 @@ public extension Client {
         
         // MARK: - Initialization
         
-        public init(serverURL: String, model: [Entity]) {
+        public init(serverURL: String, model: Model) {
             
             self.serverURL = serverURL
             self.model = model
@@ -104,11 +104,7 @@ public extension Client {
             try sync { () throws -> Void in
                 
                 // check that requested entity belongs to model
-                guard let entity: Entity = {
-                    for entity in self.model { if entity.name == request.entityName { return entity } }
-                    return nil
-                    
-                }() as Entity? else { throw Error.InvalidRequest }
+                guard let entity = self.model[request.entityName] else { throw Error.InvalidRequest }
                 
                 let metadata = self.metadataForRequest?(request: request) ?? [String: String]()
                 

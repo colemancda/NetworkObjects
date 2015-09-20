@@ -18,7 +18,7 @@ public extension Client {
         /// The URL of the **NetworkObjects** server that this client will connect to.
         public let serverURL: String
         
-        public let model: [Entity]
+        public let model: Model
         
         public let HTTPClient: SwiftFoundation.HTTP.Client
         
@@ -34,7 +34,7 @@ public extension Client {
                 
         // MARK: - Initialization
         
-        public init(serverURL: String, model: [Entity], HTTPClient: SwiftFoundation.HTTP.Client) {
+        public init(serverURL: String, model: Model, HTTPClient: SwiftFoundation.HTTP.Client) {
             
             self.serverURL = serverURL
             self.model = model
@@ -47,10 +47,7 @@ public extension Client {
         public func send(request: Request) throws -> Response {
             
             // check that requested entity belongs to model
-            guard let entity: Entity = {
-                for entity in self.model { if entity.name == request.entityName { return entity } }
-                return nil
-            }() as Entity? else { throw Error.InvalidRequest }
+            guard let entity = self.model[request.entityName] else { throw Error.InvalidRequest }
             
             let metadata = self.metadataForRequest?(request: request) ?? [String: String]()
             

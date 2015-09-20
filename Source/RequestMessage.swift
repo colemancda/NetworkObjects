@@ -45,7 +45,7 @@ public extension RequestMessage {
     ///
     /// The specified model will be used for value conversion. 
     /// Created request message is assumed to be valid according to the ```model``` provided.
-    public init?(JSONValue: JSON.Value, parameters: [Entity]) {
+    public init?(JSONValue: JSON.Value, parameters: Model) {
         
         let model = parameters
         
@@ -53,13 +53,9 @@ public extension RequestMessage {
             let entityName = jsonObject[JSONKey.Entity.rawValue]?.rawValue as? String,
             let requestTypeString = jsonObject[JSONKey.RequestType.rawValue]?.rawValue as? String,
             let requestType = RequestType(rawValue: requestTypeString),
-            let metadata = jsonObject[JSONKey.Metadata.rawValue]?.rawValue as? [String: String]
+            let metadata = jsonObject[JSONKey.Metadata.rawValue]?.rawValue as? [String: String],
+            let entity = model[entityName]
             else { return nil }
-        
-        guard let entity: Entity = {
-            for entity in model { if entity.name == entityName { return entity } }
-            return nil
-            }() else { return nil }
         
         self.metadata = metadata
         
@@ -115,7 +111,7 @@ public extension RequestMessage {
         case .Search:
             
             guard let fetchRequestJSON = jsonObject[JSONKey.FetchRequest.rawValue],
-                let fetchRequest = FetchRequest(JSONValue: fetchRequestJSON, parameters: entity)
+                let fetchRequest = FetchRequest(JSONValue: fetchRequestJSON, parameters: (entityName, entity))
                 else { return nil }
             
             self.request = Request.Search(fetchRequest)

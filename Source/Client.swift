@@ -21,7 +21,7 @@ public protocol ClientType: class {
     /// The URL of the **NetworkObjects** server that this client will connect to.
     var serverURL: String { get }
     
-    var model: [Entity] { get }
+    var model: Model { get }
     
     var requestTimeout: TimeInterval { get set }
     

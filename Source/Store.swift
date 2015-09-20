@@ -280,11 +280,7 @@ private extension CoreModel.Store {
     /// Resolves relationships in the values and creates placeholder resources.
     private func createCachePlaceholders(values: ValuesObject, entityName: String) throws {
         
-        guard let entity: Entity = {
-            for entity in model { if entity.name == entityName { return entity } }
-            return nil
-            }()
-            else { throw StoreError.InvalidEntity }
+        guard let entity = self.model[entityName] else { throw StoreError.InvalidEntity }
         
         for (key, value) in values {
             
@@ -292,9 +288,7 @@ private extension CoreModel.Store {
                 
             case let .Relationship(relationshipValue):
                 
-                guard let relationship = entity.relationships.filter({ (element) -> Bool in
-                    element.name == key
-                }).first else { throw StoreError.InvalidValues }
+                guard let relationship = entity.relationships[key] else { throw StoreError.InvalidValues }
                 
                 switch relationshipValue {
                     

@@ -27,7 +27,7 @@ public extension Server.HTTP {
 
 public extension RequestMessage {
     
-    init?(HTTPRequest: Server.HTTP.Request, parameters: [Entity]) {
+    init?(HTTPRequest: Server.HTTP.Request, parameters: Model) {
         
         let model = parameters
         
@@ -37,13 +37,9 @@ public extension RequestMessage {
             
         case .GET:
             
-            guard let (entityName, resourceID) = parseResourceURI(HTTPRequest.URI)
+            guard let (entityName, resourceID) = parseResourceURI(HTTPRequest.URI),
+                let _ = model[entityName]
                 else { return nil }
-            
-            guard let _: Entity = {
-                for entity in model { if entity.name == entityName { return entity } }
-                return nil
-                }() else { return nil }
             
             let resource = Resource(entityName, resourceID)
             
@@ -51,13 +47,9 @@ public extension RequestMessage {
             
         case .DELETE:
             
-            guard let (entityName, resourceID) = parseResourceURI(HTTPRequest.URI)
+            guard let (entityName, resourceID) = parseResourceURI(HTTPRequest.URI),
+                let _ = model[entityName]
                 else { return nil }
-            
-            guard let _: Entity = {
-                for entity in model { if entity.name == entityName { return entity } }
-                return nil
-                }() else { return nil }
             
             let resource = Resource(entityName, resourceID)
             
@@ -66,13 +58,9 @@ public extension RequestMessage {
         case .PUT:
             
             guard let (entityName, resourceID) = parseResourceURI(HTTPRequest.URI),
-                let jsonObject = HTTPRequest.body
+                let jsonObject = HTTPRequest.body,
+                let entity = model[entityName]
                 else { return nil }
-            
-            guard let entity: Entity = {
-                for entity in model { if entity.name == entityName { return entity } }
-                return nil
-                }() else { return nil }
             
             let resource = Resource(entityName, resourceID)
             
@@ -86,13 +74,9 @@ public extension RequestMessage {
             // search
             if let entityName = parseSearchURI(HTTPRequest.URI) {
                 
-                guard let entity: Entity = {
-                    for entity in model { if entity.name == entityName { return entity } }
-                    return nil
-                    }() else { return nil }
-                
-                guard let jsonObject = HTTPRequest.body,
-                    let fetchRequest = FetchRequest(JSONValue: JSON.Value.Object(jsonObject), parameters: entity)
+                guard let entity = model[entityName],
+                    let jsonObject = HTTPRequest.body,
+                    let fetchRequest = FetchRequest(JSONValue: JSON.Value.Object(jsonObject), parameters: (entityName, entity))
                     else { return nil }
                 
                 self.request = Request.Search(fetchRequest)
@@ -101,12 +85,9 @@ public extension RequestMessage {
             // create
             else {
                 
-                guard let entityName = parseCreateURI(HTTPRequest.URI) else { return nil }
-                
-                guard let entity: Entity = {
-                    for entity in model { if entity.name == entityName { return entity } }
-                    return nil
-                    }() else { return nil }
+                guard let entityName = parseCreateURI(HTTPRequest.URI),
+                    let entity = model[entityName]
+                    else { return nil }
                 
                 let values: ValuesObject?
                 
