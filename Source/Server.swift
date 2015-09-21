@@ -42,7 +42,7 @@ public extension ServerType {
         
         let store = self.dataSource.server(self, storeForRequest: requestMessage)
         
-        let context = Server.RequestContext(store: store, request: requestMessage)
+        let context = Server.RequestContext(store: store, requestMessage: requestMessage)
         
         let responseMetadata: [String: String]
         
@@ -260,7 +260,7 @@ public protocol ServerDelegate: class {
     func server<T: ServerType>(server: T, willCreateResource resource: Resource, initialValues: ValuesObject, context: Server.RequestContext) -> ValuesObject
     
     /// Notifies the delegate that a request was processed. Delegate can change final response.
-    func server<T: ServerType>(server: T, willPerformRequest context: Server.RequestContext, withResponse response: ResponseMessage) -> ResponseMessage
+    func server<T: ServerType>(server: T, willPerformRequest context: Server.RequestContext, withResponse responseMessage: ResponseMessage) -> ResponseMessage
     
     /// Notifies the delegate that an internal error ocurred (e.g. could not serialize a JSON object).
     func server<T: ServerType>(server: T, didEncounterInternalError error: ErrorType, context: Server.RequestContext)
@@ -285,7 +285,7 @@ public extension ServerDelegate {
     
     func server<T: ServerType>(server: T, willPerformRequest context: Server.RequestContext, withResponse responseMessage: ResponseMessage) -> ResponseMessage {
         
-        return response
+        return responseMessage
     }
     
     func server<T: ServerType>(server: T, didEncounterInternalError error: ErrorType, context: Server.RequestContext) { }
