@@ -194,14 +194,14 @@ public extension Server {
         
         public let store: CoreModel.Store
         
-        public let request: RequestMessage
+        public let requestMessage: RequestMessage
         
         public var userInfo = [String: AnyObject]()
         
-        public init(store: CoreModel.Store, request: RequestMessage) {
+        public init(store: CoreModel.Store, requestMessage: RequestMessage) {
             
             self.store = store
-            self.request = request
+            self.requestMessage = requestMessage
         }
     }
 }
@@ -283,7 +283,7 @@ public extension ServerDelegate {
         return initialValues
     }
     
-    func server<T: ServerType>(server: T, willPerformRequest context: Server.RequestContext, withResponse response: ResponseMessage) -> ResponseMessage {
+    func server<T: ServerType>(server: T, willPerformRequest context: Server.RequestContext, withResponse responseMessage: ResponseMessage) -> ResponseMessage {
         
         return response
     }
