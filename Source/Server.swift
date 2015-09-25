@@ -196,7 +196,7 @@ public extension Server {
         
         public let requestMessage: RequestMessage
         
-        public var userInfo = [String: AnyObject]()
+        public var userInfo = [String: Any]()
         
         public init(store: CoreModel.Store, requestMessage: RequestMessage) {
             
