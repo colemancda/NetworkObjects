@@ -28,10 +28,10 @@ public extension Client {
         
         // MARK: Callbacks
         
-        public var metadataForRequest: ((request: Request) -> [String: String])?
+        public var willSendRequest: (Request -> [String: String])?
         
-        public var didReceiveMetadata: ((metadata: [String: String]) -> Void)?
-                
+        public var didRecieveResponse: (ResponseMessage -> Void)?
+        
         // MARK: - Initialization
         
         public init(serverURL: String, model: Model, HTTPClient: SwiftFoundation.HTTP.Client) {
@@ -49,7 +49,7 @@ public extension Client {
             // check that requested entity belongs to model
             guard let entity = self.model[request.entityName] else { throw Error.InvalidRequest }
             
-            let metadata = self.metadataForRequest?(request: request) ?? [String: String]()
+            let metadata = self.willSendRequest?(request) ?? [String: String]()
             
             let requestMessage = RequestMessage(request, metadata: metadata)
             
@@ -61,7 +61,7 @@ public extension Client {
             
             guard let responseMessage = ResponseMessage(HTTPResponse: httpResponse, parameters: (request.type, entity)) else { throw Error.InvalidResponse }
             
-            self.didReceiveMetadata?(metadata: responseMessage.metadata)
+            self.didRecieveResponse?(responseMessage)
             
             return responseMessage.response
         }
