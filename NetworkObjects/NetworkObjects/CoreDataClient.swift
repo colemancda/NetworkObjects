@@ -171,7 +171,9 @@ public final class CoreDataClient<Client: ClientType> {
         
         let resourceID = (managedObject as NSManagedObject).valueForKey(self.resourceIDAttributeName) as! String
         
-        return self.fetch(Resource(entityName, resourceID), completionBlock: { (errorValue: ErrorValue<T>) -> Void in
+        let resource = Resource(entityName, resourceID)
+        
+        return self.fetch(resource, completionBlock: { (errorValue: ErrorValue<T>) -> Void in
             
             // forward
             completionBlock(errorValue)
@@ -262,6 +264,35 @@ public final class CoreDataClient<Client: ClientType> {
             }
             
             completionBlock(.Value(managedObject))
+        }
+    }
+    
+    public func edit<T: NSManagedObject>(managedObject: T, changes: ValuesObject, completionBlock: ((ErrorType?) -> Void)) {
+        
+        let entityName = managedObject.entity.name!
+        
+        let resourceID = (managedObject as NSManagedObject).valueForKey(self.resourceIDAttributeName) as! String
+        
+        let resource = Resource(entityName, resourceID)
+        
+        requestQueue.addOperationWithBlock {
+            
+            do {
+                // perform request
+                let values = try self.client.edit(resource, changes: changes)
+                
+                // got response, cache results
+                try self.store.cacheResponse(Response.Edit(values), forRequest: Request.Edit(resource, changes), dateCachedAttributeName: self.dateCachedAttributeName)
+            }
+            
+            catch {
+                
+                completionBlock(error)
+                
+                return
+            }
+            
+            completionBlock(nil)
         }
     }
     
