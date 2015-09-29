@@ -296,6 +296,37 @@ public final class CoreDataClient<Client: ClientType> {
         }
     }
     
+    public func delete<T: NSManagedObject>(managedObject: T, URLSession: NSURLSession? = nil, completionBlock: ((ErrorType?) -> Void)) {
+        
+        let entityName = managedObject.entity.name!
+        
+        let resourceID = (managedObject as NSManagedObject).valueForKey(self.resourceIDAttributeName) as! String
+        
+        let resource = Resource(entityName, resourceID)
+        
+        requestQueue.addOperationWithBlock {
+            
+            do {
+                
+                try self.client.delete(resource)
+                
+                // got response, cache results
+                try self.store.cacheResponse(Response.Delete, forRequest: Request.Delete(resource), dateCachedAttributeName: self.dateCachedAttributeName)
+            }
+            
+            catch {
+                
+                completionBlock(error)
+                
+                return
+            }
+            
+            completionBlock(nil)
+        }
+    }
+    
+    public func performFunction<T: NSManagedObject>(function functionName: String, managedObject: T, JSONObject: [String: AnyObject]? = nil, URLSession: NSURLSession? = nil, completionBlock: ((ErrorValue<[String: AnyObject]?>) -> Void))
+    
     // MARK: - Notifications
     
     @objc private func mergeChangesFromContextDidSaveNotification(notification: NSNotification) {
