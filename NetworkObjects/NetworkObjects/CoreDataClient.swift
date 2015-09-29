@@ -150,7 +150,7 @@ public final class CoreDataClient<Client: ClientType> {
             
             var mainContextResults = [T]()
             
-            self.managedObjectContext.performBlockAndWait({ () -> Void in
+            self.managedObjectContext.performBlockAndWait {
                 
                 for objectID in objectIDs {
                     
@@ -158,7 +158,7 @@ public final class CoreDataClient<Client: ClientType> {
                     
                     mainContextResults.append(managedObject)
                 }
-            })
+            }
             
             completionBlock(.Value(mainContextResults))
         }
@@ -186,13 +186,20 @@ public final class CoreDataClient<Client: ClientType> {
         
         requestQueue.addOperationWithBlock {
             
-            let object: NSManagedObjectID
+            let objectID: NSManagedObjectID
             
             do {
+                // perform request
+                let values = try self.client.get(resource)
                 
-                let resource = try self.client.get(resource)
+                // got response, cache results
+                try self.store.cacheResponse(Response.Get(values), forRequest: Request.Get(resource), dateCachedAttributeName: self.dateCachedAttributeName)
                 
+                // get object ID
+                guard let foundID = try self.store.findEntity(entity, withResourceID: resource.resourceID)
+                    else { fatalError("Could not find cached resource: \(resource)") }
                 
+                objectID = foundID
             }
             
             catch {
@@ -202,32 +209,17 @@ public final class CoreDataClient<Client: ClientType> {
                 return
             }
             
+            // get the corresponding managed object that belongs to the main queue context
             
+            var managedObject: T!
+            
+            self.managedObjectContext.performBlockAndWait {
+                
+                managedObject = self.managedObjectContext.objectWithID(objectID) as! T
+            }
+            
+            completionBlock(.Value(managedObject))
         }
-        
-        let dataTask = session.dataTaskWithRequest(request, completionHandler: {[weak self] (data: NSData?, response: NSURLResponse?, taskError: NSError?) -> Void in
-            
-            if self == nil { return }
-            
-            let managedObject: T
-            
-            do {
-                
-                managedObject = try self!.cacheFetchResponse((data, response, taskError), forEntity: entity, resourceID: resourceID)
-            }
-            catch {
-                
-                completionBlock(ErrorValue.Error(error))
-                return
-            }
-            
-            completionBlock(ErrorValue.Value(managedObject))
-            })!
-        
-        dataTask.resume()
-        
-        return dataTask
-        
     }
     
     // MARK: - Notifications
