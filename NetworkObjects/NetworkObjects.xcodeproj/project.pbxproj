@@ -41,6 +41,9 @@
 		1AFB89FC1B99299900BA7856 /* RequestMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AFB89FA1B99299900BA7856 /* RequestMessage.swift */; settings = {ASSET_TAGS = (); }; };
 		1AFB89FE1B992C8700BA7856 /* Response.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AFB89FD1B992C8700BA7856 /* Response.swift */; settings = {ASSET_TAGS = (); }; };
 		1AFB89FF1B992C8700BA7856 /* Response.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AFB89FD1B992C8700BA7856 /* Response.swift */; settings = {ASSET_TAGS = (); }; };
+		6E6E48AE1BBA4DB50000674F /* CoreDataClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E6E48AD1BBA4DB50000674F /* CoreDataClient.swift */; settings = {ASSET_TAGS = (); }; };
+		6E6E48AF1BBA4DB50000674F /* CoreDataClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E6E48AD1BBA4DB50000674F /* CoreDataClient.swift */; settings = {ASSET_TAGS = (); }; };
+		6E6E48B01BBA4DB50000674F /* CoreDataClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E6E48AD1BBA4DB50000674F /* CoreDataClient.swift */; settings = {ASSET_TAGS = (); }; };
 		6E783E971BA773490086115D /* Store.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E783E961BA773490086115D /* Store.swift */; settings = {ASSET_TAGS = (); }; };
 		6E783E981BA773490086115D /* Store.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E783E961BA773490086115D /* Store.swift */; settings = {ASSET_TAGS = (); }; };
 		6E933E961BACCE5200454193 /* StatusCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD2C2DC1B9C022E00F54453 /* StatusCode.swift */; settings = {ASSET_TAGS = (); }; };
@@ -92,6 +95,7 @@
 		1AE790341B96B96600CDEF17 /* NetworkObjects.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = NetworkObjects.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		1AFB89FA1B99299900BA7856 /* RequestMessage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RequestMessage.swift; sourceTree = "<group>"; };
 		1AFB89FD1B992C8700BA7856 /* Response.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Response.swift; sourceTree = "<group>"; };
+		6E6E48AD1BBA4DB50000674F /* CoreDataClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataClient.swift; sourceTree = "<group>"; };
 		6E783E961BA773490086115D /* Store.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Store.swift; sourceTree = "<group>"; };
 		6E933EAD1BACCE5200454193 /* NetworkObjects.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = NetworkObjects.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -155,6 +159,7 @@
 			children = (
 				1A5D4C251B9622F900DE99E9 /* NetworkObjects.h */,
 				1A5D4C271B9622F900DE99E9 /* Info.plist */,
+				6E6E48AD1BBA4DB50000674F /* CoreDataClient.swift */,
 				1AD2C2D01B9BD93600F54453 /* WebSocket.swift */,
 			);
 			name = "Darwin Support";
@@ -398,6 +403,7 @@
 				1AD2C2C31B9B7C1300F54453 /* WebSocketClient.swift in Sources */,
 				1AD2FE191B96CB700054F4CB /* ClientError.swift in Sources */,
 				1A78E0A81B9D469F00704D24 /* HTTPRequest.swift in Sources */,
+				6E6E48AE1BBA4DB50000674F /* CoreDataClient.swift in Sources */,
 				1A6AFE3D1BA10AF70072F0C4 /* HTTPResponse.swift in Sources */,
 				1AD2FE2A1B96DE260054F4CB /* ResponseMessage.swift in Sources */,
 				1A5D4C401B962FC100DE99E9 /* Client.swift in Sources */,
@@ -429,6 +435,7 @@
 				1AD2C2C41B9B7C1300F54453 /* WebSocketClient.swift in Sources */,
 				1AD2FE1A1B96CB700054F4CB /* ClientError.swift in Sources */,
 				1A78E0A91B9D469F00704D24 /* HTTPRequest.swift in Sources */,
+				6E6E48AF1BBA4DB50000674F /* CoreDataClient.swift in Sources */,
 				1A6AFE3E1BA10AF70072F0C4 /* HTTPResponse.swift in Sources */,
 				1AD2FE2B1B96DE260054F4CB /* ResponseMessage.swift in Sources */,
 				1AE7902C1B96B96600CDEF17 /* Client.swift in Sources */,
@@ -446,6 +453,7 @@
 				6E933E9A1BACCE5200454193 /* HTTPClient.swift in Sources */,
 				6E933E9B1BACCE5200454193 /* Server.swift in Sources */,
 				6E933E9D1BACCE5200454193 /* HTTPServer.swift in Sources */,
+				6E6E48B01BBA4DB50000674F /* CoreDataClient.swift in Sources */,
 				6E933E9F1BACCE5200454193 /* RequestMessage.swift in Sources */,
 				6E933EA11BACCE5200454193 /* ClientError.swift in Sources */,
 				6E933EA21BACCE5200454193 /* HTTPRequest.swift in Sources */,
