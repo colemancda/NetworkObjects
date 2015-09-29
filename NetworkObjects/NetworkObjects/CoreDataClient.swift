@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import SwiftFoundation
 import CoreData
 import CoreModel
 
@@ -325,7 +326,35 @@ public final class CoreDataClient<Client: ClientType> {
         }
     }
     
-    public func performFunction<T: NSManagedObject>(function functionName: String, managedObject: T, JSONObject: [String: AnyObject]? = nil, URLSession: NSURLSession? = nil, completionBlock: ((ErrorValue<[String: AnyObject]?>) -> Void))
+    public func performFunction<T: NSManagedObject>(functionName: String, managedObject: T, parameters: JSON.Object? = nil, completionBlock: ((ErrorValue<JSON.Object?>) -> Void)) {
+        
+        let entityName = managedObject.entity.name!
+        
+        let resourceID = (managedObject as NSManagedObject).valueForKey(self.resourceIDAttributeName) as! String
+        
+        let resource = Resource(entityName, resourceID)
+        
+        requestQueue.addOperationWithBlock {
+            
+            let jsonResponse: JSON.Object?
+            
+            do {
+                
+                jsonResponse = try self.client.performFunction(resource, functionName: functionName, parameters: parameters)
+                
+                // no caching function responses...
+            }
+            
+            catch {
+                
+                completionBlock(.Error(error))
+                
+                return
+            }
+            
+            completionBlock(.Value(jsonResponse))
+        }
+    }
     
     // MARK: - Notifications
     
