@@ -222,6 +222,49 @@ public final class CoreDataClient<Client: ClientType> {
         }
     }
     
+    public func create<T: NSManagedObject>(entityName: String, initialValues: ValuesObject = ValuesObject(), completionBlock: ((ErrorValue<T>) -> Void)) {
+        
+        guard let entity = self.managedObjectModel.entitiesByName[entityName]
+            else { fatalError("Entity \(entityName) not found on managed object model") }
+        
+        requestQueue.addOperationWithBlock {
+            
+            let objectID: NSManagedObjectID
+            
+            do {
+                // perform request
+                let (resource, values) = try self.client.create(entityName, initialValues: initialValues)
+                
+                // got response, cache results
+                try self.store.cacheResponse(Response.Create(resource.resourceID, values), forRequest: Request.Create(entityName, initialValues), dateCachedAttributeName: self.dateCachedAttributeName)
+                
+                // get object ID
+                guard let foundID = try self.store.findEntity(entity, withResourceID: resource.resourceID)
+                    else { fatalError("Could not find cached resource: \(resource)") }
+                
+                objectID = foundID
+            }
+            
+            catch {
+                
+                completionBlock(.Error(error))
+                
+                return
+            }
+            
+            // get the corresponding managed object that belongs to the main queue context
+            
+            var managedObject: T!
+            
+            self.managedObjectContext.performBlockAndWait {
+                
+                managedObject = self.managedObjectContext.objectWithID(objectID) as! T
+            }
+            
+            completionBlock(.Value(managedObject))
+        }
+    }
+    
     // MARK: - Notifications
     
     @objc private func mergeChangesFromContextDidSaveNotification(notification: NSNotification) {
