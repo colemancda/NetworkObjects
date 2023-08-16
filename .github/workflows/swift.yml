@@ -1,0 +1,44 @@
+name: Swift
+
+on: [push]
+
+jobs:
+  build:
+    name: Build
+    strategy:
+      matrix:
+        swift: [5.7.3, 5.8.1]
+        os: [ubuntu-20.04, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+    - name: Install Swift
+      uses: slashmo/install-swift@v0.3.0
+      with:
+        version: ${{ matrix.swift }}
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Swift Version
+      run: swift --version
+    - name: Build (Debug)
+      run: swift build -c debug
+    - name: Build (Release)
+      run: swift build -c release
+
+  test:
+    name: Test
+    strategy:
+      matrix:
+        swift: [5.8.1]
+        os: [ubuntu-20.04, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+    - name: Install Swift
+      uses: slashmo/install-swift@v0.3.0
+      with:
+        version: ${{ matrix.swift }}
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Swift Version
+      run: swift --version
+    - name: Test (Debug)
+      run: swift test --configuration debug
