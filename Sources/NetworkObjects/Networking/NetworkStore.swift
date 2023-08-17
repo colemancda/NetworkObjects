@@ -38,19 +38,19 @@ public final class NetworkStore <Client: URLClient> : ObjectStore {
     
     // MARK: - Methods
     
-    public func fetch<T: Entity>(_ type: T.Type, for id: T.ID) async throws -> T {
+    public func fetch<T: NetworkEntity>(_ type: T.Type, for id: T.ID) async throws -> T {
         try await client.fetch(type, for: id, server: server, decoder: decoder)
     }
     
-    public func create<T: Entity>(_ type: T.CreateView) async throws -> T {
+    public func create<T: NetworkEntity>(_ type: T.CreateView) async throws -> T {
         try await client.create(type, server: server, encoder: encoder, decoder: decoder)
     }
     
-    public func edit<T: Entity>(_ value: T.EditView, for id: T.ID) async throws -> T {
+    public func edit<T: NetworkEntity>(_ value: T.EditView, for id: T.ID) async throws -> T {
         try await client.edit(value, for: id, server: server, encoder: encoder, decoder: decoder)
     }
     
-    public func delete<T: Entity>(_ type: T.Type, for id: T.ID) async throws {
+    public func delete<T: NetworkEntity>(_ type: T.Type, for id: T.ID) async throws {
         try await client.delete(type, for: id, server: server)
     }
 }

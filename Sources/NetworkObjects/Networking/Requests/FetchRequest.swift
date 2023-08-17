@@ -8,7 +8,7 @@
 import Foundation
 
 /// Fetch Request
-public struct FetchRequest <T: Entity> : URLRequestConvertible, Identifiable, Equatable, Hashable {
+public struct FetchRequest <T: NetworkEntity> : URLRequestConvertible, Identifiable, Equatable, Hashable {
     
     public static var method: HTTPMethod { .get }
     
@@ -27,7 +27,7 @@ public struct FetchRequest <T: Entity> : URLRequestConvertible, Identifiable, Eq
 
 public extension URLClient {
     
-    func fetch<T: Entity>(
+    func fetch<T: NetworkEntity>(
         _ type: T.Type,
         for id: T.ID,
         server: URL,

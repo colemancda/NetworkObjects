@@ -8,7 +8,7 @@
 import Foundation
 
 /// Delete Request
-public struct DeleteRequest <T: Entity> : URLRequestConvertible, Identifiable, Equatable, Hashable {
+public struct DeleteRequest <T: NetworkEntity> : URLRequestConvertible, Identifiable, Equatable, Hashable {
     
     public static var method: HTTPMethod { .delete }
     
@@ -27,7 +27,7 @@ public struct DeleteRequest <T: Entity> : URLRequestConvertible, Identifiable, E
 
 public extension URLClient {
     
-    func delete<T: Entity>(
+    func delete<T: NetworkEntity>(
         _ type: T.Type,
         for id: T.ID,
         server: URL,

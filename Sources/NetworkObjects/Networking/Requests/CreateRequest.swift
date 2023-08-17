@@ -8,7 +8,7 @@
 import Foundation
 
 /// Create Request
-public struct CreateRequest <T: Entity>: EncodableURLRequest {
+public struct CreateRequest <T: NetworkEntity>: EncodableURLRequest {
     
     public static var method: HTTPMethod { .post }
     
@@ -27,7 +27,7 @@ extension CreateRequest: Hashable where T.CreateView: Hashable { }
 
 public extension URLClient {
     
-    func create<T: Entity>(
+    func create<T: NetworkEntity>(
         _ value: T.CreateView,
         server: URL,
         encoder: JSONEncoder,

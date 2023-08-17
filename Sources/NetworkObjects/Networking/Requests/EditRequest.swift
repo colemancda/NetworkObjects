@@ -8,7 +8,7 @@
 import Foundation
 
 /// Edit Request
-public struct EditRequest <T: Entity> : EncodableURLRequest, Identifiable {
+public struct EditRequest <T: NetworkEntity> : EncodableURLRequest, Identifiable {
     
     public static var method: HTTPMethod { .put }
     
@@ -34,7 +34,7 @@ extension EditRequest: Hashable where T.EditView: Hashable { }
 
 public extension URLClient {
     
-    func edit<T: Entity>(
+    func edit<T: NetworkEntity>(
         _ value: T.EditView,
         for id: T.ID,
         server: URL,

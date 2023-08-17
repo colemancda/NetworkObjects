@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum NetworkObjectsURI <T: Entity> {
+public enum NetworkObjectsURI <T: NetworkEntity> {
     
     case fetch(T.ID)
     case create

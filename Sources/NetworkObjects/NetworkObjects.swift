@@ -8,15 +8,15 @@
 import Foundation
 import CoreModel
 
-/// NetworkObjects Object Store. Can be local or remote DB.
+/// NetworkObjects Object Store. 
 public protocol ObjectStore: AnyObject {
     
-    func fetch<T: Entity>(_ type: T.Type, for id: T.ID) async throws -> T
+    func fetch<T: NetworkEntity>(_ type: T.Type, for id: T.ID) async throws -> T
     
-    func create<T: Entity>(_ type: T.CreateView) async throws -> T
+    func create<T: NetworkEntity>(_ type: T.CreateView) async throws -> T
     
-    func edit<T: Entity>(_ value: T.EditView, for id: T.ID) async throws -> T
+    func edit<T: NetworkEntity>(_ value: T.EditView, for id: T.ID) async throws -> T
     
-    func delete<T: Entity>(_ type: T.Type, for id: T.ID) async throws
+    func delete<T: NetworkEntity>(_ type: T.Type, for id: T.ID) async throws
 }
 
