@@ -7,5 +7,5 @@ NetworkObjects is a **#PureSwift** backend. This framework compiles for OS X, iO
 
 # Support and Documentation
 
-If you have any questions you can contact me on Twitter at [@colemancda](https://twitter.com/colemancda) or send me an IM me on [Gitter](https://gitter.im/colemancda/NetworkObjects?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge).
+If you have any questions send me an IM me on [Gitter](https://gitter.im/colemancda/NetworkObjects?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge).
 
