@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import CoreModel
 
 /// NetworkObjects Object Store. Can be local or remote DB.
 public protocol ObjectStore: AnyObject {
@@ -18,3 +19,4 @@ public protocol ObjectStore: AnyObject {
     
     func delete<T: Entity>(_ type: T.Type, for id: T.ID) async throws
 }
+

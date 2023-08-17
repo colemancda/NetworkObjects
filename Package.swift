@@ -15,9 +15,19 @@ let package = Package(
             targets: ["NetworkObjects"]
         ),
     ],
+    dependencies: [
+        .package(
+            url: "https://github.com/PureSwift/CoreModel.git",
+            branch: "master"
+        )
+    ],
     targets: [
         .target(
-            name: "NetworkObjects"),
+            name: "NetworkObjects",
+            dependencies: [
+                .product(name: "CoreModel", package: "CoreModel")
+            ]
+        ),
         .testTarget(
             name: "NetworkObjectsTests",
             dependencies: ["NetworkObjects"]
