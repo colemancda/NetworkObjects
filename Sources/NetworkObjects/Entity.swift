@@ -8,15 +8,17 @@
 import Foundation
 
 /// Network Objects Entity
-public protocol Entity: Codable, Identifiable where Self.ID: Codable, Self.ID: CustomStringConvertible {
+public protocol Entity: Codable, Identifiable where Self.ID: Codable, Self.ID: CustomStringConvertible, CodingKeys: Hashable {
     
     static var entityName: EntityName { get }
     
-    static var attributes: [PropertyKey: AttributeType] { get }
+    static var attributes: [CodingKeys: AttributeType] { get }
     
-    static var relationships: [PropertyKey: Relationship] { get }
+    static var relationships: [CodingKeys: Relationship] { get }
     
     associatedtype CreateView: Codable
     
     associatedtype EditView: Codable
+    
+    associatedtype CodingKeys: CodingKey
 }

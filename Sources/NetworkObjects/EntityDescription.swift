@@ -23,11 +23,11 @@ public extension EntityDescription {
         self.id = T.entityName
         self.attributes = T.attributes
             .lazy
-            .sorted { $0.key.rawValue < $1.key.rawValue }
-            .map { Attribute(id: $0.key, type: $0.value) }
+            .sorted { $0.key.stringValue < $1.key.stringValue }
+            .map { Attribute(id: .init($0.key), type: $0.value) }
         self.relationships = T.relationships
             .lazy
-            .sorted { $0.key.rawValue < $1.key.rawValue }
+            .sorted { $0.key.stringValue < $1.key.stringValue }
             .map { $0.value }
     }
 }
