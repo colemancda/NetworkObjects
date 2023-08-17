@@ -33,7 +33,7 @@ internal extension URLClient {
             #if DEBUG
             throw error
             #else
-            throw Error.invalidResponse(data)
+            throw NetworkObjectsError.invalidResponse(data)
             #endif
         }
     }
@@ -63,7 +63,7 @@ internal extension URLClient {
             #if DEBUG
             throw error
             #else
-            throw Error.invalidResponse(data)
+            throw NetworkObjectsError.invalidResponse(data)
             #endif
         }
     }
