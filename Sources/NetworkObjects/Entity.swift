@@ -8,21 +8,15 @@
 import Foundation
 
 /// Network Objects Entity
-public protocol Entity: Codable, Identifiable where Self.ID: Codable {
+public protocol Entity: Codable, Identifiable where Self.ID: Codable, Self.ID: CustomStringConvertible {
     
     static var entityName: EntityName { get }
     
     static var attributes: [PropertyKey: AttributeType] { get }
     
     static var relationships: [PropertyKey: Relationship] { get }
-}
-
-/// Entity Description for serialization
-public struct EntityDescription: Codable, Identifiable, Hashable {
     
-    public let id: EntityName
+    associatedtype CreateView: Codable
     
-    public var attributes: [Attribute]
-    
-    public var relationships: [Relationship]
+    associatedtype EditView: Codable
 }
