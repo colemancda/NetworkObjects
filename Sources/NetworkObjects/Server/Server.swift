@@ -29,6 +29,8 @@ public protocol NetworkEntityController {
             
     func fetch(_ id: Entity.ID, request: Server.Request) async throws -> Entity?
     
+    func query(_ request: QueryRequest<Entity>, request: Server.Request) async throws -> [Entity.ID]
+    
     func create(_ create: Entity.CreateView, request: Server.Request) async throws -> Entity
     
     func edit(_ edit: Entity.EditView, for id: Entity.ID, request: Server.Request) async throws -> Entity
@@ -40,6 +42,18 @@ public extension NetworkEntityController {
     
     func fetch(_ id: Entity.ID, request: Server.Request) async throws -> Entity? {
         try await database.fetch(Entity.self, for: id)
+    }
+    
+    func query(_ queryRequest: QueryRequest<Entity>, request: Server.Request) async throws -> [Entity.ID] {
+        let results = try await database.fetch(
+            Entity.self,
+            sortDescriptors: queryRequest.sort.flatMap { [FetchRequest.SortDescriptor(property: PropertyKey($0), ascending: queryRequest.ascending ?? true)] } ?? [],
+            predicate: queryRequest.query.map { "_id" == $0 },
+            fetchLimit: queryRequest.limit.map { Int($0) } ?? 0,
+            fetchOffset: queryRequest.offset.map { Int($0) } ?? 0
+        )
+        // TODO: Fetch object IDs
+        return results.map { $0.id }
     }
     
     func delete(_ id: Entity.ID, request: Server.Request) async throws -> Bool {

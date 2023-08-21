@@ -18,5 +18,6 @@ public protocol ObjectStore: AnyObject {
     func edit<T: NetworkEntity>(_ value: T.EditView, for id: T.ID) async throws -> T
     
     func delete<T: NetworkEntity>(_ type: T.Type, for id: T.ID) async throws
+    
+    func query<T: NetworkEntity>(_ request: QueryRequest<T>) async throws -> [T.ID]
 }
-

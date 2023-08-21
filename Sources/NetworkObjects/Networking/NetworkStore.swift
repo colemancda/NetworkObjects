@@ -10,7 +10,7 @@ import Foundation
 import FoundationNetworking
 #endif
 
-public final class NetworkStore <Client: URLClient> : ObjectStore {
+public actor NetworkStore <Client: URLClient> : ObjectStore {
     
     // MARK: - Properties
     
@@ -18,9 +18,9 @@ public final class NetworkStore <Client: URLClient> : ObjectStore {
     
     public let client: URLClient
     
-    public var encoder: JSONEncoder
+    public let encoder: JSONEncoder
     
-    public var decoder: JSONDecoder
+    public let decoder: JSONDecoder
     
     // MARK: - Initialization
     
@@ -52,5 +52,9 @@ public final class NetworkStore <Client: URLClient> : ObjectStore {
     
     public func delete<T: NetworkEntity>(_ type: T.Type, for id: T.ID) async throws {
         try await client.delete(type, for: id, server: server)
+    }
+    
+    public func query<T: NetworkEntity>(_ request: QueryRequest<T>) async throws -> [T.ID] {
+        try await client.query(request, server: server, decoder: decoder)
     }
 }
