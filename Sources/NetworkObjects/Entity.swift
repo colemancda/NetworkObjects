@@ -9,7 +9,7 @@ import Foundation
 import CoreModel
 
 /// Network Objects Entity
-public protocol NetworkEntity: Codable, Entity {
+public protocol NetworkEntity: Codable, Entity where ID: Codable {
     
     associatedtype CreateView: Codable
     
