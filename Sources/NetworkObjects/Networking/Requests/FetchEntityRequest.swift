@@ -8,7 +8,7 @@
 import Foundation
 
 /// Fetch Request
-public struct FetchRequest <T: NetworkEntity> : URLRequestConvertible, Identifiable, Equatable, Hashable {
+public struct FetchEntityRequest <T: NetworkEntity> : URLRequestConvertible, Identifiable, Equatable, Hashable {
     
     public static var method: HTTPMethod { .get }
     
@@ -36,7 +36,7 @@ public extension URLClient {
     ) async throws -> T {
         try await response(
             T.self,
-            for: FetchRequest<T>(id: id),
+            for: FetchEntityRequest<T>(id: id),
             server: server,
             decoder: decoder,
             authorization: authorization,
