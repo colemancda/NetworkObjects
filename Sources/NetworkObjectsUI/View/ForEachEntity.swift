@@ -126,6 +126,13 @@ private extension ForEachEntity.RowView {
     func fetchData() async {
         defer { cancelTask() }
         let state: ViewState
+        let sleepTask = Task {
+            if #available(macOS 13.0, iOS 15, tvOS 15, watchOS 8, *) {
+                try await Task.sleep(for: .seconds(1))
+            } else {
+                try await Task.sleep(nanoseconds: 1_000_000_000)
+            }
+        }
         do {
             let value = try await store.fetch(Entity.self, for: id)
             state = .success(value)
@@ -133,6 +140,8 @@ private extension ForEachEntity.RowView {
         catch {
             state = .failure(error)
         }
+        // wait to update state
+        try? await sleepTask.value
         self.state = state
     }
 }
