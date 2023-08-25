@@ -127,7 +127,7 @@ private extension ForEachEntity.RowView {
         defer { cancelTask() }
         let state: ViewState
         let sleepTask = Task {
-            if #available(macOS 13.0, iOS 15, tvOS 15, watchOS 8, *) {
+            if #available(macOS 13.0, iOS 16, tvOS 18, watchOS 9, *) {
                 try await Task.sleep(for: .seconds(1))
             } else {
                 try await Task.sleep(nanoseconds: 1_000_000_000)
