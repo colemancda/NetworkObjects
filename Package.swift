@@ -14,6 +14,10 @@ let package = Package(
             name: "NetworkObjects",
             targets: ["NetworkObjects"]
         ),
+        .library(
+            name: "NetworkObjectsUI",
+            targets: ["NetworkObjectsUI"]
+        ),
     ],
     dependencies: [
         .package(
@@ -25,7 +29,16 @@ let package = Package(
         .target(
             name: "NetworkObjects",
             dependencies: [
-                .product(name: "CoreModel", package: "CoreModel")
+                .product(
+                    name: "CoreModel",
+                    package: "CoreModel"
+                )
+            ]
+        ),
+        .target(
+            name: "NetworkObjectsUI",
+            dependencies: [
+                "NetworkObjects"
             ]
         ),
         .testTarget(
