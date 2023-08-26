@@ -95,9 +95,10 @@ internal extension URLClient {
         statusCode: Int = 200,
         headers: [String: String] = [:]
     ) async throws -> Data where Request: EncodableURLRequest {
-        var urlRequest = URLRequest(
+        var urlRequest = try URLRequest(
             request: request,
-            server: server
+            server: server,
+            encoder: encoder
         )
         if let token = authorizationToken {
             urlRequest.setAuthorization(token)
