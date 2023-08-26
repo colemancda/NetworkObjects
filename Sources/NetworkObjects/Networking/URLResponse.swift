@@ -53,6 +53,7 @@ internal extension URLClient {
         let data = try await self.request(
             request,
             server: server,
+            encoder: encoder,
             authorization: authorizationToken,
             statusCode: statusCode,
             headers: headers
