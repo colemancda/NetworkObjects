@@ -41,7 +41,7 @@ public extension URLClient {
             encoder: encoder,
             decoder: decoder,
             authorization: authorization,
-            statusCode: 201,
+            statusCode: 200,
             headers: [:]
         )
     }
